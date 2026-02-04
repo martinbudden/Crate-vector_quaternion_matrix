@@ -1,0 +1,924 @@
+use core::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
+use num_traits::{One, Zero};
+
+use crate::FastMath;
+use crate::Quaternion;
+use crate::Vector3d;
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Matrix3x3 {
+    // Flattened 3x3 matrix: 9 elements in row-major order
+    a: [f32; 9],
+}
+
+/// Zero matrix
+/// ```
+/// # use vector3d::Matrix3x3;
+/// # use num_traits::zero;
+///
+/// let Z: Matrix3x3 = zero();
+///
+/// assert_eq!(Z, Matrix3x3::from([ 0.0, 0.0, 0.0,
+///                                 0.0, 0.0, 0.0,
+///                                 0.0, 0.0, 0.0]));
+/// ```
+impl Zero for Matrix3x3 {
+    fn zero() -> Self {
+        Self {
+            a: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        }
+    }
+    fn is_zero(&self) -> bool {
+        self.a.iter().all(|&x| x == 0.0)
+    }
+}
+
+/// Identity matrix
+/// ```
+/// # use vector3d::Matrix3x3;
+/// # use num_traits::one;
+///
+/// let I: Matrix3x3 = one();
+///
+/// assert_eq!(I, Matrix3x3::from([ 1.0, 0.0, 0.0,
+///                                 0.0, 1.0, 0.0,
+///                                 0.0, 0.0, 1.0]));
+/// ```
+impl One for Matrix3x3 {
+    fn one() -> Self {
+        Self {
+            a: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0],
+        }
+    }
+    fn is_one(&self) -> bool {
+        self.a == [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    }
+}
+
+impl From<[f32; 9]> for Matrix3x3 {
+    fn from(input: [f32; 9]) -> Self {
+        Self { a: input }
+    }
+}
+
+impl From<[Vector3d; 3]> for Matrix3x3 {
+    fn from(v: [Vector3d; 3]) -> Self {
+        Self {
+            a: [
+                v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z,
+            ],
+        }
+    }
+}
+
+impl From<(Vector3d, Vector3d, Vector3d)> for Matrix3x3 {
+    fn from(v: (Vector3d, Vector3d, Vector3d)) -> Self {
+        Self {
+            a: [
+                v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z,
+            ],
+        }
+    }
+}
+
+/// Create rotation matrix from quaternion.
+///
+/// see [Quaternion-derived rotation matrix](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Quaternion-derived_rotation_matrix),
+/// uses Hamilton convention.
+impl From<Quaternion> for Matrix3x3 {
+    fn from(q: Quaternion) -> Self {
+        Self {
+            a: [
+                1.0 - 2.0 * (q.y * q.y + q.z * q.z),
+                2.0 * (q.x * q.y - q.w * q.z),
+                2.0 * (q.w * q.y + q.x * q.z),
+                2.0 * (q.w * q.z + q.x * q.y),
+                1.0 - 2.0 * (q.x * q.x + q.z * q.z),
+                2.0 * (q.y * q.z - q.w * q.x),
+                2.0 * (q.x * q.z - q.w * q.y),
+                2.0 * (q.w * q.x + q.y * q.z),
+                1.0 - 2.0 * (q.x * q.x + q.y * q.y),
+            ],
+        }
+    }
+}
+
+/// Create quaternion from a rotation matrix.
+///
+/// Adapted from [Converting a Rotation Matrix to a Quaternion](https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2015/01/matrix-to-quat.pdf) by Mike Day.
+/// Note that Day's paper uses the [Shuster multiplication convention](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Alternative_conventions),
+/// rather than the Hamilton multiplication convention used by the Quaternion class.
+impl From<Matrix3x3> for Quaternion {
+    fn from(m: Matrix3x3) -> Self {
+        // Choose largest scale factor from 4w, 4x, 4y, and 4z, to avoid a scale factor of zero, or numerical instabilities caused by division of a small scale factor.
+        if m.a[8] < 0.0 {
+            // |(x,y)| is bigger than |(z,w)|?
+            if m.a[0] > m.a[4] {
+                // |x| bigger than |y|, so use x-form
+                let t = 1.0 + (m.a[0] - m.a[4]) - m.a[8]; // 1 + 2(xx - yy) - 1 + 2(xx + yy) = 4xx
+                let q = Self {
+                    w: m.a[7] - m.a[5],
+                    x: t,
+                    y: m.a[1] + m.a[3],
+                    z: m.a[6] + m.a[2],
+                };
+                return q * t.half_reciprocal_sqrt();
+            }
+            // |y| bigger than |x|, so use y-form
+            let t = 1.0 - (m.a[0] - m.a[4]) - m.a[8]; // 1 - 2(xx - yy) - 1 + 2(xx + yy) = 4yy
+            let q = Self {
+                w: m.a[2] - m.a[6],
+                x: m.a[1] + m.a[3],
+                y: t,
+                z: m.a[5] + m.a[7],
+            };
+            return q * t.half_reciprocal_sqrt();
+        }
+
+        // |(z,w)| bigger than |(x,y)|
+        if m.a[0] < -m.a[4] {
+            // |z| bigger than |w|, so use z-form
+            let t = 1.0 - m.a[0] - (m.a[4] - m.a[8]); // 1 - (1 - 2*(yy + zz)) - (2(yy - zz)) = 4zz
+            let q = Self {
+                w: m.a[3] - m.a[1],
+                x: m.a[2] + m.a[6],
+                y: m.a[5] + m.a[7],
+                z: t,
+            };
+            return q * t.half_reciprocal_sqrt();
+        }
+
+        // |w| bigger than |z|, so use w-form
+        // ww + xx + yy + zz = 1, since unit quaternion, so xx + yy + zz =  1 - ww
+        let t = 1.0 + m.a[0] + m.a[4] + m.a[8]; // 1 + 1 - 2*(yy + zz) + 1 - 2(xx + zz) + 1 - 2(xx + yy) =  4 - 4(xx + yy + zz) = 4 - 4(1 - ww) = 4ww
+        let q = Self {
+            w: t,
+            x: m.a[7] - m.a[5],
+            y: m.a[2] - m.a[6],
+            z: m.a[3] - m.a[1],
+        };
+        q * t.half_reciprocal_sqrt()
+    }
+}
+
+/// Negate a matrix
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+/// M = - M;
+///
+/// assert_eq!(M, Matrix3x3::from([ -2.0,  -3.0,  -5.0,
+///                                 -7.0, -11.0, -13.0,
+///                                -17.0, -19.0, -23.0]));
+/// ```
+impl Neg for Matrix3x3 {
+    type Output = Self;
+    fn neg(self) -> Self {
+        let mut result = self.a;
+        for r in result.iter_mut() {
+            *r = -*r;
+        }
+        Self { a: result }
+    }
+}
+
+/// Add two matrices
+/// ```
+/// # use vector3d::Matrix3x3;
+///
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let N = Matrix3x3::from([29.0, 31.0, 37.0,
+///                          41.0, 43.0, 47.0,
+///                          53.0, 59.0, 61.0]);
+/// let R = M + N;
+///
+/// assert_eq!(R, Matrix3x3::from([31.0, 34.0, 42.0,
+///                                48.0, 54.0, 60.0,
+///                                70.0, 78.0, 84.0]));
+///
+/// # use num_traits::zero;
+///
+/// let Z: Matrix3x3 = zero();
+/// let R2 = M + Z;
+///
+/// assert_eq!(R2, M);
+/// ```
+impl Add for Matrix3x3 {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self {
+        let mut result = self.a;
+        for (ii, r) in result.iter_mut().enumerate() {
+            *r += rhs.a[ii];
+        }
+        Self { a: result }
+    }
+}
+
+/// Add one matrix to another
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+/// let N = Matrix3x3::from([29.0, 31.0, 37.0,
+///                          41.0, 43.0, 47.0,
+///                          53.0, 59.0, 61.0]);
+/// M += N;
+///
+/// assert_eq!(M, Matrix3x3::from([31.0, 34.0, 42.0,
+///                                48.0, 54.0, 60.0,
+///                                70.0, 78.0, 84.0]));
+/// ```
+impl AddAssign for Matrix3x3 {
+    fn add_assign(&mut self, rhs: Self) {
+        for (ii, r) in self.a.iter_mut().enumerate() {
+            *r += rhs.a[ii];
+        }
+    }
+}
+
+/// Subtract two matrices
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let N = Matrix3x3::from([29.0, 31.0, 37.0,
+///                          41.0, 43.0, 47.0,
+///                          53.0, 59.0, 61.0]);
+/// let R = M - N;
+///
+/// assert_eq!(R, Matrix3x3::from([-27.0, -28.0, -32.0,
+///                                -34.0, -32.0, -34.0,
+///                                -36.0, -40.0, -38.0]));
+/// ```
+impl Sub for Matrix3x3 {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self {
+        let mut result = self.a;
+        for (ii, r) in result.iter_mut().enumerate() {
+            *r -= rhs.a[ii];
+        }
+        Self { a: result }
+    }
+}
+
+/// Subtract one matrix from another
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let N = Matrix3x3::from([29.0, 31.0, 37.0,
+///                          41.0, 43.0, 47.0,
+///                          53.0, 59.0, 61.0]);
+/// M -= N;
+///
+/// assert_eq!(M, Matrix3x3::from([-27.0, -28.0, -32.0,
+///                                -34.0, -32.0, -34.0,
+///                                -36.0, -40.0, -38.0]));
+/// ```
+impl SubAssign for Matrix3x3 {
+    fn sub_assign(&mut self, rhs: Self) {
+        for (ii, r) in self.a.iter_mut().enumerate() {
+            *r -= rhs.a[ii];
+        }
+    }
+}
+
+/// Pre-multiply a matrix by a constant
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let R = 2.0 * M;
+///
+/// assert_eq!(R, Matrix3x3::from([ 4.0,  6.0, 10.0,
+///                                14.0, 22.0, 26.0,
+///                                34.0, 38.0, 46.0]));
+/// ```
+impl Mul<Matrix3x3> for f32 {
+    type Output = Matrix3x3;
+    fn mul(self, rhs: Matrix3x3) -> Matrix3x3 {
+        let mut result = rhs.a;
+        for r in result.iter_mut() {
+            *r *= self;
+        }
+        Matrix3x3 { a: result }
+    }
+}
+
+/// Multiply a matrix by a constant
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let R = M * 2.0;
+///
+/// assert_eq!(R, Matrix3x3::from([ 4.0,  6.0, 10.0,
+///                                14.0, 22.0, 26.0,
+///                                34.0, 38.0, 46.0]));
+/// ```
+impl Mul<f32> for Matrix3x3 {
+    type Output = Self;
+    fn mul(self, k: f32) -> Self {
+        let mut result = self.a;
+        for r in result.iter_mut() {
+            *r *= k;
+        }
+        Self { a: result }
+    }
+}
+
+/// In-place multiply a matrix by a constant
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+/// M *= 2.0;
+///
+/// assert_eq!(M, Matrix3x3::from([ 4.0,  6.0, 10.0,
+///                                14.0, 22.0, 26.0,
+///                                34.0, 38.0, 46.0]));
+/// ```
+impl MulAssign<f32> for Matrix3x3 {
+    fn mul_assign(&mut self, k: f32) {
+        for r in self.a.iter_mut() {
+            *r *= k;
+        }
+    }
+}
+
+/// Multiply a vector by a matrix
+/// ```
+/// # use vector3d::Matrix3x3;
+/// # use vector3d::Vector3d;
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let v = Vector3d{x:29.0, y:31.0, z:37.0};
+/// let r = M * v;
+///
+/// assert_eq!(r, Vector3d{x:336.0, y:1025.0, z:1933.0});
+/// ```
+impl Mul<Vector3d> for Matrix3x3 {
+    type Output = Vector3d;
+    fn mul(self, v: Vector3d) -> Vector3d {
+        Vector3d {
+            x: self.a[0] * v.x + self.a[1] * v.y + self.a[2] * v.z,
+            y: self.a[3] * v.x + self.a[4] * v.y + self.a[5] * v.z,
+            z: self.a[6] * v.x + self.a[7] * v.y + self.a[8] * v.z,
+        }
+    }
+}
+
+/// Pre-multiply a vector by a matrix
+/// ```
+/// # use vector3d::Matrix3x3;
+/// # use vector3d::Vector3d;
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let v = Vector3d{x:29.0, y:31.0, z:37.0};
+/// let r = v * M;
+///
+/// assert_eq!(r, Vector3d{x:29.0*2.0 + 31.0*7.0 + 37.0*17.0, y:1131.0, z:1399.0});
+/// ```
+impl Mul<Matrix3x3> for Vector3d {
+    type Output = Self;
+    fn mul(self, rhs: Matrix3x3) -> Self {
+        Self {
+            x: self.x * rhs.a[0] + self.y * rhs.a[3] + self.z * rhs.a[6],
+            y: self.x * rhs.a[1] + self.y * rhs.a[4] + self.z * rhs.a[7],
+            z: self.x * rhs.a[2] + self.y * rhs.a[5] + self.z * rhs.a[8],
+        }
+    }
+}
+
+/// Multiply two matrices
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let N = Matrix3x3::from([29.0, 31.0, 37.0,
+///                          41.0, 43.0, 47.0,
+///                          53.0, 59.0, 61.0]);
+/// let R = M * N;
+///
+/// assert_eq!(R, Matrix3x3::from([
+///    2.0 * 29.0 +  3.0 * 41.0 +  5.0 * 53.0,   2.0 * 31.0 +  3.0 * 43.0 +  5.0 * 59.0,   2.0 * 37.0 +  3.0 * 47.0 +  5.0 * 61.0,
+///    7.0 * 29.0 + 11.0 * 41.0 + 13.0 * 53.0,   7.0 * 31.0 + 11.0 * 43.0 + 13.0 * 59.0,   7.0 * 37.0 + 11.0 * 47.0 + 13.0 * 61.0,
+///   17.0 * 29.0 + 19.0 * 41.0 + 23.0 * 53.0,  17.0 * 31.0 + 19.0 * 43.0 + 23.0 * 59.0,  17.0 * 37.0 + 19.0 * 47.0 + 23.0 * 61.0,
+/// ]));
+///
+/// # use num_traits::one;
+///
+/// let I: Matrix3x3 = one();
+/// let R2 = M * I;
+///
+/// assert_eq!(R2, M);
+/// ```
+impl Mul<Matrix3x3> for Matrix3x3 {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self {
+        let result = [
+            self.a[0] * rhs.a[0] + self.a[1] * rhs.a[3] + self.a[2] * rhs.a[6],
+            self.a[0] * rhs.a[1] + self.a[1] * rhs.a[4] + self.a[2] * rhs.a[7],
+            self.a[0] * rhs.a[2] + self.a[1] * rhs.a[5] + self.a[2] * rhs.a[8],
+            self.a[3] * rhs.a[0] + self.a[4] * rhs.a[3] + self.a[5] * rhs.a[6],
+            self.a[3] * rhs.a[1] + self.a[4] * rhs.a[4] + self.a[5] * rhs.a[7],
+            self.a[3] * rhs.a[2] + self.a[4] * rhs.a[5] + self.a[5] * rhs.a[8],
+            self.a[6] * rhs.a[0] + self.a[7] * rhs.a[3] + self.a[8] * rhs.a[6],
+            self.a[6] * rhs.a[1] + self.a[7] * rhs.a[4] + self.a[8] * rhs.a[7],
+            self.a[6] * rhs.a[2] + self.a[7] * rhs.a[5] + self.a[8] * rhs.a[8],
+        ];
+        Matrix3x3 { a: result }
+    }
+}
+
+/// Multiply one matrix by another
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+/// let N = Matrix3x3::from([29.0, 31.0, 37.0,
+///                          41.0, 43.0, 47.0,
+///                          53.0, 59.0, 61.0]);
+/// M *= N;
+///
+/// assert_eq!(M, Matrix3x3::from([
+///    2.0 * 29.0 +  3.0 * 41.0 +  5.0 * 53.0,   2.0 * 31.0 +  3.0 * 43.0 +  5.0 * 59.0,   2.0 * 37.0 +  3.0 * 47.0 +  5.0 * 61.0,
+///    7.0 * 29.0 + 11.0 * 41.0 + 13.0 * 53.0,   7.0 * 31.0 + 11.0 * 43.0 + 13.0 * 59.0,   7.0 * 37.0 + 11.0 * 47.0 + 13.0 * 61.0,
+///   17.0 * 29.0 + 19.0 * 41.0 + 23.0 * 53.0,  17.0 * 31.0 + 19.0 * 43.0 + 23.0 * 59.0,  17.0 * 37.0 + 19.0 * 47.0 + 23.0 * 61.0,
+/// ]));
+/// ```
+impl MulAssign<Matrix3x3> for Matrix3x3 {
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = *self * rhs;
+    }
+}
+
+/// Divide a matrix by a constant
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+/// let R = M / 2.0;
+///
+/// assert_eq!(R, Matrix3x3::from([ 1.0, 1.5, 2.5,
+///                                 3.5, 5.5, 6.5,
+///                                8.5, 9.5, 11.5]));
+/// ```
+impl Div<f32> for Matrix3x3 {
+    type Output = Self;
+    fn div(self, k: f32) -> Self {
+        let reciprocal: f32 = 1.0 / k;
+        let mut result = self.a;
+        for r in result.iter_mut() {
+            *r *= reciprocal;
+        }
+        Matrix3x3 { a: result }
+    }
+}
+
+/// In-place divide a matrix by a constant
+///    M /= k;
+/// ```
+/// # use vector3d::Matrix3x3;
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+/// M /= 2.0;
+///
+/// assert_eq!(M, Matrix3x3::from([ 1.0, 1.5, 2.5,
+///                                 3.5, 5.5, 6.5,
+///                                8.5, 9.5, 11.5]));
+/// ```
+impl DivAssign<f32> for Matrix3x3 {
+    fn div_assign(&mut self, k: f32) {
+        let reciprocal: f32 = 1.0 / k;
+        for r in self.a.iter_mut() {
+            *r *= reciprocal;
+        }
+    }
+}
+
+/// Access matrix element by index
+/// ```
+/// # use vector3d::Matrix3x3;
+///
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+///
+/// assert_eq!(M[0], 2.0);
+/// assert_eq!(M[1], 3.0);
+/// assert_eq!(M[2], 5.0);
+/// assert_eq!(M[3], 7.0);
+/// assert_eq!(M[4], 11.0);
+/// assert_eq!(M[5], 13.0);
+/// assert_eq!(M[6], 17.0);
+/// assert_eq!(M[7], 19.0);
+/// assert_eq!(M[8], 23.0);
+/// ```
+impl Index<usize> for Matrix3x3 {
+    type Output = f32;
+    fn index(&self, index: usize) -> &f32 {
+        &self.a[index]
+    }
+}
+
+/// Set matrix element by index
+/// ```
+/// # use vector3d::Matrix3x3;
+///
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+///
+/// M[0] = 29.0;
+/// M[1] = 31.0;
+/// M[2] = 37.0;
+/// M[3] = 41.0;
+/// M[4] = 43.0;
+/// M[5] = 47.0;
+/// M[6] = 53.0;
+/// M[7] = 59.0;
+/// M[8] = 61.0;
+///
+/// assert_eq!(M, Matrix3x3::from([29.0, 31.0, 37.0,
+///                                41.0, 43.0, 47.0,
+///                                53.0, 59.0, 61.0]));
+/// ```
+impl IndexMut<usize> for Matrix3x3 {
+    fn index_mut(&mut self, index: usize) -> &mut f32 {
+        &mut self.a[index]
+    }
+}
+
+impl Matrix3x3 {
+    /// Return true if matrix is near zero
+    /// ```
+    /// # use vector3d::Matrix3x3;
+    /// # use num_traits::Zero;
+    ///
+    /// let Z = Matrix3x3::zero();
+    /// assert!(Z.is_near_zero());
+    /// ```
+    pub fn is_near_zero(&self) -> bool {
+        for a in self.a.iter() {
+            if a.abs() > f32::EPSILON {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// Return true if matrix is near identity
+    /// ```
+    /// # use vector3d::Matrix3x3;
+    /// # use num_traits::One;
+    ///
+    /// let I = Matrix3x3::one();
+    /// assert!(I.is_near_identity());
+    /// ```
+    pub fn is_near_identity(&self) -> bool {
+        if self.a[1].abs() > f32::EPSILON
+            || self.a[2].abs() > f32::EPSILON
+            || self.a[3].abs() > f32::EPSILON
+            || self.a[5].abs() > f32::EPSILON
+            || self.a[6].abs() > f32::EPSILON
+        {
+            return false;
+        }
+        if (self.a[0] - 1.0).abs() > f32::EPSILON
+            || (self.a[4] - 1.0).abs() > f32::EPSILON
+            || (self.a[8] - 1.0).abs() > f32::EPSILON
+        {
+            return false;
+        }
+        true
+    }
+
+    /// Return a copy of the matrix with all components set to their absolute values
+    pub fn abs(&self) -> Self {
+        let mut data = self.a;
+        for d in data.iter_mut() {
+            *d = d.abs();
+        }
+        Self { a: data }
+    }
+
+    /// Set all components of the matrix to their absolute values
+    pub fn abs_in_place(&mut self) {
+        for d in self.a.iter_mut() {
+            *d = d.abs();
+        }
+    }
+
+    /// Return a copy of the matrix with all components clamped to the specified range
+    pub fn clamp(&self, min: f32, max: f32) -> Self {
+        let mut data = self.a;
+        for d in data.iter_mut() {
+            *d = d.clamp(min, max);
+        }
+        Self { a: data }
+    }
+
+    /// Clamp all components of the matrix to the specified range
+    pub fn clamp_in_place(&mut self, min: f32, max: f32) {
+        for d in self.a.iter_mut() {
+            *d = d.clamp(min, max);
+        }
+    }
+
+    /// Adjugate matrix
+    /// ```
+    /// # use vector3d::Matrix3x3;
+    ///
+    /// let mut A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                               7.0, 11.0, 13.0,
+    ///                              17.0, 19.0, 23.0]);
+    /// let B = A.adjugate();
+    ///
+    /// assert!((B*A/A.determinant()).is_near_identity());
+    /// ```
+    pub fn adjugate(&self) -> Self {
+        Self {
+            a: [
+                self.a[4] * self.a[8] - self.a[5] * self.a[7], //  (e*i - f*h)
+                -(self.a[1] * self.a[8] - self.a[2] * self.a[7]), // -(b*i - c*h)
+                self.a[1] * self.a[5] - self.a[2] * self.a[4], //  (b*f - c*e)
+                -(self.a[3] * self.a[8] - self.a[5] * self.a[6]), // -(d*i - f*g)
+                self.a[0] * self.a[8] - self.a[2] * self.a[6], //  (a*i - c*g)
+                -(self.a[0] * self.a[5] - self.a[2] * self.a[3]), // -(a*f - c*d)
+                self.a[3] * self.a[7] - self.a[4] * self.a[6], //  (d*h - e*g)
+                -(self.a[0] * self.a[7] - self.a[1] * self.a[6]), // -(a*h - b*g)
+                self.a[0] * self.a[4] - self.a[1] * self.a[3], //  (a*e - b*d)
+            ],
+        }
+    }
+    /// Adjugate matrix, in-place
+    pub fn adjugate_in_place(&mut self) {
+        *self = self.adjugate();
+    }
+
+    /// Invert matrix, in-place
+    /// ```
+    /// # use vector3d::Matrix3x3;
+    ///
+    /// let mut A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                               7.0, 11.0, 13.0,
+    ///                              17.0, 19.0, 23.0]);
+    /// A.invert_in_place();
+    ///
+    /// ```
+    pub fn invert_in_place(&mut self) -> bool {
+        let adjugate = self.adjugate();
+        let determinant =
+            self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
+        if determinant.abs() <= f32::EPSILON {
+            return false;
+        }
+        *self = adjugate / determinant;
+        return true;
+    }
+
+    /// Return inverse of matrix
+    /// ```
+    /// # use vector3d::Matrix3x3;
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let B = A.inverse();
+    ///
+    /// ```
+    pub fn inverse(&self) -> Self {
+        let adjugate = self.adjugate();
+        let determinant =
+            self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
+        return adjugate / determinant;
+    }
+
+    /// Invert matrix in-place, assuming it is a diagonal matrix
+    pub fn invert_in_place_assuming_diagonal(&mut self) {
+        self.a[0] = 1.0 / self.a[0];
+        self.a[4] = 1.0 / self.a[4];
+        self.a[8] = 1.0 / self.a[8];
+    }
+    /// Return inverse of matrix, assuming it is diagonal
+    pub fn inverse_assuming_diagonal(&self) -> Self {
+        let mut ret = *self;
+        ret.invert_in_place_assuming_diagonal();
+        return ret;
+    }
+    /// Matrix determinant
+    pub fn determinant(&self) -> f32 {
+        self.a[0] * (self.a[4] * self.a[8] - self.a[5] * self.a[7])
+            - self.a[1] * (self.a[3] * self.a[8] - self.a[5] * self.a[6])
+            + self.a[2] * (self.a[3] * self.a[7] - self.a[4] * self.a[6])
+    }
+    /// Return the sum of all components of the matrix
+    pub fn sum(&self) -> f32 {
+        self.a.iter().sum()
+    }
+    /// Return the mean of all components of the matrix
+    pub fn mean(&self) -> f32 {
+        self.sum() / 9.0
+    }
+    /// Return the product of all components of the matrix
+    pub fn product(&self) -> f32 {
+        self.a.iter().product()
+    }
+
+    pub fn trace(&self) -> f32 {
+        self.a[0] + self.a[4] + self.a[8]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+
+    const A: Matrix3x3 = Matrix3x3 {
+        a: [2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0],
+    };
+    const B: Matrix3x3 = Matrix3x3 {
+        a: [29.0, 31.0, 37.0, 41.0, 43.0, 47.0, 53.0, 59.0, 61.0],
+    };
+
+    #[test]
+    fn normal_types() {
+        is_normal::<Matrix3x3>();
+    }
+    #[test]
+    fn default() {
+        let a: Matrix3x3 = Matrix3x3::default();
+        assert_eq!(
+            a,
+            Matrix3x3 {
+                a: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            }
+        );
+        let z = Matrix3x3::zero();
+        //let z: Matrix3x3 = zero();
+        assert_eq!(a, z);
+        assert!(z.is_zero());
+        assert!(!z.is_one());
+        assert!(z.is_near_zero());
+
+        let i = Matrix3x3::one();
+        //let i: Matrix3x3 = one();
+        assert!(i.is_one());
+        assert!(!i.is_zero());
+        assert!(i.is_near_identity());
+    }
+    #[test]
+    fn neg() {
+        assert_eq!(
+            -A,
+            Matrix3x3 {
+                a: [-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0]
+            }
+        );
+
+        let b = -A;
+        assert_eq!(
+            b,
+            Matrix3x3 {
+                a: [-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0]
+            }
+        );
+    }
+    #[test]
+    fn add() {
+        let a_plus_b: Matrix3x3 = Matrix3x3::from([
+            2.0 + 29.0,
+            3.0 + 31.0,
+            5.0 + 37.0,
+            7.0 + 41.0,
+            11.0 + 43.0,
+            13.0 + 47.0,
+            17.0 + 53.0,
+            19.0 + 59.0,
+            23.0 + 61.0,
+        ]);
+        assert_eq!(A + B, a_plus_b);
+    }
+    #[test]
+    fn sub() {
+        let a_minus_b: Matrix3x3 = Matrix3x3::from([
+            2.0 - 29.0,
+            3.0 - 31.0,
+            5.0 - 37.0,
+            7.0 - 41.0,
+            11.0 - 43.0,
+            13.0 - 47.0,
+            17.0 - 53.0,
+            19.0 - 59.0,
+            23.0 - 61.0,
+        ]);
+        assert_eq!(A - B, a_minus_b);
+    }
+    #[test]
+    fn mul() {
+        let a_times_b: Matrix3x3 = Matrix3x3::from([
+            2.0 * 29.0 + 3.0 * 41.0 + 5.0 * 53.0,
+            2.0 * 31.0 + 3.0 * 43.0 + 5.0 * 59.0,
+            2.0 * 37.0 + 3.0 * 47.0 + 5.0 * 61.0,
+            7.0 * 29.0 + 11.0 * 41.0 + 13.0 * 53.0,
+            7.0 * 31.0 + 11.0 * 43.0 + 13.0 * 59.0,
+            7.0 * 37.0 + 11.0 * 47.0 + 13.0 * 61.0,
+            17.0 * 29.0 + 19.0 * 41.0 + 23.0 * 53.0,
+            17.0 * 31.0 + 19.0 * 43.0 + 23.0 * 59.0,
+            17.0 * 37.0 + 19.0 * 47.0 + 23.0 * 61.0,
+        ]);
+
+        assert_eq!(A * B, a_times_b);
+    }
+    #[test]
+    fn new() {
+        let a = Matrix3x3::from([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
+        assert_eq!(A, a);
+        let b = Matrix3x3::from([
+            Vector3d {
+                x: 2.0,
+                y: 3.0,
+                z: 5.0,
+            },
+            Vector3d {
+                x: 7.0,
+                y: 11.0,
+                z: 13.0,
+            },
+            Vector3d {
+                x: 17.0,
+                y: 19.0,
+                z: 23.0,
+            },
+        ]);
+        assert_eq!(A, b);
+        let c = Matrix3x3::from((
+            Vector3d {
+                x: 2.0,
+                y: 3.0,
+                z: 5.0,
+            },
+            Vector3d {
+                x: 7.0,
+                y: 11.0,
+                z: 13.0,
+            },
+            Vector3d {
+                x: 17.0,
+                y: 19.0,
+                z: 23.0,
+            },
+        ));
+        assert_eq!(A, c);
+    }
+    #[test]
+    fn from_array() {
+        let a = Matrix3x3::from([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
+        assert_eq!(A, a)
+    }
+    #[test]
+    fn adjugate() {
+        let a = Matrix3x3::from([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
+        let b = a.adjugate();
+        let c = a * b;
+        let determinant = a.determinant();
+        assert!((c / determinant).is_near_identity());
+    }
+    #[test]
+    fn inverse() {
+        let a = Matrix3x3::from([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
+        let b = a.inverse();
+        let c = a * b;
+        assert!((c[0] - 1.0).abs() < f32::EPSILON);
+        assert!((c[4] - 1.0).abs() < f32::EPSILON * 3.0);
+        assert!((c[8] - 1.0).abs() < f32::EPSILON);
+        assert!(c[1].abs() < f32::EPSILON);
+        assert!(c[2].abs() < f32::EPSILON);
+        assert!(c[3].abs() < f32::EPSILON);
+        assert!(c[5].abs() < f32::EPSILON);
+        assert!(c[6].abs() < f32::EPSILON);
+        assert!(c[7].abs() < f32::EPSILON * 5.0);
+
+        assert!(((c - Matrix3x3::one()) / 5.0).is_near_zero());
+    }
+}
