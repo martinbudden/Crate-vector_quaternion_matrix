@@ -819,6 +819,18 @@ impl Matrix3x3 {
     }
 
     /// Transpose matrix, in-place
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let mut A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                               7.0, 11.0, 13.0,
+    ///                              17.0, 19.0, 23.0]);
+    /// A.transpose_in_place();
+    ///
+    /// assert_eq!(A, Matrix3x3::from([ 2.0,  7.0, 17.0,
+    ///                                 3.0, 11.0, 19.0,
+    ///                                 5.0, 13.0, 23.0]));
+    /// ```
     pub fn transpose_in_place(&mut self) {
         *self = self.transpose();
     }
@@ -851,6 +863,17 @@ impl Matrix3x3 {
     }
 
     /// Adjugate matrix, in-place
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let mut B = A;
+    /// B.adjugate_in_place();
+    ///
+    /// assert_eq!(A.adjugate(), B);
+    /// ```
     pub fn adjugate_in_place(&mut self) {
         *self = self.adjugate();
     }
@@ -879,6 +902,7 @@ impl Matrix3x3 {
     /// Return inverse of matrix
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
     /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
     ///                           7.0, 11.0, 13.0,
     ///                          17.0, 19.0, 23.0]);
@@ -907,6 +931,17 @@ impl Matrix3x3 {
     }
 
     /// Matrix determinant
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let d = A.determinant();
+    ///
+    /// assert_eq!(-78.0, d);
+    ///
+    /// ```
     pub fn determinant(&self) -> f32 {
         self.a[0] * (self.a[4] * self.a[8] - self.a[5] * self.a[7])
             - self.a[1] * (self.a[3] * self.a[8] - self.a[5] * self.a[6])

@@ -130,7 +130,7 @@ impl Add for Vector3d {
     }
 }
 
-// Add one vector to another
+/// Add one vector to another
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
@@ -173,7 +173,7 @@ impl Sub for Vector3d {
     }
 }
 
-// Subtract one vector from another
+/// Subtract one vector from another
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
@@ -266,7 +266,6 @@ impl Div<f32> for Vector3d {
 }
 
 /// In-place divide a vector by a constant
-///    v /= k;
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
@@ -367,6 +366,7 @@ impl Vector3d {
         }
         *self / norm
     }
+
     /// Normalize the vector in place
     pub fn normalize(&mut self) {
         let norm: f32 = self.norm();
@@ -383,10 +383,12 @@ impl Vector3d {
             z: self.z.abs(),
         }
     }
+
     /// Set all components of the vector to their absolute values
     pub fn abs_in_place(&mut self) {
         *self = self.abs();
     }
+
     /// Return a copy of the vector with all components clamped to the specified range
     pub fn clamp(&self, min: f32, max: f32) -> Self {
         Self {
@@ -395,10 +397,12 @@ impl Vector3d {
             z: self.z.clamp(min, max),
         }
     }
+
     /// Clamp all components of the vector to the specified range
     pub fn clamp_in_place(&mut self, min: f32, max: f32) {
         *self = self.clamp(min, max);
     }
+
     /// Return the sum of all components of the vector
     pub fn sum(&self) -> f32 {
         self.x + self.y + self.z
