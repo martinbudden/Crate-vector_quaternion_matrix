@@ -339,7 +339,7 @@ impl From<RollPitch> for Quaternion {
 
 /// Zero Quaternion
 /// ```
-/// # use vector3d::Quaternion;
+/// # use vector_quaternion_matrix::Quaternion;
 /// # use num_traits::zero;
 ///
 /// let z: Quaternion = zero();
@@ -363,7 +363,7 @@ impl Zero for Quaternion {
 
 /// Unit Quaternion
 /// ```
-/// # use vector3d::Quaternion;
+/// # use vector_quaternion_matrix::Quaternion;
 /// # use num_traits::one;
 ///
 /// let i: Quaternion = one();

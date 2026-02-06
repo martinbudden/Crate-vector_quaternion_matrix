@@ -15,7 +15,7 @@ pub struct Matrix3x3 {
 
 /// Zero matrix
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// # use num_traits::zero;
 ///
 /// let Z: Matrix3x3 = zero();
@@ -37,7 +37,7 @@ impl Zero for Matrix3x3 {
 
 /// Identity matrix
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// # use num_traits::one;
 ///
 /// let I: Matrix3x3 = one();
@@ -165,7 +165,7 @@ impl From<Matrix3x3> for Quaternion {
 
 /// Negate a matrix
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                               7.0, 11.0, 13.0,
 ///                              17.0, 19.0, 23.0]);
@@ -188,7 +188,7 @@ impl Neg for Matrix3x3 {
 
 /// Add two matrices
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
@@ -222,7 +222,7 @@ impl Add for Matrix3x3 {
 
 /// Add one matrix to another
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                               7.0, 11.0, 13.0,
 ///                              17.0, 19.0, 23.0]);
@@ -245,7 +245,7 @@ impl AddAssign for Matrix3x3 {
 
 /// Subtract two matrices
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -271,7 +271,7 @@ impl Sub for Matrix3x3 {
 
 /// Subtract one matrix from another
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -294,7 +294,7 @@ impl SubAssign for Matrix3x3 {
 
 /// Pre-multiply a matrix by a constant
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -317,7 +317,7 @@ impl Mul<Matrix3x3> for f32 {
 
 /// Multiply a matrix by a constant
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -340,7 +340,7 @@ impl Mul<f32> for Matrix3x3 {
 
 /// In-place multiply a matrix by a constant
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                               7.0, 11.0, 13.0,
 ///                              17.0, 19.0, 23.0]);
@@ -360,8 +360,8 @@ impl MulAssign<f32> for Matrix3x3 {
 
 /// Multiply a vector by a matrix
 /// ```
-/// # use vector3d::Matrix3x3;
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Matrix3x3;
+/// # use vector_quaternion_matrix::Vector3d;
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -383,8 +383,8 @@ impl Mul<Vector3d> for Matrix3x3 {
 
 /// Pre-multiply a vector by a matrix
 /// ```
-/// # use vector3d::Matrix3x3;
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Matrix3x3;
+/// # use vector_quaternion_matrix::Vector3d;
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -406,7 +406,7 @@ impl Mul<Matrix3x3> for Vector3d {
 
 /// Multiply two matrices
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -448,7 +448,7 @@ impl Mul<Matrix3x3> for Matrix3x3 {
 
 /// Multiply one matrix by another
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                               7.0, 11.0, 13.0,
 ///                              17.0, 19.0, 23.0]);
@@ -471,7 +471,7 @@ impl MulAssign<Matrix3x3> for Matrix3x3 {
 
 /// Divide a matrix by a constant
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
@@ -496,7 +496,7 @@ impl Div<f32> for Matrix3x3 {
 /// In-place divide a matrix by a constant
 ///    M /= k;
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                               7.0, 11.0, 13.0,
 ///                              17.0, 19.0, 23.0]);
@@ -517,7 +517,7 @@ impl DivAssign<f32> for Matrix3x3 {
 
 /// Access matrix element by index
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
@@ -542,7 +542,7 @@ impl Index<usize> for Matrix3x3 {
 
 /// Set matrix element by index
 /// ```
-/// # use vector3d::Matrix3x3;
+/// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
@@ -571,7 +571,7 @@ impl IndexMut<usize> for Matrix3x3 {
 impl Matrix3x3 {
     /// Return true if matrix is near zero
     /// ```
-    /// # use vector3d::Matrix3x3;
+    /// # use vector_quaternion_matrix::Matrix3x3;
     /// # use num_traits::Zero;
     ///
     /// let Z = Matrix3x3::zero();
@@ -588,7 +588,7 @@ impl Matrix3x3 {
 
     /// Return true if matrix is near identity
     /// ```
-    /// # use vector3d::Matrix3x3;
+    /// # use vector_quaternion_matrix::Matrix3x3;
     /// # use num_traits::One;
     ///
     /// let I = Matrix3x3::one();
@@ -644,13 +644,192 @@ impl Matrix3x3 {
         }
     }
 
-    /// Adjugate matrix
+    pub fn set_row(&mut self, row: usize, value: Vector3d) {
+        match row {
+            0 => {
+                self.a[0] = value.x;
+                self.a[1] = value.y;
+                self.a[2] = value.z;
+            }
+            1 => {
+                self.a[3] = value.x;
+                self.a[4] = value.y;
+                self.a[5] = value.z;
+            }
+            _ => {
+                self.a[6] = value.x;
+                self.a[7] = value.y;
+                self.a[8] = value.z;
+            }
+        }
+    }
+
+    /// Return matrix row as a vector
     /// ```
-    /// # use vector3d::Matrix3x3;
+    /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let v = A.row(0);
+    ///
+    /// assert_eq!(v, Vector3d{ x: 2.0, y: 3.0, z: 5.0 });
+    /// assert_eq!(A.row(1), Vector3d{ x: 7.0, y: 11.0, z: 13.0 });
+    /// assert_eq!(A.row(2), Vector3d{ x: 17.0, y: 19.0, z: 23.0 });
+    /// ```
+    pub fn row(&self, row: usize) -> Vector3d {
+        match row {
+            0 => Vector3d {
+                x: self.a[0],
+                y: self.a[1],
+                z: self.a[2],
+            },
+            1 => Vector3d {
+                x: self.a[3],
+                y: self.a[4],
+                z: self.a[5],
+            },
+            // default to row 2 if row out of range
+            _ => Vector3d {
+                x: self.a[6],
+                y: self.a[7],
+                z: self.a[8],
+            },
+        }
+    }
+
+    pub fn set_column(&mut self, column: usize, value: Vector3d) {
+        match column {
+            0 => {
+                self.a[0] = value.x;
+                self.a[3] = value.y;
+                self.a[6] = value.z;
+            }
+            1 => {
+                self.a[1] = value.x;
+                self.a[4] = value.y;
+                self.a[7] = value.z;
+            }
+            _ => {
+                self.a[2] = value.x;
+                self.a[5] = value.y;
+                self.a[8] = value.z;
+            }
+        }
+    }
+
+    /// Return matrix column as a vector
+    /// ```
+    /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let v = A.column(0);
+    ///
+    /// assert_eq!(v, Vector3d{ x: 2.0, y: 7.0, z: 17.0 });
+    /// assert_eq!(A.column(1), Vector3d{ x: 3.0, y: 11.0, z: 19.0 });
+    /// assert_eq!(A.column(2), Vector3d{ x: 5.0, y: 13.0, z: 23.0 });
+    /// ```
+    pub fn column(&self, column: usize) -> Vector3d {
+        match column {
+            0 => Vector3d {
+                x: self.a[0],
+                y: self.a[3],
+                z: self.a[6],
+            },
+            1 => Vector3d {
+                x: self.a[1],
+                y: self.a[4],
+                z: self.a[7],
+            },
+            // default to column 2 if column out of range
+            _ => Vector3d {
+                x: self.a[2],
+                y: self.a[5],
+                z: self.a[8],
+            },
+        }
+    }
+
+    /// Add vector to diagonal of matrix, in-place
+    /// ```
+    /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
     ///
     /// let mut A = Matrix3x3::from([ 2.0,  3.0,  5.0,
     ///                               7.0, 11.0, 13.0,
     ///                              17.0, 19.0, 23.0]);
+    ///
+    /// let v = Vector3d{ x: 10.0, y: 20.0, z: 30.0 };
+    ///
+    /// A.add_to_diagonal_in_place(v);
+    ///
+    /// assert_eq!(A, Matrix3x3::from([ 12.0,  3.0,  5.0,
+    ///                                  7.0, 31.0, 13.0,
+    ///                                 17.0, 19.0, 53.0]));
+    /// ```
+    pub fn add_to_diagonal_in_place(&mut self, v: Vector3d) {
+        self.a[0] += v.x;
+        self.a[4] += v.y;
+        self.a[8] += v.z;
+    }
+
+    /// Subtract vector from diagonal of matrix, in-place
+    /// ```
+    /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
+    ///
+    /// let mut A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                               7.0, 11.0, 13.0,
+    ///                              17.0, 19.0, 23.0]);
+    ///
+    /// let v = Vector3d{ x: 10.0, y: 20.0, z: 30.0 };
+    ///
+    /// A.subtract_from_diagonal_in_place(v);
+    ///
+    /// assert_eq!(A, Matrix3x3::from([ -8.0,  3.0,   5.0,
+    ///                                  7.0, -9.0,  13.0,
+    ///                                 17.0, 19.0,  -7.0]));
+    /// ```
+    pub fn subtract_from_diagonal_in_place(&mut self, v: Vector3d) {
+        self.a[0] -= v.x;
+        self.a[4] -= v.y;
+        self.a[8] -= v.z;
+    }
+
+    /// Transpose matrix
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let B = A.transpose();
+    ///
+    /// assert_eq!(B, Matrix3x3::from([ 2.0,  7.0, 17.0,
+    ///                                 3.0, 11.0, 19.0,
+    ///                                 5.0, 13.0, 23.0]));
+    /// ```
+    pub fn transpose(&self) -> Self {
+        Self {
+            a: [
+                self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2],
+                self.a[5], self.a[8],
+            ],
+        }
+    }
+
+    /// Transpose matrix, in-place
+    pub fn transpose_in_place(&mut self) {
+        *self = self.transpose();
+    }
+
+    /// Adjugate matrix
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                           17.0, 19.0, 23.0]);
     /// let B = A.adjugate();
     ///
     /// assert!((B*A/A.determinant()).is_near_identity());
@@ -670,6 +849,7 @@ impl Matrix3x3 {
             ],
         }
     }
+
     /// Adjugate matrix, in-place
     pub fn adjugate_in_place(&mut self) {
         *self = self.adjugate();
@@ -677,7 +857,7 @@ impl Matrix3x3 {
 
     /// Invert matrix, in-place
     /// ```
-    /// # use vector3d::Matrix3x3;
+    /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let mut A = Matrix3x3::from([ 2.0,  3.0,  5.0,
     ///                               7.0, 11.0, 13.0,
@@ -698,7 +878,7 @@ impl Matrix3x3 {
 
     /// Return inverse of matrix
     /// ```
-    /// # use vector3d::Matrix3x3;
+    /// # use vector_quaternion_matrix::Matrix3x3;
     /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
     ///                           7.0, 11.0, 13.0,
     ///                          17.0, 19.0, 23.0]);
@@ -718,31 +898,77 @@ impl Matrix3x3 {
         self.a[4] = 1.0 / self.a[4];
         self.a[8] = 1.0 / self.a[8];
     }
+
     /// Return inverse of matrix, assuming it is diagonal
     pub fn inverse_assuming_diagonal(&self) -> Self {
         let mut ret = *self;
         ret.invert_in_place_assuming_diagonal();
-        return ret;
+        ret
     }
+
     /// Matrix determinant
     pub fn determinant(&self) -> f32 {
         self.a[0] * (self.a[4] * self.a[8] - self.a[5] * self.a[7])
             - self.a[1] * (self.a[3] * self.a[8] - self.a[5] * self.a[6])
             + self.a[2] * (self.a[3] * self.a[7] - self.a[4] * self.a[6])
     }
+
     /// Return the sum of all components of the matrix
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let s = A.sum();
+    ///
+    /// assert_eq!(s, 100.0);
+    /// ```
     pub fn sum(&self) -> f32 {
         self.a.iter().sum()
     }
+
     /// Return the mean of all components of the matrix
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let m = A.mean();
+    ///
+    /// assert_eq!(m, 100.0 / 9.0);
+    /// ```
     pub fn mean(&self) -> f32 {
         self.sum() / 9.0
     }
+
     /// Return the product of all components of the matrix
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let p = A.product();
+    ///
+    /// assert_eq!(p, 223092860.0);
+    /// ```
     pub fn product(&self) -> f32 {
         self.a.iter().product()
     }
 
+    /// Return trace of matrix.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::from([ 2.0,  3.0,  5.0,
+    ///                           7.0, 11.0, 13.0,
+    ///                          17.0, 19.0, 23.0]);
+    /// let t = A.trace();
+    ///
+    /// assert_eq!(t, 36.0);
+    /// ```
     pub fn trace(&self) -> f32 {
         self.a[0] + self.a[4] + self.a[8]
     }

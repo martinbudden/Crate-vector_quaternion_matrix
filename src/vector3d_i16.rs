@@ -10,7 +10,7 @@ pub struct Vector3dI16 {
 
 /// Vector from tuple
 /// ```
-/// # use vector3d::Vector3dI16;
+/// # use vector_quaternion_matrix::Vector3dI16;
 ///
 /// let v = Vector3dI16::from((2, 3, 5));
 /// let w: Vector3dI16 = (7, 11, 13).into();
@@ -30,7 +30,7 @@ impl From<(i16, i16, i16)> for Vector3dI16 {
 
 /// Vector from array
 /// ```
-/// # use vector3d::Vector3dI16;
+/// # use vector_quaternion_matrix::Vector3dI16;
 ///
 /// let v = Vector3dI16::from([2, 3, 5]);
 /// let w: Vector3dI16 = [7, 11, 13].into();
@@ -50,7 +50,7 @@ impl From<[i16; 3]> for Vector3dI16 {
 
 /// Zero Vector3dI16
 /// ```
-/// # use vector3d::Vector3dI16;
+/// # use vector_quaternion_matrix::Vector3dI16;
 /// # use num_traits::zero;
 ///
 /// let z: Vector3dI16 = zero();
@@ -69,7 +69,7 @@ impl Zero for Vector3dI16 {
 
 /// Add two vectors
 /// ```
-/// # use vector3d::Vector3dI16;
+/// # use vector_quaternion_matrix::Vector3dI16;
 ///
 /// let u = Vector3dI16 { x: 2, y: 3, z: 5 };
 /// let v = Vector3dI16 { x: 7, y: 11, z: 13 };
@@ -90,7 +90,7 @@ impl Add for Vector3dI16 {
 
 /// Subtract two vectors
 /// ```
-/// # use vector3d::Vector3dI16;
+/// # use vector_quaternion_matrix::Vector3dI16;
 ///
 /// let u = Vector3dI16 { x: 2, y: 3, z: 5 };
 /// let v = Vector3dI16 { x: 7, y: 11, z: 17 };
@@ -111,7 +111,7 @@ impl Sub for Vector3dI16 {
 
 /// Multiply vector by an i16 constant
 /// ```
-/// # use vector3d::Vector3dI16;
+/// # use vector_quaternion_matrix::Vector3dI16;
 ///
 /// let v = Vector3dI16 { x: 2, y: 3, z: 5 };
 /// let r = v * 2;
@@ -131,7 +131,7 @@ impl Mul<i16> for Vector3dI16 {
 
 /// Multiply vector by an f32 constant
 /// ```
-/// # use vector3d::Vector3dI16;
+/// # use vector_quaternion_matrix::Vector3dI16;
 ///
 /// let v = Vector3dI16 { x: 2, y: 3, z: 5 };
 /// let r = v * 2.0_f32;

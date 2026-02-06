@@ -12,7 +12,7 @@ pub struct Vector3d {
 
 /// Vector from tuple
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let v = Vector3d::from((2.0, 3.0, 5.0));
 /// let w: Vector3d = (7.0, 11.0, 13.0).into();
@@ -32,7 +32,7 @@ impl From<(f32, f32, f32)> for Vector3d {
 
 /// Vector from array
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let v = Vector3d::from([2.0, 3.0, 5.0]);
 /// let w: Vector3d = [7.0, 11.0, 13.0].into();
@@ -52,7 +52,7 @@ impl From<[f32; 3]> for Vector3d {
 
 /// Array from vector
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let v = Vector3d{ x: 2.0, y: 3.0, z: 5.0 };
 ///
@@ -70,7 +70,7 @@ impl From<Vector3d> for [f32; 3] {
 
 /// Zero vector
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 /// # use num_traits::zero;
 ///
 /// let z: Vector3d = zero();
@@ -93,7 +93,7 @@ impl Zero for Vector3d {
 
 /// Negate vector
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 /// let mut v = Vector3d{ x: 2.0, y: 3.0, z: 5.0 };
 /// v = -v;
 ///
@@ -112,7 +112,7 @@ impl Neg for Vector3d {
 
 /// Add two vectors
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 /// let u = Vector3d::new(2.0, 3.0, 5.0);
 /// let v = Vector3d::new(7.0, 11.0, 13.0);
 /// let r = u + v;
@@ -132,7 +132,7 @@ impl Add for Vector3d {
 
 // Add one vector to another
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let mut r = Vector3d::new(2.0, 3.0, 5.0);
 /// let u = Vector3d::new(7.0, 11.0, 13.0);
@@ -154,7 +154,7 @@ impl AddAssign for Vector3d {
 
 /// Subtract two vectors
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let u = Vector3d::new(2.0, 3.0, 5.0);
 /// let v = Vector3d::new(7.0, 11.0, 13.0);
@@ -175,7 +175,7 @@ impl Sub for Vector3d {
 
 // Subtract one vector from another
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let mut r = Vector3d::new(2.0, 3.0, 5.0);
 /// let v = Vector3d::new(7.0, 11.0, 17.0);
@@ -191,7 +191,7 @@ impl SubAssign for Vector3d {
 
 /// Pre-multiply vector by a constant
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let v = Vector3d::new(2.0, 3.0, 5.0);
 /// let r = 2.0 * v;
@@ -211,7 +211,7 @@ impl Mul<Vector3d> for f32 {
 
 /// Multiply vector by a constant
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let v = Vector3d::new(2.0, 3.0, 5.0);
 /// let r = v * 2.0;
@@ -231,7 +231,7 @@ impl Mul<f32> for Vector3d {
 
 /// In-place multiply a vector by a constant
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let mut v = Vector3d::new(2.0, 3.0, 5.0);
 /// v *= 2.0;
@@ -246,7 +246,7 @@ impl MulAssign<f32> for Vector3d {
 
 /// Divide a vector by a constant
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let v = Vector3d::new(2.0, 3.0, 5.0);
 /// let r = v / 2.0;
@@ -268,7 +268,7 @@ impl Div<f32> for Vector3d {
 /// In-place divide a vector by a constant
 ///    v /= k;
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let mut v = Vector3d::new(2.0, 3.0, 5.0);
 /// v /= 2.0;
@@ -283,7 +283,7 @@ impl DivAssign<f32> for Vector3d {
 
 /// Access vector component by index
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let v = Vector3d::new(2.0, 3.0, 5.0);
 ///
@@ -305,7 +305,7 @@ impl Index<usize> for Vector3d {
 
 // Set vector component by index
 /// ```
-/// # use vector3d::Vector3d;
+/// # use vector_quaternion_matrix::Vector3d;
 ///
 /// let mut v = Vector3d::new(2.0, 3.0, 5.0);
 /// v[0] = 7.0;
