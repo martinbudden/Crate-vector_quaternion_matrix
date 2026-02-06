@@ -416,7 +416,6 @@ impl Vector3d {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fast_math::FastMath;
 
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
 
@@ -696,7 +695,7 @@ mod tests {
             y: 3.0,
             z: 5.0,
         };
-        assert_eq!(a.norm(), 38.0.sqrt());
+        assert_eq!(a.norm(), 38.0_f32.sqrt());
         let z = Vector3d {
             x: 0.0,
             y: 0.0,

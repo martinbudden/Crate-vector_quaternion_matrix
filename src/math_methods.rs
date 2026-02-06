@@ -1,9 +1,9 @@
 use num_traits::Float;
 
-//The syntax x.fn() is called method call syntax.
-// The form fn(x) is called function call syntax in Rust.
+// The form x.fn() is called method call syntax.
+// The form fn(x) is called function call syntax.
 
-pub trait FastMath: Sized {
+pub trait MathMethods: Sized {
     fn sqrt(self) -> Self;
     fn reciprocal_sqrt(self) -> Self;
     fn half_reciprocal_sqrt(self) -> Self;
@@ -16,7 +16,7 @@ pub trait FastMath: Sized {
     fn atan2(self, y: Self) -> Self;
 }
 
-impl FastMath for f32 {
+impl MathMethods for f32 {
     fn sqrt(self) -> Self {
         libm::sqrtf(self)
     }
@@ -50,7 +50,7 @@ impl FastMath for f32 {
     }
 }
 
-impl FastMath for f64 {
+impl MathMethods for f64 {
     fn sqrt(self) -> Self {
         libm::sqrt(self)
     }

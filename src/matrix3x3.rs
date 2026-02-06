@@ -3,7 +3,7 @@ use core::ops::{
 };
 use num_traits::{One, Zero};
 
-use crate::FastMath;
+use crate::MathMethods;
 use crate::Quaternion;
 use crate::Vector3d;
 

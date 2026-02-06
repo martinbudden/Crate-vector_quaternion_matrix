@@ -5,7 +5,7 @@ use core::ops::{
 use num_traits::{One, Zero};
 
 use crate::Vector3d;
-use crate::fast_math::FastMath;
+use crate::math_methods::MathMethods;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct RollPitchYaw {
