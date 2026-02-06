@@ -545,8 +545,8 @@ impl Index<usize> for Matrix3x3 {
 /// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
 ///
 /// M[0] = 29.0;
 /// M[1] = 31.0;
@@ -565,6 +565,60 @@ impl Index<usize> for Matrix3x3 {
 impl IndexMut<usize> for Matrix3x3 {
     fn index_mut(&mut self, index: usize) -> &mut f32 {
         &mut self.a[index]
+    }
+}
+
+/// Access matrix element by ordered pair (row, column)
+/// ```
+/// # use vector_quaternion_matrix::Matrix3x3;
+///
+/// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                           7.0, 11.0, 13.0,
+///                          17.0, 19.0, 23.0]);
+///
+/// assert_eq!(M[(0,0)], 2.0);
+/// assert_eq!(M[(0,1)], 3.0);
+/// assert_eq!(M[(0,2)], 5.0);
+/// assert_eq!(M[(1,0)], 7.0);
+/// assert_eq!(M[(1,1)], 11.0);
+/// assert_eq!(M[(1,2)], 13.0);
+/// assert_eq!(M[(2,0)], 17.0);
+/// assert_eq!(M[(2,1)], 19.0);
+/// assert_eq!(M[(2,2)], 23.0);
+/// ```
+impl Index<(usize, usize)> for Matrix3x3 {
+    type Output = f32;
+
+    fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
+        &self.a[row * 3 + col]
+    }
+}
+
+/// Set matrix element by ordered pair (row, column)
+/// ```
+/// # use vector_quaternion_matrix::Matrix3x3;
+///
+/// let mut M = Matrix3x3::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+///
+/// M[(0,0)] = 29.0;
+/// M[(0,1)] = 31.0;
+/// M[(0,2)] = 37.0;
+/// M[(1,0)] = 41.0;
+/// M[(1,1)] = 43.0;
+/// M[(1,2)] = 47.0;
+/// M[(2,0)] = 53.0;
+/// M[(2,1)] = 59.0;
+/// M[(2,2)] = 61.0;
+///
+/// assert_eq!(M, Matrix3x3::from([29.0, 31.0, 37.0,
+///                                41.0, 43.0, 47.0,
+///                                53.0, 59.0, 61.0]));
+/// ```
+impl IndexMut<(usize, usize)> for Matrix3x3 {
+    fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut f32 {
+        &mut self.a[row * 3 + col]
     }
 }
 
