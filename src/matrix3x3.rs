@@ -896,7 +896,7 @@ impl Matrix3x3 {
             return false;
         }
         *self = adjugate / determinant;
-        return true;
+        true
     }
 
     /// Return inverse of matrix
@@ -913,7 +913,7 @@ impl Matrix3x3 {
         let adjugate = self.adjugate();
         let determinant =
             self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
-        return adjugate / determinant;
+        adjugate / determinant
     }
 
     /// Invert matrix in-place, assuming it is a diagonal matrix

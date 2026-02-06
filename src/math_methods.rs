@@ -1,3 +1,5 @@
+#![allow(clippy::excessive_precision)]
+
 use num_traits::Float;
 
 // The form x.fn() is called method call syntax.
