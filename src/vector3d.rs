@@ -269,6 +269,28 @@ where
     }
 }
 
+impl Mul<f32> for Vector3d<i16> {
+    type Output = Self;
+    fn mul(self, k: f32) -> Self {
+        Self {
+            x: (self.x as f32 * k) as i16,
+            y: (self.y as f32 * k) as i16,
+            z: (self.z as f32 * k) as i16,
+        }
+    }
+}
+
+impl Mul<f32> for Vector3d<i32> {
+    type Output = Self;
+    fn mul(self, k: f32) -> Self {
+        Self {
+            x: (self.x as f32 * k) as i32,
+            y: (self.y as f32 * k) as i32,
+            z: (self.z as f32 * k) as i32,
+        }
+    }
+}
+
 // **** MulAssign ****
 /// In-place multiply a vector by a constant
 /// ```
