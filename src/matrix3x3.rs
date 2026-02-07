@@ -26,8 +26,8 @@ pub struct Matrix3x3<T> {
 /// let Z = Matrix3x3::<f32>::zero();
 ///
 /// assert_eq!(Z, Matrix3x3::<f32>::from([ 0.0, 0.0, 0.0,
-///                                       0.0, 0.0, 0.0,
-///                                       0.0, 0.0, 0.0]));
+///                                        0.0, 0.0, 0.0,
+///                                        0.0, 0.0, 0.0]));
 /// ```
 impl<T> Zero for Matrix3x3<T>
 where
@@ -161,16 +161,16 @@ where
 /// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 /// let N = Matrix3x3::<f32>::from([29.0, 31.0, 37.0,
-///                          41.0, 43.0, 47.0,
-///                          53.0, 59.0, 61.0]);
+///                                 41.0, 43.0, 47.0,
+///                                 53.0, 59.0, 61.0]);
 /// let R = M + N;
 ///
 /// assert_eq!(R, Matrix3x3::<f32>::from([31.0, 34.0, 42.0,
-///                                48.0, 54.0, 60.0,
-///                                70.0, 78.0, 84.0]));
+///                                       48.0, 54.0, 60.0,
+///                                       70.0, 78.0, 84.0]));
 ///
 /// # use num_traits::Zero;
 ///
@@ -198,16 +198,16 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                               7.0, 11.0, 13.0,
-///                              17.0, 19.0, 23.0]);
+///                                      7.0, 11.0, 13.0,
+///                                     17.0, 19.0, 23.0]);
 /// let N = Matrix3x3::<f32>::from([29.0, 31.0, 37.0,
-///                          41.0, 43.0, 47.0,
-///                          53.0, 59.0, 61.0]);
+///                                 41.0, 43.0, 47.0,
+///                                 53.0, 59.0, 61.0]);
 /// M += N;
 ///
 /// assert_eq!(M, Matrix3x3::<f32>::from([31.0, 34.0, 42.0,
-///                                48.0, 54.0, 60.0,
-///                                70.0, 78.0, 84.0]));
+///                                       48.0, 54.0, 60.0,
+///                                       70.0, 78.0, 84.0]));
 /// ```
 impl<T> AddAssign for Matrix3x3<T>
 where
@@ -225,16 +225,16 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 /// let N = Matrix3x3::<f32>::from([29.0, 31.0, 37.0,
-///                          41.0, 43.0, 47.0,
-///                          53.0, 59.0, 61.0]);
+///                                 41.0, 43.0, 47.0,
+///                                 53.0, 59.0, 61.0]);
 /// let R = M - N;
 ///
 /// assert_eq!(R, Matrix3x3::<f32>::from([-27.0, -28.0, -32.0,
-///                                -34.0, -32.0, -34.0,
-///                                -36.0, -40.0, -38.0]));
+///                                       -34.0, -32.0, -34.0,
+///                                       -36.0, -40.0, -38.0]));
 /// ```
 impl<T> Sub for Matrix3x3<T>
 where
@@ -255,16 +255,16 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                      7.0, 11.0, 13.0,
+///                                     17.0, 19.0, 23.0]);
 /// let N = Matrix3x3::<f32>::from([29.0, 31.0, 37.0,
-///                          41.0, 43.0, 47.0,
-///                          53.0, 59.0, 61.0]);
+///                                 41.0, 43.0, 47.0,
+///                                 53.0, 59.0, 61.0]);
 /// M -= N;
 ///
 /// assert_eq!(M, Matrix3x3::<f32>::from([-27.0, -28.0, -32.0,
-///                                -34.0, -32.0, -34.0,
-///                                -36.0, -40.0, -38.0]));
+///                                       -34.0, -32.0, -34.0,
+///                                       -36.0, -40.0, -38.0]));
 /// ```
 impl<T> SubAssign for Matrix3x3<T>
 where
@@ -282,13 +282,13 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 /// let R = 2.0 * M;
 ///
 /// assert_eq!(R, Matrix3x3::<f32>::from([ 4.0,  6.0, 10.0,
-///                                14.0, 22.0, 26.0,
-///                                34.0, 38.0, 46.0]));
+///                                       14.0, 22.0, 26.0,
+///                                       34.0, 38.0, 46.0]));
 /// ```
 impl Mul<Matrix3x3<f32>> for f32 {
     type Output = Matrix3x3<f32>;
@@ -300,6 +300,7 @@ impl Mul<Matrix3x3<f32>> for f32 {
         Matrix3x3::<f32> { a: result }
     }
 }
+
 impl Mul<Matrix3x3<f64>> for f64 {
     type Output = Matrix3x3<f64>;
     fn mul(self, rhs: Matrix3x3<f64>) -> Matrix3x3<f64> {
@@ -316,13 +317,13 @@ impl Mul<Matrix3x3<f64>> for f64 {
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 /// let R = M * 2.0;
 ///
 /// assert_eq!(R, Matrix3x3::<f32>::from([ 4.0,  6.0, 10.0,
-///                                14.0, 22.0, 26.0,
-///                                34.0, 38.0, 46.0]));
+///                                       14.0, 22.0, 26.0,
+///                                       34.0, 38.0, 46.0]));
 /// ```
 impl<T> Mul<T> for Matrix3x3<T>
 where
@@ -343,13 +344,13 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                               7.0, 11.0, 13.0,
-///                              17.0, 19.0, 23.0]);
+///                                      7.0, 11.0, 13.0,
+///                                     17.0, 19.0, 23.0]);
 /// M *= 2.0;
 ///
 /// assert_eq!(M, Matrix3x3::<f32>::from([ 4.0,  6.0, 10.0,
-///                                14.0, 22.0, 26.0,
-///                                34.0, 38.0, 46.0]));
+///                                       14.0, 22.0, 26.0,
+///                                       34.0, 38.0, 46.0]));
 /// ```
 impl<T> MulAssign<T> for Matrix3x3<T>
 where
@@ -394,8 +395,8 @@ where
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// # use vector_quaternion_matrix::Vector3d;
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 /// let v = Vector3d{x:29.0, y:31.0, z:37.0};
 /// let r = v * M;
 ///
@@ -419,11 +420,11 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 /// let N = Matrix3x3::<f32>::from([29.0, 31.0, 37.0,
-///                          41.0, 43.0, 47.0,
-///                          53.0, 59.0, 61.0]);
+///                                 41.0, 43.0, 47.0,
+///                                 53.0, 59.0, 61.0]);
 /// let R = M * N;
 ///
 /// assert_eq!(R, Matrix3x3::<f32>::from([
@@ -464,11 +465,11 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
 /// let mut M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                               7.0, 11.0, 13.0,
-///                              17.0, 19.0, 23.0]);
+///                                      7.0, 11.0, 13.0,
+///                                     17.0, 19.0, 23.0]);
 /// let N = Matrix3x3::<f32>::from([29.0, 31.0, 37.0,
-///                          41.0, 43.0, 47.0,
-///                          53.0, 59.0, 61.0]);
+///                                 41.0, 43.0, 47.0,
+///                                 53.0, 59.0, 61.0]);
 /// M *= N;
 ///
 /// assert_eq!(M, Matrix3x3::<f32>::from([
@@ -495,8 +496,8 @@ where
 /// let R = M / 2.0;
 ///
 /// assert_eq!(R, Matrix3x3::<f32>::from([ 1.0, 1.5, 2.5,
-///                                 3.5, 5.5, 6.5,
-///                                8.5, 9.5, 11.5]));
+///                                        3.5, 5.5, 6.5,
+///                                        8.5, 9.5, 11.5]));
 /// ```
 impl<T> Div<T> for Matrix3x3<T>
 where
@@ -523,8 +524,8 @@ where
 /// M /= 2.0;
 ///
 /// assert_eq!(M, Matrix3x3::<f32>::from([ 1.0, 1.5, 2.5,
-///                                 3.5, 5.5, 6.5,
-///                                8.5, 9.5, 11.5]));
+///                                        3.5, 5.5, 6.5,
+///                                        8.5, 9.5, 11.5]));
 /// ```
 impl<T> DivAssign<T> for Matrix3x3<T>
 where
@@ -544,8 +545,8 @@ where
 /// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 ///
 /// assert_eq!(M[0], 2.0);
 /// assert_eq!(M[1], 3.0);
@@ -570,8 +571,8 @@ impl<T> Index<usize> for Matrix3x3<T> {
 /// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let mut M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                               7.0, 11.0, 13.0,
-///                              17.0, 19.0, 23.0]);
+///                                      7.0, 11.0, 13.0,
+///                                     17.0, 19.0, 23.0]);
 ///
 /// M[0] = 29.0;
 /// M[1] = 31.0;
@@ -584,8 +585,8 @@ impl<T> Index<usize> for Matrix3x3<T> {
 /// M[8] = 61.0;
 ///
 /// assert_eq!(M, Matrix3x3::<f32>::from([29.0, 31.0, 37.0,
-///                                41.0, 43.0, 47.0,
-///                                53.0, 59.0, 61.0]));
+///                                       41.0, 43.0, 47.0,
+///                                       53.0, 59.0, 61.0]));
 /// ```
 impl<T> IndexMut<usize> for Matrix3x3<T> {
     fn index_mut(&mut self, index: usize) -> &mut T {
@@ -598,8 +599,8 @@ impl<T> IndexMut<usize> for Matrix3x3<T> {
 /// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                           7.0, 11.0, 13.0,
-///                          17.0, 19.0, 23.0]);
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
 ///
 /// assert_eq!(M[(0,0)], 2.0);
 /// assert_eq!(M[(0,1)], 3.0);
@@ -624,8 +625,8 @@ impl<T> Index<(usize, usize)> for Matrix3x3<T> {
 /// # use vector_quaternion_matrix::Matrix3x3;
 ///
 /// let mut M = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-///                               7.0, 11.0, 13.0,
-///                              17.0, 19.0, 23.0]);
+///                                      7.0, 11.0, 13.0,
+///                                     17.0, 19.0, 23.0]);
 ///
 /// M[(0,0)] = 29.0;
 /// M[(0,1)] = 31.0;
@@ -731,8 +732,8 @@ where
     /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let v = A.row(0);
     ///
     /// assert_eq!(v, Vector3d{ x: 2.0, y: 3.0, z: 5.0 });
@@ -785,8 +786,8 @@ where
     /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let v = A.column(0);
     ///
     /// assert_eq!(v, Vector3d{ x: 2.0, y: 7.0, z: 17.0 });
@@ -851,8 +852,8 @@ where
     /// A.transpose_in_place();
     ///
     /// assert_eq!(A, Matrix3x3::<f32>::from([ 2.0,  7.0, 17.0,
-    ///                                 3.0, 11.0, 19.0,
-    ///                                 5.0, 13.0, 23.0]));
+    ///                                        3.0, 11.0, 19.0,
+    ///                                        5.0, 13.0, 23.0]));
     /// ```
     pub fn transpose_in_place(&mut self) {
         *self = self.transpose();
@@ -868,8 +869,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                           17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let B = A.adjugate();
     ///
     /// assert!((B*A/A.determinant()).is_near_identity());
@@ -895,8 +896,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let mut B = A;
     /// B.adjugate_in_place();
     ///
@@ -910,16 +911,16 @@ where
     /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
     ///
     /// let mut A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                               7.0, 11.0, 13.0,
-    ///                              17.0, 19.0, 23.0]);
+    ///                                      7.0, 11.0, 13.0,
+    ///                                     17.0, 19.0, 23.0]);
     ///
     /// let v = Vector3d::<f32>{ x: 10.0, y: 20.0, z: 30.0 };
     ///
     /// A.add_to_diagonal_in_place(v);
     ///
     /// assert_eq!(A, Matrix3x3::<f32>::from([ 12.0,  3.0,  5.0,
-    ///                                  7.0, 31.0, 13.0,
-    ///                                 17.0, 19.0, 53.0]));
+    ///                                         7.0, 31.0, 13.0,
+    ///                                        17.0, 19.0, 53.0]));
     /// ```
     pub fn add_to_diagonal_in_place(&mut self, v: Vector3d<T>) {
         self.a[0] = self.a[0] + v.x;
@@ -932,16 +933,16 @@ where
     /// # use vector_quaternion_matrix::{Matrix3x3,Vector3d};
     ///
     /// let mut A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                               7.0, 11.0, 13.0,
-    ///                              17.0, 19.0, 23.0]);
+    ///                                      7.0, 11.0, 13.0,
+    ///                                     17.0, 19.0, 23.0]);
     ///
     /// let v = Vector3d{ x: 10.0, y: 20.0, z: 30.0 };
     ///
     /// A.subtract_from_diagonal_in_place(v);
     ///
     /// assert_eq!(A, Matrix3x3::<f32>::from([ -8.0,  3.0,   5.0,
-    ///                                  7.0, -9.0,  13.0,
-    ///                                 17.0, 19.0,  -7.0]));
+    ///                                         7.0, -9.0,  13.0,
+    ///                                        17.0, 19.0,  -7.0]));
     /// ```
     pub fn subtract_from_diagonal_in_place(&mut self, v: Vector3d<T>) {
         self.a[0] = self.a[0] - v.x;
@@ -968,8 +969,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let d = A.determinant();
     ///
     /// assert_eq!(-78.0, d);
@@ -986,8 +987,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let s = A.sum();
     ///
     /// assert_eq!(s, 100.0);
@@ -1009,8 +1010,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let m = A.mean();
     ///
     /// assert_eq!(m, 100.0 / 9.0);
@@ -1033,8 +1034,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let p = A.product();
     ///
     /// assert_eq!(p, 223092860.0);
@@ -1056,8 +1057,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let t = A.trace();
     ///
     /// assert_eq!(t, 36.0);
@@ -1094,8 +1095,8 @@ impl Matrix3x3<f32> {
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let B = A.inverse();
     ///
     /// ```
@@ -1176,8 +1177,8 @@ impl Matrix3x3<f64> {
     /// # use vector_quaternion_matrix::Matrix3x3;
     ///
     /// let A = Matrix3x3::<f64>::from([ 2.0,  3.0,  5.0,
-    ///                           7.0, 11.0, 13.0,
-    ///                          17.0, 19.0, 23.0]);
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
     /// let B = A.inverse();
     ///
     /// ```
