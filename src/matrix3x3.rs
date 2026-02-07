@@ -87,8 +87,8 @@ impl From<(Vector3d<f32>, Vector3d<f32>, Vector3d<f32>)> for Matrix3x3 {
 ///
 /// see [Quaternion-derived rotation matrix](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Quaternion-derived_rotation_matrix),
 /// uses Hamilton convention.
-impl From<Quaternion> for Matrix3x3 {
-    fn from(q: Quaternion) -> Self {
+impl From<Quaternion<f32>> for Matrix3x3 {
+    fn from(q: Quaternion<f32>) -> Self {
         Self {
             a: [
                 1.0 - 2.0 * (q.y * q.y + q.z * q.z),
@@ -110,7 +110,7 @@ impl From<Quaternion> for Matrix3x3 {
 /// Adapted from [Converting a Rotation Matrix to a Quaternion](https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2015/01/matrix-to-quat.pdf) by Mike Day.
 /// Note that Day's paper uses the [Shuster multiplication convention](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Alternative_conventions),
 /// rather than the Hamilton multiplication convention used by the Quaternion class.
-impl From<Matrix3x3> for Quaternion {
+impl From<Matrix3x3> for Quaternion<f32> {
     fn from(m: Matrix3x3) -> Self {
         // Choose largest scale factor from 4w, 4x, 4y, and 4z, to avoid a scale factor of zero, or numerical instabilities caused by division of a small scale factor.
         if m.a[8] < 0.0 {

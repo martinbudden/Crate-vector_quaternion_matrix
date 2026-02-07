@@ -12,11 +12,14 @@
         "fract",
         "hypot",
         "libm",
+        "Pitchf",
+        "Quaternionf",
         "roundf",
         "Shuster",
         "sinf",
         "sqrtf",
         "tanf",
-        "trunc"
+        "trunc",
+        "Yawf"
     ]
 }
