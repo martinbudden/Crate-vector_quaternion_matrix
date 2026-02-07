@@ -16,9 +16,9 @@ pub struct Matrix3x3 {
 /// Zero matrix
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
-/// # use num_traits::zero;
+/// # use num_traits::Zero;
 ///
-/// let Z: Matrix3x3 = zero();
+/// let Z = Matrix3x3::zero();
 ///
 /// assert_eq!(Z, Matrix3x3::from([ 0.0, 0.0, 0.0,
 ///                                 0.0, 0.0, 0.0,
@@ -38,9 +38,9 @@ impl Zero for Matrix3x3 {
 /// Identity matrix
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3;
-/// # use num_traits::one;
+/// # use num_traits::One;
 ///
-/// let I: Matrix3x3 = one();
+/// let I = Matrix3x3::one();
 ///
 /// assert_eq!(I, Matrix3x3::from([ 1.0, 0.0, 0.0,
 ///                                 0.0, 1.0, 0.0,
@@ -202,9 +202,9 @@ impl Neg for Matrix3x3 {
 ///                                48.0, 54.0, 60.0,
 ///                                70.0, 78.0, 84.0]));
 ///
-/// # use num_traits::zero;
+/// # use num_traits::Zero;
 ///
-/// let Z: Matrix3x3 = zero();
+/// let Z = Matrix3x3::zero();
 /// let R2 = M + Z;
 ///
 /// assert_eq!(R2, M);
@@ -421,9 +421,9 @@ impl Mul<Matrix3x3> for Vector3d<f32> {
 ///   17.0 * 29.0 + 19.0 * 41.0 + 23.0 * 53.0,  17.0 * 31.0 + 19.0 * 43.0 + 23.0 * 59.0,  17.0 * 37.0 + 19.0 * 47.0 + 23.0 * 61.0,
 /// ]));
 ///
-/// # use num_traits::one;
+/// # use num_traits::One;
 ///
-/// let I: Matrix3x3 = one();
+/// let I = Matrix3x3::one();
 /// let R2 = M * I;
 ///
 /// assert_eq!(R2, M);
