@@ -76,7 +76,7 @@ impl Zero for Vector3dI32 {
 /// let r = u + v;
 ///
 /// assert_eq!(r, Vector3dI32{ x: 9, y: 14, z: 18 });
-/// ```   
+/// ```
 impl Add for Vector3dI32 {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
@@ -97,7 +97,7 @@ impl Add for Vector3dI32 {
 /// let r = u - v;
 ///
 /// assert_eq!(r, Vector3dI32{ x: -5, y: -8, z: -12 });
-/// ```   
+/// ```
 impl Sub for Vector3dI32 {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {

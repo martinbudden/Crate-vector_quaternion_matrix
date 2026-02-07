@@ -63,8 +63,8 @@ impl From<[f32; 9]> for Matrix3x3 {
     }
 }
 
-impl From<[Vector3d; 3]> for Matrix3x3 {
-    fn from(v: [Vector3d; 3]) -> Self {
+impl From<[Vector3d<f32>; 3]> for Matrix3x3 {
+    fn from(v: [Vector3d<f32>; 3]) -> Self {
         Self {
             a: [
                 v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z,
@@ -73,8 +73,8 @@ impl From<[Vector3d; 3]> for Matrix3x3 {
     }
 }
 
-impl From<(Vector3d, Vector3d, Vector3d)> for Matrix3x3 {
-    fn from(v: (Vector3d, Vector3d, Vector3d)) -> Self {
+impl From<(Vector3d<f32>, Vector3d<f32>, Vector3d<f32>)> for Matrix3x3 {
+    fn from(v: (Vector3d<f32>, Vector3d<f32>, Vector3d<f32>)) -> Self {
         Self {
             a: [
                 v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z,
@@ -365,15 +365,15 @@ impl MulAssign<f32> for Matrix3x3 {
 /// let M = Matrix3x3::from([ 2.0,  3.0,  5.0,
 ///                           7.0, 11.0, 13.0,
 ///                          17.0, 19.0, 23.0]);
-/// let v = Vector3d{x:29.0, y:31.0, z:37.0};
+/// let v = Vector3d::<f32>{x:29.0, y:31.0, z:37.0};
 /// let r = M * v;
 ///
-/// assert_eq!(r, Vector3d{x:336.0, y:1025.0, z:1933.0});
+/// assert_eq!(r, Vector3d::<f32>{x:336.0, y:1025.0, z:1933.0});
 /// ```
-impl Mul<Vector3d> for Matrix3x3 {
-    type Output = Vector3d;
-    fn mul(self, v: Vector3d) -> Vector3d {
-        Vector3d {
+impl Mul<Vector3d<f32>> for Matrix3x3 {
+    type Output = Vector3d<f32>;
+    fn mul(self, v: Vector3d<f32>) -> Vector3d<f32> {
+        Vector3d::<f32> {
             x: self.a[0] * v.x + self.a[1] * v.y + self.a[2] * v.z,
             y: self.a[3] * v.x + self.a[4] * v.y + self.a[5] * v.z,
             z: self.a[6] * v.x + self.a[7] * v.y + self.a[8] * v.z,
@@ -393,7 +393,7 @@ impl Mul<Vector3d> for Matrix3x3 {
 ///
 /// assert_eq!(r, Vector3d{x:29.0*2.0 + 31.0*7.0 + 37.0*17.0, y:1131.0, z:1399.0});
 /// ```
-impl Mul<Matrix3x3> for Vector3d {
+impl Mul<Matrix3x3> for Vector3d<f32> {
     type Output = Self;
     fn mul(self, rhs: Matrix3x3) -> Self {
         Self {
@@ -698,7 +698,7 @@ impl Matrix3x3 {
         }
     }
 
-    pub fn set_row(&mut self, row: usize, value: Vector3d) {
+    pub fn set_row(&mut self, row: usize, value: Vector3d<f32>) {
         match row {
             0 => {
                 self.a[0] = value.x;
@@ -731,20 +731,20 @@ impl Matrix3x3 {
     /// assert_eq!(A.row(1), Vector3d{ x: 7.0, y: 11.0, z: 13.0 });
     /// assert_eq!(A.row(2), Vector3d{ x: 17.0, y: 19.0, z: 23.0 });
     /// ```
-    pub fn row(&self, row: usize) -> Vector3d {
+    pub fn row(&self, row: usize) -> Vector3d<f32> {
         match row {
-            0 => Vector3d {
+            0 => Vector3d::<f32> {
                 x: self.a[0],
                 y: self.a[1],
                 z: self.a[2],
             },
-            1 => Vector3d {
+            1 => Vector3d::<f32> {
                 x: self.a[3],
                 y: self.a[4],
                 z: self.a[5],
             },
             // default to row 2 if row out of range
-            _ => Vector3d {
+            _ => Vector3d::<f32> {
                 x: self.a[6],
                 y: self.a[7],
                 z: self.a[8],
@@ -752,7 +752,7 @@ impl Matrix3x3 {
         }
     }
 
-    pub fn set_column(&mut self, column: usize, value: Vector3d) {
+    pub fn set_column(&mut self, column: usize, value: Vector3d<f32>) {
         match column {
             0 => {
                 self.a[0] = value.x;
@@ -785,20 +785,20 @@ impl Matrix3x3 {
     /// assert_eq!(A.column(1), Vector3d{ x: 3.0, y: 11.0, z: 19.0 });
     /// assert_eq!(A.column(2), Vector3d{ x: 5.0, y: 13.0, z: 23.0 });
     /// ```
-    pub fn column(&self, column: usize) -> Vector3d {
+    pub fn column(&self, column: usize) -> Vector3d<f32> {
         match column {
-            0 => Vector3d {
+            0 => Vector3d::<f32> {
                 x: self.a[0],
                 y: self.a[3],
                 z: self.a[6],
             },
-            1 => Vector3d {
+            1 => Vector3d::<f32> {
                 x: self.a[1],
                 y: self.a[4],
                 z: self.a[7],
             },
             // default to column 2 if column out of range
-            _ => Vector3d {
+            _ => Vector3d::<f32> {
                 x: self.a[2],
                 y: self.a[5],
                 z: self.a[8],
@@ -814,7 +814,7 @@ impl Matrix3x3 {
     ///                               7.0, 11.0, 13.0,
     ///                              17.0, 19.0, 23.0]);
     ///
-    /// let v = Vector3d{ x: 10.0, y: 20.0, z: 30.0 };
+    /// let v = Vector3d::<f32>{ x: 10.0, y: 20.0, z: 30.0 };
     ///
     /// A.add_to_diagonal_in_place(v);
     ///
@@ -822,7 +822,7 @@ impl Matrix3x3 {
     ///                                  7.0, 31.0, 13.0,
     ///                                 17.0, 19.0, 53.0]));
     /// ```
-    pub fn add_to_diagonal_in_place(&mut self, v: Vector3d) {
+    pub fn add_to_diagonal_in_place(&mut self, v: Vector3d<f32>) {
         self.a[0] += v.x;
         self.a[4] += v.y;
         self.a[8] += v.z;
@@ -844,7 +844,7 @@ impl Matrix3x3 {
     ///                                  7.0, -9.0,  13.0,
     ///                                 17.0, 19.0,  -7.0]));
     /// ```
-    pub fn subtract_from_diagonal_in_place(&mut self, v: Vector3d) {
+    pub fn subtract_from_diagonal_in_place(&mut self, v: Vector3d<f32>) {
         self.a[0] -= v.x;
         self.a[4] -= v.y;
         self.a[8] -= v.z;

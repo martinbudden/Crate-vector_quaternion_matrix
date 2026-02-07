@@ -8,11 +8,15 @@
         "codegen",
         "cosf",
         "debuginfo",
+        "Eigen",
+        "fract",
+        "hypot",
         "libm",
         "roundf",
         "Shuster",
         "sinf",
         "sqrtf",
-        "tanf"
+        "tanf",
+        "trunc"
     ]
 }

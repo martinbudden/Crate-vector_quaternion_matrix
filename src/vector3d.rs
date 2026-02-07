@@ -1,27 +1,35 @@
 use core::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
-use num_traits::Zero;
+use num_traits::{One, Signed, Zero, float::FloatCore};
+
+use crate::MathMethods;
+
+pub type Vector3di8 = Vector3d<i8>;
+pub type Vector3di16 = Vector3d<i16>;
+pub type Vector3di32 = Vector3d<i32>;
+pub type Vector3df32 = Vector3d<f32>;
+pub type Vector3df64 = Vector3d<f64>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct Vector3d {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+pub struct Vector3d<T> {
+    pub x: T,
+    pub y: T,
+    pub z: T,
 }
 
 /// Vector from tuple
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let v = Vector3d::from((2.0, 3.0, 5.0));
-/// let w: Vector3d = (7.0, 11.0, 13.0).into();
+/// let v = Vector3d::<f32>::from((2.0, 3.0, 5.0));
+/// let w: Vector3d::<f32> = (7.0, 11.0, 13.0).into();
 ///
-/// assert_eq!(v, Vector3d{ x: 2.0, y: 3.0, z: 5.0 });
-/// assert_eq!(w, Vector3d{ x: 7.0, y: 11.0, z: 13.0 });
+/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
 /// ```
-impl From<(f32, f32, f32)> for Vector3d {
-    fn from(v: (f32, f32, f32)) -> Self {
+impl<T> From<(T, T, T)> for Vector3d<T> {
+    fn from(v: (T, T, T)) -> Self {
         Self {
             x: v.0,
             y: v.1,
@@ -34,14 +42,17 @@ impl From<(f32, f32, f32)> for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let v = Vector3d::from([2.0, 3.0, 5.0]);
-/// let w: Vector3d = [7.0, 11.0, 13.0].into();
+/// let v = Vector3d::<f32>::from([2.0, 3.0, 5.0]);
+/// let w: Vector3d::<f32> = [7.0, 11.0, 13.0].into();
 ///
-/// assert_eq!(v, Vector3d{ x: 2.0, y: 3.0, z: 5.0 });
-/// assert_eq!(w, Vector3d{ x: 7.0, y: 11.0, z: 13.0 });
+/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
 /// ```
-impl From<[f32; 3]> for Vector3d {
-    fn from(v: [f32; 3]) -> Self {
+impl<T> From<[T; 3]> for Vector3d<T>
+where
+    T: Copy,
+{
+    fn from(v: [T; 3]) -> Self {
         Self {
             x: v[0],
             y: v[1],
@@ -54,7 +65,7 @@ impl From<[f32; 3]> for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let v = Vector3d{ x: 2.0, y: 3.0, z: 5.0 };
+/// let v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
 ///
 /// let a = <[f32; 3]>::from(v);
 /// let b: [f32; 3] = v.into();
@@ -62,8 +73,8 @@ impl From<[f32; 3]> for Vector3d {
 /// assert_eq!(a, [2.0, 3.0, 5.0]);
 /// assert_eq!(b, [2.0, 3.0, 5.0]);
 /// ```
-impl From<Vector3d> for [f32; 3] {
-    fn from(v: Vector3d) -> Self {
+impl<T> From<Vector3d<T>> for [T; 3] {
+    fn from(v: Vector3d<T>) -> Self {
         [v.x, v.y, v.z]
     }
 }
@@ -73,36 +84,66 @@ impl From<Vector3d> for [f32; 3] {
 /// # use vector_quaternion_matrix::Vector3d;
 /// # use num_traits::zero;
 ///
-/// let z: Vector3d = zero();
+/// let z: Vector3d::<f32> = zero();
 ///
-/// assert_eq!(z, Vector3d{ x: 0.0, y: 0.0, z: 0.0 });
+/// assert_eq!(z, Vector3d::<f32> { x: 0.0, y: 0.0, z: 0.0 });
 /// ```
-impl Zero for Vector3d {
+impl<T> Zero for Vector3d<T>
+where
+    T: Zero + PartialEq,
+{
     fn zero() -> Self {
         Self {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
+            x: T::zero(),
+            y: T::zero(),
+            z: T::zero(),
         }
     }
 
     fn is_zero(&self) -> bool {
-        self.x == 0.0 && self.y == 0.0 && self.z == 0.0
+        self.x == T::zero() && self.y == T::zero() && self.z == T::zero()
     }
 }
 
 /// Negate vector
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
-/// let mut v = Vector3d{ x: 2.0, y: 3.0, z: 5.0 };
+/// let mut v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
 /// v = -v;
 ///
-/// assert_eq!(v, Vector3d { x: -2.0, y: -3.0, z: -5.0 });
-/// ```   
-impl Neg for Vector3d {
+/// assert_eq!(v, Vector3d::<f32> { x: -2.0, y: -3.0, z: -5.0 });
+/// ```
+impl<T> Neg for Vector3d<T>
+where
+    T: Neg<Output = T>,
+{
     type Output = Self;
-    fn neg(self) -> Self {
+    fn neg(self) -> Self::Output {
         Self {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
+/// Negate vector reference
+/// ```
+/// # use vector_quaternion_matrix::Vector3d;
+///
+/// let mut v = Vector3d::<f32> { x: 2.0, y: -3.0, z: 5.0 };
+/// let n = -v;
+///
+/// assert_eq!(n, Vector3d::<f32> { x: -2.0, y: 3.0, z: -5.0 });
+/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: -3.0, z: 5.0 });
+/// ```
+impl<T> Neg for &Vector3d<T>
+where
+    T: Copy + Neg<Output = T>,
+{
+    type Output = Vector3d<T>;
+    fn neg(self) -> Self::Output {
+        Vector3d {
             x: -self.x,
             y: -self.y,
             z: -self.z,
@@ -113,16 +154,32 @@ impl Neg for Vector3d {
 /// Add two vectors
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
-/// let u = Vector3d::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::new(7.0, 11.0, 13.0);
+/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
 /// let r = u + v;
 ///
-/// assert_eq!(r, Vector3d { x: 9.0, y: 14.0, z: 18.0 });
-/// ```   
-impl Add for Vector3d {
-    type Output = Self;
+/// assert_eq!(r, Vector3d::<f32> { x: 9.0, y: 14.0, z: 18.0 });
+/// ```
+impl<T> Add for Vector3d<T>
+where
+    T: Add<Output = T>,
+{
+    type Output = Vector3d<T>;
     fn add(self, rhs: Self) -> Self {
         Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+impl<T> Add for &Vector3d<T>
+where
+    T: Copy + Add<Output = T>,
+{
+    type Output = Vector3d<T>;
+    fn add(self, rhs: Self) -> Self::Output {
+        Vector3d {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
             z: self.z + rhs.z,
@@ -134,19 +191,22 @@ impl Add for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let mut r = Vector3d::new(2.0, 3.0, 5.0);
-/// let u = Vector3d::new(7.0, 11.0, 13.0);
+/// let mut r = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// let u = Vector3d::<f32>::new(7.0, 11.0, 13.0);
 /// r += u;
 ///
-/// assert_eq!(r, Vector3d { x: 9.0, y: 14.0, z: 18.0 });
+/// assert_eq!(r, Vector3d::<f32> { x: 9.0, y: 14.0, z: 18.0 });
 ///
 /// # use num_traits::zero;
 ///
-/// let z: Vector3d = zero();
+/// let z: Vector3d::<f32> = zero();
 /// let r = u + z;
 /// assert_eq!(r, u);
-/// ```   
-impl AddAssign for Vector3d {
+/// ```
+impl<T> AddAssign for Vector3d<T>
+where
+    T: Copy + Add<Output = T>,
+{
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
     }
@@ -156,16 +216,32 @@ impl AddAssign for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let u = Vector3d::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::new(7.0, 11.0, 13.0);
+/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
 /// let r = u - v;
 ///
-/// assert_eq!(r, Vector3d { x: -5.0, y: -8.0, z: -8.0 });
-/// ```   
-impl Sub for Vector3d {
-    type Output = Self;
+/// assert_eq!(r, Vector3d::<f32> { x: -5.0, y: -8.0, z: -8.0 });
+/// ```
+impl<T> Sub for Vector3d<T>
+where
+    T: Sub<Output = T>,
+{
+    type Output = Vector3d<T>;
     fn sub(self, rhs: Self) -> Self {
         Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+impl<T> Sub for &Vector3d<T>
+where
+    T: Copy + Sub<Output = T>,
+{
+    type Output = Vector3d<T>;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Vector3d {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
             z: self.z - rhs.z,
@@ -177,13 +253,16 @@ impl Sub for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let mut r = Vector3d::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::new(7.0, 11.0, 17.0);
+/// let mut r = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(7.0, 11.0, 17.0);
 /// r -= v;
 ///
 /// assert_eq!(r, Vector3d { x: -5.0, y: -8.0, z: -12.0 });
 /// ```
-impl SubAssign for Vector3d {
+impl<T> SubAssign for Vector3d<T>
+where
+    T: Copy + Sub<Output = T>,
+{
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
     }
@@ -193,14 +272,14 @@ impl SubAssign for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let v = Vector3d::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
 /// let r = 2.0 * v;
 ///
-/// assert_eq!(r, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
+/// assert_eq!(r, Vector3d::<f32> { x: 4.0, y: 6.0, z: 10.0 });
 /// ```
-impl Mul<Vector3d> for f32 {
-    type Output = Vector3d;
-    fn mul(self, rhs: Vector3d) -> Vector3d {
+impl Mul<Vector3d<f32>> for f32 {
+    type Output = Vector3d<f32>;
+    fn mul(self, rhs: Vector3d<f32>) -> Vector3d<f32> {
         Vector3d {
             x: self * rhs.x,
             y: self * rhs.y,
@@ -208,19 +287,31 @@ impl Mul<Vector3d> for f32 {
         }
     }
 }
-
+impl Mul<Vector3d<f64>> for f64 {
+    type Output = Vector3d<f64>;
+    fn mul(self, rhs: Vector3d<f64>) -> Vector3d<f64> {
+        Vector3d {
+            x: self * rhs.x,
+            y: self * rhs.y,
+            z: self * rhs.z,
+        }
+    }
+}
 /// Multiply vector by a constant
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let v = Vector3d::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
 /// let r = v * 2.0;
 ///
 /// assert_eq!(r, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
 /// ```
-impl Mul<f32> for Vector3d {
+impl<T> Mul<T> for Vector3d<T>
+where
+    T: Copy + Mul<Output = T>,
+{
     type Output = Self;
-    fn mul(self, k: f32) -> Self {
+    fn mul(self, k: T) -> Self::Output {
         Self {
             x: self.x * k,
             y: self.y * k,
@@ -233,13 +324,16 @@ impl Mul<f32> for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let mut v = Vector3d::new(2.0, 3.0, 5.0);
+/// let mut v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
 /// v *= 2.0;
 ///
 /// assert_eq!(v, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
 /// ```
-impl MulAssign<f32> for Vector3d {
-    fn mul_assign(&mut self, k: f32) {
+impl<T> MulAssign<T> for Vector3d<T>
+where
+    T: Copy + Mul<Output = T>,
+{
+    fn mul_assign(&mut self, k: T) {
         *self = *self * k;
     }
 }
@@ -248,34 +342,38 @@ impl MulAssign<f32> for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let v = Vector3d::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
 /// let r = v / 2.0;
 ///
 /// assert_eq!(r, Vector3d { x: 1.0, y: 1.5, z: 2.5 });
 /// ```
-impl Div<f32> for Vector3d {
+impl<T> Div<T> for Vector3d<T>
+where
+    T: Copy + Div<Output = T>,
+{
     type Output = Self;
-    fn div(self, k: f32) -> Self {
-        let r: f32 = 1.0 / k;
+    fn div(self, k: T) -> Self {
         Self {
-            x: self.x * r,
-            y: self.y * r,
-            z: self.z * r,
+            x: self.x / k,
+            y: self.y / k,
+            z: self.z / k,
         }
     }
 }
-
 /// In-place divide a vector by a constant
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let mut v = Vector3d::new(2.0, 3.0, 5.0);
+/// let mut v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
 /// v /= 2.0;
 ///
 /// assert_eq!(v, Vector3d { x: 1.0, y: 1.5, z: 2.5 });
 /// ```
-impl DivAssign<f32> for Vector3d {
-    fn div_assign(&mut self, k: f32) {
+impl<T> DivAssign<T> for Vector3d<T>
+where
+    T: Copy + Div<Output = T>,
+{
+    fn div_assign(&mut self, k: T) {
         *self = *self / k;
     }
 }
@@ -284,15 +382,15 @@ impl DivAssign<f32> for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let v = Vector3d::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
 ///
 /// assert_eq!(v[0], 2.0);
 /// assert_eq!(v[1], 3.0);
 /// assert_eq!(v[2], 5.0);
 /// ```
-impl Index<usize> for Vector3d {
-    type Output = f32;
-    fn index(&self, index: usize) -> &f32 {
+impl<T> Index<usize> for Vector3d<T> {
+    type Output = T;
+    fn index(&self, index: usize) -> &T {
         match index {
             0 => &self.x,
             1 => &self.y,
@@ -306,15 +404,15 @@ impl Index<usize> for Vector3d {
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let mut v = Vector3d::new(2.0, 3.0, 5.0);
+/// let mut v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
 /// v[0] = 7.0;
 /// v[1] = 11.0;
 /// v[2] = 13.0;
 ///
 /// assert_eq!(v, Vector3d { x:7.0, y:11.0, z:13.0 });
 /// ```
-impl IndexMut<usize> for Vector3d {
-    fn index_mut(&mut self, index: usize) -> &mut f32 {
+impl<T> IndexMut<usize> for Vector3d<T> {
+    fn index_mut(&mut self, index: usize) -> &mut T {
         match index {
             0 => &mut self.x,
             1 => &mut self.y,
@@ -324,15 +422,20 @@ impl IndexMut<usize> for Vector3d {
     }
 }
 
-impl Vector3d {
+impl<T> Vector3d<T>
+where
+    T: Copy + Neg<Output = T> + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
+{
     /// Create a vector
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: T, y: T, z: T) -> Self {
         Self { x, y, z }
     }
+
     /// Vector dot product
-    pub fn dot(&self, rhs: Self) -> f32 {
+    pub fn dot(&self, rhs: Self) -> T {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
+
     /// Vector cross product
     pub fn cross(&self, rhs: Self) -> Self {
         Self {
@@ -341,27 +444,55 @@ impl Vector3d {
             z: self.x * rhs.y - self.y * rhs.x,
         }
     }
-    /// Return distance between two points, squared
-    pub fn distance_squared(&self, rhs: Self) -> f32 {
-        (*self - rhs).squared_norm()
-    }
-    // Return distance between two points
-    pub fn distance(&self, rhs: Self) -> f32 {
-        self.distance_squared(rhs).sqrt()
-    }
+
     /// Return square of Euclidean norm
-    pub fn squared_norm(&self) -> f32 {
+    pub fn squared_norm(&self) -> T {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
+
+    /// Return distance between two points, squared
+    pub fn distance_squared(&self, rhs: Self) -> T {
+        (*self + -rhs).squared_norm()
+    }
+
+    /// Return the sum of all components of the vector
+    pub fn sum(&self) -> T {
+        self.x + self.y + self.z
+    }
+
+    /// Return the product of all components of the vector
+    pub fn product(&self) -> T {
+        self.x * self.y * self.z
+    }
+}
+
+impl<T> Vector3d<T>
+where
+    T: Copy
+        + Zero
+        + PartialEq
+        + Neg<Output = T>
+        + Add<Output = T>
+        + Sub<Output = T>
+        + Mul<Output = T>
+        + Div<Output = T>
+        + MathMethods,
+{
+    // Return distance between two points
+    pub fn distance(&self, rhs: Self) -> T {
+        self.distance_squared(rhs).sqrt()
+    }
+
     /// Return Euclidean norm
-    pub fn norm(&self) -> f32 {
+    pub fn norm(&self) -> T {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
+
     /// Return normalized form of vector
     pub fn normalized(&self) -> Self {
-        let norm: f32 = self.norm();
+        let norm = self.norm();
         // If norm == 0.0 then the vector is already normalized
-        if norm == 0.0 {
+        if norm == T::zero() {
             return *self;
         }
         *self / norm
@@ -369,12 +500,19 @@ impl Vector3d {
 
     /// Normalize the vector in place
     pub fn normalize(&mut self) {
-        let norm: f32 = self.norm();
+        let norm = self.norm();
+        #[allow(clippy::assign_op_pattern)]
         // If norm == 0.0 then the vector is already normalized
-        if norm != 0.0 {
-            *self /= self.norm();
+        if norm != T::zero() {
+            *self = *self / norm;
         }
     }
+}
+
+impl<T> Vector3d<T>
+where
+    T: Copy + Signed,
+{
     /// Return a copy of the vector with all components set to their absolute values
     pub fn abs(&self) -> Self {
         Self {
@@ -388,9 +526,14 @@ impl Vector3d {
     pub fn abs_in_place(&mut self) {
         *self = self.abs();
     }
+}
 
+impl<T> Vector3d<T>
+where
+    T: Copy + FloatCore,
+{
     /// Return a copy of the vector with all components clamped to the specified range
-    pub fn clamp(&self, min: f32, max: f32) -> Self {
+    pub fn clamp(&self, min: T, max: T) -> Self {
         Self {
             x: self.x.clamp(min, max),
             y: self.y.clamp(min, max),
@@ -399,21 +542,18 @@ impl Vector3d {
     }
 
     /// Clamp all components of the vector to the specified range
-    pub fn clamp_in_place(&mut self, min: f32, max: f32) {
+    pub fn clamp_in_place(&mut self, min: T, max: T) {
         *self = self.clamp(min, max);
     }
+}
 
-    /// Return the sum of all components of the vector
-    pub fn sum(&self) -> f32 {
-        self.x + self.y + self.z
-    }
+impl<T> Vector3d<T>
+where
+    T: Copy + One + Div<Output = T> + Add<Output = T>,
+{
     /// Return the mean of all components of the vector
-    pub fn mean(&self) -> f32 {
-        (self.x + self.y + self.z) / 3.0
-    }
-    /// Return the product of all components of the vector
-    pub fn product(&self) -> f32 {
-        self.x * self.y * self.z
+    pub fn mean(&self) -> T {
+        (self.x + self.y + self.z) / (T::one() + T::one() + T::one())
     }
 }
 
@@ -422,14 +562,15 @@ mod tests {
     use super::*;
 
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    type Vector3df32 = Vector3d<f32>;
 
     #[test]
     fn normal_types() {
-        is_normal::<Vector3d>();
+        is_normal::<Vector3d<f32>>();
     }
     #[test]
     fn default() {
-        let a: Vector3d = Vector3d::default();
+        let a: Vector3df32 = Vector3d::default();
         assert_eq!(
             a,
             Vector3d {
@@ -438,14 +579,41 @@ mod tests {
                 z: 0.0
             }
         );
-        let z: Vector3d = Vector3d::zero();
+        let z: Vector3df32 = Vector3d::zero();
         //let z: Vector3d = zero();
         assert_eq!(a, z);
         assert!(z.is_zero());
     }
     #[test]
+    fn test_neg_owned() {
+        let v = Vector3d {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+        };
+        let neg_v = -v;
+        assert_eq!(neg_v.x, -1.0);
+        assert_eq!(neg_v.y, 2.0);
+        assert_eq!(neg_v.z, -3.0);
+    }
+
+    #[test]
+    fn test_neg_borrowed() {
+        let v = Vector3d {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+        };
+        let neg_v = -&v; // Uses &Vector3d<T> impl
+        assert_eq!(neg_v.x, -1.0);
+        assert_eq!(neg_v.y, 2.0);
+        assert_eq!(neg_v.z, -3.0);
+        // v is still valid
+        assert_eq!(v.x, 1.0);
+    }
+    #[test]
     fn neg() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -471,7 +639,7 @@ mod tests {
     }
     #[test]
     fn add() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -492,7 +660,7 @@ mod tests {
     }
     #[test]
     fn add_assign() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -515,7 +683,7 @@ mod tests {
     }
     #[test]
     fn sub() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -537,7 +705,7 @@ mod tests {
     }
     #[test]
     fn sub_assign() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -560,7 +728,7 @@ mod tests {
     }
     #[test]
     fn mul() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -584,7 +752,7 @@ mod tests {
     }
     #[test]
     fn mul_assign() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -602,7 +770,7 @@ mod tests {
     }
     #[test]
     fn div() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -618,7 +786,7 @@ mod tests {
     }
     #[test]
     fn div_assign() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -649,16 +817,16 @@ mod tests {
         assert_eq!(a, b);
 
         use num_traits::zero;
-        let z: Vector3d = zero();
+        let z: Vector3df32 = zero();
         assert!(z.is_zero());
 
-        let c: Vector3d = (2.0, 3.0, 5.0).into();
+        let c: Vector3df32 = (2.0, 3.0, 5.0).into();
         assert_eq!(a, c);
         let d = Vector3d::from((2.0, 3.0, 5.0));
         assert_eq!(a, d);
-        let e: Vector3d = [2.0, 3.0, 5.0].into();
+        let e: Vector3df32 = [2.0, 3.0, 5.0].into();
         assert_eq!(a, e);
-        let f = Vector3d::from([2.0, 3.0, 5.0]);
+        let f = Vector3df32::from([2.0, 3.0, 5.0]);
         assert_eq!(a, f);
 
         let h = <[f32; 3]>::from(a);
@@ -668,7 +836,7 @@ mod tests {
     }
     #[test]
     fn dot() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -685,7 +853,7 @@ mod tests {
     }
     #[test]
     fn squared_norm() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -725,7 +893,7 @@ mod tests {
     }
     #[test]
     fn normalize() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: 2.0,
             y: 3.0,
             z: 5.0,
@@ -734,7 +902,7 @@ mod tests {
         let mut b = a;
         b.normalize();
         assert_eq!(b, a_normalized);
-        let z = Vector3d {
+        let z = Vector3df32 {
             x: 0.0,
             y: 0.0,
             z: 0.0,
@@ -745,7 +913,7 @@ mod tests {
     }
     #[test]
     fn abs() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: -2.0,
             y: -3.0,
             z: -5.0,
@@ -761,7 +929,7 @@ mod tests {
     }
     #[test]
     fn abs_in_place() {
-        let a = Vector3d {
+        let a = Vector3df32 {
             x: -2.0,
             y: -3.0,
             z: -5.0,

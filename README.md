@@ -2,7 +2,7 @@
 
 ## Original implementation
 
-This crate was originally implemented as a c++ library. The 
+This crate was originally implemented as a c++ library. The
 [original implementation can be found here](https://github.com/martinbudden/Library-VectorQuaternionMatrix).
 
 ## License

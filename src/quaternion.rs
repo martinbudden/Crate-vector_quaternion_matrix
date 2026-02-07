@@ -156,7 +156,7 @@ impl One for Quaternion {
 /// q = -q;
 ///
 /// assert_eq!(q, Quaternion { w: -2.0, x: -3.0, y: -5.0, z: -7.0 });
-/// ```   
+/// ```
 impl Neg for Quaternion {
     type Output = Self;
     fn neg(self) -> Self {
@@ -177,7 +177,7 @@ impl Neg for Quaternion {
 /// let r = u + v;
 ///
 /// assert_eq!(r, Quaternion { w: 13.0, x: 16.0, y: 22.0, z: 26.0 });
-/// ```   
+/// ```
 impl Add for Quaternion {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
@@ -424,16 +424,16 @@ impl Quaternion {
     }
 
     /// Return the imaginary part of the quaternion
-    pub fn imaginary(self) -> Vector3d {
-        Vector3d {
+    pub fn imaginary(self) -> Vector3d<f32> {
+        Vector3d::<f32> {
             x: self.x,
             y: self.y,
             z: self.z,
         }
     }
     /// Return the last column of the equivalent rotation matrix, but calculated more efficiently than a full conversion
-    pub fn direction_cosine_matrix_z(self) -> Vector3d {
-        Vector3d {
+    pub fn direction_cosine_matrix_z(self) -> Vector3d<f32> {
+        Vector3d::<f32> {
             x: 2.0 * (self.w * self.y + self.x * self.z),
             y: 2.0 * (self.y * self.z - self.w * self.x),
             z: self.w * self.w,
@@ -469,15 +469,15 @@ impl Quaternion {
         }
     }
 
-    pub fn half_gravity(&self) -> Vector3d {
-        Vector3d {
+    pub fn half_gravity(&self) -> Vector3d<f32> {
+        Vector3d::<f32> {
             x: self.x * self.z - self.w * self.y,
             y: self.w * self.x + self.y * self.z,
             z: -0.5 + self.w * self.w + self.z * self.z,
         }
     }
 
-    pub fn gravity(&self) -> Vector3d {
+    pub fn gravity(&self) -> Vector3d<f32> {
         self.half_gravity() * 2.0
     }
 
@@ -547,11 +547,11 @@ impl Quaternion {
         self.x = xt;
     }
 
-    pub fn rotate(self, v: &Vector3d) -> Vector3d {
+    pub fn rotate(self, v: &Vector3d<f32>) -> Vector3d<f32> {
         let x2: f32 = self.x * self.x;
         let y2: f32 = self.y * self.y;
         let z2: f32 = self.z * self.z;
-        Vector3d {
+        Vector3d::<f32> {
             x: 2.0
                 * (v.x * (0.5 - y2 - z2)
                     + v.y * (self.x * self.y - self.w * self.z)

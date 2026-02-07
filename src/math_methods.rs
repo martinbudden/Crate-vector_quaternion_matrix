@@ -5,6 +5,18 @@ use num_traits::Float;
 // The form x.fn() is called method call syntax.
 // The form fn(x) is called function call syntax.
 
+// List of mathematical methods available in std
+// x.sqrt()
+// x.sin_cos()
+// x.sin(), x.cos(), x.tan()
+// x.asin(), x.acos(), x.atan(), x.atan2()
+// x.ceil(), x.floor(), x.round(), x.trunc(), x.fract()
+// x.exp(), x.exp2(), x.exp_m1()
+// x.ln(), x.log2(), x.log10(), x.log()
+// x.powf(), x.powi()
+// x.ln_1p()
+// x.hypot()
+
 pub trait MathMethods: Sized {
     fn sqrt(self) -> Self;
     fn reciprocal_sqrt(self) -> Self;
