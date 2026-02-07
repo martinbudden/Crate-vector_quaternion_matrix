@@ -27,6 +27,7 @@ pub struct RollPitch<T> {
     pub pitch: T,
 }
 
+// **** Define ****
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Quaternion<T> {
     pub w: T,
@@ -35,6 +36,7 @@ pub struct Quaternion<T> {
     pub z: T,
 }
 
+// **** Default ****
 impl<T> Default for Quaternion<T>
 where
     T: Zero + One,
@@ -49,48 +51,7 @@ where
     }
 }
 
-/// Quaternion from array
-/// ```
-/// # use vector_quaternion_matrix::Quaternion;
-///
-/// let v = Quaternion::<f32>::from([2.0, 3.0, 5.0, 6.0]);
-/// let w: Quaternion::<f32> = [7.0, 11.0, 13.0, 17.0].into();
-///
-/// assert_eq!(v, Quaternion::<f32> { w: 2.0, x: 3.0, y: 5.0, z: 6.0 });
-/// assert_eq!(w, Quaternion::<f32> { w: 7.0, x: 11.0, y: 13.0, z: 17.0 });
-/// ```
-impl<T> From<[T; 4]> for Quaternion<T>
-where
-    T: Copy,
-{
-    fn from(q: [T; 4]) -> Self {
-        Self {
-            w: q[0],
-            x: q[1],
-            y: q[2],
-            z: q[3],
-        }
-    }
-}
-
-/// Array from quaternion
-/// ```
-/// # use vector_quaternion_matrix::Quaternion;
-///
-/// let q = Quaternion::<f32> { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
-///
-/// let a = <[f32; 4]>::from(q);
-/// let b: [f32; 4] = q.into();
-///
-/// assert_eq!(a, [2.0, 3.0, 5.0, 7.0]);
-/// assert_eq!(b, [2.0, 3.0, 5.0, 7.0]);
-/// ```
-impl<T> From<Quaternion<T>> for [T; 4] {
-    fn from(q: Quaternion<T>) -> Self {
-        [q.w, q.x, q.y, q.z]
-    }
-}
-
+// **** Zero ****
 /// Zero quaternion
 /// ```
 /// # use vector_quaternion_matrix::Quaternion;
@@ -118,6 +79,7 @@ where
     }
 }
 
+// **** One ****
 /// Unit quaternion
 /// ```
 /// # use vector_quaternion_matrix::Quaternion;
@@ -169,6 +131,7 @@ where
     }
 }
 
+// **** NegReference ****
 /// Negate vector reference
 /// ```
 /// # use vector_quaternion_matrix::Quaternion;
@@ -719,6 +682,63 @@ where
 impl<T> Quaternion<T>
 where
     T: Copy
+        + One
+        + Neg<Output = T>
+        + Add<Output = T>
+        + Sub<Output = T>
+        + Mul<Output = T>
+        + Div<Output = T>,
+{
+    // Return the conjugate of the quaternion
+    pub fn conjugate(self) -> Self {
+        Self {
+            w: self.w,
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+
+    /// Return the imaginary part of the quaternion
+    pub fn imaginary(self) -> Vector3d<T> {
+        Vector3d::<T> {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+        }
+    }
+    /// Return the last column of the equivalent rotation matrix, but calculated more efficiently than a full conversion
+    pub fn direction_cosine_matrix_z(self) -> Vector3d<T> {
+        let two = T::one() + T::one();
+        Vector3d::<T> {
+            x: (self.w * self.y + self.x * self.z) * two,
+            y: (self.y * self.z - self.w * self.x) * two,
+            z: self.w * self.w,
+        }
+    }
+
+    pub fn gravity(&self) -> Vector3d<T> {
+        let two = T::one() + T::one();
+        Vector3d::<T> {
+            x: (self.x * self.z - self.w * self.y) * two,
+            y: (self.w * self.x + self.y * self.z) * two,
+            z: (self.w * self.w + self.z * self.z) * two - T::one(),
+        }
+    }
+
+    pub fn half_gravity(&self) -> Vector3d<T> {
+        let half: T = T::one() / (T::one() + T::one());
+        Vector3d::<T> {
+            x: self.x * self.z - self.w * self.y,
+            y: self.w * self.x + self.y * self.z,
+            z: self.w * self.w + self.z * self.z - half,
+        }
+    }
+}
+
+impl<T> Quaternion<T>
+where
+    T: Copy
         + Zero
         + One
         + PartialEq
@@ -757,6 +777,49 @@ where
     /// Create a Quaternion from roll and pitch Euler angles (in degrees), assumes yaw angle is zero.
     pub fn from_roll_pitch_angles_degrees(roll_degrees: T, pitch_degrees: T) -> Self {
         Self::from_roll_pitch_angles_radians(roll_degrees.to_radians(), pitch_degrees.to_radians())
+    }
+}
+
+// **** From ****
+/// Quaternion from array
+/// ```
+/// # use vector_quaternion_matrix::Quaternion;
+///
+/// let v = Quaternion::<f32>::from([2.0, 3.0, 5.0, 6.0]);
+/// let w: Quaternion::<f32> = [7.0, 11.0, 13.0, 17.0].into();
+///
+/// assert_eq!(v, Quaternion::<f32> { w: 2.0, x: 3.0, y: 5.0, z: 6.0 });
+/// assert_eq!(w, Quaternion::<f32> { w: 7.0, x: 11.0, y: 13.0, z: 17.0 });
+/// ```
+impl<T> From<[T; 4]> for Quaternion<T>
+where
+    T: Copy,
+{
+    fn from(q: [T; 4]) -> Self {
+        Self {
+            w: q[0],
+            x: q[1],
+            y: q[2],
+            z: q[3],
+        }
+    }
+}
+
+/// Array from quaternion
+/// ```
+/// # use vector_quaternion_matrix::Quaternion;
+///
+/// let q = Quaternion::<f32> { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+///
+/// let a = <[f32; 4]>::from(q);
+/// let b: [f32; 4] = q.into();
+///
+/// assert_eq!(a, [2.0, 3.0, 5.0, 7.0]);
+/// assert_eq!(b, [2.0, 3.0, 5.0, 7.0]);
+/// ```
+impl<T> From<Quaternion<T>> for [T; 4] {
+    fn from(q: Quaternion<T>) -> Self {
+        [q.w, q.x, q.y, q.z]
     }
 }
 
@@ -829,63 +892,6 @@ where
 {
     fn from(angles: RollPitch<T>) -> Self {
         Quaternion::from_roll_pitch_angles_radians(angles.roll, angles.pitch)
-    }
-}
-
-impl<T> Quaternion<T>
-where
-    T: Copy
-        + One
-        + Neg<Output = T>
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>,
-{
-    // Return the conjugate of the quaternion
-    pub fn conjugate(self) -> Self {
-        Self {
-            w: self.w,
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
-    }
-
-    /// Return the imaginary part of the quaternion
-    pub fn imaginary(self) -> Vector3d<T> {
-        Vector3d::<T> {
-            x: self.x,
-            y: self.y,
-            z: self.z,
-        }
-    }
-    /// Return the last column of the equivalent rotation matrix, but calculated more efficiently than a full conversion
-    pub fn direction_cosine_matrix_z(self) -> Vector3d<T> {
-        let two = T::one() + T::one();
-        Vector3d::<T> {
-            x: (self.w * self.y + self.x * self.z) * two,
-            y: (self.y * self.z - self.w * self.x) * two,
-            z: self.w * self.w,
-        }
-    }
-
-    pub fn gravity(&self) -> Vector3d<T> {
-        let two = T::one() + T::one();
-        Vector3d::<T> {
-            x: (self.x * self.z - self.w * self.y) * two,
-            y: (self.w * self.x + self.y * self.z) * two,
-            z: (self.w * self.w + self.z * self.z) * two - T::one(),
-        }
-    }
-
-    pub fn half_gravity(&self) -> Vector3d<T> {
-        let half: T = T::one() / (T::one() + T::one());
-        Vector3d::<T> {
-            x: self.x * self.z - self.w * self.y,
-            y: self.w * self.x + self.y * self.z,
-            z: self.w * self.w + self.z * self.z - half,
-        }
     }
 }
 

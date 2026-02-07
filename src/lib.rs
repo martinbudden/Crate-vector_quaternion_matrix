@@ -12,6 +12,8 @@ mod vector3d;
 pub use math_methods::MathMethods;
 
 pub use matrix3x3::Matrix3x3;
+pub use matrix3x3::Matrix3x3f32;
+pub use matrix3x3::Matrix3x3f64;
 
 pub use quaternion::Quaternion;
 pub use quaternion::Quaternionf32;

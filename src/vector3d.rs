@@ -18,63 +18,7 @@ pub struct Vector3d<T> {
     pub z: T,
 }
 
-/// Vector from tuple
-/// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32>::from((2.0, 3.0, 5.0));
-/// let w: Vector3d::<f32> = (7.0, 11.0, 13.0).into();
-///
-/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
-/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
-/// ```
-impl<T> From<(T, T, T)> for Vector3d<T> {
-    fn from((x, y, z): (T, T, T)) -> Self {
-        Self { x, y, z }
-    }
-}
-
-/// Vector from array
-/// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32>::from([2.0, 3.0, 5.0]);
-/// let w: Vector3d::<f32> = [7.0, 11.0, 13.0].into();
-///
-/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
-/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
-/// ```
-impl<T> From<[T; 3]> for Vector3d<T>
-where
-    T: Copy,
-{
-    fn from(v: [T; 3]) -> Self {
-        Self {
-            x: v[0],
-            y: v[1],
-            z: v[2],
-        }
-    }
-}
-
-/// Array from vector
-/// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
-///
-/// let a = <[f32; 3]>::from(v);
-/// let b: [f32; 3] = v.into();
-///
-/// assert_eq!(a, [2.0, 3.0, 5.0]);
-/// assert_eq!(b, [2.0, 3.0, 5.0]);
-/// ```
-impl<T> From<Vector3d<T>> for [T; 3] {
-    fn from(v: Vector3d<T>) -> Self {
-        [v.x, v.y, v.z]
-    }
-}
-
+// **** Zero ****
 /// Zero vector
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
@@ -580,6 +524,64 @@ where
     // Return distance between two points
     pub fn distance(&self, rhs: Self) -> T {
         self.distance_squared(rhs).sqrt()
+    }
+}
+
+// **** From ****
+/// Vector from tuple
+/// ```
+/// # use vector_quaternion_matrix::Vector3d;
+///
+/// let v = Vector3d::<f32>::from((2.0, 3.0, 5.0));
+/// let w: Vector3d::<f32> = (7.0, 11.0, 13.0).into();
+///
+/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
+/// ```
+impl<T> From<(T, T, T)> for Vector3d<T> {
+    fn from((x, y, z): (T, T, T)) -> Self {
+        Self { x, y, z }
+    }
+}
+
+/// Vector from array
+/// ```
+/// # use vector_quaternion_matrix::Vector3d;
+///
+/// let v = Vector3d::<f32>::from([2.0, 3.0, 5.0]);
+/// let w: Vector3d::<f32> = [7.0, 11.0, 13.0].into();
+///
+/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
+/// ```
+impl<T> From<[T; 3]> for Vector3d<T>
+where
+    T: Copy,
+{
+    fn from(v: [T; 3]) -> Self {
+        Self {
+            x: v[0],
+            y: v[1],
+            z: v[2],
+        }
+    }
+}
+
+/// Array from vector
+/// ```
+/// # use vector_quaternion_matrix::Vector3d;
+///
+/// let v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
+///
+/// let a = <[f32; 3]>::from(v);
+/// let b: [f32; 3] = v.into();
+///
+/// assert_eq!(a, [2.0, 3.0, 5.0]);
+/// assert_eq!(b, [2.0, 3.0, 5.0]);
+/// ```
+impl<T> From<Vector3d<T>> for [T; 3] {
+    fn from(v: Vector3d<T>) -> Self {
+        [v.x, v.y, v.z]
     }
 }
 
