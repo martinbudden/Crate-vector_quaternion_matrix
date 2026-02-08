@@ -1,7 +1,5 @@
 use core::convert::From;
-use core::ops::{
-    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
-};
+use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
 use crate::Vector3d;
@@ -643,24 +641,16 @@ where
     }
     /// Create a Quaternion from roll, pitch, and yaw Euler angles (in radians).
     /// See: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_angles_(in_3-2-1_sequence)_to_quaternion_conversion
-    pub fn from_roll_pitch_yaw_angles_radians(
-        roll_radians: T,
-        pitch_radians: T,
-        yaw_radians: T,
-    ) -> Self {
+    pub fn from_roll_pitch_yaw_angles_radians(roll_radians: T, pitch_radians: T, yaw_radians: T) -> Self {
         let half: T = T::one() / (T::one() + T::one());
         let (sin_half_roll, cos_half_roll) = (roll_radians * half).sin_cos();
         let (sin_half_pitch, cos_half_pitch) = (pitch_radians * half).sin_cos();
         let (sin_half_yaw, cos_half_yaw) = (yaw_radians * half).sin_cos();
         Self {
-            w: cos_half_roll * cos_half_pitch * cos_half_yaw
-                + sin_half_roll * sin_half_pitch * sin_half_yaw,
-            x: sin_half_roll * cos_half_pitch * cos_half_yaw
-                - cos_half_roll * sin_half_pitch * sin_half_yaw,
-            y: cos_half_roll * sin_half_pitch * cos_half_yaw
-                + sin_half_roll * cos_half_pitch * sin_half_yaw,
-            z: cos_half_roll * cos_half_pitch * sin_half_yaw
-                - sin_half_roll * sin_half_pitch * cos_half_yaw,
+            w: cos_half_roll * cos_half_pitch * cos_half_yaw + sin_half_roll * sin_half_pitch * sin_half_yaw,
+            x: sin_half_roll * cos_half_pitch * cos_half_yaw - cos_half_roll * sin_half_pitch * sin_half_yaw,
+            y: cos_half_roll * sin_half_pitch * cos_half_yaw + sin_half_roll * cos_half_pitch * sin_half_yaw,
+            z: cos_half_roll * cos_half_pitch * sin_half_yaw - sin_half_roll * sin_half_pitch * cos_half_yaw,
         }
     }
 
@@ -681,13 +671,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy
-        + One
-        + Neg<Output = T>
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>,
+    T: Copy + One + Neg<Output = T> + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T>,
 {
     // Return the conjugate of the quaternion
     pub fn conjugate(self) -> Self {
@@ -762,11 +746,7 @@ where
     }
 
     /// Create a Quaternion from roll, pitch, and yaw Euler angles (in degrees).
-    pub fn from_roll_pitch_yaw_angles_degrees(
-        roll_degrees: T,
-        pitch_degrees: T,
-        yaw_degrees: T,
-    ) -> Self {
+    pub fn from_roll_pitch_yaw_angles_degrees(roll_degrees: T, pitch_degrees: T, yaw_degrees: T) -> Self {
         Self::from_roll_pitch_yaw_angles_radians(
             roll_degrees.to_radians(),
             pitch_degrees.to_radians(),

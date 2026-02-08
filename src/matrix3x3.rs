@@ -1,6 +1,4 @@
-use core::ops::{
-    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
-};
+use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
 use crate::Quaternion;
@@ -836,8 +834,7 @@ where
     pub fn transpose(&self) -> Self {
         Self {
             a: [
-                self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2],
-                self.a[5], self.a[8],
+                self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2], self.a[5], self.a[8],
             ],
         }
     }
@@ -878,15 +875,15 @@ where
     pub fn adjugate(&self) -> Self {
         Self {
             a: [
-                self.a[4] * self.a[8] - self.a[5] * self.a[7], //  (e*i - f*h)
+                self.a[4] * self.a[8] - self.a[5] * self.a[7],    //  (e*i - f*h)
                 -(self.a[1] * self.a[8] - self.a[2] * self.a[7]), // -(b*i - c*h)
-                self.a[1] * self.a[5] - self.a[2] * self.a[4], //  (b*f - c*e)
+                self.a[1] * self.a[5] - self.a[2] * self.a[4],    //  (b*f - c*e)
                 -(self.a[3] * self.a[8] - self.a[5] * self.a[6]), // -(d*i - f*g)
-                self.a[0] * self.a[8] - self.a[2] * self.a[6], //  (a*i - c*g)
+                self.a[0] * self.a[8] - self.a[2] * self.a[6],    //  (a*i - c*g)
                 -(self.a[0] * self.a[5] - self.a[2] * self.a[3]), // -(a*f - c*d)
-                self.a[3] * self.a[7] - self.a[4] * self.a[6], //  (d*h - e*g)
+                self.a[3] * self.a[7] - self.a[4] * self.a[6],    //  (d*h - e*g)
                 -(self.a[0] * self.a[7] - self.a[1] * self.a[6]), // -(a*h - b*g)
-                self.a[0] * self.a[4] - self.a[1] * self.a[3], //  (a*e - b*d)
+                self.a[0] * self.a[4] - self.a[1] * self.a[3],    //  (a*e - b*d)
             ],
         }
     }
@@ -994,15 +991,7 @@ where
     /// assert_eq!(s, 100.0);
     /// ```
     pub fn sum(&self) -> T {
-        self.a[0]
-            + self.a[1]
-            + self.a[2]
-            + self.a[3]
-            + self.a[4]
-            + self.a[5]
-            + self.a[6]
-            + self.a[7]
-            + self.a[8]
+        self.a[0] + self.a[1] + self.a[2] + self.a[3] + self.a[4] + self.a[5] + self.a[6] + self.a[7] + self.a[8]
     }
 
     /// Return the mean of all components of the matrix
@@ -1017,15 +1006,7 @@ where
     /// assert_eq!(m, 100.0 / 9.0);
     /// ```
     pub fn mean(&self) -> T {
-        let nine = T::one()
-            + T::one()
-            + T::one()
-            + T::one()
-            + T::one()
-            + T::one()
-            + T::one()
-            + T::one()
-            + T::one();
+        let nine = T::one() + T::one() + T::one() + T::one() + T::one() + T::one() + T::one() + T::one() + T::one();
         self.sum() / nine
     }
 
@@ -1041,15 +1022,7 @@ where
     /// assert_eq!(p, 223092860.0);
     /// ```
     pub fn product(&self) -> T {
-        self.a[0]
-            * self.a[1]
-            * self.a[2]
-            * self.a[3]
-            * self.a[4]
-            * self.a[5]
-            * self.a[6]
-            * self.a[7]
-            * self.a[8]
+        self.a[0] * self.a[1] * self.a[2] * self.a[3] * self.a[4] * self.a[5] * self.a[6] * self.a[7] * self.a[8]
     }
 
     /// Return trace of matrix.
@@ -1081,8 +1054,7 @@ impl Matrix3x3<f32> {
     /// ```
     pub fn invert_in_place(&mut self) -> bool {
         let adjugate = self.adjugate();
-        let determinant =
-            self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
+        let determinant = self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
         if determinant.abs() <= f32::EPSILON {
             return false;
         }
@@ -1102,8 +1074,7 @@ impl Matrix3x3<f32> {
     /// ```
     pub fn inverse(&self) -> Self {
         let adjugate = self.adjugate();
-        let determinant =
-            self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
+        let determinant = self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
         adjugate / determinant
     }
     /// Return true if matrix is near zero
@@ -1163,8 +1134,7 @@ impl Matrix3x3<f64> {
     /// ```
     pub fn invert_in_place(&mut self) -> bool {
         let adjugate = self.adjugate();
-        let determinant =
-            self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
+        let determinant = self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
         if determinant.abs() <= f64::EPSILON {
             return false;
         }
@@ -1184,8 +1154,7 @@ impl Matrix3x3<f64> {
     /// ```
     pub fn inverse(&self) -> Self {
         let adjugate = self.adjugate();
-        let determinant =
-            self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
+        let determinant = self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
         adjugate / determinant
     }
     /// Return true if matrix is near zero
@@ -1249,9 +1218,7 @@ where
 {
     fn from(v: [Vector3d<T>; 3]) -> Self {
         Self {
-            a: [
-                v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z,
-            ],
+            a: [v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z],
         }
     }
 }
@@ -1259,9 +1226,7 @@ where
 impl<T> From<(Vector3d<T>, Vector3d<T>, Vector3d<T>)> for Matrix3x3<T> {
     fn from(v: (Vector3d<T>, Vector3d<T>, Vector3d<T>)) -> Self {
         Self {
-            a: [
-                v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z,
-            ],
+            a: [v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z],
         }
     }
 }
@@ -1462,11 +1427,7 @@ mod tests {
         let a = Matrix3x3::from([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         assert_eq!(A, a);
         let b = Matrix3x3::from([
-            Vector3d {
-                x: 2.0,
-                y: 3.0,
-                z: 5.0,
-            },
+            Vector3d { x: 2.0, y: 3.0, z: 5.0 },
             Vector3d {
                 x: 7.0,
                 y: 11.0,
@@ -1480,11 +1441,7 @@ mod tests {
         ]);
         assert_eq!(A, b);
         let c = Matrix3x3::from((
-            Vector3d {
-                x: 2.0,
-                y: 3.0,
-                z: 5.0,
-            },
+            Vector3d { x: 2.0, y: 3.0, z: 5.0 },
             Vector3d {
                 x: 7.0,
                 y: 11.0,
