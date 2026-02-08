@@ -49,10 +49,10 @@ where
 /// Negate vector
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
-/// let mut v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
-/// v = -v;
+/// let v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
+/// let r = -v;
 ///
-/// assert_eq!(v, Vector3d::<f32> { x: -2.0, y: -3.0, z: -5.0 });
+/// assert_eq!(r, Vector3d::<f32> { x: -2.0, y: -3.0, z: -5.0 });
 /// ```
 impl<T> Neg for Vector3d<T>
 where
@@ -72,8 +72,8 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Vector3d;
 ///
-/// let mut v = Vector3d::<f32> { x: 2.0, y: -3.0, z: 5.0 };
-/// let r = -v;
+/// let v = Vector3d::<f32> { x: 2.0, y: -3.0, z: 5.0 };
+/// let r = -&v;
 ///
 /// assert_eq!(r, Vector3d::<f32> { x: -2.0, y: 3.0, z: -5.0 });
 /// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: -3.0, z: 5.0 });
@@ -115,6 +115,16 @@ where
         }
     }
 }
+
+/// Add two vectors references
+/// ```
+/// # use vector_quaternion_matrix::Vector3d;
+/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
+/// let r = &u + &v;
+///
+/// assert_eq!(r, Vector3d::<f32> { x: 9.0, y: 14.0, z: 18.0 });
+/// ```
 impl<T> Add for &Vector3d<T>
 where
     T: Copy + Add<Output = T>,
@@ -179,6 +189,16 @@ where
         }
     }
 }
+/// Subtract two vectors references
+/// ```
+/// # use vector_quaternion_matrix::Vector3d;
+///
+/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
+/// let r = &u - &v;
+///
+/// assert_eq!(r, Vector3d::<f32> { x: -5.0, y: -8.0, z: -8.0 });
+/// ```
 impl<T> Sub for &Vector3d<T>
 where
     T: Copy + Sub<Output = T>,
@@ -265,6 +285,17 @@ where
             x: self.x * k,
             y: self.y * k,
             z: self.z * k,
+        }
+    }
+}
+
+impl Mul<f32> for Vector3d<i8> {
+    type Output = Self;
+    fn mul(self, k: f32) -> Self {
+        Self {
+            x: (self.x as f32 * k) as i8,
+            y: (self.y as f32 * k) as i8,
+            z: (self.z as f32 * k) as i8,
         }
     }
 }
