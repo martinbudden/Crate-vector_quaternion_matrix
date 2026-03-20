@@ -40,12 +40,7 @@ where
     T: Zero + One,
 {
     fn default() -> Self {
-        Self {
-            w: T::one(),
-            x: T::zero(),
-            y: T::zero(),
-            z: T::zero(),
-        }
+        Self { w: T::one(), x: T::zero(), y: T::zero(), z: T::zero() }
     }
 }
 
@@ -64,12 +59,7 @@ where
     T: Zero + PartialEq,
 {
     fn zero() -> Self {
-        Self {
-            w: T::zero(),
-            x: T::zero(),
-            y: T::zero(),
-            z: T::zero(),
-        }
+        Self { w: T::zero(), x: T::zero(), y: T::zero(), z: T::zero() }
     }
 
     fn is_zero(&self) -> bool {
@@ -92,12 +82,7 @@ where
     T: Copy + Zero + One + PartialEq + Sub<Output = T> + Mul<Output = T>,
 {
     fn one() -> Self {
-        Self {
-            w: T::one(),
-            x: T::zero(),
-            y: T::zero(),
-            z: T::zero(),
-        }
+        Self { w: T::one(), x: T::zero(), y: T::zero(), z: T::zero() }
     }
 
     fn is_one(&self) -> bool {
@@ -120,12 +105,7 @@ where
 {
     type Output = Self;
     fn neg(self) -> Self::Output {
-        Self {
-            w: -self.w,
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+        Self { w: -self.w, x: -self.x, y: -self.y, z: -self.z }
     }
 }
 
@@ -146,12 +126,7 @@ where
 {
     type Output = Quaternion<T>;
     fn neg(self) -> Self::Output {
-        Quaternion {
-            w: -self.w,
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+        Quaternion { w: -self.w, x: -self.x, y: -self.y, z: -self.z }
     }
 }
 
@@ -171,12 +146,7 @@ where
 {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
-        Self {
-            w: self.w + rhs.w,
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
+        Self { w: self.w + rhs.w, x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
     }
 }
 
@@ -199,12 +169,7 @@ where
 {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
-        Self {
-            w: self.w - rhs.w,
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
+        Self { w: self.w - rhs.w, x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
     }
 }
 
@@ -224,24 +189,14 @@ where
 impl Mul<Quaternion<f32>> for f32 {
     type Output = Quaternion<f32>;
     fn mul(self, rhs: Quaternion<f32>) -> Quaternion<f32> {
-        Quaternion {
-            w: self * rhs.w,
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
-        }
+        Quaternion { w: self * rhs.w, x: self * rhs.x, y: self * rhs.y, z: self * rhs.z }
     }
 }
 
 impl Mul<Quaternion<f64>> for f64 {
     type Output = Quaternion<f64>;
     fn mul(self, rhs: Quaternion<f64>) -> Quaternion<f64> {
-        Quaternion {
-            w: self * rhs.w,
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
-        }
+        Quaternion { w: self * rhs.w, x: self * rhs.x, y: self * rhs.y, z: self * rhs.z }
     }
 }
 
@@ -253,12 +208,7 @@ where
 {
     type Output = Self;
     fn mul(self, k: T) -> Self {
-        Self {
-            w: self.w * k,
-            x: self.x * k,
-            y: self.y * k,
-            z: self.z * k,
-        }
+        Self { w: self.w * k, x: self.x * k, y: self.y * k, z: self.z * k }
     }
 }
 
@@ -316,12 +266,7 @@ where
     type Output = Self;
     fn div(self, k: T) -> Self {
         let r: T = T::one() / k;
-        Self {
-            w: self.w * r,
-            x: self.x * r,
-            y: self.y * r,
-            z: self.z * r,
-        }
+        Self { w: self.w * r, x: self.x * r, y: self.y * r, z: self.z * r }
     }
 }
 
@@ -412,12 +357,7 @@ where
 {
     /// Return a copy of the quaternion with all components set to their absolute values
     pub fn abs(&self) -> Self {
-        Self {
-            w: self.w.abs(),
-            x: self.x.abs(),
-            y: self.y.abs(),
-            z: self.z.abs(),
-        }
+        Self { w: self.w.abs(), x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
 
     /// Set all components of the quaternion to their absolute values
@@ -469,7 +409,7 @@ where
     /// Return the mean of all components of the quaternion
     pub fn mean(&self) -> T {
         let four = T::one() + T::one() + T::one() + T::one();
-        (self.x + self.y + self.z) / four
+        (self.w + self.x + self.y + self.z) / four
     }
 }
 // **** impl norm ****
@@ -513,7 +453,7 @@ where
     }
     /// Rotate about the x-axis,
     /// equivalent to *= Quaternion(cos(theta/2), sin(theta/2), 0, 0)
-    pub fn rotate_x(&mut self, theta: T) {
+    pub fn rotate_x(&mut self, theta: T) -> Self {
         let two = T::one() + T::one();
         let (sin, cos) = (theta / two).sin_cos();
         let wt: T = self.w * cos - self.x * sin;
@@ -522,11 +462,12 @@ where
         self.z = self.z * cos - self.y * sin;
         self.w = wt;
         self.y = yt;
+        *self
     }
 
     /// Rotate about the y-axis,
     /// equivalent to *= Quaternion(cos(theta/2), 0, sin(theta/2), 0)
-    pub fn rotate_y(&mut self, theta: T) {
+    pub fn rotate_y(&mut self, theta: T) -> Self {
         let two = T::one() + T::one();
         let (sin, cos) = (theta / two).sin_cos();
         let wt: T = self.w * cos - self.y * sin;
@@ -535,11 +476,12 @@ where
         self.z = self.x * sin - self.z * cos;
         self.w = wt;
         self.x = xt;
+        *self
     }
 
     /// Rotate about the z-axis,
     /// equivalent to *= Quaternion(cos(theta/2), 0, 0, sin(theta/2))
-    pub fn rotate_z(&mut self, theta: T) {
+    pub fn rotate_z(&mut self, theta: T) -> Self {
         let two = T::one() + T::one();
         let (sin, cos) = (theta / two).sin_cos();
         let wt: T = self.w * cos - self.z * sin;
@@ -548,6 +490,7 @@ where
         self.z = self.z * cos - self.w * sin;
         self.w = wt;
         self.x = xt;
+        *self
     }
 
     pub fn rotate(self, v: &Vector3d<T>) -> Vector3d<T> {
@@ -675,21 +618,12 @@ where
 {
     // Return the conjugate of the quaternion
     pub fn conjugate(self) -> Self {
-        Self {
-            w: self.w,
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+        Self { w: self.w, x: -self.x, y: -self.y, z: -self.z }
     }
 
     /// Return the imaginary part of the quaternion
     pub fn imaginary(self) -> Vector3d<T> {
-        Vector3d::<T> {
-            x: self.x,
-            y: self.y,
-            z: self.z,
-        }
+        Vector3d::<T> { x: self.x, y: self.y, z: self.z }
     }
     /// Return the last column of the equivalent rotation matrix, but calculated more efficiently than a full conversion
     pub fn direction_cosine_matrix_z(self) -> Vector3d<T> {
@@ -776,12 +710,7 @@ where
     T: Copy,
 {
     fn from(q: [T; 4]) -> Self {
-        Self {
-            w: q[0],
-            x: q[1],
-            y: q[2],
-            z: q[3],
-        }
+        Self { w: q[0], x: q[1], y: q[2], z: q[3] }
     }
 }
 
@@ -888,15 +817,7 @@ mod tests {
     #[test]
     fn default() {
         let a = Quaternionf32::default();
-        assert_eq!(
-            a,
-            Quaternion {
-                w: 1.0,
-                x: 0.0,
-                y: 0.0,
-                z: 0.0
-            }
-        );
+        assert_eq!(a, Quaternion { w: 1.0, x: 0.0, y: 0.0, z: 0.0 });
         assert!(a.is_one());
         let z = Quaternionf32::zero();
         assert!(z.is_zero());
@@ -914,355 +835,123 @@ mod tests {
     }
     #[test]
     fn neg() {
-        let a = Quaternionf32 {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
-        assert_eq!(
-            -a,
-            Quaternion {
-                w: -2.0,
-                x: -3.0,
-                y: -5.0,
-                z: -7.0,
-            }
-        );
+        let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+        assert_eq!(-a, Quaternion { w: -2.0, x: -3.0, y: -5.0, z: -7.0 });
 
         let b = -a;
-        assert_eq!(
-            b,
-            Quaternion {
-                w: -2.0,
-                x: -3.0,
-                y: -5.0,
-                z: -7.0,
-            }
-        );
+        assert_eq!(b, Quaternion { w: -2.0, x: -3.0, y: -5.0, z: -7.0 });
     }
     #[test]
     fn add() {
-        let a = Quaternionf32 {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
-        let b = Quaternion {
-            w: 11.0,
-            x: 13.0,
-            y: 17.0,
-            z: 19.0,
-        };
-        assert_eq!(
-            a + b,
-            Quaternion {
-                w: 13.0,
-                x: 16.0,
-                y: 22.0,
-                z: 26.0
-            }
-        );
+        let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+        let b = Quaternion { w: 11.0, x: 13.0, y: 17.0, z: 19.0 };
+        assert_eq!(a + b, Quaternion { w: 13.0, x: 16.0, y: 22.0, z: 26.0 });
     }
     #[test]
     fn add_assign() {
-        let a = Quaternionf32 {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
-        let b = Quaternion {
-            w: 11.0,
-            x: 13.0,
-            y: 17.0,
-            z: 19.0,
-        };
+        let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+        let b = Quaternion { w: 11.0, x: 13.0, y: 17.0, z: 19.0 };
         let mut c = a;
         c += b;
-        assert_eq!(
-            c,
-            Quaternion {
-                w: 13.0,
-                x: 16.0,
-                y: 22.0,
-                z: 26.0
-            }
-        );
+        assert_eq!(c, Quaternion { w: 13.0, x: 16.0, y: 22.0, z: 26.0 });
     }
     #[test]
     fn sub() {
-        let a = Quaternionf32 {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
-        let b = Quaternion {
-            w: 11.0,
-            x: 13.0,
-            y: 17.0,
-            z: 23.0,
-        };
+        let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+        let b = Quaternion { w: 11.0, x: 13.0, y: 17.0, z: 23.0 };
         let c = a - b;
-        assert_eq!(
-            c,
-            Quaternion {
-                w: -9.0,
-                x: -10.0,
-                y: -12.0,
-                z: -16.0,
-            }
-        );
+        assert_eq!(c, Quaternion { w: -9.0, x: -10.0, y: -12.0, z: -16.0 });
     }
     #[test]
     fn sub_assign() {
-        let a = Quaternion {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
-        let b = Quaternion {
-            w: 11.0,
-            x: 13.0,
-            y: 17.0,
-            z: 23.0,
-        };
+        let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+        let b = Quaternion { w: 11.0, x: 13.0, y: 17.0, z: 23.0 };
         let mut c = a;
         c -= b;
-        assert_eq!(
-            c,
-            Quaternion {
-                w: -9.0,
-                x: -10.0,
-                y: -12.0,
-                z: -16.0
-            }
-        );
+        assert_eq!(c, Quaternion { w: -9.0, x: -10.0, y: -12.0, z: -16.0 });
     }
     #[test]
     fn mul() {
-        let a = Quaternion {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
-        assert_eq!(
-            a * 2.0,
-            Quaternion {
-                w: 4.0,
-                x: 6.0,
-                y: 10.0,
-                z: 14.0
-            }
-        );
-        assert_eq!(
-            2.0 * a,
-            Quaternion {
-                w: 4.0,
-                x: 6.0,
-                y: 10.0,
-                z: 14.0
-            }
-        );
+        let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+        assert_eq!(a * 2.0, Quaternion { w: 4.0, x: 6.0, y: 10.0, z: 14.0 });
+        assert_eq!(2.0 * a, Quaternion { w: 4.0, x: 6.0, y: 10.0, z: 14.0 });
     }
     #[test]
     fn mul_assign() {
-        let a = Quaternion {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
+        let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         let mut b = a;
         b *= 2.0;
-        assert_eq!(
-            b,
-            Quaternion {
-                w: 4.0,
-                x: 6.0,
-                y: 10.0,
-                z: 14.0,
-            }
-        );
+        assert_eq!(b, Quaternion { w: 4.0, x: 6.0, y: 10.0, z: 14.0 });
     }
     #[test]
     fn div() {
-        let a = Quaternion {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
-        assert_eq!(
-            a / 2.0,
-            Quaternion {
-                w: 1.0,
-                x: 1.5,
-                y: 2.5,
-                z: 3.5,
-            }
-        );
+        let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+        assert_eq!(a / 2.0, Quaternion { w: 1.0, x: 1.5, y: 2.5, z: 3.5 });
     }
     #[test]
     fn div_assign() {
-        let a = Quaternion {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
+        let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         let mut b = a;
         b /= 2.0;
-        assert_eq!(
-            b,
-            Quaternion {
-                w: 1.0,
-                x: 1.5,
-                y: 2.5,
-                z: 3.5,
-            }
-        );
+        assert_eq!(b, Quaternion { w: 1.0, x: 1.5, y: 2.5, z: 3.5 });
     }
     #[test]
     fn new() {
         let a = Quaternion::new(2.0, 3.0, 5.0, 7.0);
-        assert_eq!(
-            a,
-            Quaternion {
-                w: 2.0,
-                x: 3.0,
-                y: 5.0,
-                z: 7.0,
-            }
-        );
+        assert_eq!(a, Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 });
     }
     #[test]
     fn squared_norm() {
-        let a = Quaternion {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
+        let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         assert_eq!(a.squared_norm(), 87.0);
     }
     #[test]
     fn norm() {
-        let a = Quaternionf32 {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
+        let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         assert_eq!(a.norm(), 87.0_f32.sqrt());
-        let z = Quaternion {
-            w: 0.0,
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
+        let z = Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.norm(), 0.0);
     }
     #[test]
     fn normalized() {
-        let a = Quaternionf32 {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
+        let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         let b = a / 87.0_f32.sqrt();
         assert_eq!(a.normalized(), b);
-        let z = Quaternion {
-            w: 0.0,
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
+        let z = Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.normalized(), z);
     }
     #[test]
     fn normalize() {
-        let a = Quaternion {
-            w: 2.0,
-            x: 3.0,
-            y: 5.0,
-            z: 7.0,
-        };
+        let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         let a_normalized = a.normalized();
         let mut b = a;
         b.normalize();
         assert_eq!(b, a_normalized);
-        let z = Quaternion {
-            w: 0.0,
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
+        let z = Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 };
         let mut y = z;
         y.normalize();
         assert_eq!(z, y);
     }
     #[test]
     fn abs() {
-        let a = Quaternion {
-            w: -2.0,
-            x: 3.0,
-            y: -5.0,
-            z: -7.0,
-        };
-        assert_eq!(
-            a.abs(),
-            Quaternion {
-                w: 2.0,
-                x: 3.0,
-                y: 5.0,
-                z: 7.0
-            }
-        );
+        let a = Quaternion { w: -2.0, x: 3.0, y: -5.0, z: -7.0 };
+        assert_eq!(a.abs(), Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 });
     }
     #[test]
     fn abs_in_place() {
-        let a = Quaternion {
-            w: -2.0,
-            x: -3.0,
-            y: 5.0,
-            z: 7.0,
-        };
+        let a = Quaternion { w: -2.0, x: -3.0, y: 5.0, z: 7.0 };
         let mut b = a;
         b.abs_in_place();
         assert_eq!(b, a.abs());
     }
     #[test]
     fn clamp() {
-        let a = Quaternion {
-            w: -5.0,
-            x: -2.0,
-            y: 3.0,
-            z: 5.0,
-        };
-        assert_eq!(
-            a.clamp(-1.0, 4.0),
-            Quaternion {
-                w: -1.0,
-                x: -1.0,
-                y: 3.0,
-                z: 4.0
-            }
-        );
+        let a = Quaternion { w: -5.0, x: -2.0, y: 3.0, z: 5.0 };
+        assert_eq!(a.clamp(-1.0, 4.0), Quaternion { w: -1.0, x: -1.0, y: 3.0, z: 4.0 });
     }
     #[test]
     fn clamp_in_place() {
-        let a = Quaternion {
-            w: -5.0,
-            x: -2.0,
-            y: 3.0,
-            z: 5.0,
-        };
+        let a = Quaternion { w: -5.0, x: -2.0, y: 3.0, z: 5.0 };
         let mut b = a;
         b.clamp_in_place(-1.0, 4.0);
         assert_eq!(b, a.clamp(-1.0, 4.0));

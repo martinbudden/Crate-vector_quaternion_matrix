@@ -32,19 +32,7 @@ where
     T: Copy + Zero + PartialEq,
 {
     fn zero() -> Self {
-        Self {
-            a: [
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-            ],
-        }
+        Self { a: [T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero()] }
     }
     fn is_zero(&self) -> bool {
         self.a.iter().all(|&x| x == T::zero())
@@ -68,34 +56,11 @@ where
     T: Copy + Zero + One + PartialEq + Sub<Output = T> + Mul<Output = T>,
 {
     fn one() -> Self {
-        Self {
-            a: [
-                T::one(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::one(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::one(),
-            ],
-        }
+        Self { a: [T::one(), T::zero(), T::zero(), T::zero(), T::one(), T::zero(), T::zero(), T::zero(), T::one()] }
     }
 
     fn is_one(&self) -> bool {
-        self.a
-            == [
-                T::one(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::one(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::one(),
-            ]
+        self.a == [T::one(), T::zero(), T::zero(), T::zero(), T::one(), T::zero(), T::zero(), T::zero(), T::one()]
     }
 }
 
@@ -740,22 +705,10 @@ where
     /// ```
     pub fn row(&self, row: usize) -> Vector3d<T> {
         match row {
-            0 => Vector3d::<T> {
-                x: self.a[0],
-                y: self.a[1],
-                z: self.a[2],
-            },
-            1 => Vector3d::<T> {
-                x: self.a[3],
-                y: self.a[4],
-                z: self.a[5],
-            },
+            0 => Vector3d::<T> { x: self.a[0], y: self.a[1], z: self.a[2] },
+            1 => Vector3d::<T> { x: self.a[3], y: self.a[4], z: self.a[5] },
             // default to row 2 if row out of range
-            _ => Vector3d::<T> {
-                x: self.a[6],
-                y: self.a[7],
-                z: self.a[8],
-            },
+            _ => Vector3d::<T> { x: self.a[6], y: self.a[7], z: self.a[8] },
         }
     }
 
@@ -794,22 +747,10 @@ where
     /// ```
     pub fn column(&self, column: usize) -> Vector3d<T> {
         match column {
-            0 => Vector3d::<T> {
-                x: self.a[0],
-                y: self.a[3],
-                z: self.a[6],
-            },
-            1 => Vector3d::<T> {
-                x: self.a[1],
-                y: self.a[4],
-                z: self.a[7],
-            },
+            0 => Vector3d::<T> { x: self.a[0], y: self.a[3], z: self.a[6] },
+            1 => Vector3d::<T> { x: self.a[1], y: self.a[4], z: self.a[7] },
             // default to column 2 if column out of range
-            _ => Vector3d::<T> {
-                x: self.a[2],
-                y: self.a[5],
-                z: self.a[8],
-            },
+            _ => Vector3d::<T> { x: self.a[2], y: self.a[5], z: self.a[8] },
         }
     }
 }
@@ -832,11 +773,7 @@ where
     ///                                 5.0, 13.0, 23.0]));
     /// ```
     pub fn transpose(&self) -> Self {
-        Self {
-            a: [
-                self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2], self.a[5], self.a[8],
-            ],
-        }
+        Self { a: [self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2], self.a[5], self.a[8]] }
     }
 
     /// Transpose matrix, in-place
@@ -1217,17 +1154,13 @@ where
     T: Copy,
 {
     fn from(v: [Vector3d<T>; 3]) -> Self {
-        Self {
-            a: [v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z],
-        }
+        Self { a: [v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z] }
     }
 }
 
 impl<T> From<(Vector3d<T>, Vector3d<T>, Vector3d<T>)> for Matrix3x3<T> {
     fn from(v: (Vector3d<T>, Vector3d<T>, Vector3d<T>)) -> Self {
-        Self {
-            a: [v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z],
-        }
+        Self { a: [v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z] }
     }
 }
 
@@ -1273,22 +1206,12 @@ where
             if m.a[0] > m.a[4] {
                 // |x| bigger than |y|, so use x-form
                 let t = T::one() + (m.a[0] - m.a[4]) - m.a[8]; // 1 + 2(xx - yy) - 1 + 2(xx + yy) = 4xx
-                let q = Self {
-                    w: m.a[7] - m.a[5],
-                    x: t,
-                    y: m.a[1] + m.a[3],
-                    z: m.a[6] + m.a[2],
-                };
+                let q = Self { w: m.a[7] - m.a[5], x: t, y: m.a[1] + m.a[3], z: m.a[6] + m.a[2] };
                 return q * t.half_reciprocal_sqrt();
             }
             // |y| bigger than |x|, so use y-form
             let t = T::one() - (m.a[0] - m.a[4]) - m.a[8]; // 1 - 2(xx - yy) - 1 + 2(xx + yy) = 4yy
-            let q = Self {
-                w: m.a[2] - m.a[6],
-                x: m.a[1] + m.a[3],
-                y: t,
-                z: m.a[5] + m.a[7],
-            };
+            let q = Self { w: m.a[2] - m.a[6], x: m.a[1] + m.a[3], y: t, z: m.a[5] + m.a[7] };
             return q * t.half_reciprocal_sqrt();
         }
 
@@ -1296,24 +1219,14 @@ where
         if m.a[0] < -m.a[4] {
             // |z| bigger than |w|, so use z-form
             let t = T::one() - m.a[0] - (m.a[4] - m.a[8]); // 1 - (1 - 2*(yy + zz)) - (2(yy - zz)) = 4zz
-            let q = Self {
-                w: m.a[3] - m.a[1],
-                x: m.a[2] + m.a[6],
-                y: m.a[5] + m.a[7],
-                z: t,
-            };
+            let q = Self { w: m.a[3] - m.a[1], x: m.a[2] + m.a[6], y: m.a[5] + m.a[7], z: t };
             return q * t.half_reciprocal_sqrt();
         }
 
         // |w| bigger than |z|, so use w-form
         // ww + xx + yy + zz = 1, since unit quaternion, so xx + yy + zz =  1 - ww
         let t = T::one() + m.a[0] + m.a[4] + m.a[8]; // 1 + 1 - 2*(yy + zz) + 1 - 2(xx + zz) + 1 - 2(xx + yy) =  4 - 4(xx + yy + zz) = 4 - 4(1 - ww) = 4ww
-        let q = Self {
-            w: t,
-            x: m.a[7] - m.a[5],
-            y: m.a[2] - m.a[6],
-            z: m.a[3] - m.a[1],
-        };
+        let q = Self { w: t, x: m.a[7] - m.a[5], y: m.a[2] - m.a[6], z: m.a[3] - m.a[1] };
         q * t.half_reciprocal_sqrt()
     }
 }
@@ -1324,12 +1237,8 @@ mod tests {
 
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
 
-    const A: Matrix3x3<f32> = Matrix3x3::<f32> {
-        a: [2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0],
-    };
-    const B: Matrix3x3<f32> = Matrix3x3::<f32> {
-        a: [29.0, 31.0, 37.0, 41.0, 43.0, 47.0, 53.0, 59.0, 61.0],
-    };
+    const A: Matrix3x3<f32> = Matrix3x3::<f32> { a: [2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0] };
+    const B: Matrix3x3<f32> = Matrix3x3::<f32> { a: [29.0, 31.0, 37.0, 41.0, 43.0, 47.0, 53.0, 59.0, 61.0] };
 
     #[test]
     fn normal_types() {
@@ -1338,12 +1247,7 @@ mod tests {
     #[test]
     fn default() {
         let a: Matrix3x3<f32> = Matrix3x3::<f32>::default();
-        assert_eq!(
-            a,
-            Matrix3x3::<f32> {
-                a: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            }
-        );
+        assert_eq!(a, Matrix3x3::<f32> { a: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] });
         let z = Matrix3x3::<f32>::zero();
         //let z: Matrix3x3 = zero();
         assert_eq!(a, z);
@@ -1359,20 +1263,10 @@ mod tests {
     }
     #[test]
     fn neg() {
-        assert_eq!(
-            -A,
-            Matrix3x3::<f32> {
-                a: [-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0]
-            }
-        );
+        assert_eq!(-A, Matrix3x3::<f32> { a: [-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0] });
 
         let b = -A;
-        assert_eq!(
-            b,
-            Matrix3x3::<f32> {
-                a: [-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0]
-            }
-        );
+        assert_eq!(b, Matrix3x3::<f32> { a: [-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0] });
     }
     #[test]
     fn add() {
@@ -1428,30 +1322,14 @@ mod tests {
         assert_eq!(A, a);
         let b = Matrix3x3::from([
             Vector3d { x: 2.0, y: 3.0, z: 5.0 },
-            Vector3d {
-                x: 7.0,
-                y: 11.0,
-                z: 13.0,
-            },
-            Vector3d {
-                x: 17.0,
-                y: 19.0,
-                z: 23.0,
-            },
+            Vector3d { x: 7.0, y: 11.0, z: 13.0 },
+            Vector3d { x: 17.0, y: 19.0, z: 23.0 },
         ]);
         assert_eq!(A, b);
         let c = Matrix3x3::from((
             Vector3d { x: 2.0, y: 3.0, z: 5.0 },
-            Vector3d {
-                x: 7.0,
-                y: 11.0,
-                z: 13.0,
-            },
-            Vector3d {
-                x: 17.0,
-                y: 19.0,
-                z: 23.0,
-            },
+            Vector3d { x: 7.0, y: 11.0, z: 13.0 },
+            Vector3d { x: 17.0, y: 19.0, z: 23.0 },
         ));
         assert_eq!(A, c);
         let d: Matrix3x3<f32> = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);

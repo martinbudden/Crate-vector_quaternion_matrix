@@ -10,11 +10,14 @@ libm = "0.2.2"  # Use the latest version if available
 num-traits = "0.2.19"
 bytemuck = { version = "1.24", features = ["derive"] }
 
+[dev-dependencies]
+# assert_float_eq = "1.2.0" # used for test
+
 # see https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.dev]
 opt-level = 0
 debug = true
-split-debuginfo = '...'  # Platform-specific.
+# split-debuginfo = '...'  # Platform-specific.
 strip = "none"
 debug-assertions = true
 overflow-checks = true
@@ -27,7 +30,7 @@ rpath = false
 [profile.release]
 opt-level = 3
 debug = false
-split-debuginfo = '...'  # Platform-specific.
+# split-debuginfo = '...'  # Platform-specific.
 strip = "none"
 debug-assertions = false
 overflow-checks = false

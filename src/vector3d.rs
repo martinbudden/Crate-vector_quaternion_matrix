@@ -31,11 +31,7 @@ where
     T: Zero + PartialEq,
 {
     fn zero() -> Self {
-        Self {
-            x: T::zero(),
-            y: T::zero(),
-            z: T::zero(),
-        }
+        Self { x: T::zero(), y: T::zero(), z: T::zero() }
     }
 
     fn is_zero(&self) -> bool {
@@ -58,11 +54,7 @@ where
 {
     type Output = Self;
     fn neg(self) -> Self::Output {
-        Self {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+        Self { x: -self.x, y: -self.y, z: -self.z }
     }
 }
 
@@ -82,11 +74,7 @@ where
 {
     type Output = Vector3d<T>;
     fn neg(self) -> Self::Output {
-        Vector3d {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+        Vector3d { x: -self.x, y: -self.y, z: -self.z }
     }
 }
 
@@ -106,11 +94,7 @@ where
 {
     type Output = Vector3d<T>;
     fn add(self, rhs: Self) -> Self {
-        Self {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
+        Self { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
     }
 }
 
@@ -129,11 +113,7 @@ where
 {
     type Output = Vector3d<T>;
     fn add(self, rhs: Self) -> Self::Output {
-        Vector3d {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
+        Vector3d { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
     }
 }
 
@@ -180,11 +160,7 @@ where
 {
     type Output = Vector3d<T>;
     fn sub(self, rhs: Self) -> Self {
-        Self {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
+        Self { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
     }
 }
 /// Subtract two vectors references
@@ -203,11 +179,7 @@ where
 {
     type Output = Vector3d<T>;
     fn sub(self, rhs: Self) -> Self::Output {
-        Vector3d {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
+        Vector3d { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
     }
 }
 
@@ -244,22 +216,14 @@ where
 impl Mul<Vector3d<f32>> for f32 {
     type Output = Vector3d<f32>;
     fn mul(self, rhs: Vector3d<f32>) -> Vector3d<f32> {
-        Vector3d {
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
-        }
+        Vector3d { x: self * rhs.x, y: self * rhs.y, z: self * rhs.z }
     }
 }
 
 impl Mul<Vector3d<f64>> for f64 {
     type Output = Vector3d<f64>;
     fn mul(self, rhs: Vector3d<f64>) -> Vector3d<f64> {
-        Vector3d {
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
-        }
+        Vector3d { x: self * rhs.x, y: self * rhs.y, z: self * rhs.z }
     }
 }
 
@@ -279,44 +243,28 @@ where
 {
     type Output = Self;
     fn mul(self, k: T) -> Self::Output {
-        Self {
-            x: self.x * k,
-            y: self.y * k,
-            z: self.z * k,
-        }
+        Self { x: self.x * k, y: self.y * k, z: self.z * k }
     }
 }
 
 impl Mul<f32> for Vector3d<i8> {
     type Output = Self;
     fn mul(self, k: f32) -> Self {
-        Self {
-            x: (self.x as f32 * k) as i8,
-            y: (self.y as f32 * k) as i8,
-            z: (self.z as f32 * k) as i8,
-        }
+        Self { x: (self.x as f32 * k) as i8, y: (self.y as f32 * k) as i8, z: (self.z as f32 * k) as i8 }
     }
 }
 
 impl Mul<f32> for Vector3d<i16> {
     type Output = Self;
     fn mul(self, k: f32) -> Self {
-        Self {
-            x: (self.x as f32 * k) as i16,
-            y: (self.y as f32 * k) as i16,
-            z: (self.z as f32 * k) as i16,
-        }
+        Self { x: (self.x as f32 * k) as i16, y: (self.y as f32 * k) as i16, z: (self.z as f32 * k) as i16 }
     }
 }
 
 impl Mul<f32> for Vector3d<i32> {
     type Output = Self;
     fn mul(self, k: f32) -> Self {
-        Self {
-            x: (self.x as f32 * k) as i32,
-            y: (self.y as f32 * k) as i32,
-            z: (self.z as f32 * k) as i32,
-        }
+        Self { x: (self.x as f32 * k) as i32, y: (self.y as f32 * k) as i32, z: (self.z as f32 * k) as i32 }
     }
 }
 
@@ -356,11 +304,7 @@ where
     type Output = Self;
     fn div(self, k: T) -> Self {
         let r: T = T::one() / k;
-        Self {
-            x: self.x * r,
-            y: self.y * r,
-            z: self.z * r,
-        }
+        Self { x: self.x * r, y: self.y * r, z: self.z * r }
     }
 }
 
@@ -447,11 +391,7 @@ where
 {
     /// Return a copy of the vector with all components set to their absolute values
     pub fn abs(&self) -> Self {
-        Self {
-            x: self.x.abs(),
-            y: self.y.abs(),
-            z: self.z.abs(),
-        }
+        Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
 
     /// Set all components of the vector to their absolute values
@@ -467,11 +407,7 @@ where
 {
     /// Return a copy of the vector with all components clamped to the specified range
     pub fn clamp(&self, min: T, max: T) -> Self {
-        Self {
-            x: self.x.clamp(min, max),
-            y: self.y.clamp(min, max),
-            z: self.z.clamp(min, max),
-        }
+        Self { x: self.x.clamp(min, max), y: self.y.clamp(min, max), z: self.z.clamp(min, max) }
     }
 
     /// Clamp all components of the vector to the specified range
@@ -610,11 +546,7 @@ where
     T: Copy,
 {
     fn from(v: [T; 3]) -> Self {
-        Self {
-            x: v[0],
-            y: v[1],
-            z: v[2],
-        }
+        Self { x: v[0], y: v[1], z: v[2] }
     }
 }
 
@@ -655,40 +587,24 @@ impl<T> From<Vector3d<T>> for [T; 3] {
 /// ```
 impl From<Vector3d<i16>> for Vector3d<f32> {
     fn from(v: Vector3d<i16>) -> Self {
-        Self {
-            x: v.x as f32,
-            y: v.y as f32,
-            z: v.z as f32,
-        }
+        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
     }
 }
 
 impl From<Vector3d<f32>> for Vector3d<i16> {
     fn from(v: Vector3d<f32>) -> Self {
-        Self {
-            x: v.x as i16,
-            y: v.y as i16,
-            z: v.z as i16,
-        }
+        Self { x: v.x as i16, y: v.y as i16, z: v.z as i16 }
     }
 }
 impl From<Vector3d<i32>> for Vector3d<f32> {
     fn from(v: Vector3d<i32>) -> Self {
-        Self {
-            x: v.x as f32,
-            y: v.y as f32,
-            z: v.z as f32,
-        }
+        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
     }
 }
 
 impl From<Vector3d<f32>> for Vector3d<i32> {
     fn from(v: Vector3d<f32>) -> Self {
-        Self {
-            x: v.x as i32,
-            y: v.y as i32,
-            z: v.z as i32,
-        }
+        Self { x: v.x as i32, y: v.y as i32, z: v.z as i32 }
     }
 }
 #[cfg(test)]
@@ -712,11 +628,7 @@ mod tests {
     }
     #[test]
     fn test_neg_owned() {
-        let v = Vector3d {
-            x: 1.0,
-            y: -2.0,
-            z: 3.0,
-        };
+        let v = Vector3d { x: 1.0, y: -2.0, z: 3.0 };
         let neg_v = -v;
         assert_eq!(neg_v.x, -1.0);
         assert_eq!(neg_v.y, 2.0);
@@ -725,11 +637,7 @@ mod tests {
 
     #[test]
     fn test_neg_borrowed() {
-        let v = Vector3d {
-            x: 1.0,
-            y: -2.0,
-            z: 3.0,
-        };
+        let v = Vector3d { x: 1.0, y: -2.0, z: 3.0 };
         let neg_v = -&v; // Uses &Vector3d<T> impl
         assert_eq!(neg_v.x, -1.0);
         assert_eq!(neg_v.y, 2.0);
@@ -740,131 +648,52 @@ mod tests {
     #[test]
     fn neg() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        assert_eq!(
-            -a,
-            Vector3d {
-                x: -2.0,
-                y: -3.0,
-                z: -5.0
-            }
-        );
+        assert_eq!(-a, Vector3d { x: -2.0, y: -3.0, z: -5.0 });
 
         let b = -a;
-        assert_eq!(
-            b,
-            Vector3d {
-                x: -2.0,
-                y: -3.0,
-                z: -5.0
-            }
-        );
+        assert_eq!(b, Vector3d { x: -2.0, y: -3.0, z: -5.0 });
     }
     #[test]
     fn add() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d {
-            x: 7.0,
-            y: 11.0,
-            z: 13.0,
-        };
-        assert_eq!(
-            a + b,
-            Vector3d {
-                x: 9.0,
-                y: 14.0,
-                z: 18.0
-            }
-        );
+        let b = Vector3d { x: 7.0, y: 11.0, z: 13.0 };
+        assert_eq!(a + b, Vector3d { x: 9.0, y: 14.0, z: 18.0 });
     }
     #[test]
     fn add_assign() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d {
-            x: 7.0,
-            y: 11.0,
-            z: 13.0,
-        };
+        let b = Vector3d { x: 7.0, y: 11.0, z: 13.0 };
         let mut c = a;
         c += b;
-        assert_eq!(
-            c,
-            Vector3d {
-                x: 9.0,
-                y: 14.0,
-                z: 18.0
-            }
-        );
+        assert_eq!(c, Vector3d { x: 9.0, y: 14.0, z: 18.0 });
     }
     #[test]
     fn sub() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d {
-            x: 7.0,
-            y: 11.0,
-            z: 17.0,
-        };
+        let b = Vector3d { x: 7.0, y: 11.0, z: 17.0 };
         let c = a - b;
-        assert_eq!(
-            c,
-            Vector3d {
-                x: -5.0,
-                y: -8.0,
-                z: -12.0
-            }
-        );
+        assert_eq!(c, Vector3d { x: -5.0, y: -8.0, z: -12.0 });
     }
     #[test]
     fn sub_assign() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d {
-            x: 7.0,
-            y: 11.0,
-            z: 17.0,
-        };
+        let b = Vector3d { x: 7.0, y: 11.0, z: 17.0 };
         let mut c = a;
         c -= b;
-        assert_eq!(
-            c,
-            Vector3d {
-                x: -5.0,
-                y: -8.0,
-                z: -12.0
-            }
-        );
+        assert_eq!(c, Vector3d { x: -5.0, y: -8.0, z: -12.0 });
     }
     #[test]
     fn mul() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        assert_eq!(
-            a * 2.0,
-            Vector3d {
-                x: 4.0,
-                y: 6.0,
-                z: 10.0
-            }
-        );
-        assert_eq!(
-            2.0 * a,
-            Vector3d {
-                x: 4.0,
-                y: 6.0,
-                z: 10.0
-            }
-        );
+        assert_eq!(a * 2.0, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
+        assert_eq!(2.0 * a, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
     }
     #[test]
     fn mul_assign() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
         b *= 2.0;
-        assert_eq!(
-            b,
-            Vector3d {
-                x: 4.0,
-                y: 6.0,
-                z: 10.0
-            }
-        );
+        assert_eq!(b, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
     }
     #[test]
     fn div() {
@@ -906,11 +735,7 @@ mod tests {
     #[test]
     fn dot() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d {
-            x: 7.0,
-            y: 11.0,
-            z: 13.0,
-        };
+        let b = Vector3d { x: 7.0, y: 11.0, z: 13.0 };
         assert_eq!(a.dot(a), 38.0);
         assert_eq!(a.dot(b), 112.0);
         assert_eq!(b.dot(a), 112.0);
@@ -950,39 +775,20 @@ mod tests {
     }
     #[test]
     fn abs() {
-        let a = Vector3df32 {
-            x: -2.0,
-            y: -3.0,
-            z: -5.0,
-        };
+        let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
         assert_eq!(a.abs(), Vector3d { x: 2.0, y: 3.0, z: 5.0 });
     }
     #[test]
     fn abs_in_place() {
-        let a = Vector3df32 {
-            x: -2.0,
-            y: -3.0,
-            z: -5.0,
-        };
+        let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
         let mut b = a;
         b.abs_in_place();
         assert_eq!(b, a.abs());
     }
     #[test]
     fn clamp() {
-        let a = Vector3d {
-            x: -2.0,
-            y: 3.0,
-            z: 5.0,
-        };
-        assert_eq!(
-            a.clamp(-1.0, 4.0),
-            Vector3d {
-                x: -1.0,
-                y: 3.0,
-                z: 4.0
-            }
-        );
+        let a = Vector3d { x: -2.0, y: 3.0, z: 5.0 };
+        assert_eq!(a.clamp(-1.0, 4.0), Vector3d { x: -1.0, y: 3.0, z: 4.0 });
     }
     #[test]
     fn clamp_in_place() {
