@@ -914,6 +914,26 @@ where
             + self.a[2] * (self.a[3] * self.a[7] - self.a[4] * self.a[6])
     }
 
+    /// Matrix top right determinant
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
+    /// let d = A.top_right_determinant();
+    ///
+    /// assert_eq!(76.0, d);
+    ///
+    /// ```
+    pub fn top_right_determinant(&self) -> T {
+        //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
+        //             0     4     8     5      5      1      1     8    5     2        2     1    5      4     2
+        self.a[0] * (self.a[4] * self.a[8] - self.a[5] * self.a[5])
+            - self.a[1] * (self.a[1] * self.a[8] - self.a[5] * self.a[2])
+            + self.a[2] * (self.a[1] * self.a[5] - self.a[4] * self.a[2])
+    }
+
     /// Return the sum of all components of the matrix
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3;
@@ -974,6 +994,20 @@ where
     pub fn trace(&self) -> T {
         self.a[0] + self.a[4] + self.a[8]
     }
+    /// Return the sum of the squares of the trace of the matrix.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3;
+    ///
+    /// let A = Matrix3x3::<f32>::from([ 2.0,  3.0,  5.0,
+    ///                                  7.0, 11.0, 13.0,
+    ///                                 17.0, 19.0, 23.0]);
+    /// let t = A.trace_sum_squares();
+    ///
+    /// assert_eq!(t, 2.0 * 2.0 + 11.0 *11.0 + 23.0 * 23.0);
+    /// ```
+    pub fn trace_sum_squares(&self) -> T {
+        self.a[0] * self.a[0] + self.a[4] * self.a[4] + self.a[8] * self.a[8]
+    }
 }
 
 impl<T> Matrix3x3<T>
@@ -984,6 +1018,7 @@ where
         + MathConstants
         + MathFunctions
         + PartialOrd
+        + FloatCore
         + Neg<Output = T>
         + Sub<Output = T>
         + Mul<Output = T>

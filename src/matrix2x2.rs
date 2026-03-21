@@ -858,6 +858,7 @@ where
         + MathConstants
         + MathFunctions
         + PartialOrd
+        + FloatCore
         + Neg<Output = T>
         + Sub<Output = T>
         + Mul<Output = T>

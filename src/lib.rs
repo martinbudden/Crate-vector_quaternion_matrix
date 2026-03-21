@@ -4,6 +4,7 @@
 #![deny(clippy::panic)]
 #![deny(unused_must_use)]
 
+mod eigen3x3;
 mod math_constants;
 mod math_functions;
 mod matrix2x2;
@@ -15,6 +16,7 @@ mod vector3d;
 pub use math_constants::MathConstants;
 pub use math_functions::MathFunctions;
 
+pub use eigen3x3::{EigenResult, EigenResult3x3, EigenResult3x3f32, EigenResult3x3f64};
 pub use matrix2x2::{Matrix2x2, Matrix2x2f32, Matrix2x2f64};
 pub use matrix3x3::{Matrix3x3, Matrix3x3f32, Matrix3x3f64};
 
