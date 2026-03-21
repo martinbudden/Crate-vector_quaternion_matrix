@@ -432,7 +432,7 @@ where
         self.x * rhs.x + self.y * rhs.y
     }
 
-    /// Vector cross product
+    /// Z component of vector cross product of self and rhs extended to 3D
     pub fn cross(&self, rhs: Self) -> T {
         self.x * rhs.y - self.y * rhs.x
     }

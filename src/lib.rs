@@ -6,6 +6,7 @@
 
 mod math_constants;
 mod math_functions;
+mod matrix2x2;
 mod matrix3x3;
 mod quaternion;
 mod vector2d;
@@ -14,6 +15,7 @@ mod vector3d;
 pub use math_constants::MathConstants;
 pub use math_functions::MathFunctions;
 
+pub use matrix2x2::{Matrix2x2, Matrix2x2f32, Matrix2x2f64};
 pub use matrix3x3::{Matrix3x3, Matrix3x3f32, Matrix3x3f64};
 
 pub use quaternion::{
