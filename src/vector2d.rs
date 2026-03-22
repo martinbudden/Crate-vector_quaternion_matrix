@@ -428,11 +428,31 @@ where
     }
 
     /// Vector dot product
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    ///
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let w = Vector2df32::new(7.0, 11.0);
+    ///
+    /// let x = v.dot(w);
+    ///
+    /// assert_eq!(x, 47.0);
+    /// ```
     pub fn dot(&self, rhs: Self) -> T {
         self.x * rhs.x + self.y * rhs.y
     }
 
     /// Z component of vector cross product of self and rhs extended to 3D
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    ///
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let w = Vector2df32::new(7.0, 11.0);
+    ///
+    /// let x = v.cross(w);
+    ///
+    /// assert_eq!(x, 1.0);
+    /// ```
     pub fn cross(&self, rhs: Self) -> T {
         self.x * rhs.y - self.y * rhs.x
     }

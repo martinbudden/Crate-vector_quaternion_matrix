@@ -434,15 +434,35 @@ where
     }
 
     /// Vector dot product
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    ///
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3df32::new(7.0, 11.0, 13.0);
+    ///
+    /// let x = v.dot(w);
+    ///
+    /// assert_eq!(x, 112.0);
+    /// ```
     pub fn dot(&self, rhs: Self) -> T {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
     /// Vector cross product
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    ///
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3df32::new(7.0, 11.0, 13.0);
+    ///
+    /// let x = v.cross(w);
+    ///
+    /// assert_eq!(x, Vector3df32 { x: 3.0 * 13.0 - 5.0 * 11.0, y: -2.0 * 13.0 + 5.0 * 7.0, z: 2.0 * 11.0 - 3.0 * 7.0 });
+    /// ```
     pub fn cross(&self, rhs: Self) -> Self {
         Self {
             x: self.y * rhs.z - self.z * rhs.y,
-            y: self.z * rhs.x - self.z * rhs.z,
+            y: self.z * rhs.x - self.x * rhs.z,
             z: self.x * rhs.y - self.y * rhs.x,
         }
     }
