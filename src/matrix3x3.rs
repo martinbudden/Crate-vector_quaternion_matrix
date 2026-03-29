@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{MathConstants, Matrix2x2, Quaternion, SqrtMethods, Vector3d};
+use crate::{MathConstants, Matrix2x2, MatrixError, Quaternion, SqrtMethods, Vector3d};
 
 /// 3x3 matrix of `f32` values
 pub type Matrix3x3f32 = Matrix3x3<f32>;
@@ -1096,23 +1096,23 @@ where
     }
     /// Return inverse of matrix or `None` if not invertible.
     /// ```
-    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// # use vector_quaternion_matrix::{Matrix3x3f32,MatrixError};
     /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              2.0,  3.0,  5.0,
     ///                             17.0, 19.0, 23.0]);
     /// let n = m.try_inverse();
     ///
     /// assert_eq!(0.0, m.determinant());
-    /// assert_eq!(None, n);
+    /// assert_eq!(Err(MatrixError::ZeroDeterminant), n);
     ///
     /// ```
-    pub fn try_inverse(&self) -> Option<Self> {
+    pub fn try_inverse(&self) -> Result<Self, MatrixError> {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {
-            return None;
+            return Err(MatrixError::ZeroDeterminant);
         }
         let adjugate = self.adjugate();
-        Some(adjugate / determinant)
+        Ok(adjugate / determinant)
     }
     /// Return true if matrix is near zero
     /// ```

@@ -1,6 +1,7 @@
 #![allow(clippy::excessive_precision)]
 use cfg_if::cfg_if;
 
+/// `no_std` implementations of `sqrt`, `reciprocal_sqrt`, and `half_reciprocal_sqrt` in  method call syntax<br>
 pub trait SqrtMethods: Sized {
     fn sqrt(self) -> Self;
     fn reciprocal_sqrt(self) -> Self;

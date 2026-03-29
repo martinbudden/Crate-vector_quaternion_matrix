@@ -504,13 +504,14 @@ where
     }
 
     /// Normalize the vector in place
-    pub fn normalize(&mut self) {
+    pub fn normalize(&mut self) -> Self {
         let norm = self.norm();
         #[allow(clippy::assign_op_pattern)]
         // If norm == 0.0 then the vector is already normalized
         if norm != T::zero() {
             *self = *self / norm;
         }
+        *self
     }
 }
 

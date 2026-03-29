@@ -1,6 +1,4 @@
-# vector-quaternion-matrix Rust Crate ![license](https://img.shields.io/badge/license-MIT-green) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![open source](https://badgen.net/badge/open/source/blue?icon=github)
-
-## Vector, Quaternion, and Matrix Crate
+# vector-quaternion-matrix Rust Crate<br>![license](https://img.shields.io/badge/license-MIT-green) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![open source](https://badgen.net/badge/open/source/blue?icon=github)
 
 This crate implements a variety of vector, quaternion, and matrix types. Each type has a generic version,
 eg `Vector3d<T>`, and specific versions for `f32` and `f64`: eg `Vector3df32` and `Vector3df64`. Vectors and matrices
