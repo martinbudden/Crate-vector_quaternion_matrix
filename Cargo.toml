@@ -29,6 +29,7 @@ cfg-if = "1.0"
 [target.thumbv8m.main-none-eabihf]
 rustflags = [
     "-C", "target-cpu=cortex-m33",
+    "-C", "target-feature=+fp-armv8d16sp", # This enables the specific floating-point features for the M33
     "-C", "target-feature=+vfp4sp", # Enables single-precision FPU
 ]
 
