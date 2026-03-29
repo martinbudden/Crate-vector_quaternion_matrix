@@ -1,5 +1,6 @@
 #![allow(clippy::excessive_precision)]
 
+use cfg_if::cfg_if;
 use num_traits::Float;
 
 // The form x.fn() is called method call syntax.
@@ -17,8 +18,8 @@ use num_traits::Float;
 // x.ln_1p()
 // x.hypot()
 
-/// `no_std` implementations of mathematical functions in method call syntax<BR>
-/// eg `value.sin()`, `value.cos()` etc.
+/// `no_std` implementations of mathematical functions in method call syntax<br>
+/// eg `x.sin()`, `x.cos()` etc.
 pub trait MathMethods: Sized {
     fn sqrt(self) -> Self;
     fn reciprocal_sqrt(self) -> Self;
@@ -32,18 +33,37 @@ pub trait MathMethods: Sized {
     fn atan2(self, y: Self) -> Self;
 }
 
+cfg_if! {
+if #[cfg(all(not(feature = "std"), feature = "libm"))] {
 impl MathMethods for f32 {
-    fn sqrt(self) -> Self {
-        libm::sqrtf(self)
+    #[inline(always)]
+    fn sqrt(self) -> f32 {
+        #[cfg(all(not(feature = "std"), feature = "libm"))]
+        {
+            // Use the optimized software/FPU routine from libm
+            libm::sqrtf(self)
+        }
+        #[cfg(feature = "std")]
+        {
+            // Use the hardware-linked sqrt in Standard Library
+            self.sqrt()
+        }
+        #[cfg(all(not(feature = "std"), not(feature = "libm")))]
+        {
+            // Fallback: This will fail to compile if you try to use sqrt without providing a math provider.
+            compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+        }
     }
+    #[inline(always)]
     fn reciprocal_sqrt(self) -> Self {
         1.0 / libm::sqrtf(self)
     }
+    #[inline(always)]
     fn half_reciprocal_sqrt(self) -> Self {
         0.5 / libm::sqrtf(self)
     }
     fn sin_cos(self) -> (Self, Self) {
-        //(libm::sinf(self), libm::cosf(self))
+        // (libm::sinf(self), libm::cosf(self))
         sin_cos(self)
     }
     fn sin(self) -> Self {
@@ -67,7 +87,8 @@ impl MathMethods for f32 {
 }
 
 impl MathMethods for f64 {
-    fn sqrt(self) -> Self {
+    #[inline(always)]
+    fn sqrt(self) -> f64 {
         libm::sqrt(self)
     }
     fn reciprocal_sqrt(self) -> Self {
@@ -100,6 +121,12 @@ impl MathMethods for f64 {
     fn atan2(self, y: Self) -> Self {
         libm::atan2(y, self)
     }
+}
+} else if #[cfg(feature = "std")] {
+    // Use the hardware-linked math methods in Standard Library
+} else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
+    compile_error!("Please enable the 'libm' or 'std' feature for math support.");
+}
 }
 
 #[cfg(test)]

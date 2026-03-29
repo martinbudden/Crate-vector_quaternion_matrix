@@ -5,11 +5,19 @@ use num_traits::{One, Signed, Zero, float::FloatCore};
 use crate::Vector3d;
 use crate::math_methods::MathMethods;
 
+/// quaternion of `f32` values
 pub type Quaternionf32 = Quaternion<f32>;
+/// quaternion of `f64` values
 pub type Quaternionf64 = Quaternion<f64>;
+
+/// RollPitchYaw `struct { roll: f32, pitch: f32, yaw: f32 }`
 pub type RollPitchYawf32 = RollPitchYaw<f32>;
+/// RollPitchYaw `struct { roll: f64, pitch: f64, yaw: f64 }`
 pub type RollPitchYawf64 = RollPitchYaw<f64>;
+
+/// RollPitch `struct { roll: f32, pitch: f32 }`
 pub type RollPitchf32 = RollPitch<f32>;
+/// RollPitch `struct { roll: f64, pitch: f64 }`
 pub type RollPitchf64 = RollPitch<f64>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -25,9 +33,9 @@ pub struct RollPitch<T> {
     pub pitch: T,
 }
 
+// **** Define ****
 /// `Quaternion<T>`: quaternion type `T`.<br>
 /// Aliases `Quaternion32` and `Quaternionf64` are provided.
-// **** Define ****
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Quaternion<T> {
     pub w: T,

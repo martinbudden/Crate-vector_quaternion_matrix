@@ -4,7 +4,7 @@ use num_traits::{One, Zero, float::FloatCore};
 
 use crate::{MathConstants, MathMethods, Matrix3x3, Matrix3x3f32, Vector3d, Vector3df32};
 
-pub struct EigenResult3x3<T> {
+/*pub struct EigenResult3x3<T> {
     pub eigenvalue: T,
     pub eigenvector: Vector3d<T>,
 }
@@ -15,7 +15,7 @@ pub type EigenResult3x3f64 = EigenResult3x3<f64>;
 pub struct EigenResult {
     pub eigenvalues: [f32; 3],
     pub eigenvectors: [f32; 9], // Each column is an eigenvector
-}
+}*/
 
 /*fn sort3_in_place<T: PartialOrd>(arr: &mut [T; 3]) {
     if arr[0] > arr[1] {

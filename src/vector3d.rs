@@ -1,14 +1,20 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::MathMethods;
+use crate::{MathMethods, Vector2d};
 
+/// 3-dimensional `{x, y, z}` vector of `i8` values
 pub type Vector3di8 = Vector3d<i8>;
+/// 3-dimensional `{x, y, z}` vector of `i16` values
 pub type Vector3di16 = Vector3d<i16>;
+/// 3-dimensional `{x, y, z}` vector of `i32` values
 pub type Vector3di32 = Vector3d<i32>;
+/// 3-dimensional `{x, y, z}` vector of `f32` values
 pub type Vector3df32 = Vector3d<f32>;
+/// 3-dimensional `{x, y, z}` vector of `f64` values
 pub type Vector3df64 = Vector3d<f64>;
 
+// **** Define ****
 /// `Vector3d<T>`: 3D vector of type `T`.<br>
 /// `Vector3d32` and `Vector3df64` and several integer aliases are provided.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -21,12 +27,11 @@ pub struct Vector3d<T> {
 // **** Zero ****
 /// Zero vector
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
+/// # use vector_quaternion_matrix::Vector3df32;
 /// # use num_traits::zero;
+/// let z: Vector3df32 = zero();
 ///
-/// let z: Vector3d::<f32> = zero();
-///
-/// assert_eq!(z, Vector3d::<f32> { x: 0.0, y: 0.0, z: 0.0 });
+/// assert_eq!(z, Vector3df32 { x: 0.0, y: 0.0, z: 0.0 });
 /// ```
 impl<T> Zero for Vector3d<T>
 where
@@ -44,11 +49,11 @@ where
 // **** Neg ****
 /// Negate vector
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-/// let v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
 /// let r = -v;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: -2.0, y: -3.0, z: -5.0 });
+/// assert_eq!(r, Vector3df32 { x: -2.0, y: -3.0, z: -5.0 });
 /// ```
 impl<T> Neg for Vector3d<T>
 where
@@ -62,13 +67,12 @@ where
 
 /// Negate vector reference
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32> { x: 2.0, y: -3.0, z: 5.0 };
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32 { x: 2.0, y: -3.0, z: 5.0 };
 /// let r = -&v;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: -2.0, y: 3.0, z: -5.0 });
-/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: -3.0, z: 5.0 });
+/// assert_eq!(r, Vector3df32 { x: -2.0, y: 3.0, z: -5.0 });
+/// assert_eq!(v, Vector3df32 { x: 2.0, y: -3.0, z: 5.0 });
 /// ```
 impl<T> Neg for &Vector3d<T>
 where
@@ -83,12 +87,12 @@ where
 // **** Add ****
 /// Add two vectors
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let u = Vector3df32::new(2.0, 3.0, 5.0);
+/// let v = Vector3df32::new(7.0, 11.0, 13.0);
 /// let r = u + v;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: 9.0, y: 14.0, z: 18.0 });
+/// assert_eq!(r, Vector3df32 { x: 9.0, y: 14.0, z: 18.0 });
 /// ```
 impl<T> Add for Vector3d<T>
 where
@@ -102,12 +106,12 @@ where
 
 /// Add two vectors references
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let u = Vector3df32::new(2.0, 3.0, 5.0);
+/// let v = Vector3df32::new(7.0, 11.0, 13.0);
 /// let r = &u + &v;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: 9.0, y: 14.0, z: 18.0 });
+/// assert_eq!(r, Vector3df32 { x: 9.0, y: 14.0, z: 18.0 });
 /// ```
 impl<T> Add for &Vector3d<T>
 where
@@ -122,17 +126,15 @@ where
 // **** AddAssign ****
 /// Add one vector to another
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let mut r = Vector3d::<f32>::new(2.0, 3.0, 5.0);
-/// let u = Vector3d::<f32>::new(7.0, 11.0, 13.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let mut r = Vector3df32::new(2.0, 3.0, 5.0);
+/// let u = Vector3df32::new(7.0, 11.0, 13.0);
 /// r += u;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: 9.0, y: 14.0, z: 18.0 });
+/// assert_eq!(r, Vector3df32 { x: 9.0, y: 14.0, z: 18.0 });
 ///
 /// # use num_traits::zero;
-///
-/// let z: Vector3d::<f32> = zero();
+/// let z: Vector3df32 = zero();
 /// let r = u + z;
 /// assert_eq!(r, u);
 /// ```
@@ -148,13 +150,12 @@ where
 // **** Sub ****
 /// Subtract two vectors
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let u = Vector3df32::new(2.0, 3.0, 5.0);
+/// let v = Vector3df32::new(7.0, 11.0, 13.0);
 /// let r = u - v;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: -5.0, y: -8.0, z: -8.0 });
+/// assert_eq!(r, Vector3df32 { x: -5.0, y: -8.0, z: -8.0 });
 /// ```
 impl<T> Sub for Vector3d<T>
 where
@@ -167,13 +168,12 @@ where
 }
 /// Subtract two vectors references
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let u = Vector3d::<f32>::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::<f32>::new(7.0, 11.0, 13.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let u = Vector3df32::new(2.0, 3.0, 5.0);
+/// let v = Vector3df32::new(7.0, 11.0, 13.0);
 /// let r = &u - &v;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: -5.0, y: -8.0, z: -8.0 });
+/// assert_eq!(r, Vector3df32 { x: -5.0, y: -8.0, z: -8.0 });
 /// ```
 impl<T> Sub for &Vector3d<T>
 where
@@ -188,13 +188,12 @@ where
 // **** SubAssign ****
 /// Subtract one vector from another
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let mut r = Vector3d::<f32>::new(2.0, 3.0, 5.0);
-/// let v = Vector3d::<f32>::new(7.0, 11.0, 17.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let mut r = Vector3df32::new(2.0, 3.0, 5.0);
+/// let v = Vector3df32::new(7.0, 11.0, 17.0);
 /// r -= v;
 ///
-/// assert_eq!(r, Vector3d { x: -5.0, y: -8.0, z: -12.0 });
+/// assert_eq!(r, Vector3df32 { x: -5.0, y: -8.0, z: -12.0 });
 /// ```
 impl<T> SubAssign for Vector3d<T>
 where
@@ -208,12 +207,11 @@ where
 // **** Pre-multiply ****
 /// Pre-multiply vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32::new(2.0, 3.0, 5.0);
 /// let r = 2.0 * v;
 ///
-/// assert_eq!(r, Vector3d::<f32> { x: 4.0, y: 6.0, z: 10.0 });
+/// assert_eq!(r, Vector3df32 { x: 4.0, y: 6.0, z: 10.0 });
 /// ```
 impl Mul<Vector3d<f32>> for f32 {
     type Output = Vector3d<f32>;
@@ -232,12 +230,11 @@ impl Mul<Vector3d<f64>> for f64 {
 // **** Mul ****
 /// Multiply vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32::new(2.0, 3.0, 5.0);
 /// let r = v * 2.0;
 ///
-/// assert_eq!(r, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
+/// assert_eq!(r, Vector3df32 { x: 4.0, y: 6.0, z: 10.0 });
 /// ```
 impl<T> Mul<T> for Vector3d<T>
 where
@@ -273,12 +270,11 @@ impl Mul<f32> for Vector3d<i32> {
 // **** MulAssign ****
 /// In-place multiply a vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let mut v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
 /// v *= 2.0;
 ///
-/// assert_eq!(v, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
+/// assert_eq!(v, Vector3df32 { x: 4.0, y: 6.0, z: 10.0 });
 /// ```
 impl<T> MulAssign<T> for Vector3d<T>
 where
@@ -292,12 +288,11 @@ where
 // **** Div ****
 /// Divide a vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32::new(2.0, 3.0, 5.0);
 /// let r = v / 2.0;
 ///
-/// assert_eq!(r, Vector3d { x: 1.0, y: 1.5, z: 2.5 });
+/// assert_eq!(r, Vector3df32 { x: 1.0, y: 1.5, z: 2.5 });
 /// ```
 impl<T> Div<T> for Vector3d<T>
 where
@@ -313,12 +308,11 @@ where
 // **** DivAssign ****
 /// In-place divide a vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let mut v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
 /// v /= 2.0;
 ///
-/// assert_eq!(v, Vector3d { x: 1.0, y: 1.5, z: 2.5 });
+/// assert_eq!(v, Vector3df32 { x: 1.0, y: 1.5, z: 2.5 });
 /// ```
 impl<T> DivAssign<T> for Vector3d<T>
 where
@@ -332,9 +326,8 @@ where
 // **** Index ****
 /// Access vector component by index
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32::new(2.0, 3.0, 5.0);
 ///
 /// assert_eq!(v[0], 2.0);
 /// assert_eq!(v[1], 3.0);
@@ -355,14 +348,13 @@ impl<T> Index<usize> for Vector3d<T> {
 // **** IndexMut ****
 // Set vector component by index
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let mut v = Vector3d::<f32>::new(2.0, 3.0, 5.0);
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
 /// v[0] = 7.0;
 /// v[1] = 11.0;
 /// v[2] = 13.0;
 ///
-/// assert_eq!(v, Vector3d { x:7.0, y:11.0, z:13.0 });
+/// assert_eq!(v, Vector3df32 { x:7.0, y:11.0, z:13.0 });
 /// ```
 impl<T> IndexMut<usize> for Vector3d<T> {
     fn index_mut(&mut self, index: usize) -> &mut T {
@@ -438,7 +430,6 @@ where
     /// Vector dot product
     /// ```
     /// # use vector_quaternion_matrix::Vector3df32;
-    ///
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
     /// let w = Vector3df32::new(7.0, 11.0, 13.0);
     ///
@@ -453,7 +444,6 @@ where
     /// Vector cross product
     /// ```
     /// # use vector_quaternion_matrix::Vector3df32;
-    ///
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
     /// let w = Vector3df32::new(7.0, 11.0, 13.0);
     ///
@@ -539,15 +529,33 @@ where
 }
 
 // **** From ****
+/// Vector3d from Vector2d
+/// ```
+/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
+/// let v = Vector3df32::from(Vector2df32 { x: 2.0, y: 3.0 });
+/// let w: Vector3df32 = Vector2df32 { x: 7.0, y: 11.0 }.into();
+///
+/// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 0.0 });
+/// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 0.0 });
+/// ```
+impl<T> From<Vector2d<T>> for Vector3d<T>
+where
+    T: Zero,
+{
+    fn from(vec: Vector2d<T>) -> Self {
+        Self { x: vec.x, y: vec.y, z: T::zero() }
+    }
+}
+
+// **** From Tuple ****
 /// Vector from tuple
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32::from((2.0, 3.0, 5.0));
+/// let w: Vector3df32 = (7.0, 11.0, 13.0).into();
 ///
-/// let v = Vector3d::<f32>::from((2.0, 3.0, 5.0));
-/// let w: Vector3d::<f32> = (7.0, 11.0, 13.0).into();
-///
-/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
-/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
+/// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 13.0 });
 /// ```
 impl<T> From<(T, T, T)> for Vector3d<T> {
     fn from((x, y, z): (T, T, T)) -> Self {
@@ -557,13 +565,12 @@ impl<T> From<(T, T, T)> for Vector3d<T> {
 
 /// Vector from array
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32::from([2.0, 3.0, 5.0]);
+/// let w: Vector3df32 = [7.0, 11.0, 13.0].into();
 ///
-/// let v = Vector3d::<f32>::from([2.0, 3.0, 5.0]);
-/// let w: Vector3d::<f32> = [7.0, 11.0, 13.0].into();
-///
-/// assert_eq!(v, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
-/// assert_eq!(w, Vector3d::<f32> { x: 7.0, y: 11.0, z: 13.0 });
+/// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 13.0 });
 /// ```
 impl<T> From<[T; 3]> for Vector3d<T>
 where
@@ -576,9 +583,8 @@ where
 
 /// Array from vector
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
-///
-/// let v = Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 };
+/// # use vector_quaternion_matrix::Vector3df32;
+/// let v = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
 ///
 /// let a = <[f32; 3]>::from(v);
 /// let b: [f32; 3] = v.into();
@@ -594,20 +600,19 @@ impl<T> From<Vector3d<T>> for [T; 3] {
 
 /// `Vector3d<f32>` from `Vector3d<i16>`
 /// ```
-/// # use vector_quaternion_matrix::Vector3d;
+/// # use vector_quaternion_matrix::{Vector3df32,Vector3di16,Vector3di32};
+/// let v_i16 = Vector3di16{x: 2, y: 3, z: 5};
+/// let v_f32 = Vector3df32::from(v_i16);
 ///
-/// let v_i16 = Vector3d::<i16>{x: 2, y: 3, z: 5};
-/// let v_f32 = Vector3d::<f32>::from(v_i16);
+/// let w_f32 = Vector3df32{x: 7.0, y: 11.0, z: 13.0};
+/// let w_i16 : Vector3di16 = w_f32.into();
 ///
-/// let w_f32 = Vector3d::<f32>{x: 7.0, y: 11.0, z: 13.0};
-/// let w_i16 : Vector3d::<i16> = w_f32.into();
+/// let u_i32 = Vector3di32{x: 17, y: 19, z: 23};
+/// let u_f32 : Vector3df32 = u_i32.into();
 ///
-/// let u_i32 = Vector3d::<i32>{x: 17, y: 19, z: 23};
-/// let u_f32 : Vector3d::<f32> = u_i32.into();
-///
-/// assert_eq!(v_f32, Vector3d::<f32> { x: 2.0, y: 3.0, z: 5.0 });
-/// assert_eq!(w_i16, Vector3d::<i16> { x: 7, y: 11, z: 13 });
-/// assert_eq!(u_f32, Vector3d::<f32> { x: 17.0, y: 19.0, z: 23.0 });
+/// assert_eq!(v_f32, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w_i16, Vector3di16 { x: 7, y: 11, z: 13 });
+/// assert_eq!(u_f32, Vector3df32 { x: 17.0, y: 19.0, z: 23.0 });
 /// ```
 impl From<Vector3d<i16>> for Vector3d<f32> {
     fn from(v: Vector3d<i16>) -> Self {

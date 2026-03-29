@@ -13,8 +13,11 @@
         "Eigen",
         "fract",
         "hypot",
+        "katex",
         "libm",
         "Mascheroni",
+        "micromath",
+        "nalgebra",
         "Pitchf",
         "Quaternionf",
         "roundf",
@@ -25,6 +28,7 @@
         "tanf",
         "Testf",
         "trunc",
+        "waypointing",
         "Yawf"
     ]
 }

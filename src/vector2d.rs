@@ -1,14 +1,22 @@
+#[allow(unused)]
+use core::convert::TryFrom;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::MathMethods;
+use crate::{MathMethods, Vector3d};
 
+/// 2-dimensional `{x, y}` vector of `i8` values
 pub type Vector2di8 = Vector2d<i8>;
+/// 2-dimensional `{x, y}` vector of `i16` values
 pub type Vector2di16 = Vector2d<i16>;
+/// 2-dimensional `{x, y}` vector of `i32` values
 pub type Vector2di32 = Vector2d<i32>;
+/// 2-dimensional `{x, y}` vector of `f32` values
 pub type Vector2df32 = Vector2d<f32>;
+/// 2-dimensional `{x, y}` vector of `f64` values
 pub type Vector2df64 = Vector2d<f64>;
 
+// **** Define ****
 /// `Vector2d<T>`: 2D vector of type `T`.<br>
 /// `Vector2d32` and `Vector2df64` and several integer aliases are provided.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -20,12 +28,12 @@ pub struct Vector2d<T> {
 // **** Zero ****
 /// Zero vector
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
+/// # use vector_quaternion_matrix::Vector2df32;
 /// # use num_traits::zero;
 ///
-/// let z: Vector2d::<f32> = zero();
+/// let z: Vector2df32 = zero();
 ///
-/// assert_eq!(z, Vector2d::<f32> { x: 0.0, y: 0.0 });
+/// assert_eq!(z, Vector2df32 { x: 0.0, y: 0.0 });
 /// ```
 impl<T> Zero for Vector2d<T>
 where
@@ -43,11 +51,11 @@ where
 // **** Neg ****
 /// Negate vector
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-/// let v = Vector2d::<f32> { x: 2.0, y: 3.0 };
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32 { x: 2.0, y: 3.0 };
 /// let r = -v;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: -2.0, y: -3.0 });
+/// assert_eq!(r, Vector2df32 { x: -2.0, y: -3.0 });
 /// ```
 impl<T> Neg for Vector2d<T>
 where
@@ -61,13 +69,13 @@ where
 
 /// Negate vector reference
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
+/// # use vector_quaternion_matrix::Vector2df32;
 ///
-/// let v = Vector2d::<f32> { x: 2.0, y: -3.0 };
+/// let v = Vector2df32 { x: 2.0, y: -3.0 };
 /// let r = -&v;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: -2.0, y: 3.0 });
-/// assert_eq!(v, Vector2d::<f32> { x: 2.0, y: -3.0 });
+/// assert_eq!(r, Vector2df32 { x: -2.0, y: 3.0 });
+/// assert_eq!(v, Vector2df32 { x: 2.0, y: -3.0 });
 /// ```
 impl<T> Neg for &Vector2d<T>
 where
@@ -82,12 +90,12 @@ where
 // **** Add ****
 /// Add two vectors
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-/// let u = Vector2d::<f32>::new(2.0, 3.0);
-/// let v = Vector2d::<f32>::new(7.0, 11.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let u = Vector2df32::new(2.0, 3.0);
+/// let v = Vector2df32::new(7.0, 11.0);
 /// let r = u + v;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: 9.0, y: 14.0 });
+/// assert_eq!(r, Vector2df32 { x: 9.0, y: 14.0 });
 /// ```
 impl<T> Add for Vector2d<T>
 where
@@ -101,12 +109,12 @@ where
 
 /// Add two vectors references
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-/// let u = Vector2d::<f32>::new(2.0, 3.0);
-/// let v = Vector2d::<f32>::new(7.0, 11.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let u = Vector2df32::new(2.0, 3.0);
+/// let v = Vector2df32::new(7.0, 11.0);
 /// let r = &u + &v;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: 9.0, y: 14.0 });
+/// assert_eq!(r, Vector2df32 { x: 9.0, y: 14.0 });
 /// ```
 impl<T> Add for &Vector2d<T>
 where
@@ -121,17 +129,15 @@ where
 // **** AddAssign ****
 /// Add one vector to another
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let mut r = Vector2d::<f32>::new(2.0, 3.0);
-/// let u = Vector2d::<f32>::new(7.0, 11.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let mut r = Vector2df32::new(2.0, 3.0);
+/// let u = Vector2df32::new(7.0, 11.0);
 /// r += u;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: 9.0, y: 14.0 });
+/// assert_eq!(r, Vector2df32 { x: 9.0, y: 14.0 });
 ///
 /// # use num_traits::zero;
-///
-/// let z: Vector2d::<f32> = zero();
+/// let z: Vector2df32 = zero();
 /// let r = u + z;
 /// assert_eq!(r, u);
 /// ```
@@ -147,13 +153,12 @@ where
 // **** Sub ****
 /// Subtract two vectors
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let u = Vector2d::<f32>::new(2.0, 3.0);
-/// let v = Vector2d::<f32>::new(7.0, 11.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let u = Vector2df32::new(2.0, 3.0);
+/// let v = Vector2df32::new(7.0, 11.0);
 /// let r = u - v;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: -5.0, y: -8.0 });
+/// assert_eq!(r, Vector2df32 { x: -5.0, y: -8.0 });
 /// ```
 impl<T> Sub for Vector2d<T>
 where
@@ -166,13 +171,12 @@ where
 }
 /// Subtract two vectors references
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let u = Vector2d::<f32>::new(2.0, 3.0);
-/// let v = Vector2d::<f32>::new(7.0, 11.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let u = Vector2df32::new(2.0, 3.0);
+/// let v = Vector2df32::new(7.0, 11.0);
 /// let r = &u - &v;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: -5.0, y: -8.0 });
+/// assert_eq!(r, Vector2df32 { x: -5.0, y: -8.0 });
 /// ```
 impl<T> Sub for &Vector2d<T>
 where
@@ -187,13 +191,12 @@ where
 // **** SubAssign ****
 /// Subtract one vector from another
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let mut r = Vector2d::<f32>::new(2.0, 3.0);
-/// let v = Vector2d::<f32>::new(7.0, 11.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let mut r = Vector2df32::new(2.0, 3.0);
+/// let v = Vector2df32::new(7.0, 11.0);
 /// r -= v;
 ///
-/// assert_eq!(r, Vector2d { x: -5.0, y: -8.0 });
+/// assert_eq!(r, Vector2df32 { x: -5.0, y: -8.0 });
 /// ```
 impl<T> SubAssign for Vector2d<T>
 where
@@ -207,12 +210,11 @@ where
 // **** Pre-multiply ****
 /// Pre-multiply vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let v = Vector2d::<f32>::new(2.0, 3.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32::new(2.0, 3.0);
 /// let r = 2.0 * v;
 ///
-/// assert_eq!(r, Vector2d::<f32> { x: 4.0, y: 6.0 });
+/// assert_eq!(r, Vector2df32 { x: 4.0, y: 6.0 });
 /// ```
 impl Mul<Vector2d<f32>> for f32 {
     type Output = Vector2d<f32>;
@@ -231,12 +233,11 @@ impl Mul<Vector2d<f64>> for f64 {
 // **** Mul ****
 /// Multiply vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let v = Vector2d::<f32>::new(2.0, 3.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32::new(2.0, 3.0);
 /// let r = v * 2.0;
 ///
-/// assert_eq!(r, Vector2d { x: 4.0, y: 6.0 });
+/// assert_eq!(r, Vector2df32 { x: 4.0, y: 6.0 });
 /// ```
 impl<T> Mul<T> for Vector2d<T>
 where
@@ -272,12 +273,11 @@ impl Mul<f32> for Vector2d<i32> {
 // **** MulAssign ****
 /// In-place multiply a vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let mut v = Vector2d::<f32>::new(2.0, 3.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let mut v = Vector2df32::new(2.0, 3.0);
 /// v *= 2.0;
 ///
-/// assert_eq!(v, Vector2d { x: 4.0, y: 6.0 });
+/// assert_eq!(v, Vector2df32 { x: 4.0, y: 6.0 });
 /// ```
 impl<T> MulAssign<T> for Vector2d<T>
 where
@@ -291,12 +291,11 @@ where
 // **** Div ****
 /// Divide a vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let v = Vector2d::<f32>::new(2.0, 3.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32::new(2.0, 3.0);
 /// let r = v / 2.0;
 ///
-/// assert_eq!(r, Vector2d { x: 1.0, y: 1.5 });
+/// assert_eq!(r, Vector2df32 { x: 1.0, y: 1.5 });
 /// ```
 impl<T> Div<T> for Vector2d<T>
 where
@@ -312,12 +311,11 @@ where
 // **** DivAssign ****
 /// In-place divide a vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let mut v = Vector2d::<f32>::new(2.0, 3.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let mut v = Vector2df32::new(2.0, 3.0);
 /// v /= 2.0;
 ///
-/// assert_eq!(v, Vector2d { x: 1.0, y: 1.5 });
+/// assert_eq!(v, Vector2df32 { x: 1.0, y: 1.5 });
 /// ```
 impl<T> DivAssign<T> for Vector2d<T>
 where
@@ -331,9 +329,8 @@ where
 // **** Index ****
 /// Access vector component by index
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let v = Vector2d::<f32>::new(2.0, 3.0);
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32::new(2.0, 3.0);
 ///
 /// assert_eq!(v[0], 2.0);
 /// assert_eq!(v[1], 3.0);
@@ -352,13 +349,13 @@ impl<T> Index<usize> for Vector2d<T> {
 // **** IndexMut ****
 // Set vector component by index
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
+/// # use vector_quaternion_matrix::Vector2df32;
 ///
-/// let mut v = Vector2d::<f32>::new(2.0, 3.0);
+/// let mut v = Vector2df32::new(2.0, 3.0);
 /// v[0] = 7.0;
 /// v[1] = 11.0;
 ///
-/// assert_eq!(v, Vector2d { x:7.0, y:11.0 });
+/// assert_eq!(v, Vector2df32 { x:7.0, y:11.0 });
 /// ```
 impl<T> IndexMut<usize> for Vector2d<T> {
     fn index_mut(&mut self, index: usize) -> &mut T {
@@ -528,15 +525,78 @@ where
 }
 
 // **** From ****
+/// Vector2d from Vector3d, discarding z value.
+/// ```
+/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
+/// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }.into();
+/// let u = Vector2df32::from(Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
+///
+/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
+/// assert_eq!(u, Vector2df32 { x: 7.0, y: 11.0 });
+impl<T> From<Vector3d<T>> for Vector2d<T>
+where
+    T: Zero,
+{
+    fn from(v: Vector3d<T>) -> Self {
+        Vector2d::<T> { x: v.x, y: v.y }
+    }
+}
+
+/*
+/// Non-zero z component error.
+#[derive(Debug, PartialEq)]
+pub enum VectorError {
+    NonZeroZ,
+}
+
+/// Vector2d try_from Vector3d
+/// ```
+/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
+/// let result: Result<Vector2df32, _> = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }.try_into();
+/// match result {
+///     Ok(v2) => assert!(false),
+///     Err(_) => assert!(true),
+/// }
+/// let result: Result<Vector2df32, _> = Vector2df32::try_from(Vector3df32{ x: 2.0, y: 3.0, z: 5.0 });
+/// match result {
+///     Ok(v2) => assert!(false),
+///     Err(_) => assert!(true),
+/// }
+/// let result: Result<Vector2df32, _> = Vector3df32 { x: 2.0, y: 3.0, z: 0.0 }.try_into();
+/// match result {
+///     Ok(v2d) => assert_eq!(v2d, Vector2df32 { x: 2.0, y: 3.0 }),
+///     Err(_) => assert!(false),
+/// }
+/// let result: Result<Vector2df32, _> = Vector2df32::try_from(Vector3df32{ x: 2.0, y: 3.0, z: 0.0 });
+/// match result {
+///     Ok(v2d) => assert_eq!(v2d, Vector2df32 { x: 2.0, y: 3.0 }),
+///     Err(_) => assert!(false),
+/// }
+/// ```
+impl<T> TryFrom<Vector3d<T>> for Vector2d<T>
+where
+    T: Zero + PartialEq,
+{
+    type Error = VectorError;
+
+    fn try_from(v: Vector3d<T>) -> Result<Self, Self::Error> {
+        // In embedded/control systems, exact float comparison (== 0.0)
+        // is usually fine for a "pure" check, but you can also use
+        // a small epsilon if the Z comes from a calculation.
+        if v.z == T::zero() { Ok(Vector2d::<T> { x: v.x, y: v.y }) } else { Err(VectorError::NonZeroZ) }
+    }
+}
+*/
+
+// **** From Tuple ****
 /// Vector from tuple
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32::from((2.0, 3.0));
+/// let w: Vector2df32 = (7.0, 11.0).into();
 ///
-/// let v = Vector2d::<f32>::from((2.0, 3.0));
-/// let w: Vector2d::<f32> = (7.0, 11.0).into();
-///
-/// assert_eq!(v, Vector2d::<f32> { x: 2.0, y: 3.0 });
-/// assert_eq!(w, Vector2d::<f32> { x: 7.0, y: 11.0 });
+/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
+/// assert_eq!(w, Vector2df32 { x: 7.0, y: 11.0 });
 /// ```
 impl<T> From<(T, T)> for Vector2d<T> {
     fn from((x, y): (T, T)) -> Self {
@@ -546,13 +606,12 @@ impl<T> From<(T, T)> for Vector2d<T> {
 
 /// Vector from array
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32::from([2.0, 3.0]);
+/// let w: Vector2df32 = [7.0, 11.0].into();
 ///
-/// let v = Vector2d::<f32>::from([2.0, 3.0]);
-/// let w: Vector2d::<f32> = [7.0, 11.0].into();
-///
-/// assert_eq!(v, Vector2d::<f32> { x: 2.0, y: 3.0 });
-/// assert_eq!(w, Vector2d::<f32> { x: 7.0, y: 11.0 });
+/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
+/// assert_eq!(w, Vector2df32 { x: 7.0, y: 11.0 });
 /// ```
 impl<T> From<[T; 2]> for Vector2d<T>
 where
@@ -565,9 +624,8 @@ where
 
 /// Array from vector
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
-///
-/// let v = Vector2d::<f32> { x: 2.0, y: 3.0 };
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let v = Vector2df32 { x: 2.0, y: 3.0 };
 ///
 /// let a = <[f32; 2]>::from(v);
 /// let b: [f32; 2] = v.into();
@@ -583,20 +641,19 @@ impl<T> From<Vector2d<T>> for [T; 2] {
 
 /// `Vector2d<f32>` from `Vector2d<i16>`
 /// ```
-/// # use vector_quaternion_matrix::Vector2d;
+/// # use vector_quaternion_matrix::{Vector2df32,Vector2di16,Vector2di32};
+/// let v_i16 = Vector2di16{x: 2, y: 3};
+/// let v_f32 = Vector2df32::from(v_i16);
 ///
-/// let v_i16 = Vector2d::<i16>{x: 2, y: 3};
-/// let v_f32 = Vector2d::<f32>::from(v_i16);
+/// let w_f32 = Vector2df32{x: 7.0, y: 11.0};
+/// let w_i16 : Vector2di16 = w_f32.into();
 ///
-/// let w_f32 = Vector2d::<f32>{x: 7.0, y: 11.0};
-/// let w_i16 : Vector2d::<i16> = w_f32.into();
+/// let u_i32 = Vector2di32{x: 17, y: 19};
+/// let u_f32 : Vector2df32 = u_i32.into();
 ///
-/// let u_i32 = Vector2d::<i32>{x: 17, y: 19};
-/// let u_f32 : Vector2d::<f32> = u_i32.into();
-///
-/// assert_eq!(v_f32, Vector2d::<f32> { x: 2.0, y: 3.0 });
-/// assert_eq!(w_i16, Vector2d::<i16> { x: 7, y: 11 });
-/// assert_eq!(u_f32, Vector2d::<f32> { x: 17.0, y: 19.0 });
+/// assert_eq!(v_f32, Vector2df32 { x: 2.0, y: 3.0 });
+/// assert_eq!(w_i16, Vector2di16 { x: 7, y: 11 });
+/// assert_eq!(u_f32, Vector2df32 { x: 17.0, y: 19.0 });
 /// ```
 impl From<Vector2d<i16>> for Vector2d<f32> {
     fn from(v: Vector2d<i16>) -> Self {

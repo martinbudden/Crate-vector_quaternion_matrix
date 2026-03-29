@@ -6,13 +6,19 @@ authors = ["Martin Budden"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
+[features]
+# Default is now empty (no_std)
+default = ["libm"] 
+std = []
+
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "katex-header.html"]
 
 [dependencies]
-libm = "0.2.2"  # Use the latest version if available
+libm = { version = "0.2.2", optional = true } # libm is required for sqrt and trigonometric functions in no_std
 num-traits = "0.2.19"
 bytemuck = { version = "1.24", features = ["derive"] }
+cfg-if = "1.0"
 
 [dev-dependencies]
 # assert_float_eq = "1.2.0" # used for test

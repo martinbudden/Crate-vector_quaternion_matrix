@@ -1,4 +1,4 @@
-# vector_quaternion_matrix Rust Crate ![license](https://img.shields.io/badge/license-MIT-green) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![open source](https://badgen.net/badge/open/source/blue?icon=github)
+# vector-quaternion-matrix Rust Crate ![license](https://img.shields.io/badge/license-MIT-green) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![open source](https://badgen.net/badge/open/source/blue?icon=github)
 
 ## Vector, Quaternion, and Matrix Crate
 
@@ -45,9 +45,30 @@ So, for example:
 4. in the stabilized-vehicle crate these values are filtered using (for example) a `BiquadFilterf32<Vector3df32>`
 5. the filtered acc and gyro values are combined using sensor-fusion to provide an orientation quaternion.
 
+## Why did I write another crate?
+
+My requirements are fairly specific. I wanted a crate that could support the functionality required by stabilized vehicles in general,
+and self balancing robots and aircraft in particular.
+
+These requirements included:
+
+1. Support for `Vector3di16` and `Vector3di32` for reading data from Inertial Management Units (IMUs).
+   Some IMUs can return 20-bit values, hence the need for `Vector3di32`.
+2. Support for conversion between the integer vectors returned by the IMU and the floating point vectors required for mathematical operations.
+3. Ability to work with generic filters.
+4. Quaternion support for sensor fusion.
+5. Matrix support for navigation, in particular "path following" (waypointing), and trilateration.
+
+I looked at a number of alternatives including
+[nalgebra](https://crates.io/crates/nalgebra),
+[glam](https://crates.io/crates/glam),
+and [micromath](https://crates.io/crates/micromath).
+But each one of these fell on one count or another.
+I had previously written a C++ VectorQuaternionMatrix library, so porting that to Rust seemed like the best option.
+
 ## Original implementation
 
-This crate was originally implemented as a c++ library. The
+This crate was originally implemented as a C++ library. The
 [original implementation can be found here](https://github.com/martinbudden/Library-VectorQuaternionMatrix).
 
 ## License

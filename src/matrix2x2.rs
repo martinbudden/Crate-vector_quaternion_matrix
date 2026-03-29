@@ -1,15 +1,24 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{MathConstants, MathMethods, Vector2d};
+use crate::{MathConstants, Vector2d};
 
+/// 2x2 matrix of `f32` values
 pub type Matrix2x2f32 = Matrix2x2<f32>;
+/// 2x2 matrix of `f64` values
 pub type Matrix2x2f64 = Matrix2x2<f64>;
+
+/// Zero determinant error.
+#[derive(Debug, PartialEq)]
+pub enum MatrixError {
+    ZeroDeterminant,
+}
 
 // **** Define ****
 /// `Matrix2x2<T>`: 2x2 Matrix of type `T`.<br>
-/// Aliases `Matrix2x2f32` and `Matrix2x2f64` provided.<br>
-/// Internal implementation is a flattened 2x2 matrix: 4 elements in row-major order
+/// Aliases `Matrix2x2f32` and `Matrix2x2f64` are provided.<br>
+/// Internal implementation is a flattened 1x2 matrix: an array of 4 elements stored in row-major order<br>
+/// That is the element `m[row][col]` is at array position `[row * 2 + col]`, so element `m01` is at `a[1]`.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Matrix2x2<T> {
     // Flattened 2x2 matrix: 4 elements in row-major order
@@ -19,13 +28,12 @@ pub struct Matrix2x2<T> {
 // **** Zero ****
 /// Zero matrix
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 /// # use num_traits::Zero;
+/// let z = Matrix2x2f32::zero();
 ///
-/// let Z = Matrix2x2::<f32>::zero();
-///
-/// assert_eq!(Z, Matrix2x2::<f32>::from([ 0.0, 0.0,
-///                                        0.0, 0.0]));
+/// assert_eq!(z, Matrix2x2f32::from([ 0.0, 0.0,
+///                                    0.0, 0.0]));
 /// ```
 impl<T> Zero for Matrix2x2<T>
 where
@@ -42,13 +50,12 @@ where
 // **** One ****
 /// Identity matrix
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 /// # use num_traits::One;
+/// let I = Matrix2x2f32::one();
 ///
-/// let I = Matrix2x2::<f32>::one();
-///
-/// assert_eq!(I, Matrix2x2::<f32>::from([ 1.0, 0.0,
-///                                        0.0, 1.0]));
+/// assert_eq!(I, Matrix2x2f32::from([ 1.0, 0.0,
+///                                    0.0, 1.0]));
 /// ```
 impl<T> One for Matrix2x2<T>
 where
@@ -66,13 +73,13 @@ where
 // **** Neg ****
 /// Negate matrix
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
 /// M = - M;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([ -2.0,  -3.0,
-///                                        -7.0, -11.0]));
+/// assert_eq!(M, Matrix2x2f32::from([ -2.0,  -3.0,
+///                                    -7.0, -11.0]));
 /// ```
 impl<T> Neg for Matrix2x2<T>
 where
@@ -91,13 +98,13 @@ where
 // **** NegReference ****
 /// Negate quaternion reference
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
 /// M = - M;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([ -2.0,  -3.0,
-///                                        -7.0, -11.0]));
+/// assert_eq!(M, Matrix2x2f32::from([ -2.0,  -3.0,
+///                                    -7.0, -11.0]));
 /// ```
 impl<T> Neg for &Matrix2x2<T>
 where
@@ -116,20 +123,19 @@ where
 // **** Add ****
 /// Add two matrices
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-///
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// let N = Matrix2x2::<f32>::from([29.0, 31.0,
-///                                 41.0, 43.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
+/// let N = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
 /// let R = M + N;
 ///
-/// assert_eq!(R, Matrix2x2::<f32>::from([31.0, 34.0,
-///                                       48.0, 54.0]));
+/// assert_eq!(R, Matrix2x2f32::from([31.0, 34.0,
+///                                   48.0, 54.0]));
 ///
 /// # use num_traits::Zero;
 ///
-/// let Z = Matrix2x2::<f32>::zero();
+/// let Z = Matrix2x2f32::zero();
 /// let R2 = M + Z;
 ///
 /// assert_eq!(R2, M);
@@ -151,15 +157,15 @@ where
 // **** AddAssign ****
 /// Add one matrix to another
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
-/// let N = Matrix2x2::<f32>::from([29.0, 31.0,
-///                                 41.0, 43.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
+/// let N = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
 /// M += N;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([31.0, 34.0,
-///                                       48.0, 54.0]));
+/// assert_eq!(M, Matrix2x2f32::from([31.0, 34.0,
+///                                   48.0, 54.0]));
 /// ```
 impl<T> AddAssign for Matrix2x2<T>
 where
@@ -175,15 +181,15 @@ where
 // **** Sub ****
 /// Subtract two matrices
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// let N = Matrix2x2::<f32>::from([29.0, 31.0,
-///                                 41.0, 43.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
+/// let N = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
 /// let R = M - N;
 ///
-/// assert_eq!(R, Matrix2x2::<f32>::from([-27.0, -28.0,
-///                                       -34.0, -32.0]));
+/// assert_eq!(R, Matrix2x2f32::from([-27.0, -28.0,
+///                                   -34.0, -32.0]));
 /// ```
 impl<T> Sub for Matrix2x2<T>
 where
@@ -202,15 +208,15 @@ where
 // **** SubAssign ****
 /// Subtract one matrix from another
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
-/// let N = Matrix2x2::<f32>::from([29.0, 31.0,
-///                                 41.0, 43.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
+/// let N = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
 /// M -= N;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([-27.0, -28.0,
-///                                       -34.0, -32.0]));
+/// assert_eq!(M, Matrix2x2f32::from([-27.0, -28.0,
+///                                   -34.0, -32.0]));
 /// ```
 impl<T> SubAssign for Matrix2x2<T>
 where
@@ -226,13 +232,13 @@ where
 // **** Pre-multiply ****
 /// Pre-multiply a matrix by a constant
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
 /// let R = 2.0 * M;
 ///
-/// assert_eq!(R, Matrix2x2::<f32>::from([ 4.0,  6.0,
-///                                       14.0, 22.0]));
+/// assert_eq!(R, Matrix2x2f32::from([ 4.0,  6.0,
+///                                   14.0, 22.0]));
 /// ```
 impl Mul<Matrix2x2<f32>> for f32 {
     type Output = Matrix2x2<f32>;
@@ -241,7 +247,7 @@ impl Mul<Matrix2x2<f32>> for f32 {
         for r in result.iter_mut() {
             *r *= self;
         }
-        Matrix2x2::<f32> { a: result }
+        Matrix2x2f32 { a: result }
     }
 }
 
@@ -259,13 +265,13 @@ impl Mul<Matrix2x2<f64>> for f64 {
 // **** Mul ****
 /// Multiply a matrix by a constant
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
 /// let R = M * 2.0;
 ///
-/// assert_eq!(R, Matrix2x2::<f32>::from([ 4.0,  6.0,
-///                                       14.0, 22.0]));
+/// assert_eq!(R, Matrix2x2f32::from([ 4.0,  6.0,
+///                                   14.0, 22.0]));
 /// ```
 impl<T> Mul<T> for Matrix2x2<T>
 where
@@ -284,13 +290,13 @@ where
 // **** MulAssign ****
 /// In-place multiply a matrix by a constant
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
 /// M *= 2.0;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([ 4.0,  6.0,
-///                                       14.0, 22.0]));
+/// assert_eq!(M, Matrix2x2f32::from([ 4.0,  6.0,
+///                                   14.0, 22.0]));
 /// ```
 impl<T> MulAssign<T> for Matrix2x2<T>
 where
@@ -306,9 +312,9 @@ where
 
 /// Multiply a vector by a matrix
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 /// # use vector_quaternion_matrix::Vector2d;
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
 ///                                  7.0, 11.0]);
 /// let v = Vector2d::<f32>{x:29.0, y:31.0};
 /// let r = M * v;
@@ -327,14 +333,14 @@ where
 
 /// Pre-multiply a vector by a matrix
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// # use vector_quaternion_matrix::Vector2d;
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// let v = Vector2d{x:29.0, y:31.0};
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// # use vector_quaternion_matrix::Vector2df32;
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
+/// let v = Vector2df32{x:29.0, y:31.0};
 /// let r = v * M;
 ///
-/// assert_eq!(r, Vector2d{x:29.0*2.0 + 31.0*7.0, y:29.0*3.0 +31.0*11.0});
+/// assert_eq!(r, Vector2df32{x:29.0*2.0 + 31.0*7.0, y:29.0*3.0 +31.0*11.0});
 /// ```
 impl<T> Mul<Matrix2x2<T>> for Vector2d<T>
 where
@@ -348,21 +354,21 @@ where
 
 /// Multiply two matrices
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// let N = Matrix2x2::<f32>::from([29.0, 31.0,
-///                                 41.0, 43.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
+/// let N = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
 /// let R = M * N;
 ///
-/// assert_eq!(R, Matrix2x2::<f32>::from([
+/// assert_eq!(R, Matrix2x2f32::from([
 ///    2.0 * 29.0 +  3.0 * 41.0,   2.0 * 31.0 +  3.0 * 43.0,
 ///    7.0 * 29.0 + 11.0 * 41.0,   7.0 * 31.0 + 11.0 * 43.0,
 /// ]));
 ///
 /// # use num_traits::One;
 ///
-/// let I = Matrix2x2::<f32>::one();
+/// let I = Matrix2x2f32::one();
 /// let R2 = M * I;
 ///
 /// assert_eq!(R2, M);
@@ -385,15 +391,15 @@ where
 
 /// Multiply one matrix by another
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 ///
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
-/// let N = Matrix2x2::<f32>::from([29.0, 31.0,
-///                                 41.0, 43.0]);
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
+/// let N = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
 /// M *= N;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([
+/// assert_eq!(M, Matrix2x2f32::from([
 ///    2.0 * 29.0 +  3.0 * 41.0,   2.0 * 31.0 +  3.0 * 43.0,
 ///    7.0 * 29.0 + 11.0 * 41.0,   7.0 * 31.0 + 11.0 * 43.0,
 /// ]));
@@ -410,13 +416,13 @@ where
 // **** Div ****
 /// Divide a matrix by a constant
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
 /// let R = M / 2.0;
 ///
-/// assert_eq!(R, Matrix2x2::<f32>::from([ 1.0, 1.5,
-///                                        3.5, 5.5]));
+/// assert_eq!(R, Matrix2x2f32::from([ 1.0, 1.5,
+///                                    3.5, 5.5]));
 /// ```
 impl<T> Div<T> for Matrix2x2<T>
 where
@@ -436,13 +442,13 @@ where
 // **** DivAssign ****
 /// In-place divide a matrix by a constant
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
 /// M /= 2.0;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([ 1.0, 1.5,
-///                                        3.5, 5.5]));
+/// assert_eq!(M, Matrix2x2f32::from([ 1.0, 1.5,
+///                                    3.5, 5.5]));
 /// ```
 impl<T> DivAssign<T> for Matrix2x2<T>
 where
@@ -459,10 +465,10 @@ where
 // **** Index ****
 /// Access matrix element by index
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 ///
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
 ///
 /// assert_eq!(M[0], 2.0);
 /// assert_eq!(M[1], 3.0);
@@ -479,17 +485,17 @@ impl<T> Index<usize> for Matrix2x2<T> {
 // **** IndexMut ****
 /// Set matrix element by index
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 ///
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
 ///
 /// M[0] = 29.0;
 /// M[1] = 31.0;
 /// M[2] = 37.0;
 /// M[3] = 41.0;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([29.0, 31.0,
+/// assert_eq!(M, Matrix2x2f32::from([29.0, 31.0,
 ///                                       37.0, 41.0]));
 /// ```
 impl<T> IndexMut<usize> for Matrix2x2<T> {
@@ -500,10 +506,10 @@ impl<T> IndexMut<usize> for Matrix2x2<T> {
 
 /// Access matrix element by ordered pair (row, column)
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 ///
-/// let M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// let M = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
 ///
 /// assert_eq!(M[(0,0)], 2.0);
 /// assert_eq!(M[(0,1)], 3.0);
@@ -520,18 +526,18 @@ impl<T> Index<(usize, usize)> for Matrix2x2<T> {
 
 /// Set matrix element by ordered pair (row, column)
 /// ```
-/// # use vector_quaternion_matrix::Matrix2x2;
+/// # use vector_quaternion_matrix::Matrix2x2f32;
 ///
-/// let mut M = Matrix2x2::<f32>::from([ 2.0,  3.0,
-///                                      7.0, 11.0]);
+/// let mut M = Matrix2x2f32::from([ 2.0,  3.0,
+///                                  7.0, 11.0]);
 ///
 /// M[(0,0)] = 29.0;
 /// M[(0,1)] = 31.0;
 /// M[(1,0)] = 41.0;
 /// M[(1,1)] = 43.0;
 ///
-/// assert_eq!(M, Matrix2x2::<f32>::from([29.0, 31.0,
-///                                       41.0, 43.0]));
+/// assert_eq!(M, Matrix2x2f32::from([29.0, 31.0,
+///                                   41.0, 43.0]));
 /// ```
 impl<T> IndexMut<(usize, usize)> for Matrix2x2<T> {
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
@@ -557,21 +563,45 @@ where
 {
     /// Return a copy of the matrix with all components set to their absolute values
     pub fn abs(&self) -> Self {
-        let mut data = self.a;
-        for d in data.iter_mut() {
-            *d = d.abs();
+        let mut a = self.a;
+        for a in a.iter_mut() {
+            *a = a.abs();
         }
-        Self { a: data }
+        Self { a }
     }
 
     /// Set all components of the matrix to their absolute values
     pub fn abs_in_place(&mut self) {
-        for d in self.a.iter_mut() {
-            *d = d.abs();
+        for a in self.a.iter_mut() {
+            *a = a.abs();
         }
     }
 }
 
+/// Set components whose absolute value is less than EPSILON to zero.
+/// ```
+/// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32,MathConstants};
+///
+/// let mut m = Matrix2x2f32::from([ 2.0,  f32::EPSILON /2.0,
+///                              7.0, 11.0]);
+/// m.epsilonize();
+///
+/// assert_eq!(m, Matrix2x2f32::from([ 2.0,  0.0,
+///                                    7.0, 11.0]));
+/// ```
+impl<T> Matrix2x2<T>
+where
+    T: Copy + Signed + PartialOrd + MathConstants,
+{
+    /// If any component of the matrix is less than EPSILON in absolute value, set it to Zero.
+    pub fn epsilonize(&mut self) {
+        for a in self.a.iter_mut() {
+            if a.abs() <= T::EPSILON {
+                *a = T::zero();
+            }
+        }
+    }
+}
 // **** impl clamp ****
 impl<T> Matrix2x2<T>
 where
@@ -579,17 +609,17 @@ where
 {
     /// Return a copy of the matrix with all components clamped to the specified range
     pub fn clamp(&self, min: T, max: T) -> Self {
-        let mut data = self.a;
-        for d in data.iter_mut() {
-            *d = d.clamp(min, max);
+        let mut a = self.a;
+        for a in a.iter_mut() {
+            *a = a.clamp(min, max);
         }
-        Self { a: data }
+        Self { a }
     }
 
     /// Clamp all components of the matrix to the specified range
     pub fn clamp_in_place(&mut self, min: T, max: T) {
-        for d in self.a.iter_mut() {
-            *d = d.clamp(min, max);
+        for a in self.a.iter_mut() {
+            *a = a.clamp(min, max);
         }
     }
 }
@@ -613,14 +643,14 @@ where
 
     /// Return matrix row as a vector
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix2x2,Vector2d};
+    /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
+    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
     /// let v = A.row(0);
     ///
-    /// assert_eq!(v, Vector2d{ x: 2.0, y: 3.0 });
-    /// assert_eq!(A.row(1), Vector2d{ x: 7.0, y: 11.0 });
+    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 3.0 });
+    /// assert_eq!(A.row(1), Vector2df32{ x: 7.0, y: 11.0 });
     /// ```
     pub fn row(&self, row: usize) -> Vector2d<T> {
         match row {
@@ -645,14 +675,14 @@ where
 
     /// Return matrix column as a vector
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix2x2,Vector2d};
+    /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
+    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
     /// let v = A.column(0);
     ///
-    /// assert_eq!(v, Vector2d{ x: 2.0, y: 7.0 });
-    /// assert_eq!(A.column(1), Vector2d{ x: 3.0, y: 11.0 });
+    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 7.0 });
+    /// assert_eq!(A.column(1), Vector2df32{ x: 3.0, y: 11.0 });
     /// ```
     pub fn column(&self, column: usize) -> Vector2d<T> {
         match column {
@@ -669,14 +699,13 @@ where
 {
     /// Transpose matrix
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let n = m.transpose();
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// let B = A.transpose();
-    ///
-    /// assert_eq!(B, Matrix2x2::<f32>::from([ 2.0,  7.0,
-    ///                                        3.0, 11.0]));
+    /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  7.0,
+    ///                                    3.0, 11.0]));
     /// ```
     pub fn transpose(&self) -> Self {
         Self { a: [self.a[0], self.a[2], self.a[1], self.a[3]] }
@@ -684,14 +713,13 @@ where
 
     /// Transpose matrix, in-place
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                                  7.0, 11.0]);
+    /// m.transpose_in_place();
     ///
-    /// let mut A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                      7.0, 11.0]);
-    /// A.transpose_in_place();
-    ///
-    /// assert_eq!(A, Matrix2x2::<f32>::from([ 2.0,  7.0,
-    ///                                        3.0, 11.0]));
+    /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  7.0,
+    ///                                    3.0, 11.0]));
     /// ```
     pub fn transpose_in_place(&mut self) {
         *self = self.transpose();
@@ -704,13 +732,12 @@ where
 {
     /// Adjugate matrix
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let n = m.adjugate();
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// let B = A.adjugate();
-    ///
-    /// assert!((B*A/A.determinant()).is_near_identity());
+    /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
     pub fn adjugate(&self) -> Self {
         Self { a: [self.a[3], -self.a[1], -self.a[2], self.a[0]] }
@@ -718,31 +745,29 @@ where
 
     /// Adjugate matrix, in-place
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let mut n = m;
+    /// n.adjugate_in_place();
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// let mut B = A;
-    /// B.adjugate_in_place();
-    ///
-    /// assert_eq!(A.adjugate(), B);
+    /// assert_eq!(m.adjugate(), n);
     /// ```
     pub fn adjugate_in_place(&mut self) {
         *self = self.adjugate();
     }
     /// Add vector to diagonal of matrix, in-place
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix2x2,Vector2d};
+    /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
+    /// let mut A = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                                  7.0, 11.0]);
     ///
-    /// let mut A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                      7.0, 11.0]);
-    ///
-    /// let v = Vector2d::<f32>{ x: 10.0, y: 20.0 };
+    /// let v = Vector2df32{ x: 10.0, y: 20.0 };
     ///
     /// A.add_to_diagonal_in_place(v);
     ///
-    /// assert_eq!(A, Matrix2x2::<f32>::from([ 12.0,  3.0,
-    ///                                         7.0, 31.0]));
+    /// assert_eq!(A, Matrix2x2f32::from([ 12.0,  3.0,
+    ///                                     7.0, 31.0]));
     /// ```
     pub fn add_to_diagonal_in_place(&mut self, v: Vector2d<T>) {
         self.a[0] = self.a[0] + v.x;
@@ -751,17 +776,16 @@ where
 
     /// Subtract vector from diagonal of matrix, in-place
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix2x2,Vector2d};
+    /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
+    /// let mut A = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                                  7.0, 11.0]);
     ///
-    /// let mut A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                      7.0, 11.0]);
-    ///
-    /// let v = Vector2d{ x: 10.0, y: 20.0 };
+    /// let v = Vector2df32{ x: 10.0, y: 20.0 };
     ///
     /// A.subtract_from_diagonal_in_place(v);
     ///
-    /// assert_eq!(A, Matrix2x2::<f32>::from([ -8.0,  3.0,
-    ///                                         7.0, -9.0]));
+    /// assert_eq!(A, Matrix2x2f32::from([ -8.0,  3.0,
+    ///                                     7.0, -9.0]));
     /// ```
     pub fn subtract_from_diagonal_in_place(&mut self, v: Vector2d<T>) {
         self.a[0] = self.a[0] - v.x;
@@ -783,10 +807,9 @@ where
 
     /// Matrix determinant
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
-    ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
     /// let d = A.determinant();
     ///
     /// assert_eq!(2.0*11.0 - 3.0*7.0, d);
@@ -798,10 +821,9 @@ where
 
     /// Return the sum of all components of the matrix
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
-    ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
     /// let s = A.sum();
     ///
     /// assert_eq!(s, 23.0);
@@ -812,13 +834,12 @@ where
 
     /// Return the mean of all components of the matrix
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let mean = m.mean();
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// let m = A.mean();
-    ///
-    /// assert_eq!(m, 23.0 / 4.0);
+    /// assert_eq!(mean, 23.0 / 4.0);
     /// ```
     pub fn mean(&self) -> T {
         self.sum() / (T::one() + T::one() + T::one() + T::one())
@@ -826,13 +847,12 @@ where
 
     /// Return the product of all components of the matrix
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let product = m.product();
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// let p = A.product();
-    ///
-    /// assert_eq!(p, 462.0);
+    /// assert_eq!(product, 462.0);
     /// ```
     pub fn product(&self) -> T {
         self.a[0] * self.a[1] * self.a[2] * self.a[3]
@@ -840,13 +860,12 @@ where
 
     /// Return trace of matrix.
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let trace = m.trace();
     ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// let t = A.trace();
-    ///
-    /// assert_eq!(t, 13.0);
+    /// assert_eq!(trace, 13.0);
     /// ```
     pub fn trace(&self) -> T {
         self.a[0] + self.a[3]
@@ -859,9 +878,8 @@ where
         + Zero
         + One
         + MathConstants
-        + MathMethods
         + PartialOrd
-        + FloatCore
+        + Signed
         + Neg<Output = T>
         + Sub<Output = T>
         + Mul<Output = T>
@@ -869,11 +887,10 @@ where
 {
     /// Invert matrix, in-place
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
-    ///
-    /// let mut A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                      7.0, 11.0]);
-    /// A.invert_in_place();
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                                  7.0, 11.0]);
+    /// m.invert_in_place();
     ///
     /// ```
     pub fn invert_in_place(&mut self) -> bool {
@@ -888,11 +905,10 @@ where
 
     /// Return inverse of matrix
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
-    ///
-    /// let A = Matrix2x2::<f32>::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// let B = A.inverse();
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let n = m.inverse();
     ///
     /// ```
     pub fn inverse(&self) -> Self {
@@ -900,13 +916,51 @@ where
         let determinant = self.determinant();
         adjugate / determinant
     }
+    /// Return inverse of matrix or `T::zero()` if not invertible.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// # use num_traits::Zero;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 10.5]);
+    /// let n = m.inverse_or_zero();
+    ///
+    /// assert_eq!(0.0, m.determinant());
+    /// assert_eq!(Matrix2x2f32::zero(), n);
+    ///
+    /// ```
+    pub fn inverse_or_zero(&self) -> Self {
+        let determinant = self.determinant();
+        if determinant.abs() < T::EPSILON {
+            return Self::zero();
+        }
+        let adjugate = self.adjugate();
+        adjugate / determinant
+    }
+    /// Return inverse of matrix or `None` if not invertible.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 10.5]);
+    /// let n = m.try_inverse();
+    ///
+    /// assert_eq!(0.0, m.determinant());
+    /// assert_eq!(None, n);
+    ///
+    /// ```
+    pub fn try_inverse(&self) -> Option<Self> {
+        let determinant = self.determinant();
+        if determinant.abs() < T::EPSILON {
+            return None;
+        }
+        let adjugate = self.adjugate();
+        Some(adjugate / determinant)
+    }
     /// Return true if matrix is near zero
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// # use num_traits::Zero;
-    ///
-    /// let Z = Matrix2x2::<f32>::zero();
-    /// assert!(Z.is_near_zero());
+    /// let z = Matrix2x2f32::zero();
+    /// assert!(z.is_near_zero());
     /// ```
     pub fn is_near_zero(&self) -> bool {
         for a in self.a.iter() {
@@ -919,10 +973,9 @@ where
 
     /// Return true if matrix is near identity
     /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2;
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// # use num_traits::One;
-    ///
-    /// let I = Matrix2x2::<f32>::one();
+    /// let I = Matrix2x2f32::one();
     /// assert!(I.is_near_identity());
     /// ```
     pub fn is_near_identity(&self) -> bool {
@@ -936,7 +989,7 @@ where
     }
 }
 
-// **** From ****
+// **** From Array ****
 /// Matrix from array
 impl<T> From<[T; 4]> for Matrix2x2<T>
 where
@@ -968,8 +1021,8 @@ mod tests {
 
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
 
-    const A: Matrix2x2<f32> = Matrix2x2::<f32> { a: [2.0, 3.0, 5.0, 7.0] };
-    const B: Matrix2x2<f32> = Matrix2x2::<f32> { a: [29.0, 31.0, 37.0, 41.0] };
+    const A: Matrix2x2<f32> = Matrix2x2f32 { a: [2.0, 3.0, 5.0, 7.0] };
+    const B: Matrix2x2<f32> = Matrix2x2f32 { a: [29.0, 31.0, 37.0, 41.0] };
 
     #[test]
     fn normal_types() {
@@ -977,16 +1030,16 @@ mod tests {
     }
     #[test]
     fn default() {
-        let a: Matrix2x2<f32> = Matrix2x2::<f32>::default();
-        assert_eq!(a, Matrix2x2::<f32> { a: [0.0, 0.0, 0.0, 0.0] });
-        let z = Matrix2x2::<f32>::zero();
+        let a: Matrix2x2<f32> = Matrix2x2f32::default();
+        assert_eq!(a, Matrix2x2f32 { a: [0.0, 0.0, 0.0, 0.0] });
+        let z = Matrix2x2f32::zero();
         //let z: Matrix2x2 = zero();
         assert_eq!(a, z);
         assert!(z.is_zero());
         assert!(!z.is_one());
         assert!(z.is_near_zero());
 
-        let i = Matrix2x2::<f32>::one();
+        let i = Matrix2x2f32::one();
         //let i: Matrix2x2 = one();
         assert!(i.is_one());
         assert!(!i.is_zero());
@@ -994,14 +1047,14 @@ mod tests {
     }
     #[test]
     fn neg() {
-        assert_eq!(-A, Matrix2x2::<f32> { a: [-2.0, -3.0, -5.0, -7.0] });
+        assert_eq!(-A, Matrix2x2f32 { a: [-2.0, -3.0, -5.0, -7.0] });
 
         let b = -A;
-        assert_eq!(b, Matrix2x2::<f32> { a: [-2.0, -3.0, -5.0, -7.0] });
+        assert_eq!(b, Matrix2x2f32 { a: [-2.0, -3.0, -5.0, -7.0] });
     }
     #[test]
     fn add() {
-        let a_plus_b = Matrix2x2::<f32> { a: [2.0 + 29.0, 3.0 + 31.0, 5.0 + 37.0, 7.0 + 41.0] };
+        let a_plus_b = Matrix2x2f32 { a: [2.0 + 29.0, 3.0 + 31.0, 5.0 + 37.0, 7.0 + 41.0] };
         assert_eq!(A + B, a_plus_b);
     }
     #[test]
