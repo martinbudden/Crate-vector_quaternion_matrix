@@ -20,10 +20,7 @@ use num_traits::Float;
 
 /// `no_std` implementations of mathematical functions in method call syntax<br>
 /// eg `x.sin()`, `x.cos()` etc.
-pub trait MathMethods: Sized {
-    fn sqrt(self) -> Self;
-    fn reciprocal_sqrt(self) -> Self;
-    fn half_reciprocal_sqrt(self) -> Self;
+pub trait TrigonometricMethods: Sized {
     fn sin_cos(self) -> (Self, Self);
     fn sin(self) -> Self;
     fn cos(self) -> Self;
@@ -34,117 +31,182 @@ pub trait MathMethods: Sized {
 }
 
 cfg_if! {
-if #[cfg(all(not(feature = "std"), feature = "libm"))] {
-impl MathMethods for f32 {
-    #[inline(always)]
-    fn sqrt(self) -> f32 {
-        #[cfg(all(not(feature = "std"), feature = "libm"))]
-        {
-            // Use the optimized software/FPU routine from libm
-            libm::sqrtf(self)
+    if #[cfg(feature = "std")] {
+        // Use the hardware-linked math methods in Standard Library
+        impl TrigonometricMethods for f32 {
+            #[inline(always)]
+            fn sin_cos(self) -> (Self, Self) {
+                // (libm::sinf(self), libm::cosf(self))
+                sin_cos(self)
+            }
+            #[inline(always)]
+            fn sin(self) -> Self {
+                sin(self)
+            }
+            #[inline(always)]
+            fn cos(self) -> Self {
+                cos(self)
+            }
+            #[inline(always)]
+            fn tan(self) -> Self {
+                tan(self)
+            }
+            #[inline(always)]
+            fn asin(self) -> Self {
+                asinf(self)
+            }
+            #[inline(always)]
+            fn acos(self) -> Self {
+                acosf(self)
+            }
+            #[inline(always)]
+            fn atan2(self, y: Self) -> Self {
+                atan2f(y, self)
+            }
         }
-        #[cfg(feature = "std")]
-        {
-            // Use the hardware-linked sqrt in Standard Library
-            self.sqrt()
+        impl TrigonometricMethods for f64 {
+            #[inline(always)]
+            fn sin_cos(self) -> (Self, Self) {
+                // (libm::sinf(self), libm::cosf(self))
+                sin_cos(self)
+            }
+            #[inline(always)]
+            fn sin(self) -> Self {
+                sin(self)
+            }
+            #[inline(always)]
+            fn cos(self) -> Self {
+                cos(self)
+            }
+            #[inline(always)]
+            fn tan(self) -> Self {
+                tan(self)
+            }
+            #[inline(always)]
+            fn asin(self) -> Self {
+                asinf(self)
+            }
+            #[inline(always)]
+            fn acos(self) -> Self {
+                acosf(self)
+            }
+            #[inline(always)]
+            fn atan2(self, y: Self) -> Self {
+                atan2f(y, self)
+            }
         }
-        #[cfg(all(not(feature = "std"), not(feature = "libm")))]
-        {
-            // Fallback: This will fail to compile if you try to use sqrt without providing a math provider.
-            compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+    } else if #[cfg(all(not(feature = "std"), feature = "libm"))] {
+        impl TrigonometricMethods for f32 {
+            #[inline(always)]
+            fn sin_cos(self) -> (Self, Self) {
+                _sin_cos(self)
+            }
+            #[inline(always)]
+            fn sin(self) -> Self {
+                _sin(self)
+            }
+            #[inline(always)]
+            fn cos(self) -> Self {
+                _cos(self)
+            }
+            #[inline(always)]
+            fn tan(self) -> Self {
+                libm::tanf(self)
+            }
+            #[inline(always)]
+            fn asin(self) -> Self {
+                libm::asinf(self)
+            }
+            #[inline(always)]
+            fn acos(self) -> Self {
+                libm::acosf(self)
+            }
+            #[inline(always)]
+            fn atan2(self, y: Self) -> Self {
+                libm::atan2f(y, self)
+            }
+        }
+        impl TrigonometricMethods for f64 {
+            #[inline(always)]
+            fn sin_cos(self) -> (Self, Self) {
+                (libm::sin(self), libm::cos(self))
+                //sin_cos(self)
+            }
+            #[inline(always)]
+            fn sin(self) -> Self {
+                //sin(self)
+                libm::sin(self)
+            }
+            #[inline(always)]
+            fn cos(self) -> Self {
+                //cos(self)
+                libm::cos(self)
+            }
+            #[inline(always)]
+            fn tan(self) -> Self {
+                libm::tan(self)
+            }
+            #[inline(always)]
+            fn asin(self) -> Self {
+                libm::asin(self)
+            }
+            #[inline(always)]
+            fn acos(self) -> Self {
+                libm::acos(self)
+            }
+            #[inline(always)]
+            fn atan2(self, y: Self) -> Self {
+                libm::atan2(y, self)
+            }
+        }
+    } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
+        impl TrigonometricMethods for f32 {
+            fn sin_cos(self) -> (Self, Self) {
+                _sin_cos(self)
+            }
+            fn sin(self) -> Self {
+                _sin(self)
+            }
+            fn cos(self) -> Self {
+                _cos(self)
+            }
+            fn tan(self) -> Self {
+                _sin(self) / _cos(self)
+            }
+            fn asin(self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn acos(self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn atan2(self, y: Self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+        }
+        impl TrigonometricMethods for f64 {
+            fn sin_cos(self) -> (Self, Self) {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn sin(self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn cos(self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn tan(self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn asin(self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn acos(self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
+            fn atan2(self, y: Self) -> Self {
+                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+            }
         }
     }
-    #[inline(always)]
-    fn reciprocal_sqrt(self) -> Self {
-        1.0 / libm::sqrtf(self)
-    }
-    #[inline(always)]
-    fn half_reciprocal_sqrt(self) -> Self {
-        0.5 / libm::sqrtf(self)
-    }
-    fn sin_cos(self) -> (Self, Self) {
-        // (libm::sinf(self), libm::cosf(self))
-        sin_cos(self)
-    }
-    fn sin(self) -> Self {
-        sin(self)
-    }
-    fn cos(self) -> Self {
-        cos(self)
-    }
-    fn tan(self) -> Self {
-        libm::tanf(self)
-    }
-    fn asin(self) -> Self {
-        libm::asinf(self)
-    }
-    fn acos(self) -> Self {
-        libm::acosf(self)
-    }
-    fn atan2(self, y: Self) -> Self {
-        libm::atan2f(y, self)
-    }
-}
-
-impl MathMethods for f64 {
-    #[inline(always)]
-    fn sqrt(self) -> f64 {
-        libm::sqrt(self)
-    }
-    fn reciprocal_sqrt(self) -> Self {
-        1.0 / libm::sqrt(self)
-    }
-    fn half_reciprocal_sqrt(self) -> Self {
-        0.5 / libm::sqrt(self)
-    }
-    fn sin_cos(self) -> (Self, Self) {
-        (libm::sin(self), libm::cos(self))
-        //sin_cos(self)
-    }
-    fn sin(self) -> Self {
-        //sin(self)
-        libm::sin(self)
-    }
-    fn cos(self) -> Self {
-        //cos(self)
-        libm::cos(self)
-    }
-    fn tan(self) -> Self {
-        libm::tan(self)
-    }
-    fn asin(self) -> Self {
-        libm::asin(self)
-    }
-    fn acos(self) -> Self {
-        libm::acos(self)
-    }
-    fn atan2(self, y: Self) -> Self {
-        libm::atan2(y, self)
-    }
-}
-} else if #[cfg(feature = "std")] {
-    // Use the hardware-linked math methods in Standard Library
-} else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
-    compile_error!("Please enable the 'libm' or 'std' feature for math support.");
-}
-}
-
-#[cfg(test)]
-fn reciprocal_sqrtf(x: f32) -> f32 {
-    let mut y: f32 = x;
-    let mut i: i32 = y.to_bits().cast_signed();
-    i = 0x5F375A86 - (i >> 1);
-    y = f32::from_bits(i.cast_unsigned());
-    y * (1.69000231 - 0.714158168 * x * y * y) // First iteration
-}
-
-#[cfg(test)]
-fn quake_reciprocal_sqrt(number: f32) -> f32 {
-    let mut y: f32 = number;
-    let mut i: i32 = y.to_bits().cast_signed();
-    i = 0x5F375A86 - (i >> 1);
-    y = f32::from_bits(i.cast_unsigned());
-    y * (1.5 - (number * 0.5 * y * y))
 }
 
 // see [Optimized Trigonometric Functions on TI Arm Cores](https://www.ti.com/lit/an/sprad27a/sprad27a.pdf)
@@ -253,21 +315,21 @@ where
     if q & 2 == 0 { sin_cos } else { (-sin_cos.0, -sin_cos.1) }
 }
 
-fn sin(x: f32) -> f32 {
+fn _sin(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q;
     sin_quadrant(r, q as i32)
 }
 
-fn cos(x: f32) -> f32 {
+fn _cos(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
     cos_quadrant(r, q as i32)
 }
 
-fn sin_cos(x: f32) -> (f32, f32) {
+fn _sin_cos(x: f32) -> (f32, f32) {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
@@ -278,17 +340,6 @@ fn sin_cos(x: f32) -> (f32, f32) {
 mod tests {
     #![allow(unused)]
     use super::*;
-
-    #[test]
-    fn reciprocal_sqrt() {
-        assert_eq!(quake_reciprocal_sqrt(4.0), 0.49915406);
-        assert_eq!(reciprocal_sqrtf(4.0), 0.49435496);
-        assert_eq!(4.0.reciprocal_sqrt(), 0.5);
-    }
-    #[test]
-    fn sqrt() {
-        assert_eq!(0.0_f32.sqrt(), libm::sqrtf(0.0));
-    }
     #[test]
     fn asin() {
         assert_eq!(0.0_f32.asin(), libm::asinf(0.0));

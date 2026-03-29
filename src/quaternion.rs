@@ -3,7 +3,8 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign,
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
 use crate::Vector3d;
-use crate::math_methods::MathMethods;
+use crate::math_methods::TrigonometricMethods;
+use crate::sqrt_methods::SqrtMethods;
 
 /// quaternion of `f32` values
 pub type Quaternionf32 = Quaternion<f32>;
@@ -425,7 +426,7 @@ where
 // **** impl norm ****
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + Add<Output = T> + Mul<Output = T> + MathMethods,
+    T: Copy + Zero + Add<Output = T> + Mul<Output = T> + SqrtMethods,
 {
     /// Return Euclidean norm
     pub fn norm(&self) -> T {
@@ -435,7 +436,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + One + PartialOrd + Div<Output = T> + MathMethods,
+    T: Copy + Zero + One + PartialOrd + Div<Output = T> + SqrtMethods,
 {
     /// Return normalized form of the quaternion
     pub fn normalized(&self) -> Self {
@@ -460,50 +461,8 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + One + PartialOrd + Neg<Output = T> + Sub<Output = T> + Div<Output = T> + MathMethods,
+    T: Copy + Zero + One + PartialOrd + Neg<Output = T> + Sub<Output = T> + Div<Output = T> + SqrtMethods,
 {
-    /// Rotate about the x-axis,
-    /// equivalent to *= Quaternion(cos(theta/2), sin(theta/2), 0, 0)
-    pub fn rotate_x(&mut self, theta: T) -> Self {
-        let two = T::one() + T::one();
-        let (sin, cos) = (theta / two).sin_cos();
-        let wt: T = self.w * cos - self.x * sin;
-        self.x = self.w * sin + self.x * cos;
-        let yt: T = self.y * cos + self.z * sin;
-        self.z = self.z * cos - self.y * sin;
-        self.w = wt;
-        self.y = yt;
-        *self
-    }
-
-    /// Rotate about the y-axis,
-    /// equivalent to *= Quaternion(cos(theta/2), 0, sin(theta/2), 0)
-    pub fn rotate_y(&mut self, theta: T) -> Self {
-        let two = T::one() + T::one();
-        let (sin, cos) = (theta / two).sin_cos();
-        let wt: T = self.w * cos - self.y * sin;
-        let xt: T = self.x * cos - self.z * sin;
-        self.y = self.w * sin + self.y * cos;
-        self.z = self.x * sin - self.z * cos;
-        self.w = wt;
-        self.x = xt;
-        *self
-    }
-
-    /// Rotate about the z-axis,
-    /// equivalent to *= Quaternion(cos(theta/2), 0, 0, sin(theta/2))
-    pub fn rotate_z(&mut self, theta: T) -> Self {
-        let two = T::one() + T::one();
-        let (sin, cos) = (theta / two).sin_cos();
-        let wt: T = self.w * cos - self.z * sin;
-        let xt: T = self.x * cos - self.y * sin;
-        self.y = self.x * sin + self.y * cos;
-        self.z = self.z * cos - self.w * sin;
-        self.w = wt;
-        self.x = xt;
-        *self
-    }
-
     pub fn rotate(self, v: &Vector3d<T>) -> Vector3d<T> {
         let two: T = T::one() + T::one();
         let half = T::one() / two;
@@ -522,42 +481,6 @@ where
                 + v.z * (half - x2 - y2),
         } * two
     }
-
-    pub fn calculate_roll_radians(self) -> T {
-        let half = T::one() / (T::one() + T::one());
-        (self.w * self.x + self.y * self.z).atan2(half - self.x * self.x - self.y * self.y)
-    }
-
-    pub fn calculate_pitch_radians(self) -> T {
-        (self.w * self.y - self.x * self.z).asin()
-    }
-
-    pub fn calculate_yaw_radians(self) -> T {
-        let half = T::one() / (T::one() + T::one());
-        (self.w * self.z + self.x * self.y).atan2(half - self.y * self.y - self.z * self.z)
-    }
-
-    pub fn sin_roll(self) -> T {
-        let half = T::one() / (T::one() + T::one());
-        let a: T = self.w * self.x + self.y * self.z;
-        let b: T = half - self.x * self.x - self.y * self.y;
-        a * (a * a + b * b).reciprocal_sqrt()
-    }
-
-    /// clip sin(roll_angle) to +/-1.0 when roll angle outside range [-90 degrees, 90 degrees]
-    pub fn sin_roll_clipped(self) -> T {
-        let half = T::one() / (T::one() + T::one());
-        let a: T = self.w * self.x + self.y * self.z;
-        let b: T = half - self.x * self.x - self.y * self.y;
-        if b < T::zero() {
-            if a < T::zero() {
-                return -T::one();
-            }
-            return T::one();
-        }
-        a * (a * a + b * b).reciprocal_sqrt()
-    }
-
     pub fn cos_roll(self) -> T {
         let half = T::one() / (T::one() + T::one());
         let a: T = self.w * self.x + self.y * self.z;
@@ -593,6 +516,88 @@ where
         let b: T = half - self.y * self.y - self.z * self.z;
         a * (a * a + b * b).reciprocal_sqrt()
     }
+
+    pub fn sin_roll(self) -> T {
+        let half = T::one() / (T::one() + T::one());
+        let a: T = self.w * self.x + self.y * self.z;
+        let b: T = half - self.x * self.x - self.y * self.y;
+        a * (a * a + b * b).reciprocal_sqrt()
+    }
+
+    /// clip sin(roll_angle) to +/-1.0 when roll angle outside range [-90 degrees, 90 degrees]
+    pub fn sin_roll_clipped(self) -> T {
+        let half = T::one() / (T::one() + T::one());
+        let a: T = self.w * self.x + self.y * self.z;
+        let b: T = half - self.x * self.x - self.y * self.y;
+        if b < T::zero() {
+            if a < T::zero() {
+                return -T::one();
+            }
+            return T::one();
+        }
+        a * (a * a + b * b).reciprocal_sqrt()
+    }
+}
+
+impl<T> Quaternion<T>
+where
+    T: Copy + Zero + One + Neg<Output = T> + Sub<Output = T> + Div<Output = T> + TrigonometricMethods,
+{
+    /// Rotate about the x-axis,
+    /// equivalent to *= Quaternion(cos(theta/2), sin(theta/2), 0, 0)
+    pub fn rotate_x(&mut self, theta: T) -> Self {
+        let two = T::one() + T::one();
+        let (sin, cos) = (theta / two).sin_cos();
+        let wt: T = self.w * cos - self.x * sin;
+        self.x = self.w * sin + self.x * cos;
+        let yt: T = self.y * cos + self.z * sin;
+        self.z = self.z * cos - self.y * sin;
+        self.w = wt;
+        self.y = yt;
+        *self
+    }
+    /// Rotate about the y-axis,
+    /// equivalent to *= Quaternion(cos(theta/2), 0, sin(theta/2), 0)
+    pub fn rotate_y(&mut self, theta: T) -> Self {
+        let two = T::one() + T::one();
+        let (sin, cos) = (theta / two).sin_cos();
+        let wt: T = self.w * cos - self.y * sin;
+        let xt: T = self.x * cos - self.z * sin;
+        self.y = self.w * sin + self.y * cos;
+        self.z = self.x * sin - self.z * cos;
+        self.w = wt;
+        self.x = xt;
+        *self
+    }
+
+    /// Rotate about the z-axis,
+    /// equivalent to *= Quaternion(cos(theta/2), 0, 0, sin(theta/2))
+    pub fn rotate_z(&mut self, theta: T) -> Self {
+        let two = T::one() + T::one();
+        let (sin, cos) = (theta / two).sin_cos();
+        let wt: T = self.w * cos - self.z * sin;
+        let xt: T = self.x * cos - self.y * sin;
+        self.y = self.x * sin + self.y * cos;
+        self.z = self.z * cos - self.w * sin;
+        self.w = wt;
+        self.x = xt;
+        *self
+    }
+
+    pub fn calculate_roll_radians(self) -> T {
+        let half = T::one() / (T::one() + T::one());
+        (self.w * self.x + self.y * self.z).atan2(half - self.x * self.x - self.y * self.y)
+    }
+
+    pub fn calculate_pitch_radians(self) -> T {
+        (self.w * self.y - self.x * self.z).asin()
+    }
+
+    pub fn calculate_yaw_radians(self) -> T {
+        let half = T::one() / (T::one() + T::one());
+        (self.w * self.z + self.x * self.y).atan2(half - self.y * self.y - self.z * self.z)
+    }
+
     /// Create a Quaternion from roll, pitch, and yaw Euler angles (in radians).
     /// See: <https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_angles_(in_3-2-1_sequence)_to_quaternion_conversion>
     pub fn from_roll_pitch_yaw_angles_radians(roll_radians: T, pitch_radians: T, yaw_radians: T) -> Self {
@@ -675,7 +680,8 @@ where
         + Sub<Output = T>
         + Mul<Output = T>
         + Div<Output = T>
-        + MathMethods
+        + SqrtMethods
+        + TrigonometricMethods
         + FloatCore,
 {
     pub fn calculate_roll_degrees(self) -> T {
@@ -753,7 +759,8 @@ where
         + Sub<Output = T>
         + Mul<Output = T>
         + Div<Output = T>
-        + MathMethods
+        + SqrtMethods
+        + TrigonometricMethods
         + FloatCore,
 {
     fn from((roll_radians, pitch_radians): (T, T)) -> Self {
@@ -771,7 +778,8 @@ where
         + Sub<Output = T>
         + Mul<Output = T>
         + Div<Output = T>
-        + MathMethods
+        + SqrtMethods
+        + TrigonometricMethods
         + FloatCore,
 {
     fn from((roll_radians, pitch_radians, yaw_radians): (T, T, T)) -> Self {
@@ -789,7 +797,8 @@ where
         + Sub<Output = T>
         + Mul<Output = T>
         + Div<Output = T>
-        + MathMethods
+        + SqrtMethods
+        + TrigonometricMethods
         + FloatCore,
 {
     fn from(angles: RollPitchYaw<T>) -> Self {
@@ -807,7 +816,8 @@ where
         + Sub<Output = T>
         + Mul<Output = T>
         + Div<Output = T>
-        + MathMethods
+        + SqrtMethods
+        + TrigonometricMethods
         + FloatCore,
 {
     fn from(angles: RollPitch<T>) -> Self {

@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{MathMethods, Vector2d};
+use crate::{SqrtMethods, Vector2d};
 
 /// 3-dimensional `{x, y, z}` vector of `i8` values
 pub type Vector3di8 = Vector3d<i8>;
@@ -514,7 +514,7 @@ where
 // **** impl norm ****
 impl<T> Vector3d<T>
 where
-    T: Copy + Add<Output = T> + Mul<Output = T> + MathMethods,
+    T: Copy + Add<Output = T> + Mul<Output = T> + SqrtMethods,
 {
     /// Return Euclidean norm
     pub fn norm(&self) -> T {
@@ -524,7 +524,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Zero + One + PartialEq + Add<Output = T> + Sub<Output = T> + Div<Output = T> + MathMethods,
+    T: Copy + Zero + One + PartialEq + Add<Output = T> + Sub<Output = T> + Div<Output = T> + SqrtMethods,
 {
     /// Return normalized form of the vector
     pub fn normalized(&self) -> Self {
@@ -549,7 +549,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Zero + One + Sub<Output = T> + MathMethods,
+    T: Copy + Zero + One + Sub<Output = T> + SqrtMethods,
 {
     // Return distance between two points
     pub fn distance(&self, rhs: Self) -> T {

@@ -11,11 +11,13 @@ mod math_methods;
 mod matrix2x2;
 mod matrix3x3;
 mod quaternion;
+mod sqrt_methods;
 mod vector2d;
 mod vector3d;
 
 pub use math_constants::MathConstants;
-pub use math_methods::MathMethods;
+pub use math_methods::TrigonometricMethods;
+pub use sqrt_methods::SqrtMethods;
 
 //pub use eigen3x3::{EigenResult, EigenResult3x3, EigenResult3x3f32, EigenResult3x3f64};
 pub use matrix2x2::MatrixError;

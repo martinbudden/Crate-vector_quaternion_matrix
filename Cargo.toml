@@ -8,9 +8,11 @@ readme = "README.md"
 
 [features]
 # Default is now empty (no_std)
-default = ["align", "libm"]
+default = ["rp2040", "align", "libm"]
 std = []
 align = []
+rp2040 = []
+rp2350 = []
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "katex-header.html"]
@@ -23,6 +25,12 @@ cfg-if = "1.0"
 
 [dev-dependencies]
 # assert_float_eq = "1.2.0" # used for test
+
+[target.thumbv8m.main-none-eabihf]
+rustflags = [
+    "-C", "target-cpu=cortex-m33",
+    "-C", "target-feature=+vfp4sp", # Enables single-precision FPU
+]
 
 # see https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.dev]
