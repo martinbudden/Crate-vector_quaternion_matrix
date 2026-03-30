@@ -37,6 +37,7 @@ pub struct RollPitch<T> {
 // **** Define ****
 /// `Quaternion<T>`: quaternion type `T`.<br>
 /// Aliases `Quaternion32` and `Quaternionf64` are provided.
+#[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Quaternion<T> {
     pub w: T,
@@ -46,6 +47,15 @@ pub struct Quaternion<T> {
 }
 
 // **** Default ****
+/// Default quaternion
+/// ```
+/// # use vector_quaternion_matrix::Quaternionf32;
+/// # use num_traits::Zero;
+///
+/// let d = Quaternionf32::default();
+///
+/// assert_eq!(d, Quaternionf32 { w:1.0, x: 0.0, y: 0.0, z: 0.0 });
+/// ```
 impl<T> Default for Quaternion<T>
 where
     T: Zero + One,
@@ -58,12 +68,12 @@ where
 // **** Zero ****
 /// Zero quaternion
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 /// # use num_traits::Zero;
 ///
-/// let z = Quaternion::<f32>::zero();
+/// let z = Quaternionf32::zero();
 ///
-/// assert_eq!(z, Quaternion::<f32> { w:0.0, x: 0.0, y: 0.0, z: 0.0 });
+/// assert_eq!(z, Quaternionf32 { w:0.0, x: 0.0, y: 0.0, z: 0.0 });
 /// ```
 impl<T> Zero for Quaternion<T>
 where
@@ -81,12 +91,12 @@ where
 // **** One ****
 /// Unit quaternion
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 /// # use num_traits::One;
 ///
-/// let i = Quaternion::<f32>::one();
+/// let i = Quaternionf32::one();
 ///
-/// assert_eq!(i, Quaternion { w: 1.0, x: 0.0, y: 0.0, z: 0.0 });
+/// assert_eq!(i, Quaternionf32 { w: 1.0, x: 0.0, y: 0.0, z: 0.0 });
 /// ```
 impl<T> One for Quaternion<T>
 where
@@ -104,11 +114,11 @@ where
 // **** Neg ****
 /// Negate quaternion
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
-/// let mut q = Quaternion{ w: 2.0, x: -3.0, y: -5.0, z: 7.0 };
+/// # use vector_quaternion_matrix::Quaternionf32;
+/// let mut q = Quaternionf32 { w: 2.0, x: -3.0, y: -5.0, z: 7.0 };
 /// q = -q;
 ///
-/// assert_eq!(q, Quaternion { w: -2.0, x: 3.0, y: 5.0, z: -7.0 });
+/// assert_eq!(q, Quaternionf32 { w: -2.0, x: 3.0, y: 5.0, z: -7.0 });
 /// ```
 impl<T> Neg for Quaternion<T>
 where
@@ -123,13 +133,13 @@ where
 // **** NegReference ****
 /// Negate vector reference
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 ///
-/// let q = Quaternion { w: 2.0, x: -3.0, y: -5.0, z: 7.0 };
+/// let q = Quaternionf32 { w: 2.0, x: -3.0, y: -5.0, z: 7.0 };
 /// let r = -q;
 ///
-/// assert_eq!(r, Quaternion { w: -2.0, x: 3.0, y: 5.0, z: -7.0 });
-/// assert_eq!(q, Quaternion { w: 2.0, x: -3.0, y: -5.0, z: 7.0 });
+/// assert_eq!(r, Quaternionf32 { w: -2.0, x: 3.0, y: 5.0, z: -7.0 });
+/// assert_eq!(q, Quaternionf32 { w: 2.0, x: -3.0, y: -5.0, z: 7.0 });
 /// ```
 impl<T> Neg for &Quaternion<T>
 where
@@ -144,12 +154,12 @@ where
 // **** Add ****
 /// Add two quaternions
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
-/// let u = Quaternion::new(2.0, 3.0, 5.0, 7.0);
-/// let v = Quaternion::new(11.0, 13.0, 17.0, 19.0);
+/// # use vector_quaternion_matrix::Quaternionf32;
+/// let u = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let v = Quaternionf32::new(11.0, 13.0, 17.0, 19.0);
 /// let r = u + v;
 ///
-/// assert_eq!(r, Quaternion { w: 13.0, x: 16.0, y: 22.0, z: 26.0 });
+/// assert_eq!(r, Quaternionf32 { w: 13.0, x: 16.0, y: 22.0, z: 26.0 });
 /// ```
 impl<T> Add for Quaternion<T>
 where
@@ -212,6 +222,57 @@ impl Mul<Quaternion<f64>> for f64 {
 }
 
 // **** Mul ****
+/*
+impl core::ops::Mul for Quaternion {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul(self, rhs: Self) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            use core::simd::{f32x4, simd_swizzle};
+
+            let a: f32x4 = unsafe { core::mem::transmute_copy(&self) };
+            let b: f32x4 = unsafe { core::mem::transmute_copy(&rhs) };
+
+            // 1. Initial product: [w1*x2, w1*y2, w1*z2, w1*w2]
+            // We swizzle 'a' to broadcast 'w' into all lanes
+            let a_wwww = simd_swizzle!(a, [3, 3, 3, 3]);
+            let mut res = a_wwww * b;
+
+            // 2. Add/Sub subsequent terms using swizzles and FMA
+            // [x1*w2, y1*w2, z1*w2, -x1*x2]
+            let a_xyzx = simd_swizzle!(a, [0, 1, 2, 0]);
+            let b_wwxx = simd_swizzle!(b, [3, 3, 3, 0]);
+            // Logic: res = res + (a_xyzx * b_wwxx) with sign flips...
+
+            // Note: For brevity, most SIMD libs use a specific
+            // set of 4 vector FMAs to complete the Hamilton product.
+
+            // For now, let's look at the robust Scalar version that
+            // the compiler can still auto-vectorize:
+            self.scalar_mul(rhs)
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.scalar_mul(rhs)
+        }
+    }
+}
+
+    impl Quaternion {
+    #[inline(always)]
+    fn scalar_mul(self, rhs: Self) -> Self {
+        Self {
+            w: self.w * rhs.w - self.x * rhs.x - self.y * rhs.y - self.z * rhs.z,
+            x: self.w * rhs.x + self.x * rhs.w + self.y * rhs.z - self.z * rhs.y,
+            y: self.w * rhs.y - self.x * rhs.z + self.y * rhs.w + self.z * rhs.x,
+            z: self.w * rhs.z + self.x * rhs.y - self.y * rhs.x + self.z * rhs.w,
+        }
+    }
+}
+*/
+
 /// Multiply quaternion by a constant
 impl<T> Mul<T> for Quaternion<T>
 where
@@ -263,12 +324,12 @@ where
 // **** Div ****
 /// Divide a quaternion by a constant
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 ///
-/// let q = Quaternion::new(2.0, 3.0, 5.0, 7.0);
+/// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
 /// let r = q / 2.0;
 ///
-/// assert_eq!(r, Quaternion { w: 1.0, x: 1.5, y: 2.5, z: 3.5 });
+/// assert_eq!(r, Quaternionf32 { w: 1.0, x: 1.5, y: 2.5, z: 3.5 });
 /// ```
 impl<T> Div<T> for Quaternion<T>
 where
@@ -284,12 +345,12 @@ where
 // **** DivAssign ****
 /// In-place divide a vector by a constant
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 ///
-/// let mut q = Quaternion::new(2.0, 3.0, 5.0, 7.0);
+/// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
 /// q /= 2.0;
 ///
-/// assert_eq!(q, Quaternion { w: 1.0, x: 1.5, y: 2.5, z: 3.5 });
+/// assert_eq!(q, Quaternionf32 { w: 1.0, x: 1.5, y: 2.5, z: 3.5 });
 /// ```
 impl<T> DivAssign<T> for Quaternion<T>
 where
@@ -303,9 +364,9 @@ where
 // **** Index ****
 /// Access quaternion component by index
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 ///
-/// let mut q = Quaternion::new(2.0, 3.0, 5.0, 7.0);
+/// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
 ///
 /// assert_eq!(q[0], 2.0);
 /// assert_eq!(q[1], 3.0);
@@ -328,15 +389,15 @@ impl<T> Index<usize> for Quaternion<T> {
 // **** IndexMut ****
 // Set quaternion component by index
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 ///
-/// let mut q = Quaternion::new(2.0, 3.0, 5.0, 6.0);
+/// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 6.0);
 /// q[0] = 7.0;
 /// q[1] = 11.0;
 /// q[2] = 13.0;
 /// q[3] = 17.0;
 ///
-/// assert_eq!(q, Quaternion { w:7.0, x:11.0, y:13.0, z: 17.0 });
+/// assert_eq!(q, Quaternionf32 { w:7.0, x:11.0, y:13.0, z: 17.0 });
 /// ```
 impl<T> IndexMut<usize> for Quaternion<T> {
     fn index_mut(&mut self, index: usize) -> &mut T {
@@ -714,13 +775,13 @@ where
 // **** From ****
 /// Quaternion from array
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 ///
-/// let v = Quaternion::<f32>::from([2.0, 3.0, 5.0, 6.0]);
-/// let w: Quaternion::<f32> = [7.0, 11.0, 13.0, 17.0].into();
+/// let v = Quaternionf32::from([2.0, 3.0, 5.0, 6.0]);
+/// let w: Quaternionf32 = [7.0, 11.0, 13.0, 17.0].into();
 ///
-/// assert_eq!(v, Quaternion::<f32> { w: 2.0, x: 3.0, y: 5.0, z: 6.0 });
-/// assert_eq!(w, Quaternion::<f32> { w: 7.0, x: 11.0, y: 13.0, z: 17.0 });
+/// assert_eq!(v, Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 6.0 });
+/// assert_eq!(w, Quaternionf32 { w: 7.0, x: 11.0, y: 13.0, z: 17.0 });
 /// ```
 impl<T> From<[T; 4]> for Quaternion<T>
 where
@@ -733,9 +794,9 @@ where
 
 /// Array from quaternion
 /// ```
-/// # use vector_quaternion_matrix::Quaternion;
+/// # use vector_quaternion_matrix::Quaternionf32;
 ///
-/// let q = Quaternion::<f32> { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+/// let q = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
 ///
 /// let a = <[f32; 4]>::from(q);
 /// let b: [f32; 4] = q.into();
