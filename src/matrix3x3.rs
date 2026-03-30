@@ -499,11 +499,12 @@ where
     type Output = Self;
     fn div(self, k: T) -> Self {
         let reciprocal: T = T::one() / k;
-        let mut a = self.a;
+        /*let mut a = self.a;
         for r in a.iter_mut() {
             *r = *r * reciprocal;
         }
-        Matrix3x3::<T> { a }
+        Matrix3x3::<T> { a }*/
+        self * reciprocal
     }
 }
 

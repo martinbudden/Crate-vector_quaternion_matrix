@@ -19,6 +19,7 @@ pub enum MatrixError {
 /// Aliases `Matrix2x2f32` and `Matrix2x2f64` are provided.<br>
 /// Internal implementation is a flattened 1x2 matrix: an array of 4 elements stored in row-major order<br>
 /// That is the element `m[row][col]` is at array position `[row * 2 + col]`, so element `m01` is at `a[1]`.
+#[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Matrix2x2<T> {
     // Flattened 2x2 matrix: 4 elements in row-major order
@@ -431,11 +432,13 @@ where
     type Output = Self;
     fn div(self, k: T) -> Self {
         let reciprocal: T = T::one() / k;
-        let mut a = self.a;
+        /*let mut a = self.a;
         for r in a.iter_mut() {
             *r = *r * reciprocal;
         }
-        Matrix2x2::<T> { a }
+        Matrix2x2::<T> { a }*/
+        // Reuse our existing multiplication logic (which is likely SIMD-optimized)
+        self * reciprocal
     }
 }
 

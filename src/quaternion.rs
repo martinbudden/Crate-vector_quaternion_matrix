@@ -337,8 +337,9 @@ where
 {
     type Output = Self;
     fn div(self, k: T) -> Self {
-        let r: T = T::one() / k;
-        Self { w: self.w * r, x: self.x * r, y: self.y * r, z: self.z * r }
+        let reciprocal: T = T::one() / k;
+        // Reuse our existing multiplication logic (which is likely SIMD-optimized)
+        self * reciprocal
     }
 }
 
@@ -506,7 +507,8 @@ where
         if norm == T::zero() {
             return *self;
         }
-        *self / norm
+        let norm_reciprocal = T::one() / norm;
+        *self * norm_reciprocal
     }
 
     /// Normalize the quaternion in place
@@ -515,7 +517,8 @@ where
         #[allow(clippy::assign_op_pattern)]
         // If norm == 0.0 then the quaternion is already normalized
         if norm != T::zero() {
-            *self = *self / self.norm();
+            let norm_reciprocal = T::one() / norm;
+            *self = *self * norm_reciprocal;
         }
     }
 }

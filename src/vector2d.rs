@@ -303,8 +303,9 @@ where
 {
     type Output = Self;
     fn div(self, k: T) -> Self {
-        let r: T = T::one() / k;
-        Self { x: self.x * r, y: self.y * r }
+        let reciprocal: T = T::one() / k;
+        // Reuse our existing multiplication logic (which is likely SIMD-optimized)
+        self * reciprocal
     }
 }
 
@@ -500,7 +501,8 @@ where
         if norm == T::zero() {
             return *self;
         }
-        *self / norm
+        let norm_reciprocal = T::one() / norm;
+        *self * norm_reciprocal
     }
 
     /// Normalize the vector in place
@@ -509,7 +511,8 @@ where
         #[allow(clippy::assign_op_pattern)]
         // If norm == 0.0 then the vector is already normalized
         if norm != T::zero() {
-            *self = *self / norm;
+            let norm_reciprocal = T::one() / norm;
+            *self = *self * norm_reciprocal;
         }
         *self
     }
