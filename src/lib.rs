@@ -1,5 +1,9 @@
+#![feature(portable_simd)]
+
 #![doc = include_str!("../README.md")]
+
 #![no_std]
+
 #![deny(clippy::unwrap_used)]
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
@@ -14,6 +18,7 @@ mod quaternion;
 mod sqrt_methods;
 mod vector2d;
 mod vector3d;
+mod vector3d_simd;
 
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;

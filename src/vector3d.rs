@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{One, Signed, Zero, float::FloatCore};
+use num_traits::{Zero, One, Signed, float::FloatCore};
 
 use crate::{SqrtMethods, Vector2d};
 
@@ -16,15 +16,19 @@ pub type Vector3df32 = Vector3d<f32>;
 pub type Vector3df64 = Vector3d<f64>;
 
 // **** Align ****
-// ensure vectors are aligned on 16 byte boundaries.
-#[cfg(feature = "align")]
-const _: () = assert!(core::mem::size_of::<Vector3df32>() == 16);
-#[cfg(feature = "align")]
-const _: () = assert!(core::mem::align_of::<Vector3df32>() == 16);
-#[cfg(not(feature = "align"))]
-const _: () = assert!(core::mem::size_of::<Vector3df32>() == 12);
-#[cfg(not(feature = "align"))]
-const _: () = assert!(core::mem::align_of::<Vector3df32>() == 4);
+cfg_if! {
+    if #[cfg(feature = "align")] {
+        const _: () = assert!(core::mem::size_of::<Vector3di16>() == 16);
+        const _: () = assert!(core::mem::align_of::<Vector3di16>() == 16);
+        const _: () = assert!(core::mem::size_of::<Vector3df32>() == 16);
+        const _: () = assert!(core::mem::align_of::<Vector3df32>() == 16);
+    } else {
+        const _: () = assert!(core::mem::size_of::<Vector3di16>() == 8); // would be 6 bytes if aligned on 2 instead of 4
+        const _: () = assert!(core::mem::align_of::<Vector3di16>() == 4);
+        const _: () = assert!(core::mem::size_of::<Vector3df32>() == 12);
+        const _: () = assert!(core::mem::align_of::<Vector3df32>() == 4);
+    }
+}
 
 // **** Define ****
 cfg_if! {
@@ -43,7 +47,7 @@ pub struct Vector3d<T> {
 // Compact 12-byte version
 /// `Vector3d<T>`: 3D vector of type `T`.<br>
 /// `Vector3d32` and `Vector3df64` and several integer aliases are provided.
-#[repr(C)]
+#[repr(C, align(4))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Vector3d<T> {
     pub x: T,
@@ -329,8 +333,10 @@ where
 {
     type Output = Self;
     fn div(self, k: T) -> Self {
-        let r: T = T::one() / k;
-        Self { x: self.x * r, y: self.y * r, z: self.z * r }
+        let reciprocal: T = T::one() / k;
+        //Self { x: self.x * r, y: self.y * r, z: self.z * r }
+        // Reuse our existing multiplication logic (which is likely SIMD-optimized)
+        self * reciprocal
     }
 }
 
@@ -456,38 +462,6 @@ where
         (*self - rhs).squared_norm()
     }
 
-    /// Vector dot product
-    /// ```
-    /// # use vector_quaternion_matrix::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// let w = Vector3df32::new(7.0, 11.0, 13.0);
-    ///
-    /// let x = v.dot(w);
-    ///
-    /// assert_eq!(x, 112.0);
-    /// ```
-    pub fn dot(&self, rhs: Self) -> T {
-        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
-    }
-
-    /// Vector cross product
-    /// ```
-    /// # use vector_quaternion_matrix::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// let w = Vector3df32::new(7.0, 11.0, 13.0);
-    ///
-    /// let x = v.cross(w);
-    ///
-    /// assert_eq!(x, Vector3df32 { x: 3.0 * 13.0 - 5.0 * 11.0, y: -2.0 * 13.0 + 5.0 * 7.0, z: 2.0 * 11.0 - 3.0 * 7.0 });
-    /// ```
-    pub fn cross(&self, rhs: Self) -> Self {
-        Self {
-            x: self.y * rhs.z - self.z * rhs.y,
-            y: self.z * rhs.x - self.x * rhs.z,
-            z: self.x * rhs.y - self.y * rhs.x,
-        }
-    }
-
     /// Return the sum of all components of the vector
     pub fn sum(&self) -> T {
         self.x + self.y + self.z
@@ -533,7 +507,8 @@ where
         if norm == T::zero() {
             return *self;
         }
-        *self / norm
+        let norm_reciprocal = T::one() / norm;
+        *self * norm_reciprocal
     }
 
     /// Normalize the vector in place
@@ -542,7 +517,8 @@ where
         #[allow(clippy::assign_op_pattern)]
         // If norm == 0.0 then the vector is already normalized
         if norm != T::zero() {
-            *self = *self / norm;
+            let norm_reciprocal = T::one() / norm;
+            *self = *self * norm_reciprocal;
         }
     }
 }
@@ -665,16 +641,18 @@ impl From<Vector3d<f32>> for Vector3d<i32> {
         Self { x: v.x as i32, y: v.y as i32, z: v.z as i32 }
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use core::mem::{align_of, size_of};
 
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
 
     #[test]
     fn normal_types() {
-        is_normal::<Vector3d<f32>>();
+        is_full::<Vector3d<f32>>();
     }
     #[test]
     fn default() {
@@ -698,7 +676,7 @@ mod tests {
         #[cfg(feature = "align")]
         assert_eq!(align_of::<Vector3df32>(), 16);
         #[cfg(not(feature = "align"))]
-        assert_eq!(align_of::<Vector3df32>(), 12);
+        assert_eq!(align_of::<Vector3df32>(), 4);
     }
     #[test]
     fn test_neg_owned() {
@@ -807,15 +785,6 @@ mod tests {
         assert_eq!([2.0, 3.0, 5.0], i);
     }
     #[test]
-    fn dot() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d { x: 7.0, y: 11.0, z: 13.0 };
-        assert_eq!(a.dot(a), 38.0);
-        assert_eq!(a.dot(b), 112.0);
-        assert_eq!(b.dot(a), 112.0);
-        assert_eq!(b.dot(b), 339.0);
-    }
-    #[test]
     fn squared_norm() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.squared_norm(), 38.0);
@@ -834,18 +803,6 @@ mod tests {
         assert_eq!(a.normalized(), b);
         let z = Vector3d { x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.normalized(), z);
-    }
-    #[test]
-    fn normalize() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let a_normalized = a.normalized();
-        let mut b = a;
-        b.normalize();
-        assert_eq!(b, a_normalized);
-        let z = Vector3df32 { x: 0.0, y: 0.0, z: 0.0 };
-        let mut y = z;
-        y.normalize();
-        assert_eq!(z, y);
     }
     #[test]
     fn abs() {

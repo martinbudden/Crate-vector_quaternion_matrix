@@ -16,9 +16,23 @@ pub type Vector2df32 = Vector2d<f32>;
 /// 2-dimensional `{x, y}` vector of `f64` values
 pub type Vector2df64 = Vector2d<f64>;
 
+
+const _: () = assert!(core::mem::size_of::<Vector2di8>() == 8);
+//const _: () = assert!(core::mem::align_of::<Vector2di8>() == 8);
+const _: () = assert!(core::mem::size_of::<Vector2di16>() == 8);
+//const _: () = assert!(core::mem::align_of::<Vector2di16>() == 8);
+const _: () = assert!(core::mem::size_of::<Vector2di32>() == 8);
+//const _: () = assert!(core::mem::align_of::<Vector2di32>() == 8);
+const _: () = assert!(core::mem::size_of::<Vector2df64>() == 16);
+const _: () = assert!(core::mem::size_of::<Vector2df32>() == 8);
+//const _: () = assert!(core::mem::align_of::<Vector2df32>() == 8);
+const _: () = assert!(core::mem::size_of::<Vector2df64>() == 16);
+const _: () = assert!(core::mem::align_of::<Vector2df64>() == 8);
+
 // **** Define ****
 /// `Vector2d<T>`: 2D vector of type `T`.<br>
 /// `Vector2d32` and `Vector2df64` and several integer aliases are provided.
+#[repr(C, align(8))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Vector2d<T> {
     pub x: T,

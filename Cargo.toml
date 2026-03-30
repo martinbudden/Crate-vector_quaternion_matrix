@@ -7,24 +7,15 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [features]
-# Default is now empty (no_std)
-default = ["rp2040", "align", "libm"]
+default = ["rp2350", "align", "libm", "simd",]
+#default = ["rp2040", "align", "libm",]
+#default = ["rp2040", "libm",]
 std = []
 align = []
 rp2040 = []
 rp2350 = []
-
-[package.metadata.docs.rs]
-rustdoc-args = ["--html-in-header", "katex-header.html"]
-
-[dependencies]
-libm = { version = "0.2.2", optional = true } # libm is required for sqrt and trigonometric functions in no_std
-num-traits = "0.2.19"
-bytemuck = { version = "1.24", features = ["derive"] }
-cfg-if = "1.0"
-
-[dev-dependencies]
-# assert_float_eq = "1.2.0" # used for test
+simd = []
+libm = []
 
 [target.thumbv8m.main-none-eabihf]
 rustflags = [
@@ -32,6 +23,18 @@ rustflags = [
     "-C", "target-feature=+fp-armv8d16sp", # This enables the specific floating-point features for the M33
     "-C", "target-feature=+vfp4sp", # Enables single-precision FPU
 ]
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "katex-header.html"]
+
+[dependencies]
+libm = { version = "0.2.2",  } # libm is required for sqrt and trigonometric functions in no_std
+num-traits = "0.2.19"
+bytemuck = { version = "1.24", features = ["derive"] }
+cfg-if = "1.0"
+
+[dev-dependencies]
+# assert_float_eq = "1.2.0" # used for test
 
 # see https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.dev]
