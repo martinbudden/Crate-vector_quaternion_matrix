@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{SqrtMethods, Vector2d, Vector3dMath, Vector3dOps};
+use crate::{Quaternion, QuaternionMath, SqrtMethods, Vector2d, Vector3dMath, Vector3dOps};
 
 /// 3-dimensional `{x, y, z}` vector of `i8` values
 pub type Vector3di8 = Vector3d<i8>;
@@ -497,6 +497,40 @@ where
     // Return distance between two points
     pub fn distance(self, rhs: Self) -> T {
         self.distance_squared(rhs).sqrt()
+    }
+}
+impl<T> Vector3d<T>
+where
+    T: Copy + Zero + One + SqrtMethods + Vector3dMath + Vector3dOps + QuaternionMath,
+{
+    #[inline(always)]
+    pub fn rotate_by(self, q: Quaternion<T>) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            // Extract the vector part of the quaternion (x, y, z)
+            let q_xyz = Vector3d { x: q.x, y: q.y, z: q.z };
+
+            // 1. t = 2 * (q_xyz cross v)
+            let t = q_xyz.cross(self) * (T::one() + T::one());
+
+            // 2. res = v + w * t + (q_xyz cross t)
+            // This is the optimized Rodrigues form
+            self + (t * q.w) + q_xyz.cross(t)
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            // Scalar fallback (Standard Hamilton product logic)
+            let q_vec = Vector3d { x: q.x, y: q.y, z: q.z };
+            let uv = q_vec.cross(self);
+            let uuv = q_vec.cross(uv);
+
+            self + (uv * 2.0 * q.w) + (uuv * 2.0)
+        }
+    }
+    #[inline(always)]
+    pub fn rotate_back_by(self, q: Quaternion<T>) -> Self {
+        // Rotating 'back' is just rotating by the inverse (conjugate)
+        self.rotate_by(q.conjugate())
     }
 }
 

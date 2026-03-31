@@ -3,7 +3,7 @@ use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "align")] {
         use core::{mem::transmute, simd::f32x4};
-         use core::simd::{simd_swizzle,num::SimdFloat};
+        use core::simd::{simd_swizzle,num::SimdFloat};
     }
 }
 
@@ -16,8 +16,8 @@ impl From<Vector3d<f32>> for f32x4 {
     #[inline(always)]
     fn from(v: Vector3d<f32>) -> Self {
         // SAFETY: Both types are 16 bytes and aligned to 16 bytes.
-        // The 'dummy' 4th float in the SIMD lane will be whatever
-        // was in the padding (usually 0.0 if you use Default).
+        // The 'dummy' 4th float in the SIMD lane will be whatever was
+        // in the padding (usually 0.0 if you use Default).
         unsafe { transmute(v) }
     }
 }
@@ -147,7 +147,6 @@ impl Vector3dOps for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            use core::simd::f32x4;
             Vector3d { x: lhs.x * a, y: lhs.y * a, z: lhs.z * a }
         }
     }
@@ -221,8 +220,6 @@ impl Vector3dMath for f32 {
     fn normalize(v: Vector3d<Self>) -> Vector3d<Self> {
         #[cfg(feature = "simd")]
         {
-            use core::simd::f32x4;
-
             // 1. Calculate magnitude squared using our SIMD Dot Product
             let norm_squared = Self::dot(v, v);
 
@@ -230,18 +227,17 @@ impl Vector3dMath for f32 {
             if norm_squared == 0.0 {
                 return Vector3d::default(); // Return zero vector if magnitude is 0
             }
-            use crate::SqrtMethods;
 
             let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses hardware vrsqrt
 
             // 3. Load vector into SIMD and "Splat" the inverse magnitude
-            let mut v_simd: f32x4 = unsafe { core::mem::transmute(v) };
+            let mut v_simd = f32x4::from(v);
             let scale = f32x4::splat(norm_reciprocal);
 
             // 4. Multiply all lanes at once
             v_simd *= scale;
 
-            unsafe { core::mem::transmute(v_simd) }
+            v_simd.into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -262,11 +258,8 @@ impl Vector3dMath for f32 {
     fn dot(a: Vector3d<Self>, b: Vector3d<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
-            use core::simd::f32x4;
-            use core::simd::num::SimdFloat;
-
-            let va: f32x4 = unsafe { core::mem::transmute(a) };
-            let vb: f32x4 = unsafe { core::mem::transmute(b) };
+            let va = f32x4::from(a);
+            let vb = f32x4::from(b);
 
             // Multiply the vectors
             let prod = va * vb;
@@ -289,10 +282,8 @@ impl Vector3dMath for f32 {
     fn cross(a: Vector3d<Self>, b: Vector3d<Self>) -> Vector3d<Self> {
         #[cfg(feature = "simd")]
         {
-            use core::simd::f32x4;
-
-            let va: f32x4 = unsafe { core::mem::transmute(a) };
-            let vb: f32x4 = unsafe { core::mem::transmute(b) };
+            let va = f32x4::from(a);
+            let vb = f32x4::from(b);
 
             // Swizzle A: [y, z, x, w]
             let a_yzx = simd_swizzle!(va, [1, 2, 0, 3]);
@@ -305,10 +296,10 @@ impl Vector3dMath for f32 {
             let b_yzx = simd_swizzle!(vb, [1, 2, 0, 3]);
 
             // Result = (a_yzx * b_zxy) - (a_zxy * b_yzx)
-            let res_simd = (a_yzx * b_zxy) - (a_zxy * b_yzx);
+            let ret_simd = (a_yzx * b_zxy) - (a_zxy * b_yzx);
 
             // Transmute back to our Vector3d struct
-            unsafe { core::mem::transmute_copy(&res_simd) }
+            ret_simd.into()
         }
         #[cfg(not(feature = "simd"))]
         {

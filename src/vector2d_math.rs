@@ -3,7 +3,7 @@ use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "align")] {
         use core::{mem::transmute, simd::f32x2};
-         use core::simd::{num::SimdFloat};
+        use core::simd::{num::SimdFloat};
     }
 }
 
@@ -15,9 +15,7 @@ use crate::{SqrtMethods, Vector2d};
 impl From<Vector2d<f32>> for f32x2 {
     #[inline(always)]
     fn from(v: Vector2d<f32>) -> Self {
-        // SAFETY: Both types are 16 bytes and aligned to 16 bytes.
-        // The 'dummy' 4th float in the SIMD lane will be whatever
-        // was in the padding (usually 0.0 if you use Default).
+        // SAFETY: Both types are 8 bytes and aligned to 8 bytes.
         unsafe { transmute(v) }
     }
 }
@@ -26,7 +24,7 @@ impl From<Vector2d<f32>> for f32x2 {
 impl From<f32x2> for Vector2d<f32> {
     #[inline(always)]
     fn from(simd: f32x2) -> Self {
-        // SAFETY: Same size and alignment.
+        // SAFETY: Both types are 8 bytes and aligned to 8 bytes.
         unsafe { transmute(simd) }
     }
 }
@@ -147,7 +145,6 @@ impl Vector2dOps for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            use core::simd::f32x2;
             Vector2d { x: lhs.x * a, y: lhs.y * a }
         }
     }
@@ -221,8 +218,6 @@ impl Vector2dMath for f32 {
     fn normalize(v: Vector2d<Self>) -> Vector2d<Self> {
         #[cfg(feature = "simd")]
         {
-            use core::simd::f32x2;
-
             // 1. Calculate magnitude squared using our SIMD Dot Product
             let norm_squared = Self::dot(v, v);
 
@@ -230,18 +225,17 @@ impl Vector2dMath for f32 {
             if norm_squared == 0.0 {
                 return Vector2d::default(); // Return zero vector if magnitude is 0
             }
-            use crate::SqrtMethods;
 
             let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses hardware vrsqrt
 
             // 3. Load vector into SIMD and "Splat" the inverse magnitude
-            let mut v_simd: f32x2 = unsafe { core::mem::transmute(v) };
+            let mut v_simd = f32x2::from(v);
             let scale = f32x2::splat(norm_reciprocal);
 
             // 4. Multiply all lanes at once
             v_simd *= scale;
 
-            unsafe { core::mem::transmute(v_simd) }
+            v_simd.into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -262,11 +256,8 @@ impl Vector2dMath for f32 {
     fn dot(a: Vector2d<Self>, b: Vector2d<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
-            use core::simd::f32x2;
-            use core::simd::num::SimdFloat;
-
-            let va: f32x2 = unsafe { core::mem::transmute(a) };
-            let vb: f32x2 = unsafe { core::mem::transmute(b) };
+            let va = f32x2::from(a);
+            let vb = f32x2::from(b);
 
             // Multiply the vectors
             let prod = va * vb;

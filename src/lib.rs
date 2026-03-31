@@ -19,7 +19,6 @@ mod vector2d;
 mod vector2d_math;
 mod vector3d;
 mod vector3d_math;
-mod vector3d_simd;
 
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;

@@ -83,8 +83,8 @@ impl SensorFusionMath for f32 {
             let q_dot = (res + x_part + y_part + z_part) * f32x4::splat(0.5);
 
             unsafe { core::mem::transmute(q_dot) }*/
-            let q_v: f32x4 = unsafe { core::mem::transmute(q) };
-            let g_raw: f32x4 = unsafe { core::mem::transmute(gyro) };
+            let q_v = f32x4::from(q);
+            let g_raw = f32x4::from(gyro);
 
             // Shift [x, y, z, pad] to [0, x, y, z] and zero the w lane
             let g_v = simd_swizzle!(g_raw, [3, 0, 1, 2]) * f32x4::from_array([0.0, 1.0, 1.0, 1.0]);
@@ -106,7 +106,7 @@ impl SensorFusionMath for f32 {
                 + (z1 * g_z * f32x4::from_array([-1.0, -1.0, 1.0, 1.0]));
 
             let q_dot = res * f32x4::splat(0.5);
-            unsafe { core::mem::transmute(q_dot) }
+            q_dot.into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -134,16 +134,10 @@ impl SensorFusionMath for f32 {
     fn madgwick_step(q: Quaternion<Self>, a: Vector3d<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            use core::simd::{f32x4, simd_swizzle};
+            let q_v = f32x4::from(q);
 
-            let q_v: f32x4 = unsafe { core::mem::transmute(q) }; // [w, x, y, z]
-            //let a_v: f32x4 = unsafe { core::mem::transmute(a) }; // [ax, ay, az, pad]
-
-            // 1. Calculate q1q1_plus_q2q2 (x*x + y*y)
-            // We use x and y from q_v
-            let x = q.x;
-            let y = q.y;
-            let q1q1_plus_q2q2 = x * x + y * y;
+            // 1. Calculate q1q1_plus_q2q2
+            let q1q1_plus_q2q2 = q.x * q.x + q.y * q.y;
 
             // 2. Calculate common (w*w + z*z - 1.0 + 2.0*q1q1_plus_q2q2 + a.z)
             let common = (q.w * q.w) + (q.z * q.z) - 1.0 + (2.0 * q1q1_plus_q2q2) + a.z;
@@ -158,27 +152,22 @@ impl SensorFusionMath for f32 {
             let term1 = two_v * q_v * term1_scalars;
 
             // 5. Calculate Term 2: [y, -z, w, -x] * ax
-            let ax_v = f32x4::splat(a.x);
-            /*let term2_q = simd_swizzle!(q_v,);
-            let term2_signs = f32x4::from_array([1.0, -1.0, 1.0, -1.0]);
-            let term2 = term2_q * ax_v * term2_signs;*/
             // Term 2: [y, -z, w, -x] * ax
             // Indices needed: y=2, z=3, w=0, x=1
             let term2_q = simd_swizzle!(q_v, [2, 3, 0, 1]);
             let term2_signs = f32x4::from_array([1.0, -1.0, 1.0, -1.0]);
-            let term2 = (term2_q * term2_signs) * ax_v;
+            let term2 = (term2_q * term2_signs) * f32x4::splat(a.x);
+
             // 6. Calculate Term 3: [-x, -w, -z, -y] * ay
-            let ay_v = f32x4::splat(a.y);
-            //let term3 = term3_q * ay_v * f32x4::splat(-1.0);
             // Term 3: [-x, -w, -z, -y] * ay
             // Indices needed: x=1, w=0, z=3, y=2
             let term3_q = simd_swizzle!(q_v, [1, 0, 3, 2]);
-            let term3 = (term3_q * f32x4::splat(-1.0)) * ay_v;
+            let term3 = (term3_q * f32x4::splat(-1.0)) * f32x4::splat(a.y);
             // 7. Combine: step = term1 + term2 + term3
 
             let step_v = term1 + term2 + term3;
 
-            unsafe { core::mem::transmute(step_v) }
+            step_v.into()
         }
         #[cfg(not(feature = "simd"))]
         {

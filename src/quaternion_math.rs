@@ -16,8 +16,6 @@ impl From<Quaternion<f32>> for f32x4 {
     #[inline(always)]
     fn from(v: Quaternion<f32>) -> Self {
         // SAFETY: Both types are 16 bytes and aligned to 16 bytes.
-        // The 'dummy' 4th float in the SIMD lane will be whatever
-        // was in the padding (usually 0.0 if you use Default).
         unsafe { transmute(v) }
     }
 }
@@ -26,7 +24,7 @@ impl From<Quaternion<f32>> for f32x4 {
 impl From<f32x4> for Quaternion<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
-        // SAFETY: Same size and alignment.
+        // SAFETY: Both types are 16 bytes and aligned to 16 bytes.
         unsafe { transmute(simd) }
     }
 }
@@ -115,14 +113,11 @@ impl QuaternionOps for f32 {
     fn neg(q: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            use core::simd::f32x4;
             // Transmute the 16-byte aligned struct to a SIMD register
-            let q_simd: f32x4 = unsafe { core::mem::transmute(q) };
+            let q_simd = f32x4::from(q);
 
             // Negate all 4 lanes (x, y, z, w) simultaneously
-            let res_simd = -q_simd;
-
-            unsafe { core::mem::transmute(res_simd) }
+            (-q_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -152,8 +147,7 @@ impl QuaternionOps for f32 {
         {
             let lhs_simd = f32x4::from(lhs);
             let rhs_simd = f32x4::splat(rhs);
-            let ret_simd = lhs_simd * rhs_simd;
-            ret_simd.into()
+            (lhs_simd * rhs_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -175,8 +169,7 @@ impl QuaternionOps for f32 {
             let v_a = f32x4::splat(a);
 
             // This maps to the Vector Fused Multiply-Add instruction
-            let ret = (v_lhs * v_a) + v_b;
-            ret.into()
+            ((v_lhs * v_a) + v_b).into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -267,19 +260,19 @@ impl QuaternionMath for f32 {
         #[cfg(feature = "simd")]
         {
             // 1. Transmute to SIMD
-            let q_simd: f32x4 = unsafe { core::mem::transmute(q) };
+            let q_simd = f32x4::from(q);
 
             // 2. Dot product (magnitude squared)
             // No masking needed here because w is a valid lane in a Quat!
             let norm_squared = (q_simd * q_simd).reduce_sum();
 
-            // 3. Guard against division by zero
+            // 3. If norm_squared is zero, then this must be the unit quaternion
             if norm_squared == 0.0 {
                 return Quaternion { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
             }
             let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses our hardware vrsqrt
             let ret_simd = q_simd * f32x4::splat(norm_reciprocal);
-            unsafe { core::mem::transmute(ret_simd) }
+            ret_simd.into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -327,8 +320,6 @@ impl core::ops::Mul for Quaternion {
     fn mul(self, rhs: Self) -> Self {
         #[cfg(feature = "simd")]
         {
-            use core::simd::{f32x4, simd_swizzle};
-
             let a: f32x4 = unsafe { core::mem::transmute_copy(&self) };
             let b: f32x4 = unsafe { core::mem::transmute_copy(&rhs) };
 
