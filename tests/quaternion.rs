@@ -1,11 +1,10 @@
-use vector_quaternion_matrix::{Quaternion,Quaternionf32,Quaternionf64};
+use vector_quaternion_matrix::{Quaternion, Quaternionf32, Quaternionf64};
 
 const _: () = assert!(core::mem::size_of::<Quaternionf32>() == 16);
 const _: () = assert!(core::mem::align_of::<Quaternionf32>() == 16);
 
 const _: () = assert!(core::mem::size_of::<Quaternionf64>() == 32);
 const _: () = assert!(core::mem::align_of::<Quaternionf64>() == 16);
-
 
 #[cfg(test)]
 mod tests {
@@ -43,6 +42,18 @@ mod tests {
 
         let b = -a;
         assert_eq!(b, Quaternion { w: -2.0, x: -3.0, y: -5.0, z: -7.0 });
+    }
+    #[test]
+    fn test_quaternion_negation() {
+        use approx::assert_abs_diff_eq;
+
+        let q = Quaternion { x: 0.1, y: -0.2, z: 0.3, w: 0.9 };
+        let neg_q = -q;
+
+        assert_abs_diff_eq!(neg_q.x, -0.1, epsilon = 1e-6);
+        assert_abs_diff_eq!(neg_q.y, 0.2, epsilon = 1e-6);
+        assert_abs_diff_eq!(neg_q.z, -0.3, epsilon = 1e-6);
+        assert_abs_diff_eq!(neg_q.w, -0.9, epsilon = 1e-6);
     }
     #[test]
     fn add() {

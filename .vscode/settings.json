@@ -22,6 +22,7 @@
         "nalgebra",
         "nomem",
         "nostack",
+        "pico",
         "Pitchf",
         "Quaternionf",
         "roundf",
@@ -38,6 +39,8 @@
         "vrsqrt",
         "vsqrt",
         "waypointing",
+        "wwxx",
+        "xyzx",
         "Yawf"
     ]
 }

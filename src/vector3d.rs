@@ -1,8 +1,8 @@
 use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{Zero, One, Signed, float::FloatCore};
+use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{SqrtMethods, Vector2d};
+use crate::{SqrtMethods, Vector2d, VectorMath};
 
 /// 3-dimensional `{x, y, z}` vector of `i8` values
 pub type Vector3di8 = Vector3d<i8>;
@@ -14,7 +14,6 @@ pub type Vector3di32 = Vector3d<i32>;
 pub type Vector3df32 = Vector3d<f32>;
 /// 3-dimensional `{x, y, z}` vector of `f64` values
 pub type Vector3df64 = Vector3d<f64>;
-
 
 // **** Define ****
 cfg_if! {
@@ -436,25 +435,30 @@ where
 // **** impl squared_norm ****
 impl<T> Vector3d<T>
 where
-    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
+    T: Copy + Add<Output = T> + Sub<Output = T> + VectorMath,
 {
     /// Return square of Euclidean norm
-    pub fn squared_norm(&self) -> T {
-        self.x * self.x + self.y * self.y + self.z * self.z
+    pub fn squared_norm(self) -> T {
+        self.dot(self)
     }
 
     /// Return distance between two points, squared
-    pub fn distance_squared(&self, rhs: Self) -> T {
-        (*self - rhs).squared_norm()
+    pub fn distance_squared(self, rhs: Self) -> T {
+        (self - rhs).squared_norm()
     }
+}
 
+impl<T> Vector3d<T>
+where
+    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
+{
     /// Return the sum of all components of the vector
-    pub fn sum(&self) -> T {
+    pub fn sum(self) -> T {
         self.x + self.y + self.z
     }
 
     /// Return the product of all components of the vector
-    pub fn product(&self) -> T {
+    pub fn product(self) -> T {
         self.x * self.y * self.z
     }
 }
@@ -474,17 +478,17 @@ where
 // **** impl norm ****
 impl<T> Vector3d<T>
 where
-    T: Copy + Add<Output = T> + Mul<Output = T> + SqrtMethods,
+    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + SqrtMethods + VectorMath,
 {
     /// Return Euclidean norm
-    pub fn norm(&self) -> T {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+    pub fn norm(self) -> T {
+        self.squared_norm().sqrt()
     }
 }
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Zero + One + PartialEq + Add<Output = T> + Sub<Output = T> + Div<Output = T> + SqrtMethods,
+    T: Copy + Zero + One + PartialEq + Add<Output = T> + Sub<Output = T> + Div<Output = T> + SqrtMethods + VectorMath,
 {
     /// Return normalized form of the vector
     pub fn normalized(&self) -> Self {
@@ -511,7 +515,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Zero + One + Sub<Output = T> + SqrtMethods,
+    T: Copy + Zero + One + Sub<Output = T> + SqrtMethods + VectorMath,
 {
     // Return distance between two points
     pub fn distance(&self, rhs: Self) -> T {

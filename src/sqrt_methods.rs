@@ -102,6 +102,7 @@ cfg_if! {
         }
     }
 }
+
 #[inline(always)]
 fn _sqrtf(x: f32) -> f32 {
     /*#[cfg(feature = "rp2350")]

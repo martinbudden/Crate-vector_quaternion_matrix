@@ -1242,7 +1242,7 @@ where
 /// rather than the Hamilton multiplication convention used by the Quaternion class.
 impl<T> From<Matrix3x3<T>> for Quaternion<T>
 where
-    T: Copy + One+ FloatCore + SqrtMethods,
+    T: Copy + One + FloatCore + SqrtMethods,
 {
     fn from(m: Matrix3x3<T>) -> Self {
         let half = T::one() / (T::one() + T::one());

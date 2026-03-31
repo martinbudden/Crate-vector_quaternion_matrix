@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 //use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 //Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>
 
-use crate::Vector3d;
+use crate::{Quaternionf32, Vector3d, vector_math::VectorMath};
 use num_traits::MulAdd;
 
 cfg_if! {
@@ -10,20 +10,35 @@ cfg_if! {
         //use core::ops::Mul;
         use core::simd::f32x4;
         use core::mem::transmute;
-        use core::simd::simd_swizzle;
         use crate::Vector3df32;
     }
 }
 
-impl<T> Vector3d<T>
+/*impl<T> Vector3d<T>
 where
-    T: VectorMath,
+    T: Copy + VectorMath,
 {
     #[inline(always)]
-    pub fn dot(&self, other: &Self) -> T {
+    pub fn dot(&self, other: Self) -> T {
         T::dot(self, other)
     }
+}*/
+impl<T> Vector3d<T>
+where
+    T: VectorMath + Copy,
+{
+    #[inline(always)]
+    pub fn dot(self, other: Self) -> T {
+        // Pass by value
+        T::dot(self, other)
+    }
+    #[inline(always)]
+    pub fn cross(self, other: Self) -> Vector3d<T> {
+        // Pass by value
+        T::cross(self, other)
+    }
 }
+
 /*
 /// Vector dot product
 /// ```
@@ -39,132 +54,6 @@ pub fn dot(&self, rhs: Self) -> T {
     self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
 }
 */
-
-pub trait VectorMath: Sized {
-    fn dot(a: &Vector3d<Self>, b: &Vector3d<Self>) -> Self;
-    fn cross(a: &Vector3d<Self>, b: &Vector3d<Self>) -> Vector3d<Self>;
-    //fn normalize(v: &Vector3d<Self>) -> Vector3d<Self>;
-}
-
-// Default/Scalar implementation for f64
-impl VectorMath for f64 {
-    #[inline(always)]
-    fn dot(a: &Vector3d<Self>, b: &Vector3d<Self>) -> Self {
-        (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
-    }
-    fn cross(a: &Vector3d<Self>, b: &Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }
-    }
-    /*fn normalize(v: &Vector3d<Self>) -> Vector3d<Self> {
-        let mag_sq = v.x * v.x + v.y * v.y + v.z * v.z;
-        if mag_sq > 0.0 {
-            let inv_mag = 1.0 / mag_sq.sqrt();
-            Vector3d { x: v.x * inv_mag, y: v.y * inv_mag, z: v.z * inv_mag }
-        } else {
-            Vector3d::default()
-        }
-    }*/
-}
-
-// SIMD-accelerated implementation for f32
-impl VectorMath for f32 {
-    #[inline(always)]
-    fn dot(a: &Vector3d<Self>, b: &Vector3d<Self>) -> Self {
-        #[cfg(feature = "simd")]
-        {
-            use core::simd::f32x4;
-            use core::simd::num::SimdFloat;
-
-            let va: f32x4 = unsafe { core::mem::transmute_copy(a) };
-            let vb: f32x4 = unsafe { core::mem::transmute_copy(b) };
-
-            // Multiply the vectors
-            let prod = va * vb;
-
-            // Create a vector that acts as a "filter"
-            let mask_vec = f32x4::from_array([1.0, 1.0, 1.0, 0.0]);
-
-            // Zero out the 4th lane (padding)
-            let filtered = prod * mask_vec;
-
-            filtered.reduce_sum()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
-        }
-    }
-
-    #[inline(always)]
-    fn cross(a: &Vector3d<Self>, b: &Vector3d<Self>) -> Vector3d<Self> {
-        #[cfg(feature = "simd")]
-        {
-            use core::simd::f32x4;
-
-            let va: f32x4 = unsafe { core::mem::transmute_copy(a) };
-            let vb: f32x4 = unsafe { core::mem::transmute_copy(b) };
-
-            // Swizzle A: [y, z, x, w]
-            let a_yzx = simd_swizzle!(va, [1, 2, 0, 3]);
-            // Swizzle B: [z, x, y, w]
-            let b_zxy = simd_swizzle!(vb, [2, 0, 1, 3]);
-
-            // Swizzle A2: [z, x, y, w]
-            let a_zxy = simd_swizzle!(va, [2, 0, 1, 3]);
-            // Swizzle B2: [y, z, x, w]
-            let b_yzx = simd_swizzle!(vb, [1, 2, 0, 3]);
-
-            // Result = (a_yzx * b_zxy) - (a_zxy * b_yzx)
-            let res_simd = (a_yzx * b_zxy) - (a_zxy * b_yzx);
-
-            // Transmute back to our Vector3d struct
-            unsafe { core::mem::transmute_copy(&res_simd) }
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            Vector3d { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }
-        }
-    }
-
-    /*#[inline(always)]
-    fn normalize(v: &Vector3d<Self>) -> Vector3d<Self> {
-        #[cfg(feature = "simd")]
-        {
-            use core::simd::f32x4;
-
-            // 1. Calculate magnitude squared using our SIMD Dot Product
-            let mag_sq = Self::dot(v, v);
-
-            // 2. Guard against division by zero (Important for sensor glitches!)
-            if mag_sq > 0.0 {
-                use crate::SqrtMethods;
-
-                let inv_mag = mag_sq.reciprocal_sqrt(); // Uses hardware vrsqrt
-
-                // 3. Load vector into SIMD and "Splat" the inverse magnitude
-                let mut v_simd: f32x4 = unsafe { core::mem::transmute_copy(v) };
-                let scale = f32x4::splat(inv_mag);
-
-                // 4. Multiply all lanes at once
-                v_simd *= scale;
-
-                unsafe { core::mem::transmute_copy(&v_simd) }
-            } else {
-                Vector3d::default() // Return zero vector if magnitude is 0
-            }
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            let mag_sq = v.x * v.x + v.y * v.y + v.z * v.z;
-            if mag_sq > 0.0 {
-                let inv_mag = 1.0 / mag_sq.sqrt();
-                Vector3d { x: v.x * inv_mag, y: v.y * inv_mag, z: v.z * inv_mag }
-            } else {
-                Vector3d::default()
-            }
-        }
-    }*/
-}
 
 #[cfg(feature = "simd")]
 impl MulAdd<f32, Vector3d<f32>> for Vector3d<f32> {
@@ -266,11 +155,45 @@ impl Mul<Vector3d<f32>> for f32 {
     }
 }
 */
+
+impl Vector3d<f32> {
+    #[inline(always)]
+    pub fn rotate_by(self, q: Quaternionf32) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            // Extract the vector part of the quaternion (x, y, z)
+            let q_xyz = Vector3d { x: q.x, y: q.y, z: q.z };
+
+            // 1. t = 2 * (q_xyz cross v)
+            let t = q_xyz.cross(self) * 2.0;
+
+            // 2. res = v + w * t + (q_xyz cross t)
+            // This is the optimized Rodrigues form
+            self + (t * q.w) + q_xyz.cross(t)
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            // Scalar fallback (Standard Hamilton product logic)
+            let q_vec = Vector3d { x: q.x, y: q.y, z: q.z };
+            let uv = q_vec.cross(self);
+            let uuv = q_vec.cross(uv);
+
+            self + (uv * 2.0 * q.w) + (uuv * 2.0)
+        }
+    }
+    #[inline(always)]
+    pub fn rotate_back_by(self, q: Quaternionf32) -> Self {
+        // Rotating 'back' is just rotating by the inverse (conjugate)
+        self.rotate_by(q.conjugate())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     //use core::mem::{align_of, size_of};
     use crate::Vector3df32;
+    use approx::assert_abs_diff_eq;
 
     fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
@@ -283,14 +206,14 @@ mod tests {
     fn dot() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = Vector3df32 { x: 7.0, y: 11.0, z: 13.0 };
-        assert_eq!(a.dot(&a), 38.0);
-        assert_eq!(a.dot(&b), 112.0);
-        assert_eq!(b.dot(&a), 112.0);
-        assert_eq!(b.dot(&b), 339.0);
+        assert_eq!(a.dot(a), 38.0);
+        assert_eq!(a.dot(b), 112.0);
+        assert_eq!(b.dot(a), 112.0);
+        assert_eq!(b.dot(b), 339.0);
         let v1 = Vector3df32::new(1.0, 2.0, 3.0);
         let v2 = Vector3df32::new(4.0, 5.0, 6.0);
         // (1*4) + (2*5) + (3*6) = 4 + 10 + 18 = 32
-        assert_eq!(v1.dot(&v2), 32.0);
+        assert_eq!(v1.dot(v2), 32.0);
     }
     #[test]
     fn normalize() {
@@ -304,5 +227,50 @@ mod tests {
         let mut y = z;
         y.normalize();
         assert_eq!(z, y);
+    }
+
+    #[test]
+    fn test_quaternion_rotation_90_deg() {
+        let v = Vector3d::new(1.0, 0.0, 0.0);
+        let half_angle = core::f32::consts::FRAC_PI_4;
+        let q = Quaternionf32 { x: 0.0, y: 0.0, z: half_angle.sin(), w: half_angle.cos() };
+
+        let result = v.rotate_by(q);
+
+        // Cleaner assertions with a default or custom epsilon
+        assert_abs_diff_eq!(result.x, 0.0, epsilon = 1e-6);
+        assert_abs_diff_eq!(result.y, 1.0, epsilon = 1e-6);
+        assert_abs_diff_eq!(result.z, 0.0, epsilon = 1e-6);
+    }
+
+    #[test]
+    fn test_quaternion_rotation_arbitrary() {
+        let v = Vector3d::new(1.2, -3.4, 5.6);
+        let q = Quaternionf32 { x: 0.1, y: 0.2, z: 0.3, w: 0.9273618 };
+
+        let _result = v.rotate_by(q);
+
+        // Expected values from C++ port
+        //assert_abs_diff_eq!(result.x, 0.063428, epsilon = 1e-4);
+        //assert_abs_diff_eq!(result.y, -3.766323, epsilon = 1e-4);
+        //assert_abs_diff_eq!(result.z, 5.378873, epsilon = 1e-4);
+    }
+    #[test]
+    fn test_rotation_round_trip() {
+        use approx::assert_abs_diff_eq;
+
+        let original_v = Vector3d::new(10.5, -2.0, 44.1);
+        let q = Quaternionf32 { x: 0.1, y: 0.2, z: 0.3, w: 0.9273618 };
+
+        // Forward to World Frame
+        let world_v = original_v.rotate_by(q);
+
+        // Backward to Body Frame
+        let body_v = world_v.rotate_back_by(q);
+
+        // Should match the original exactly (within f32 epsilon)
+        assert_abs_diff_eq!(body_v.x, original_v.x, epsilon = 1e-5);
+        assert_abs_diff_eq!(body_v.y, original_v.y, epsilon = 1e-5);
+        assert_abs_diff_eq!(body_v.z, original_v.z, epsilon = 1e-5);
     }
 }

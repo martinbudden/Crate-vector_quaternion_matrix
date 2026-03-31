@@ -1,5 +1,5 @@
 use cfg_if::cfg_if;
-use vector_quaternion_matrix::{Vector3d, Vector3df32, Vector3df64, Vector3di8, Vector3di16, Vector3di32};
+use vector_quaternion_matrix::{Vector3d, Vector3df32, Vector3df64, Vector3di16};
 
 // **** Align ****
 cfg_if! {
@@ -148,7 +148,7 @@ mod tests {
         assert_eq!(a, b);
 
         use num_traits::zero;
-        let z: Vector3df32 = zero();
+        let _z: Vector3df32 = zero();
         //assert!(z.is_zero());
 
         let c: Vector3df32 = (2.0, 3.0, 5.0).into();

@@ -125,6 +125,8 @@ where
     T: Neg<Output = T>,
 {
     type Output = Self;
+
+    #[inline(always)]
     fn neg(self) -> Self::Output {
         Self { w: -self.w, x: -self.x, y: -self.y, z: -self.z }
     }
@@ -166,6 +168,8 @@ where
     T: Add<Output = T>,
 {
     type Output = Self;
+
+    #[inline(always)]
     fn add(self, rhs: Self) -> Self {
         Self { w: self.w + rhs.w, x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
     }
@@ -177,6 +181,7 @@ impl<T> AddAssign for Quaternion<T>
 where
     T: Copy + Add<Output = T>,
 {
+    #[inline(always)]
     fn add_assign(&mut self, rhs: Self) {
         *self = *self + rhs;
     }
@@ -220,58 +225,6 @@ impl Mul<Quaternion<f64>> for f64 {
         Quaternion { w: self * rhs.w, x: self * rhs.x, y: self * rhs.y, z: self * rhs.z }
     }
 }
-
-// **** Mul ****
-/*
-impl core::ops::Mul for Quaternion {
-    type Output = Self;
-
-    #[inline(always)]
-    fn mul(self, rhs: Self) -> Self {
-        #[cfg(feature = "simd")]
-        {
-            use core::simd::{f32x4, simd_swizzle};
-
-            let a: f32x4 = unsafe { core::mem::transmute_copy(&self) };
-            let b: f32x4 = unsafe { core::mem::transmute_copy(&rhs) };
-
-            // 1. Initial product: [w1*x2, w1*y2, w1*z2, w1*w2]
-            // We swizzle 'a' to broadcast 'w' into all lanes
-            let a_wwww = simd_swizzle!(a, [3, 3, 3, 3]);
-            let mut res = a_wwww * b;
-
-            // 2. Add/Sub subsequent terms using swizzles and FMA
-            // [x1*w2, y1*w2, z1*w2, -x1*x2]
-            let a_xyzx = simd_swizzle!(a, [0, 1, 2, 0]);
-            let b_wwxx = simd_swizzle!(b, [3, 3, 3, 0]);
-            // Logic: res = res + (a_xyzx * b_wwxx) with sign flips...
-
-            // Note: For brevity, most SIMD libs use a specific
-            // set of 4 vector FMAs to complete the Hamilton product.
-
-            // For now, let's look at the robust Scalar version that
-            // the compiler can still auto-vectorize:
-            self.scalar_mul(rhs)
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            self.scalar_mul(rhs)
-        }
-    }
-}
-
-    impl Quaternion {
-    #[inline(always)]
-    fn scalar_mul(self, rhs: Self) -> Self {
-        Self {
-            w: self.w * rhs.w - self.x * rhs.x - self.y * rhs.y - self.z * rhs.z,
-            x: self.w * rhs.x + self.x * rhs.w + self.y * rhs.z - self.z * rhs.y,
-            y: self.w * rhs.y - self.x * rhs.z + self.y * rhs.w + self.z * rhs.x,
-            z: self.w * rhs.z + self.x * rhs.y - self.y * rhs.x + self.z * rhs.w,
-        }
-    }
-}
-*/
 
 /// Multiply quaternion by a constant
 impl<T> Mul<T> for Quaternion<T>
