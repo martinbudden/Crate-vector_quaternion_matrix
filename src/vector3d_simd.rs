@@ -2,15 +2,12 @@ use cfg_if::cfg_if;
 //use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 //Add<Output = T> + Sub<Output = T> + Mul<R, Output = T>
 
-use crate::{Quaternionf32, Vector3d, vector_math::VectorMath};
+use crate::{Quaternionf32, Vector3d};
 use num_traits::MulAdd;
 
 cfg_if! {
     if #[cfg(feature = "align")] {
         //use core::ops::Mul;
-        use core::simd::f32x4;
-        use core::mem::transmute;
-        use crate::Vector3df32;
     }
 }
 
@@ -23,21 +20,6 @@ where
         T::dot(self, other)
     }
 }*/
-impl<T> Vector3d<T>
-where
-    T: VectorMath + Copy,
-{
-    #[inline(always)]
-    pub fn dot(self, other: Self) -> T {
-        // Pass by value
-        T::dot(self, other)
-    }
-    #[inline(always)]
-    pub fn cross(self, other: Self) -> Vector3d<T> {
-        // Pass by value
-        T::cross(self, other)
-    }
-}
 
 /*
 /// Vector dot product
@@ -88,26 +70,6 @@ impl MulAdd<f64, Vector3d<f64>> for Vector3d<f64> {
     #[inline(always)]
     fn mul_add(self, a: f64, b: Self) -> Self {
         Vector3d { x: self.x * a + b.x, y: self.y * a + b.y, z: self.z * a + b.z }
-    }
-}
-
-#[cfg(feature = "simd")]
-impl From<Vector3df32> for f32x4 {
-    #[inline(always)]
-    fn from(v: Vector3df32) -> Self {
-        // SAFETY: Both types are 16 bytes and aligned to 16 bytes.
-        // The 'dummy' 4th float in the SIMD lane will be whatever
-        // was in the padding (usually 0.0 if you use Default).
-        unsafe { transmute(v) }
-    }
-}
-
-#[cfg(feature = "simd")]
-impl From<f32x4> for Vector3df32 {
-    #[inline(always)]
-    fn from(simd: f32x4) -> Self {
-        // SAFETY: Same size and alignment.
-        unsafe { transmute(simd) }
     }
 }
 

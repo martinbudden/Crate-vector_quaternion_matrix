@@ -2,9 +2,9 @@ use core::convert::From;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::Vector3d;
 use crate::math_methods::TrigonometricMethods;
 use crate::sqrt_methods::SqrtMethods;
+use crate::{QuaternionMath, Vector3d};
 
 /// quaternion of `f32` values
 pub type Quaternionf32 = Quaternion<f32>;
@@ -77,7 +77,7 @@ where
 /// ```
 impl<T> Zero for Quaternion<T>
 where
-    T: Zero + PartialEq,
+    T: Zero + PartialEq + QuaternionMath,
 {
     fn zero() -> Self {
         Self { w: T::zero(), x: T::zero(), y: T::zero(), z: T::zero() }
@@ -122,13 +122,13 @@ where
 /// ```
 impl<T> Neg for Quaternion<T>
 where
-    T: Neg<Output = T>,
+    T: QuaternionMath,
 {
     type Output = Self;
 
     #[inline(always)]
     fn neg(self) -> Self::Output {
-        Self { w: -self.w, x: -self.x, y: -self.y, z: -self.z }
+        QuaternionMath::neg(self)
     }
 }
 
@@ -144,7 +144,7 @@ where
 /// ```
 impl<T> Add for Quaternion<T>
 where
-    T: Add<Output = T>,
+    T: Add<Output = T> + QuaternionMath,
 {
     type Output = Self;
 
@@ -158,7 +158,7 @@ where
 /// Add one quaternion to another
 impl<T> AddAssign for Quaternion<T>
 where
-    T: Copy + Add<Output = T>,
+    T: Copy + Add<Output = T> + QuaternionMath,
 {
     #[inline(always)]
     fn add_assign(&mut self, rhs: Self) {
@@ -170,11 +170,12 @@ where
 /// Subtract two quaternions
 impl<T> Sub for Quaternion<T>
 where
-    T: Sub<Output = T>,
+    T: Add<Output = T> + QuaternionMath,
 {
     type Output = Self;
-    fn sub(self, rhs: Self) -> Self {
-        Self { w: self.w - rhs.w, x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
+    fn sub(self, rhs: Self) -> Self::Output {
+        // Reuse our existing SIMD-optimized Add and Neg implementations
+        self + (-rhs)
     }
 }
 
@@ -182,7 +183,7 @@ where
 /// Subtract one quaternion from another
 impl<T> SubAssign for Quaternion<T>
 where
-    T: Copy + Sub<Output = T>,
+    T: Copy + Add<Output = T> + QuaternionMath,
 {
     fn sub_assign(&mut self, rhs: Self) {
         *self = *self - rhs;

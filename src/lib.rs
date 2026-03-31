@@ -23,7 +23,7 @@ pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;
 pub use quaternion_math::QuaternionMath;
 pub use sqrt_methods::SqrtMethods;
-pub use vector_math::VectorMath;
+pub use vector_math::{VectorMath, VectorOps};
 
 //pub use eigen3x3::{EigenResult, EigenResult3x3, EigenResult3x3f32, EigenResult3x3f64};
 pub use matrix2x2::MatrixError;

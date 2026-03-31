@@ -356,25 +356,14 @@ where
     }
 }
 
-// **** impl norm_squared ****
+// **** impl dot and cross ****
 impl<T> Vector2d<T>
 where
     T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
 {
-    /// Return square of Euclidean norm
-    pub fn norm_squared(&self) -> T {
-        self.x * self.x + self.y * self.y
-    }
-
-    /// Return distance between two points, squared
-    pub fn distance_squared(&self, rhs: Self) -> T {
-        (*self - rhs).norm_squared()
-    }
-
     /// Vector dot product
     /// ```
     /// # use vector_quaternion_matrix::Vector2df32;
-    ///
     /// let v = Vector2df32::new(2.0, 3.0);
     /// let w = Vector2df32::new(7.0, 11.0);
     ///
@@ -389,7 +378,6 @@ where
     /// Z component of vector cross product of self and rhs extended to 3D
     /// ```
     /// # use vector_quaternion_matrix::Vector2df32;
-    ///
     /// let v = Vector2df32::new(2.0, 3.0);
     /// let w = Vector2df32::new(7.0, 11.0);
     ///
@@ -399,6 +387,22 @@ where
     /// ```
     pub fn cross(&self, rhs: Self) -> T {
         self.x * rhs.y - self.y * rhs.x
+    }
+}
+
+// **** impl norm_squared ****
+impl<T> Vector2d<T>
+where
+    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
+{
+    /// Return square of Euclidean norm
+    pub fn norm_squared(&self) -> T {
+        self.x * self.x + self.y * self.y
+    }
+
+    /// Return distance between two points, squared
+    pub fn distance_squared(&self, rhs: Self) -> T {
+        (*self - rhs).norm_squared()
     }
 
     /// Return the sum of all components of the vector

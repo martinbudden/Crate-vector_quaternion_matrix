@@ -1,10 +1,141 @@
+#[cfg(feature = "simd")]
 use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "align")] {
+        use core::{mem::transmute, simd::f32x4};
         use core::simd::simd_swizzle;
     }
 }
+
 use crate::{SqrtMethods, Vector3d};
+
+#[cfg(feature = "simd")]
+impl From<Vector3d<f32>> for f32x4 {
+    #[inline(always)]
+    fn from(v: Vector3d<f32>) -> Self {
+        // SAFETY: Both types are 16 bytes and aligned to 16 bytes.
+        // The 'dummy' 4th float in the SIMD lane will be whatever
+        // was in the padding (usually 0.0 if you use Default).
+        unsafe { transmute(v) }
+    }
+}
+
+#[cfg(feature = "simd")]
+impl From<f32x4> for Vector3d<f32> {
+    #[inline(always)]
+    fn from(simd: f32x4) -> Self {
+        // SAFETY: Same size and alignment.
+        unsafe { transmute(simd) }
+    }
+}
+
+pub trait VectorOps: Sized {
+    fn neg(v: Vector3d<Self>) -> Vector3d<Self>;
+    fn add(lhs: Vector3d<Self>, lhs: Vector3d<Self>) -> Vector3d<Self>;
+    fn mul_scalar(lhs: Vector3d<Self>, a: Self) -> Vector3d<Self>;
+    fn mul_add(lhs: Vector3d<Self>, a: Self, b: Vector3d<Self>) -> Vector3d<Self>;
+}
+
+impl VectorOps for f64 {
+    #[inline(always)]
+    fn neg(v: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: -v.x, y: -v.y, z: -v.z }
+    }
+
+    #[inline(always)]
+    fn add(lhs: Vector3d<Self>, rhs: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z }
+    }
+
+    #[inline(always)]
+    fn mul_scalar(lhs: Vector3d<Self>, a: Self) -> Vector3d<Self> {
+        Vector3d { x: lhs.x * a, y: lhs.y * a, z: lhs.z * a }
+    }
+
+    #[inline(always)]
+    fn mul_add(lhs: Vector3d<Self>, a: Self, b: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: lhs.x * a + b.x, y: lhs.y * a + b.y, z: lhs.z * a + b.z }
+    }
+}
+
+// SIMD-accelerated implementation for f32
+impl VectorOps for f32 {
+    #[inline(always)]
+    fn neg(v: Vector3d<Self>) -> Vector3d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            use core::simd::f32x4;
+            // Transmute the 16-byte aligned struct to a SIMD register
+            let q_simd: f32x4 = unsafe { core::mem::transmute(v) };
+
+            // Negate all 4 lanes (x, y, z, w) simultaneously
+            let res_simd = -q_simd;
+
+            unsafe { core::mem::transmute(res_simd) }
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector3d { x: -v.x, y: -v.y, z: -v.z }
+        }
+    }
+
+    #[inline(always)]
+    fn add(lhs: Vector3d<Self>, rhs: Vector3d<Self>) -> Vector3d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let lhs_simd = f32x4::from(lhs);
+            let rhs_simd = f32x4::from(rhs);
+
+            // Add all 4 lanes (w, x, y, z) in one cycle
+            let ret_simd = lhs_simd + rhs_simd;
+
+            ret_simd.into()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector3d { x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z }
+        }
+    }
+
+    #[inline(always)]
+    fn mul_scalar(lhs: Vector3d<Self>, rhs: Self) -> Vector3d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            // 1. Transmute to SIMD
+            let lhs_simd = f32x4::from(lhs);
+            // 2. "Splat" the scalar: [s, s, s, s]
+            let rhs_simd = f32x4::splat(rhs);
+            // 3. Multiply all 4 lanes in 1 cycle (x*s, y*s, z*s, padding*s)
+            let ret = lhs_simd * rhs_simd;
+            ret.into()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            use core::simd::f32x4;
+            Vector3d { x: lhs.x * a, y: lhs.y * a, z: lhs.z * a }
+        }
+    }
+
+    #[inline(always)]
+    fn mul_add(lhs: Vector3d<Self>, a: Self, b: Vector3d<Self>) -> Vector3d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            //let v_lhs: f32x4 = lhs.into();
+            //let v_b: f32x4 = b.into();
+            let v_lhs = f32x4::from(lhs);
+            let v_b = f32x4::from(b);
+            let v_a = f32x4::splat(a);
+
+            // This maps to the Vector Fused Multiply-Add instruction
+            let ret = (v_lhs * v_a) + v_b;
+            ret.into()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector3d { x: lhs.x * a + b.x, y: lhs.y * a + b.y, z: lhs.z * a + b.z }
+        }
+    }
+}
 
 pub trait VectorMath: Sized {
     fn dot(a: Vector3d<Self>, b: Vector3d<Self>) -> Self;
@@ -18,9 +149,13 @@ impl VectorMath for f64 {
     fn dot(a: Vector3d<Self>, b: Vector3d<Self>) -> Self {
         (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
     }
+
+    #[inline(always)]
     fn cross(a: Vector3d<Self>, b: Vector3d<Self>) -> Vector3d<Self> {
         Vector3d { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }
     }
+
+    #[inline(always)]
     fn normalize(v: Vector3d<Self>) -> Vector3d<Self> {
         let norm_squared = v.x * v.x + v.y * v.y + v.z * v.z;
         if norm_squared == 0.0 {

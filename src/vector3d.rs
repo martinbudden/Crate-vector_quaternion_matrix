@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{SqrtMethods, Vector2d, VectorMath};
+use crate::{SqrtMethods, Vector2d, VectorMath, VectorOps};
 
 /// 3-dimensional `{x, y, z}` vector of `i8` values
 pub type Vector3di8 = Vector3d<i8>;
@@ -75,11 +75,12 @@ where
 /// ```
 impl<T> Neg for Vector3d<T>
 where
-    T: Neg<Output = T>,
+    T: VectorOps,
 {
     type Output = Self;
+    #[inline(always)]
     fn neg(self) -> Self::Output {
-        Self { x: -self.x, y: -self.y, z: -self.z }
+        VectorOps::neg(self)
     }
 }
 
@@ -373,6 +374,42 @@ where
         self.x = self.x.clamp(min, max);
         self.y = self.y.clamp(min, max);
         self.z = self.z.clamp(min, max);
+    }
+}
+
+impl<T> Vector3d<T>
+where
+    T: VectorMath + Copy,
+{
+    /// Vector dot product
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3df32::new(7.0, 11.0, 13.0);
+    ///
+    /// let x = v.dot(w);
+    ///
+    /// assert_eq!(x, 112.0);
+    /// ```
+    #[inline(always)]
+    pub fn dot(self, other: Self) -> T {
+        // Pass by value
+        T::dot(self, other)
+    }
+    /// Vector cross product
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3df32::new(7.0, 11.0, 13.0);
+    ///
+    /// let x = v.cross(w);
+    ///
+    /// assert_eq!(x, Vector3df32::new(-16.0, 9.0, 1.0));
+    /// ```
+    #[inline(always)]
+    pub fn cross(self, other: Self) -> Vector3d<T> {
+        // Pass by value
+        T::cross(self, other)
     }
 }
 

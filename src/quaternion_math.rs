@@ -1,16 +1,41 @@
+#[cfg(feature = "simd")]
 use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "align")] {
-        //use core::simd::simd_swizzle;
+        use core::{mem::transmute, simd::f32x4};
     }
 }
 
-use crate::Quaternion;
+use crate::{Quaternion, SqrtMethods};
+
+#[cfg(feature = "simd")]
+impl From<Quaternion<f32>> for f32x4 {
+    #[inline(always)]
+    fn from(v: Quaternion<f32>) -> Self {
+        // SAFETY: Both types are 16 bytes and aligned to 16 bytes.
+        // The 'dummy' 4th float in the SIMD lane will be whatever
+        // was in the padding (usually 0.0 if you use Default).
+        unsafe { transmute(v) }
+    }
+}
+
+#[cfg(feature = "simd")]
+impl From<f32x4> for Quaternion<f32> {
+    #[inline(always)]
+    fn from(simd: f32x4) -> Self {
+        // SAFETY: Same size and alignment.
+        unsafe { transmute(simd) }
+    }
+}
 
 pub trait QuaternionMath: Sized {
     fn neg(q: Quaternion<Self>) -> Quaternion<Self>;
     fn conjugate(q: Quaternion<Self>) -> Quaternion<Self>;
-    fn mul(a: Quaternion<Self>, b: Quaternion<Self>) -> Quaternion<Self>;
+    fn normalize(q: Quaternion<Self>) -> Quaternion<Self>;
+    fn add(lhs: Quaternion<Self>, lhs: Quaternion<Self>) -> Quaternion<Self>;
+    fn mul_scalar(lhs: Quaternion<Self>, a: Self) -> Quaternion<Self>;
+    fn mul(rhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self>;
+    fn mul_add(lhs: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self>;
 }
 
 impl QuaternionMath for f64 {
@@ -22,6 +47,36 @@ impl QuaternionMath for f64 {
     #[inline(always)]
     fn conjugate(q: Quaternion<Self>) -> Quaternion<Self> {
         Quaternion { w: q.w, x: -q.x, y: -q.y, z: -q.z }
+    }
+
+    #[inline(always)]
+    fn normalize(q: Quaternion<Self>) -> Quaternion<Self> {
+        let norm_squared = q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+        if norm_squared == 0.0 {
+            return Quaternion::default();
+        }
+        let norm_reciprocal = norm_squared.reciprocal_sqrt();
+        Quaternion {
+            w: q.x * norm_reciprocal,
+            x: q.x * norm_reciprocal,
+            y: q.y * norm_reciprocal,
+            z: q.z * norm_reciprocal,
+        }
+    }
+
+    #[inline(always)]
+    fn add(lhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self> {
+        Quaternion { w: lhs.w + rhs.w, x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z }
+    }
+
+    #[inline(always)]
+    fn mul_scalar(lhs: Quaternion<Self>, a: Self) -> Quaternion<Self> {
+        Quaternion { w: lhs.w * a, x: lhs.x * a, y: lhs.y * a, z: lhs.z * a }
+    }
+
+    #[inline(always)]
+    fn mul_add(lhs: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
+        Quaternion { w: lhs.w * a + b.w, x: lhs.x * a + b.x, y: lhs.y * a + b.y, z: lhs.z * a + b.z }
     }
 
     #[inline(always)]
@@ -60,21 +115,107 @@ impl QuaternionMath for f32 {
     fn conjugate(q: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            use core::simd::f32x4;
-            let q_simd: f32x4 = unsafe { core::mem::transmute(q) };
-
+            let q_simd = f32x4::from(q);
             // Negate x, y, z but keep w positive
             // Mask: [1.0, -1.0, -1.0, -1.0]
             let mask = f32x4::from_array([1.0, -1.0, -1.0, -1.0]);
-            let res_simd = q_simd * mask;
-
-            unsafe { core::mem::transmute(res_simd) }
+            let ret_simd = q_simd * mask;
+            ret_simd.into()
         }
         #[cfg(not(feature = "simd"))]
         {
             Quaternion { w: q.w, x: -q.x, y: -q.y, z: -q.z }
         }
     }
+
+    #[inline(always)]
+    fn add(lhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let lhs_simd = f32x4::from(lhs);
+            let rhs_simd = f32x4::from(rhs);
+
+            // Add all 4 lanes (w, x, y, z) in one cycle
+            let ret_simd = lhs_simd + rhs_simd;
+
+            ret_simd.into()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Quaternion { w: lhs.w + rhs.w, x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z }
+        }
+    }
+
+    #[inline(always)]
+    fn mul_scalar(lhs: Quaternion<Self>, rhs: Self) -> Quaternion<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let lhs_simd = f32x4::from(lhs);
+            let rhs_simd = f32x4::splat(rhs);
+            let ret_simd = lhs_simd * rhs_simd;
+            ret_simd.into()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Quaternion { w: lhs.w * a, x: lhs.x * a, y: lhs.y * a, z: lhs.z * a }
+        }
+    }
+
+    #[inline(always)]
+    fn mul_add(lhs: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let v_lhs = f32x4::from(lhs);
+            let v_b = f32x4::from(b);
+            let v_a = f32x4::splat(a);
+
+            // This maps to the Vector Fused Multiply-Add instruction
+            let ret = (v_lhs * v_a) + v_b;
+            ret.into()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Quaternion { w: lhs.w * a + b.w, x: lhs.x * a + b.x, y: lhs.y * a + b.y, z: lhs.z * a + b.z }
+        }
+    }
+
+    #[inline(always)]
+    fn normalize(q: Quaternion<Self>) -> Quaternion<Self> {
+        #[cfg(feature = "simd")]
+        {
+            use core::simd::{f32x4, num::SimdFloat};
+
+            // 1. Transmute to SIMD
+            let q_simd: f32x4 = unsafe { core::mem::transmute(q) };
+
+            // 2. Dot product (magnitude squared)
+            // No masking needed here because w is a valid lane in a Quat!
+            let norm_squared = (q_simd * q_simd).reduce_sum();
+
+            // 3. Guard against division by zero
+            if norm_squared == 0.0 {
+                return Quaternion { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
+            }
+            let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses our hardware vrsqrt
+            let ret_simd = q_simd * f32x4::splat(norm_reciprocal);
+            unsafe { core::mem::transmute(ret_simd) }
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            let norm_squared = q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+            if norm_squared == 0.0 {
+                return Quaternion::default();
+            }
+            let norm_reciprocal = norm_squared.reciprocal_sqrt();
+            Quaternion {
+                w: q.x * norm_reciprocal,
+                x: q.x * norm_reciprocal,
+                y: q.y * norm_reciprocal,
+                z: q.z * norm_reciprocal,
+            }
+        }
+    }
+
     #[inline(always)]
     fn mul(lhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
