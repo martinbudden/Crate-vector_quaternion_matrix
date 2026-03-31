@@ -123,33 +123,6 @@ where
     }
 }
 
-// **** NegReference ****
-/// Negate quaternion reference
-/// ```
-/// # use vector_quaternion_matrix::Matrix3x3f32;
-/// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-///                                  7.0, 11.0, 13.0,
-///                                 17.0, 19.0, 23.0]);
-/// m = - m;
-///
-/// assert_eq!(m, Matrix3x3f32::from([ -2.0,  -3.0,  -5.0,
-///                                    -7.0, -11.0, -13.0,
-///                                   -17.0, -19.0, -23.0]));
-/// ```
-impl<T> Neg for &Matrix3x3<T>
-where
-    T: Copy + Neg<Output = T>,
-{
-    type Output = Matrix3x3<T>;
-    fn neg(self) -> Self::Output {
-        let mut a = self.a;
-        for r in a.iter_mut() {
-            *r = -*r;
-        }
-        Matrix3x3 { a }
-    }
-}
-
 // **** Add ****
 /// Add two matrices
 /// ```

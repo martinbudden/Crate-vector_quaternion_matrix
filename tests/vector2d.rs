@@ -38,21 +38,11 @@ mod tests {
         //assert!(z.is_zero());
     }
     #[test]
-    fn test_neg_owned() {
+    fn test_neg() {
         let v = Vector2d { x: 1.0, y: -2.0 };
         let neg_v = -v;
         assert_eq!(neg_v.x, -1.0);
         assert_eq!(neg_v.y, 2.0);
-    }
-
-    #[test]
-    fn test_neg_borrowed() {
-        let v = Vector2d { x: 1.0, y: -2.0 };
-        let neg_v = -&v; // Uses &Vector2d<T> impl
-        assert_eq!(neg_v.x, -1.0);
-        assert_eq!(neg_v.y, 2.0);
-        // v is still valid
-        assert_eq!(v.x, 1.0);
     }
     #[test]
     fn neg() {

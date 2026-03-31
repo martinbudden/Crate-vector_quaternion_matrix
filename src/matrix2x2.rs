@@ -96,31 +96,6 @@ where
     }
 }
 
-// **** NegReference ****
-/// Negate quaternion reference
-/// ```
-/// # use vector_quaternion_matrix::Matrix2x2f32;
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// m = - m;
-///
-/// assert_eq!(m, Matrix2x2f32::from([ -2.0,  -3.0,
-///                                    -7.0, -11.0]));
-/// ```
-impl<T> Neg for &Matrix2x2<T>
-where
-    T: Copy + Neg<Output = T>,
-{
-    type Output = Matrix2x2<T>;
-    fn neg(self) -> Self::Output {
-        let mut a = self.a;
-        for r in a.iter_mut() {
-            *r = -*r;
-        }
-        Matrix2x2 { a }
-    }
-}
-
 // **** Add ****
 /// Add two matrices
 /// ```

@@ -132,27 +132,6 @@ where
     }
 }
 
-// **** NegReference ****
-/// Negate vector reference
-/// ```
-/// # use vector_quaternion_matrix::Quaternionf32;
-///
-/// let q = Quaternionf32 { w: 2.0, x: -3.0, y: -5.0, z: 7.0 };
-/// let r = -q;
-///
-/// assert_eq!(r, Quaternionf32 { w: -2.0, x: 3.0, y: 5.0, z: -7.0 });
-/// assert_eq!(q, Quaternionf32 { w: 2.0, x: -3.0, y: -5.0, z: 7.0 });
-/// ```
-impl<T> Neg for &Quaternion<T>
-where
-    T: Copy + Neg<Output = T>,
-{
-    type Output = Quaternion<T>;
-    fn neg(self) -> Self::Output {
-        Quaternion { w: -self.w, x: -self.x, y: -self.y, z: -self.z }
-    }
-}
-
 // **** Add ****
 /// Add two quaternions
 /// ```

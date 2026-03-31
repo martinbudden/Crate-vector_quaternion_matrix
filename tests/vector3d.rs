@@ -67,17 +67,6 @@ mod tests {
         assert_eq!(neg_v.y, 2.0);
         assert_eq!(neg_v.z, -3.0);
     }
-
-    #[test]
-    fn test_neg_borrowed() {
-        let v = Vector3d { x: 1.0, y: -2.0, z: 3.0 };
-        let neg_v = -&v; // Uses &Vector3d<T> impl
-        assert_eq!(neg_v.x, -1.0);
-        assert_eq!(neg_v.y, 2.0);
-        assert_eq!(neg_v.z, -3.0);
-        // v is still valid
-        assert_eq!(v.x, 1.0);
-    }
     #[test]
     fn neg() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };

@@ -83,25 +83,6 @@ where
     }
 }
 
-/// Negate vector reference
-/// ```
-/// # use vector_quaternion_matrix::Vector3df32;
-/// let v = Vector3df32 { x: 2.0, y: -3.0, z: 5.0 };
-/// let r = -&v;
-///
-/// assert_eq!(r, Vector3df32 { x: -2.0, y: 3.0, z: -5.0 });
-/// assert_eq!(v, Vector3df32 { x: 2.0, y: -3.0, z: 5.0 });
-/// ```
-impl<T> Neg for &Vector3d<T>
-where
-    T: Copy + Neg<Output = T>,
-{
-    type Output = Vector3d<T>;
-    fn neg(self) -> Self::Output {
-        Vector3d { x: -self.x, y: -self.y, z: -self.z }
-    }
-}
-
 // **** Add ****
 /// Add two vectors
 /// ```
@@ -119,25 +100,6 @@ where
     type Output = Vector3d<T>;
     fn add(self, rhs: Self) -> Self {
         Self { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
-    }
-}
-
-/// Add two vectors references
-/// ```
-/// # use vector_quaternion_matrix::Vector3df32;
-/// let u = Vector3df32::new(2.0, 3.0, 5.0);
-/// let v = Vector3df32::new(7.0, 11.0, 13.0);
-/// let r = &u + &v;
-///
-/// assert_eq!(r, Vector3df32 { x: 9.0, y: 14.0, z: 18.0 });
-/// ```
-impl<T> Add for &Vector3d<T>
-where
-    T: Copy + Add<Output = T>,
-{
-    type Output = Vector3d<T>;
-    fn add(self, rhs: Self) -> Self::Output {
-        Vector3d { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
     }
 }
 
@@ -182,24 +144,6 @@ where
     type Output = Vector3d<T>;
     fn sub(self, rhs: Self) -> Self {
         Self { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
-    }
-}
-/// Subtract two vectors references
-/// ```
-/// # use vector_quaternion_matrix::Vector3df32;
-/// let u = Vector3df32::new(2.0, 3.0, 5.0);
-/// let v = Vector3df32::new(7.0, 11.0, 13.0);
-/// let r = &u - &v;
-///
-/// assert_eq!(r, Vector3df32 { x: -5.0, y: -8.0, z: -8.0 });
-/// ```
-impl<T> Sub for &Vector3d<T>
-where
-    T: Copy + Sub<Output = T>,
-{
-    type Output = Vector3d<T>;
-    fn sub(self, rhs: Self) -> Self::Output {
-        Vector3d { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
     }
 }
 
