@@ -44,7 +44,7 @@ pub struct Matrix3x3<T> {
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Matrix3x3<T> {
     // Flattened 3x3 matrix: 9 elements in row-major order
-    a: [T; 9],
+    pub(crate) a: [T; 9],
 }
 }
 }

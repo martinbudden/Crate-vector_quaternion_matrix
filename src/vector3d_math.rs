@@ -38,7 +38,7 @@ impl From<f32x4> for Vector3d<f32> {
 
 /// Math functions for Vector3d, using SIMD accelerations for f32.
 pub trait Vector3dMath: Sized {
-    fn v3_reciprocal(self: Self) -> Self;
+    fn v3_reciprocal(self) -> Self;
     fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_add(this: Vector3d<Self>, this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_mul_scalar(this: Vector3d<Self>, other: Self) -> Vector3d<Self>;
@@ -55,7 +55,7 @@ pub trait Vector3dMath: Sized {
 
 impl Vector3dMath for f32 {
     #[inline(always)]
-    fn v3_reciprocal(self: Self) -> Self {
+    fn v3_reciprocal(self) -> Self {
         1.0 / self
     }
 
@@ -220,7 +220,7 @@ impl Vector3dMath for f32 {
 
 impl Vector3dMath for f64 {
     #[inline(always)]
-    fn v3_reciprocal(self: Self) -> Self {
+    fn v3_reciprocal(self) -> Self {
         1.0 / self
     }
 

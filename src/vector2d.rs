@@ -5,12 +5,6 @@ use num_traits::{One, Signed, Zero, float::FloatCore};
 
 use crate::{SqrtMethods, Vector2dMath, Vector3d};
 
-/// 2-dimensional `{x, y}` vector of `i8` values
-pub type Vector2di8 = Vector2d<i8>;
-/// 2-dimensional `{x, y}` vector of `i16` values
-pub type Vector2di16 = Vector2d<i16>;
-/// 2-dimensional `{x, y}` vector of `i32` values
-pub type Vector2di32 = Vector2d<i32>;
 /// 2-dimensional `{x, y}` vector of `f32` values
 pub type Vector2df32 = Vector2d<f32>;
 /// 2-dimensional `{x, y}` vector of `f64` values
@@ -37,7 +31,7 @@ pub struct Vector2d<T> {
 /// ```
 impl<T> Zero for Vector2d<T>
 where
-    T: Zero + PartialEq + Vector2dMath,
+    T: Copy + Zero + PartialEq + Vector2dMath,
 {
     fn zero() -> Self {
         Self { x: T::zero(), y: T::zero() }
@@ -59,7 +53,7 @@ where
 /// ```
 impl<T> Neg for Vector2d<T>
 where
-    T: Vector2dMath,
+    T: Copy + Vector2dMath,
 {
     type Output = Self;
     #[inline(always)]
@@ -80,7 +74,7 @@ where
 /// ```
 impl<T> Add for Vector2d<T>
 where
-    T: Vector2dMath,
+    T: Copy + Vector2dMath,
 {
     type Output = Vector2d<T>;
     fn add(self, rhs: Self) -> Self {
@@ -124,12 +118,12 @@ where
 /// ```
 impl<T> Sub for Vector2d<T>
 where
-    T: Add<Output = T> + Vector2dMath,
+    T: Copy + Vector2dMath,
 {
     type Output = Vector2d<T>;
-    fn sub(self, rhs: Self) -> Self {
+    fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
-        self + (-rhs)
+        self + (-other)
     }
 }
 
@@ -145,7 +139,7 @@ where
 /// ```
 impl<T> SubAssign for Vector2d<T>
 where
-    T: Copy + Add<Output = T> + Vector2dMath,
+    T: Copy + Vector2dMath,
 {
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
@@ -163,15 +157,15 @@ where
 /// ```
 impl Mul<Vector2d<f32>> for f32 {
     type Output = Vector2d<f32>;
-    fn mul(self, rhs: Vector2d<f32>) -> Vector2d<f32> {
-        Vector2d { x: self * rhs.x, y: self * rhs.y }
+    fn mul(self, other: Vector2d<f32>) -> Vector2d<f32> {
+        Vector2d { x: self * other.x, y: self * other.y }
     }
 }
 
 impl Mul<Vector2d<f64>> for f64 {
     type Output = Vector2d<f64>;
-    fn mul(self, rhs: Vector2d<f64>) -> Vector2d<f64> {
-        Vector2d { x: self * rhs.x, y: self * rhs.y }
+    fn mul(self, other: Vector2d<f64>) -> Vector2d<f64> {
+        Vector2d { x: self * other.x, y: self * other.y }
     }
 }
 
@@ -191,27 +185,6 @@ where
     type Output = Self;
     fn mul(self, k: T) -> Self {
         T::v2_mul_scalar(self, k)
-    }
-}
-
-impl Mul<f32> for Vector2d<i8> {
-    type Output = Self;
-    fn mul(self, k: f32) -> Self {
-        Self { x: (self.x as f32 * k) as i8, y: (self.y as f32 * k) as i8 }
-    }
-}
-
-impl Mul<f32> for Vector2d<i16> {
-    type Output = Self;
-    fn mul(self, k: f32) -> Self {
-        Self { x: (self.x as f32 * k) as i16, y: (self.y as f32 * k) as i16 }
-    }
-}
-
-impl Mul<f32> for Vector2d<i32> {
-    type Output = Self;
-    fn mul(self, k: f32) -> Self {
-        Self { x: (self.x as f32 * k) as i32, y: (self.y as f32 * k) as i32 }
     }
 }
 
@@ -356,7 +329,7 @@ where
 // **** impl dot and cross ****
 impl<T> Vector2d<T>
 where
-    T: Vector2dMath + Copy,
+    T: Copy + Vector2dMath,
 {
     /// Vector dot product
     /// ```
@@ -495,7 +468,7 @@ where
 /// assert_eq!(u, Vector2df32 { x: 7.0, y: 11.0 });
 impl<T> From<Vector3d<T>> for Vector2d<T>
 where
-    T: Zero,
+    T: Copy + Zero,
 {
     fn from(v: Vector3d<T>) -> Self {
         Vector2d::<T> { x: v.x, y: v.y }
@@ -535,7 +508,7 @@ pub enum VectorError {
 /// ```
 impl<T> TryFrom<Vector3d<T>> for Vector2d<T>
 where
-    T: Zero + PartialEq,
+    T: Copy + Zero + PartialEq,
 {
     type Error = VectorError;
 
@@ -596,44 +569,5 @@ where
 impl<T> From<Vector2d<T>> for [T; 2] {
     fn from(v: Vector2d<T>) -> Self {
         [v.x, v.y]
-    }
-}
-
-/// `Vector2d<f32>` from `Vector2d<i16>`
-/// ```
-/// # use vector_quaternion_matrix::{Vector2df32,Vector2di16,Vector2di32};
-/// let v_i16 = Vector2di16{x: 2, y: 3};
-/// let v_f32 = Vector2df32::from(v_i16);
-///
-/// let w_f32 = Vector2df32{x: 7.0, y: 11.0};
-/// let w_i16 : Vector2di16 = w_f32.into();
-///
-/// let u_i32 = Vector2di32{x: 17, y: 19};
-/// let u_f32 : Vector2df32 = u_i32.into();
-///
-/// assert_eq!(v_f32, Vector2df32 { x: 2.0, y: 3.0 });
-/// assert_eq!(w_i16, Vector2di16 { x: 7, y: 11 });
-/// assert_eq!(u_f32, Vector2df32 { x: 17.0, y: 19.0 });
-/// ```
-impl From<Vector2d<i16>> for Vector2d<f32> {
-    fn from(v: Vector2d<i16>) -> Self {
-        Self { x: v.x as f32, y: v.y as f32 }
-    }
-}
-
-impl From<Vector2d<f32>> for Vector2d<i16> {
-    fn from(v: Vector2d<f32>) -> Self {
-        Self { x: v.x as i16, y: v.y as i16 }
-    }
-}
-impl From<Vector2d<i32>> for Vector2d<f32> {
-    fn from(v: Vector2d<i32>) -> Self {
-        Self { x: v.x as f32, y: v.y as f32 }
-    }
-}
-
-impl From<Vector2d<f32>> for Vector2d<i32> {
-    fn from(v: Vector2d<f32>) -> Self {
-        Self { x: v.x as i32, y: v.y as i32 }
     }
 }

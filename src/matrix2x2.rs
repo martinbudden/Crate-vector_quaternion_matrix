@@ -1,7 +1,7 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{MathConstants, Vector2d};
+use crate::{MathConstants, Matrix2x2Math, Vector2d};
 
 /// 2x2 matrix of `f32` values
 pub type Matrix2x2f32 = Matrix2x2<f32>;
@@ -23,7 +23,7 @@ pub enum MatrixError {
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Matrix2x2<T> {
     // Flattened 2x2 matrix: 4 elements in row-major order
-    a: [T; 4],
+    pub(crate) a: [T; 4],
 }
 
 // **** Zero ****
@@ -38,7 +38,7 @@ pub struct Matrix2x2<T> {
 /// ```
 impl<T> Zero for Matrix2x2<T>
 where
-    T: Copy + Zero + PartialEq,
+    T: Copy + Zero + PartialEq + Matrix2x2Math,
 {
     fn zero() -> Self {
         Self { a: [T::zero(), T::zero(), T::zero(), T::zero()] }
@@ -60,7 +60,7 @@ where
 /// ```
 impl<T> One for Matrix2x2<T>
 where
-    T: Copy + Zero + One + PartialEq + Sub<Output = T> + Mul<Output = T>,
+    T: Copy + Zero + One + PartialEq + Matrix2x2Math,
 {
     fn one() -> Self {
         Self { a: [T::one(), T::zero(), T::zero(), T::one()] }
@@ -84,15 +84,12 @@ where
 /// ```
 impl<T> Neg for Matrix2x2<T>
 where
-    T: Copy + Neg<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Self;
+    #[inline(always)]
     fn neg(self) -> Self::Output {
-        let mut a = self.a;
-        for r in a.iter_mut() {
-            *r = -*r;
-        }
-        Self { a }
+        T::m2x2_neg(self)
     }
 }
 
@@ -118,15 +115,11 @@ where
 /// ```
 impl<T> Add for Matrix2x2<T>
 where
-    T: Copy + Add<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Self;
-    fn add(self, rhs: Self) -> Self {
-        let mut a = self.a;
-        for (ii, r) in a.iter_mut().enumerate() {
-            *r = *r + rhs.a[ii];
-        }
-        Self { a }
+    fn add(self, other: Self) -> Self {
+        T::m2x2_add(self, other)
     }
 }
 
@@ -145,12 +138,10 @@ where
 /// ```
 impl<T> AddAssign for Matrix2x2<T>
 where
-    T: Copy + Add<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
-    fn add_assign(&mut self, rhs: Self) {
-        for (ii, r) in self.a.iter_mut().enumerate() {
-            *r = *r + rhs.a[ii];
-        }
+    fn add_assign(&mut self, other: Self) {
+        *self = *self + other;
     }
 }
 
@@ -169,15 +160,12 @@ where
 /// ```
 impl<T> Sub for Matrix2x2<T>
 where
-    T: Copy + Sub<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Self;
-    fn sub(self, rhs: Self) -> Self {
-        let mut a = self.a;
-        for (ii, r) in a.iter_mut().enumerate() {
-            *r = *r - rhs.a[ii];
-        }
-        Self { a }
+    fn sub(self, other: Self) -> Self {
+        // Reuse our existing SIMD-optimized Add and Neg implementations
+        self + (-other)
     }
 }
 
@@ -196,12 +184,10 @@ where
 /// ```
 impl<T> SubAssign for Matrix2x2<T>
 where
-    T: Copy + Sub<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
-    fn sub_assign(&mut self, rhs: Self) {
-        for (ii, r) in self.a.iter_mut().enumerate() {
-            *r = *r - rhs.a[ii];
-        }
+    fn sub_assign(&mut self, other: Self) {
+        *self = *self - other;
     }
 }
 
@@ -218,8 +204,8 @@ where
 /// ```
 impl Mul<Matrix2x2<f32>> for f32 {
     type Output = Matrix2x2<f32>;
-    fn mul(self, rhs: Matrix2x2<f32>) -> Matrix2x2<f32> {
-        let mut a = rhs.a;
+    fn mul(self, other: Matrix2x2<f32>) -> Matrix2x2<f32> {
+        let mut a = other.a;
         for r in a.iter_mut() {
             *r *= self;
         }
@@ -229,8 +215,8 @@ impl Mul<Matrix2x2<f32>> for f32 {
 
 impl Mul<Matrix2x2<f64>> for f64 {
     type Output = Matrix2x2<f64>;
-    fn mul(self, rhs: Matrix2x2<f64>) -> Matrix2x2<f64> {
-        let mut a = rhs.a;
+    fn mul(self, other: Matrix2x2<f64>) -> Matrix2x2<f64> {
+        let mut a = other.a;
         for r in a.iter_mut() {
             *r *= self;
         }
@@ -251,15 +237,11 @@ impl Mul<Matrix2x2<f64>> for f64 {
 /// ```
 impl<T> Mul<T> for Matrix2x2<T>
 where
-    T: Copy + Mul<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Self;
-    fn mul(self, k: T) -> Self {
-        let mut a = self.a;
-        for r in a.iter_mut() {
-            *r = *r * k;
-        }
-        Self { a }
+    fn mul(self, other: T) -> Self {
+        T::m2x2_mul_scalar(self, other)
     }
 }
 
@@ -276,13 +258,10 @@ where
 /// ```
 impl<T> MulAssign<T> for Matrix2x2<T>
 where
-    T: Copy + Mul<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
-    fn mul_assign(&mut self, k: T) {
-        #[allow(clippy::assign_op_pattern)]
-        for r in self.a.iter_mut() {
-            *r = *r * k;
-        }
+    fn mul_assign(&mut self, other: T) {
+        *self = *self * other;
     }
 }
 
@@ -299,11 +278,11 @@ where
 /// ```
 impl<T> Mul<Vector2d<T>> for Matrix2x2<T>
 where
-    T: Copy + Add<Output = T> + Mul<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Vector2d<T>;
-    fn mul(self, v: Vector2d<T>) -> Vector2d<T> {
-        Vector2d::<T> { x: self.a[0] * v.x + self.a[1] * v.y, y: self.a[2] * v.x + self.a[3] * v.y }
+    fn mul(self, other: Vector2d<T>) -> Vector2d<T> {
+        T::m2x2_mul_vector(self, other)
     }
 }
 
@@ -320,11 +299,11 @@ where
 /// ```
 impl<T> Mul<Matrix2x2<T>> for Vector2d<T>
 where
-    T: Copy + Add<Output = T> + Mul<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Self;
-    fn mul(self, rhs: Matrix2x2<T>) -> Self {
-        Self { x: self.x * rhs.a[0] + self.y * rhs.a[2], y: self.x * rhs.a[1] + self.y * rhs.a[3] }
+    fn mul(self, other: Matrix2x2<T>) -> Self {
+        T::m2x2_vector_mul(self, other)
     }
 }
 
@@ -351,17 +330,11 @@ where
 /// ```
 impl<T> Mul<Matrix2x2<T>> for Matrix2x2<T>
 where
-    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Self;
-    fn mul(self, rhs: Self) -> Self {
-        let a = [
-            self.a[0] * rhs.a[0] + self.a[1] * rhs.a[2],
-            self.a[0] * rhs.a[1] + self.a[1] * rhs.a[3],
-            self.a[2] * rhs.a[0] + self.a[3] * rhs.a[2],
-            self.a[2] * rhs.a[1] + self.a[3] * rhs.a[3],
-        ];
-        Matrix2x2::<T> { a }
+    fn mul(self, other: Self) -> Self {
+        T::m2x2_mul(self, other)
     }
 }
 
@@ -383,10 +356,10 @@ where
 /// ```
 impl<T> MulAssign<Matrix2x2<T>> for Matrix2x2<T>
 where
-    T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
-    fn mul_assign(&mut self, rhs: Matrix2x2<T>) {
-        *self = *self * rhs;
+    fn mul_assign(&mut self, other: Matrix2x2<T>) {
+        *self = *self * other;
     }
 }
 // **** Div ****
@@ -402,18 +375,11 @@ where
 /// ```
 impl<T> Div<T> for Matrix2x2<T>
 where
-    T: Copy + One + Div<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
     type Output = Self;
-    fn div(self, k: T) -> Self {
-        let reciprocal: T = T::one() / k;
-        /*let mut a = self.a;
-        for r in a.iter_mut() {
-            *r = *r * reciprocal;
-        }
-        Matrix2x2::<T> { a }*/
-        // Reuse our existing multiplication logic (which is likely SIMD-optimized)
-        self * reciprocal
+    fn div(self, other: T) -> Self {
+        T::m2x2_div_scalar(self, other)
     }
 }
 
@@ -430,13 +396,10 @@ where
 /// ```
 impl<T> DivAssign<T> for Matrix2x2<T>
 where
-    T: Copy + One + Div<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
-    fn div_assign(&mut self, rhs: T) {
-        let reciprocal: T = T::one() / rhs;
-        for r in self.a.iter_mut() {
-            *r = *r * reciprocal;
-        }
+    fn div_assign(&mut self, other: T) {
+        *self = *self / other;
     }
 }
 
@@ -706,7 +669,7 @@ where
 
 impl<T> Matrix2x2<T>
 where
-    T: Copy + Zero + One + Neg<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T>,
+    T: Copy + Matrix2x2Math + One + Neg<Output = T> + Add<Output = T>,
 {
     /// Adjugate matrix
     /// ```
@@ -717,8 +680,8 @@ where
     ///
     /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
-    pub fn adjugate(&self) -> Self {
-        Self { a: [self.a[3], -self.a[1], -self.a[2], self.a[0]] }
+    pub fn adjugate(self) -> Self {
+        T::m2x2_adjugate(self)
     }
 
     /// Adjugate matrix, in-place
@@ -766,14 +729,14 @@ where
     ///                                     7.0, -9.0]));
     /// ```
     pub fn subtract_from_diagonal_in_place(&mut self, v: Vector2d<T>) {
-        self.a[0] = self.a[0] - v.x;
-        self.a[3] = self.a[3] - v.y;
+        self.a[0] = self.a[0] + (-v.x);
+        self.a[3] = self.a[3] + (-v.y);
     }
 
     /// Invert matrix in-place, assuming it is a diagonal matrix
     pub fn invert_in_place_assuming_diagonal(&mut self) {
-        self.a[0] = T::one() / self.a[0];
-        self.a[3] = T::one() / self.a[3];
+        self.a[0] = T::one() * self.a[0].m2x2_reciprocal();
+        self.a[3] = T::one() * self.a[3].m2x2_reciprocal();
     }
 
     /// Return inverse of matrix, assuming it is diagonal
@@ -793,8 +756,8 @@ where
     /// assert_eq!(2.0*11.0 - 3.0*7.0, d);
     ///
     /// ```
-    pub fn determinant(&self) -> T {
-        self.a[0] * self.a[3] - self.a[1] * self.a[2]
+    pub fn determinant(self) -> T {
+        T::m2x2_determinant(self)
     }
 
     /// Return the sum of all components of the matrix
@@ -820,7 +783,7 @@ where
     /// assert_eq!(mean, 23.0 / 4.0);
     /// ```
     pub fn mean(&self) -> T {
-        self.sum() / (T::one() + T::one() + T::one() + T::one())
+        self.sum() * (T::one() + T::one() + T::one() + T::one()).m2x2_reciprocal()
     }
 
     /// Return the product of all components of the matrix
@@ -855,6 +818,7 @@ where
     T: Copy
         + Zero
         + One
+        + Matrix2x2Math
         + MathConstants
         + PartialOrd
         + Signed

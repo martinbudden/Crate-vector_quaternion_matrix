@@ -58,7 +58,7 @@ pub struct Quaternion<T> {
 /// ```
 impl<T> Default for Quaternion<T>
 where
-    T: Zero + One,
+    T: Copy + Zero + One,
 {
     fn default() -> Self {
         Self { w: T::one(), x: T::zero(), y: T::zero(), z: T::zero() }
@@ -77,7 +77,7 @@ where
 /// ```
 impl<T> Zero for Quaternion<T>
 where
-    T: Zero + PartialEq + QuaternionMath,
+    T: Copy + Zero + PartialEq + QuaternionMath,
 {
     fn zero() -> Self {
         Self { w: T::zero(), x: T::zero(), y: T::zero(), z: T::zero() }
@@ -122,7 +122,7 @@ where
 /// ```
 impl<T> Neg for Quaternion<T>
 where
-    T: QuaternionMath,
+    T: Copy + QuaternionMath,
 {
     type Output = Self;
 
@@ -144,7 +144,7 @@ where
 /// ```
 impl<T> Add for Quaternion<T>
 where
-    T: QuaternionMath,
+    T: Copy + QuaternionMath,
 {
     type Output = Self;
 
@@ -172,7 +172,7 @@ where
 /// Subtract two quaternions
 impl<T> Sub for Quaternion<T>
 where
-    T: Add<Output = T> + QuaternionMath,
+    T: Copy + Add<Output = T> + QuaternionMath,
 {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
@@ -211,7 +211,7 @@ impl Mul<Quaternion<f64>> for f64 {
 /// Multiply quaternion by a constant
 impl<T> Mul<T> for Quaternion<T>
 where
-    T: QuaternionMath,
+    T: Copy + QuaternionMath,
 {
     type Output = Self;
     fn mul(self, k: T) -> Self {
@@ -269,7 +269,7 @@ where
 /// Multiply two quaternions
 impl<T> Mul<Quaternion<T>> for Quaternion<T>
 where
-    T: QuaternionMath,
+    T: Copy + QuaternionMath,
 {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
@@ -615,7 +615,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: QuaternionMath,
+    T: Copy + QuaternionMath,
 {
     // Return the conjugate of the quaternion
 
