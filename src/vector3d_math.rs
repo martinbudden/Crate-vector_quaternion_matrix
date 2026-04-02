@@ -47,6 +47,8 @@ pub trait Vector3dMath: Sized {
     fn v3_norm_squared(this: Vector3d<Self>) -> Self;
     fn v3_normalize(this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_is_normalized(this: Vector3d<Self>) -> bool;
+    fn v3_min(this: Vector3d<Self>) -> Self;
+    fn v3_max(this: Vector3d<Self>) -> Self;
     fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self;
     fn v3_cross(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
 }
@@ -168,6 +170,24 @@ impl Vector3dMath for f32 {
     }
 
     #[inline(always)]
+    fn v3_max(this: Vector3d<Self>) -> Self {
+        if this.x > this.y {
+            if this.x > this.z { this.x } else { this.z }
+        } else {
+            if this.y > this.z { this.y } else { this.z }
+        }
+    }
+
+    #[inline(always)]
+    fn v3_min(this: Vector3d<Self>) -> Self {
+        if this.x < this.y {
+            if this.x < this.z { this.x } else { this.z }
+        } else {
+            if this.y < this.z { this.y } else { this.z }
+        }
+    }
+
+    #[inline(always)]
     fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
         //this.x * other.x + this.y * other.y + this.z * other.z
         #[cfg(feature = "simd")]
@@ -268,6 +288,24 @@ impl Vector3dMath for f64 {
     fn v3_is_normalized(this: Vector3d<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
         approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
+    }
+
+    #[inline(always)]
+    fn v3_max(this: Vector3d<Self>) -> Self {
+        if this.x > this.y {
+            if this.x > this.z { this.x } else { this.z }
+        } else {
+            if this.y > this.z { this.y } else { this.z }
+        }
+    }
+
+    #[inline(always)]
+    fn v3_min(this: Vector3d<Self>) -> Self {
+        if this.x < this.y {
+            if this.x < this.z { this.x } else { this.z }
+        } else {
+            if this.y < this.z { this.y } else { this.z }
+        }
     }
 
     #[inline(always)]

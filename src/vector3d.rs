@@ -426,6 +426,39 @@ where
     }
 }
 
+impl<T> Vector3d<T>
+where
+    T: Copy + Vector3dMath,
+{
+    /// Return the max element in the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3df32::new(3.0, 5.0, 2.0);
+    /// let x = Vector3df32::new(5.0, 3.0, 2.0);
+    /// assert_eq!(5.0, v.max());
+    /// assert_eq!(5.0, w.max());
+    /// assert_eq!(5.0, x.max());
+    /// ```
+    pub fn max(self) -> T {
+        T::v3_max(self)
+    }
+
+    /// Return the max element in the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3df32::new(3.0, 5.0, 2.0);
+    /// let x = Vector3df32::new(5.0, 3.0, 2.0);
+    /// assert_eq!(2.0, v.min());
+    /// assert_eq!(2.0, w.min());
+    /// assert_eq!(2.0, x.min());
+    /// ```
+    pub fn min(self) -> T {
+        T::v3_min(self)
+    }
+}
+
 // **** impl norm ****
 impl<T> Vector3d<T>
 where

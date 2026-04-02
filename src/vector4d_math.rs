@@ -47,6 +47,8 @@ pub trait Vector4dMath: Sized {
     fn v4_norm_squared(this: Vector4d<Self>) -> Self;
     fn v4_normalize(this: Vector4d<Self>) -> Vector4d<Self>;
     fn v4_is_normalized(this: Vector4d<Self>) -> bool;
+    fn v4_min(this: Vector4d<Self>) -> Self;
+    fn v4_max(this: Vector4d<Self>) -> Self;
     fn v4_dot(this: Vector4d<Self>, other: Vector4d<Self>) -> Self;
 }
 
@@ -167,6 +169,56 @@ impl Vector4dMath for f32 {
     }
 
     #[inline(always)]
+    fn v4_max(this: Vector4d<Self>) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x4::from(this);
+            this_simd.reduce_max()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            if this.x > this.y {
+                if this.x > this.z {
+                    if this.x > this.t { this.x } else { this.t }
+                } else {
+                    if this.z > this.t { this.z } else { this.t }
+                }
+            } else {
+                if this.y > this.z {
+                    if this.y > this.t { this.y } else { this.t }
+                } else {
+                    if this.z > this.t { this.z } else { this.t }
+                }
+            }
+        }
+    }
+
+    #[inline(always)]
+    fn v4_min(this: Vector4d<Self>) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x4::from(this);
+            this_simd.reduce_min()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            if this.x < this.y {
+                if this.x < this.z {
+                    if this.x < this.t { this.x } else { this.t }
+                } else {
+                    if this.z < this.t { this.z } else { this.t }
+                }
+            } else {
+                if this.y < this.z {
+                    if this.y < this.t { this.y } else { this.t }
+                } else {
+                    if this.z < this.t { this.z } else { this.t }
+                }
+            }
+        }
+    }
+
+    #[inline(always)]
     fn v4_dot(this: Vector4d<Self>, other: Vector4d<Self>) -> Self {
         //this.x * other.x + this.y * other.y + this.z * other.z
         #[cfg(feature = "simd")]
@@ -229,7 +281,12 @@ impl Vector4dMath for f64 {
             return Vector4d::default();
         }
         let norm_reciprocal = norm_squared.reciprocal_sqrt();
-        Vector4d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal, z: this.z * norm_reciprocal, t: this.t * norm_reciprocal }
+        Vector4d {
+            x: this.x * norm_reciprocal,
+            y: this.y * norm_reciprocal,
+            z: this.z * norm_reciprocal,
+            t: this.t * norm_reciprocal,
+        }
     }
 
     #[inline(always)]
@@ -239,8 +296,41 @@ impl Vector4dMath for f64 {
     }
 
     #[inline(always)]
+    fn v4_max(this: Vector4d<Self>) -> Self {
+        if this.x > this.y {
+            if this.x > this.z {
+                if this.x > this.t { this.x } else { this.t }
+            } else {
+                if this.z > this.t { this.z } else { this.t }
+            }
+        } else {
+            if this.y > this.z {
+                if this.y > this.t { this.y } else { this.t }
+            } else {
+                if this.z > this.t { this.z } else { this.t }
+            }
+        }
+    }
+
+    #[inline(always)]
+    fn v4_min(this: Vector4d<Self>) -> Self {
+        if this.x < this.y {
+            if this.x < this.z {
+                if this.x < this.t { this.x } else { this.t }
+            } else {
+                if this.z < this.t { this.z } else { this.t }
+            }
+        } else {
+            if this.y < this.z {
+                if this.y < this.t { this.y } else { this.t }
+            } else {
+                if this.z < this.t { this.z } else { this.t }
+            }
+        }
+    }
+
+    #[inline(always)]
     fn v4_dot(this: Vector4d<Self>, other: Vector4d<Self>) -> Self {
         this.x * other.x + this.y * other.y + this.z * other.z + this.t * other.t
     }
-
 }

@@ -46,6 +46,8 @@ pub trait Vector2dMath: Sized {
     fn v2_norm_squared(this: Vector2d<Self>) -> Self;
     fn v2_normalize(this: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_is_normalized(this: Vector2d<Self>) -> bool;
+    fn v2_min(this: Vector2d<Self>) -> Self;
+    fn v2_max(this: Vector2d<Self>) -> Self;
     fn v2_dot(this: Vector2d<Self>, other: Vector2d<Self>) -> Self;
     fn v2_cross(this: Vector2d<Self>, other: Vector2d<Self>) -> Self;
 }
@@ -89,11 +91,9 @@ impl Vector2dMath for f32 {
     fn v2_mul_scalar(this: Vector2d<Self>, other: Self) -> Vector2d<Self> {
         #[cfg(feature = "simd")]
         {
-            // 1. Transmute to SIMD
             let this_simd = f32x2::from(this);
-            // 2. "Splat" the scalar: [s, s, s, s]
             let other_simd = f32x2::splat(other);
-            // 3. Multiply all 4 lanes in 1 cycle (x*s, y*s, z*s, padding*s)
+
             (this_simd * other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
@@ -176,6 +176,32 @@ impl Vector2dMath for f32 {
     }
 
     #[inline(always)]
+    fn v2_max(this: Vector2d<Self>) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x2::from(this);
+            this_simd.reduce_max()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            if this.x > this.y { this.x } else { this.y }
+        }
+    }
+
+    #[inline(always)]
+    fn v2_min(this: Vector2d<Self>) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x2::from(this);
+            this_simd.reduce_min()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            if this.x < this.y { this.x } else { this.y }
+        }
+    }
+
+    #[inline(always)]
     fn v2_dot(this: Vector2d<Self>, other: Vector2d<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
@@ -248,6 +274,16 @@ impl Vector2dMath for f64 {
     fn v2_is_normalized(q: Vector2d<Self>) -> bool {
         let norm_squared = Self::v2_norm_squared(q);
         approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
+    }
+
+    #[inline(always)]
+    fn v2_max(this: Vector2d<Self>) -> Self {
+        if this.x > this.y { this.x } else { this.y }
+    }
+
+    #[inline(always)]
+    fn v2_min(this: Vector2d<Self>) -> Self {
+        if this.x < this.y { this.x } else { this.y }
     }
 
     #[inline(always)]

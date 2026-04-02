@@ -321,7 +321,12 @@ where
 {
     /// Return a copy of the vector with all components clamped to the specified range
     pub fn clamp(self, min: T, max: T) -> Self {
-        Self { x: self.x.clamp(min, max), y: self.y.clamp(min, max), z: self.z.clamp(min, max), t: self.t.clamp(min, max) }
+        Self {
+            x: self.x.clamp(min, max),
+            y: self.y.clamp(min, max),
+            z: self.z.clamp(min, max),
+            t: self.t.clamp(min, max),
+        }
     }
 
     /// Clamp all components of the vector to the specified range
@@ -393,6 +398,39 @@ where
     pub fn mean(self) -> T {
         let three = T::one() + T::one() + T::one();
         (self.x + self.y + self.z) / three
+    }
+}
+
+impl<T> Vector4d<T>
+where
+    T: Copy + Vector4dMath,
+{
+    /// Return the max element in the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// let w = Vector4df32::new(3.0, 5.0, 7.0, 2.0);
+    /// let x = Vector4df32::new(5.0, 7.0, 3.0, 2.0);
+    /// assert_eq!(7.0, v.max());
+    /// assert_eq!(7.0, w.max());
+    /// assert_eq!(7.0, x.max());
+    /// ```
+    pub fn max(self) -> T {
+        T::v4_max(self)
+    }
+
+    /// Return the max element in the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// let w = Vector4df32::new(3.0, 5.0, 7.0, 2.0);
+    /// let x = Vector4df32::new(5.0, 7.0, 3.0, 2.0);
+    /// assert_eq!(2.0, v.min());
+    /// assert_eq!(2.0, w.min());
+    /// assert_eq!(2.0, x.min());
+    /// ```
+    pub fn min(self) -> T {
+        T::v4_min(self)
     }
 }
 
@@ -492,7 +530,7 @@ where
 /// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 17.0, t: 19.0 });
 /// ```
 impl<T> From<(T, T, T, T)> for Vector4d<T> {
-    fn from((x, y, z, t ): (T, T, T, T)) -> Self {
+    fn from((x, y, z, t): (T, T, T, T)) -> Self {
         Self { x, y, z, t }
     }
 }

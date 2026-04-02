@@ -388,11 +388,21 @@ where
     T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
 {
     /// Return the sum of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// assert_eq!(5.0, v.sum());
+    /// ```
     pub fn sum(self) -> T {
         self.x + self.y
     }
 
     /// Return the product of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// assert_eq!(6.0, v.product());
+    /// ```
     pub fn product(self) -> T {
         self.x * self.y
     }
@@ -404,8 +414,42 @@ where
     T: Copy + One + Add<Output = T> + Div<Output = T>,
 {
     /// Return the mean of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// assert_eq!(2.5, v.mean());
+    /// ```
     pub fn mean(self) -> T {
         (self.x + self.y) / (T::one() + T::one())
+    }
+}
+
+impl<T> Vector2d<T>
+where
+    T: Copy + Vector2dMath,
+{
+    /// Return the max element in the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let w = Vector2df32::new(3.0, 2.0);
+    /// assert_eq!(3.0, v.max());
+    /// assert_eq!(3.0, w.max());
+    /// ```
+    pub fn max(self) -> T {
+        T::v2_max(self)
+    }
+
+    /// Return the max element in the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let w = Vector2df32::new(3.0, 2.0);
+    /// assert_eq!(2.0, v.min());
+    /// assert_eq!(2.0, w.min());
+    /// ```
+    pub fn min(self) -> T {
+        T::v2_min(self)
     }
 }
 
