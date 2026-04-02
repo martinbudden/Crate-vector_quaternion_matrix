@@ -53,9 +53,9 @@ where
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
 /// # use num_traits::One;
-/// let I = Matrix2x2f32::one();
+/// let i = Matrix2x2f32::one();
 ///
-/// assert_eq!(I, Matrix2x2f32::from([ 1.0, 0.0,
+/// assert_eq!(i, Matrix2x2f32::from([ 1.0, 0.0,
 ///                                    0.0, 1.0]));
 /// ```
 impl<T> One for Matrix2x2<T>
@@ -586,12 +586,12 @@ where
     /// ```
     /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
     ///
-    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let v = A.row(0);
+    /// let v = m.row(0);
     ///
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 3.0 });
-    /// assert_eq!(A.row(1), Vector2df32{ x: 7.0, y: 11.0 });
+    /// assert_eq!(m.row(1), Vector2df32{ x: 7.0, y: 11.0 });
     /// ```
     pub fn row(&self, row: usize) -> Vector2d<T> {
         match row {
@@ -618,12 +618,12 @@ where
     /// ```
     /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
     ///
-    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let v = A.column(0);
+    /// let v = m.column(0);
     ///
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 7.0 });
-    /// assert_eq!(A.column(1), Vector2df32{ x: 3.0, y: 11.0 });
+    /// assert_eq!(m.column(1), Vector2df32{ x: 3.0, y: 11.0 });
     /// ```
     pub fn column(&self, column: usize) -> Vector2d<T> {
         match column {
@@ -700,14 +700,14 @@ where
     /// Add vector to diagonal of matrix, in-place
     /// ```
     /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
-    /// let mut A = Matrix2x2f32::from([ 2.0,  3.0,
+    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                                  7.0, 11.0]);
     ///
     /// let v = Vector2df32{ x: 10.0, y: 20.0 };
     ///
-    /// A.add_to_diagonal_in_place(v);
+    /// m.add_to_diagonal_in_place(v);
     ///
-    /// assert_eq!(A, Matrix2x2f32::from([ 12.0,  3.0,
+    /// assert_eq!(m, Matrix2x2f32::from([ 12.0,  3.0,
     ///                                     7.0, 31.0]));
     /// ```
     pub fn add_to_diagonal_in_place(&mut self, v: Vector2d<T>) {
@@ -718,14 +718,14 @@ where
     /// Subtract vector from diagonal of matrix, in-place
     /// ```
     /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
-    /// let mut A = Matrix2x2f32::from([ 2.0,  3.0,
+    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                                  7.0, 11.0]);
     ///
     /// let v = Vector2df32{ x: 10.0, y: 20.0 };
     ///
-    /// A.subtract_from_diagonal_in_place(v);
+    /// m.subtract_from_diagonal_in_place(v);
     ///
-    /// assert_eq!(A, Matrix2x2f32::from([ -8.0,  3.0,
+    /// assert_eq!(m, Matrix2x2f32::from([ -8.0,  3.0,
     ///                                     7.0, -9.0]));
     /// ```
     pub fn subtract_from_diagonal_in_place(&mut self, v: Vector2d<T>) {
@@ -733,25 +733,12 @@ where
         self.a[3] = self.a[3] + (-v.y);
     }
 
-    /// Invert matrix in-place, assuming it is a diagonal matrix
-    pub fn invert_in_place_assuming_diagonal(&mut self) {
-        self.a[0] = T::one() * self.a[0].m2x2_reciprocal();
-        self.a[3] = T::one() * self.a[3].m2x2_reciprocal();
-    }
-
-    /// Return inverse of matrix, assuming it is diagonal
-    pub fn inverse_assuming_diagonal(&self) -> Self {
-        let mut ret = *self;
-        ret.invert_in_place_assuming_diagonal();
-        ret
-    }
-
     /// Matrix determinant
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
-    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let d = A.determinant();
+    /// let d = m.determinant();
     ///
     /// assert_eq!(2.0*11.0 - 3.0*7.0, d);
     ///
@@ -763,9 +750,9 @@ where
     /// Return the sum of all components of the matrix
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
-    /// let A = Matrix2x2f32::from([ 2.0,  3.0,
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let s = A.sum();
+    /// let s = m.sum();
     ///
     /// assert_eq!(s, 23.0);
     /// ```
@@ -821,11 +808,7 @@ where
         + Matrix2x2Math
         + MathConstants
         + PartialOrd
-        + Signed
-        + Neg<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>,
+        + Signed,
 {
     /// Invert matrix, in-place
     /// ```
@@ -917,8 +900,8 @@ where
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// # use num_traits::One;
-    /// let I = Matrix2x2f32::one();
-    /// assert!(I.is_near_identity());
+    /// let i = Matrix2x2f32::one();
+    /// assert!(i.is_near_identity());
     /// ```
     pub fn is_near_identity(&self) -> bool {
         if self.a[1].abs() > T::EPSILON || self.a[2].abs() > T::EPSILON {

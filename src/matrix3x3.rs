@@ -401,8 +401,8 @@ where
 ///
 /// # use num_traits::One;
 ///
-/// let I = Matrix3x3f32::one();
-/// let r2 = m * I;
+/// let i = Matrix3x3f32::one();
+/// let r2 = m * i;
 ///
 /// assert_eq!(r2, m);
 /// ```
@@ -697,14 +697,14 @@ where
     /// Return matrix row as a vector
     /// ```
     /// # use vector_quaternion_matrix::{Matrix3x3f32,Vector3df32};
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let v = A.row(0);
+    /// let v = m.row(0);
     ///
     /// assert_eq!(v, Vector3df32{ x: 2.0, y: 3.0, z: 5.0 });
-    /// assert_eq!(A.row(1), Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
-    /// assert_eq!(A.row(2), Vector3df32{ x: 17.0, y: 19.0, z: 23.0 });
+    /// assert_eq!(m.row(1), Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
+    /// assert_eq!(m.row(2), Vector3df32{ x: 17.0, y: 19.0, z: 23.0 });
     /// ```
     pub fn row(&self, row: usize) -> Vector3d<T> {
         match row {
@@ -738,14 +738,14 @@ where
     /// Return matrix column as a vector
     /// ```
     /// # use vector_quaternion_matrix::{Matrix3x3f32,Vector3df32};
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let v = A.column(0);
+    /// let v = m.column(0);
     ///
     /// assert_eq!(v, Vector3df32{ x: 2.0, y: 7.0, z: 17.0 });
-    /// assert_eq!(A.column(1), Vector3df32{ x: 3.0, y: 11.0, z: 19.0 });
-    /// assert_eq!(A.column(2), Vector3df32{ x: 5.0, y: 13.0, z: 23.0 });
+    /// assert_eq!(m.column(1), Vector3df32{ x: 3.0, y: 11.0, z: 19.0 });
+    /// assert_eq!(m.column(2), Vector3df32{ x: 5.0, y: 13.0, z: 23.0 });
     /// ```
     pub fn column(&self, column: usize) -> Vector3d<T> {
         match column {
@@ -764,12 +764,12 @@ where
     /// Transpose matrix
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let B = A.transpose();
+    /// let n = m.transpose();
     ///
-    /// assert_eq!(B, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
+    /// assert_eq!(n, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
     ///                                    3.0, 11.0, 19.0,
     ///                                    5.0, 13.0, 23.0]));
     /// ```
@@ -780,12 +780,12 @@ where
     /// Transpose matrix, in-place
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let mut A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                                  7.0, 11.0, 13.0,
     ///                                 17.0, 19.0, 23.0]);
-    /// A.transpose_in_place();
+    /// m.transpose_in_place();
     ///
-    /// assert_eq!(A, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
+    /// assert_eq!(m, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
     ///                                    3.0, 11.0, 19.0,
     ///                                    5.0, 13.0, 23.0]));
     /// ```
@@ -801,12 +801,12 @@ where
     /// Adjugate matrix
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let B = A.adjugate();
+    /// let n = m.adjugate();
     ///
-    /// assert!((B*A/A.determinant()).is_near_identity());
+    /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
     pub fn adjugate(&self) -> Self {
         Self {
@@ -827,13 +827,13 @@ where
     /// Adjugate matrix, in-place
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let mut B = A;
-    /// B.adjugate_in_place();
+    /// let mut n = m;
+    /// n.adjugate_in_place();
     ///
-    /// assert_eq!(A.adjugate(), B);
+    /// assert_eq!(m.adjugate(), n);
     /// ```
     pub fn adjugate_in_place(&mut self) {
         *self = self.adjugate();
@@ -841,15 +841,15 @@ where
     /// Add vector to diagonal of matrix, in-place
     /// ```
     /// # use vector_quaternion_matrix::{Matrix3x3f32,Vector3df32};
-    /// let mut A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                                  7.0, 11.0, 13.0,
     ///                                 17.0, 19.0, 23.0]);
     ///
     /// let v = Vector3df32{ x: 10.0, y: 20.0, z: 30.0 };
     ///
-    /// A.add_to_diagonal_in_place(v);
+    /// m.add_to_diagonal_in_place(v);
     ///
-    /// assert_eq!(A, Matrix3x3f32::from([ 12.0,  3.0,  5.0,
+    /// assert_eq!(m, Matrix3x3f32::from([ 12.0,  3.0,  5.0,
     ///                                     7.0, 31.0, 13.0,
     ///                                    17.0, 19.0, 53.0]));
     /// ```
@@ -862,15 +862,15 @@ where
     /// Subtract vector from diagonal of matrix, in-place
     /// ```
     /// # use vector_quaternion_matrix::{Matrix3x3f32,Vector3df32};
-    /// let mut A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                                  7.0, 11.0, 13.0,
     ///                                 17.0, 19.0, 23.0]);
     ///
     /// let v = Vector3df32{ x: 10.0, y: 20.0, z: 30.0 };
     ///
-    /// A.subtract_from_diagonal_in_place(v);
+    /// m.subtract_from_diagonal_in_place(v);
     ///
-    /// assert_eq!(A, Matrix3x3f32::from([ -8.0,  3.0,   5.0,
+    /// assert_eq!(m, Matrix3x3f32::from([ -8.0,  3.0,   5.0,
     ///                                     7.0, -9.0,  13.0,
     ///                                    17.0, 19.0,  -7.0]));
     /// ```
@@ -878,20 +878,6 @@ where
         self.a[0] = self.a[0] - v.x;
         self.a[4] = self.a[4] - v.y;
         self.a[8] = self.a[8] - v.z;
-    }
-
-    /// Invert matrix in-place, assuming it is a diagonal matrix
-    pub fn invert_in_place_assuming_diagonal(&mut self) {
-        self.a[0] = T::one() / self.a[0];
-        self.a[4] = T::one() / self.a[4];
-        self.a[8] = T::one() / self.a[8];
-    }
-
-    /// Return inverse of matrix, assuming it is diagonal
-    pub fn inverse_assuming_diagonal(&self) -> Self {
-        let mut ret = *self;
-        ret.invert_in_place_assuming_diagonal();
-        ret
     }
 
     /// Matrix determinant
@@ -914,10 +900,10 @@ where
     /// Matrix top right determinant
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let d = A.top_right_determinant();
+    /// let d = m.top_right_determinant();
     ///
     /// assert_eq!(76.0, d);
     ///
@@ -976,10 +962,10 @@ where
     /// Return trace of matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let t = A.trace();
+    /// let t = m.trace();
     ///
     /// assert_eq!(t, 36.0);
     /// ```
@@ -989,10 +975,10 @@ where
     /// Return the sum of the squares of the trace of the matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let A = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let t = A.trace_sum_squares();
+    /// let t = m.trace_sum_squares();
     ///
     /// assert_eq!(t, 2.0 * 2.0 + 11.0 *11.0 + 23.0 * 23.0);
     /// ```
@@ -1093,8 +1079,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3f32;
     /// # use num_traits::Zero;
     ///
-    /// let Z = Matrix3x3f32::zero();
-    /// assert!(Z.is_near_zero());
+    /// let z = Matrix3x3f32::zero();
+    /// assert!(z.is_near_zero());
     /// ```
     pub fn is_near_zero(&self) -> bool {
         for a in self.a.iter() {
@@ -1110,8 +1096,8 @@ where
     /// # use vector_quaternion_matrix::Matrix3x3f32;
     /// # use num_traits::One;
     ///
-    /// let I = Matrix3x3f32::one();
-    /// assert!(I.is_near_identity());
+    /// let i = Matrix3x3f32::one();
+    /// assert!(i.is_near_identity());
     /// ```
     pub fn is_near_identity(&self) -> bool {
         if self.a[1].abs() > T::EPSILON
