@@ -37,182 +37,174 @@ impl From<f32x4> for Quaternion<f32> {
 
 /// Math functions for Quaternion, using SIMD accelerations for f32.
 pub trait QuaternionMath: Sized {
-    fn q_reciprocal(x: Self) -> Self;
-    fn q_neg(q: Quaternion<Self>) -> Quaternion<Self>;
-    fn q_add(lhs: Quaternion<Self>, lhs: Quaternion<Self>) -> Quaternion<Self>;
-    fn q_mul_scalar(lhs: Quaternion<Self>, a: Self) -> Quaternion<Self>;
-    fn q_div_scalar(lhs: Quaternion<Self>, a: Self) -> Quaternion<Self>;
-    fn q_mul(rhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self>;
-    fn q_mul_add(lhs: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self>;
-    fn q_norm_squared(q: Quaternion<Self>) -> Self;
-    fn q_normalize(q: Quaternion<Self>) -> Quaternion<Self>;
-    fn q_is_normalized(q: Quaternion<Self>) -> bool;
-    fn q_conjugate(q: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_reciprocal(self: Self) -> Self;
+    fn q_neg(this: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_add(this: Quaternion<Self>, this: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_mul_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self>;
+    fn q_div_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self>;
+    fn q_mul(other: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_mul_add(this: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_norm_squared(this: Quaternion<Self>) -> Self;
+    fn q_normalize(this: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_is_normalized(this: Quaternion<Self>) -> bool;
+    fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self>;
 }
 
 // **** SIMD-accelerated implementation for f32 ****
 
 impl QuaternionMath for f32 {
     #[inline(always)]
-    fn q_reciprocal(x: Self) -> Self {
-        1.0 / x
+    fn q_reciprocal(self: Self) -> Self {
+        1.0 / self
     }
 
     #[inline(always)]
-    fn q_neg(q: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_neg(this: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            // Transmute the 16-byte aligned struct to a SIMD register
-            let q_simd = f32x4::from(q);
-            // Negate all 4 lanes (x, y, z, w) simultaneously
-            (-q_simd).into()
+            (-f32x4::from(this)).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Quaternion { w: -q.w, x: -q.x, y: -q.y, z: -q.z }
+            Quaternion { w: -this.w, x: -this.x, y: -this.y, z: -this.z }
         }
     }
 
     #[inline(always)]
-    fn q_add(lhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_add(this: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            let lhs_simd = f32x4::from(lhs);
-            let rhs_simd = f32x4::from(rhs);
+            let this_simd = f32x4::from(this);
+            let other_simd = f32x4::from(other);
 
             // Add all 4 lanes (w, x, y, z) in one cycle
-            (lhs_simd + rhs_simd).into()
+            (this_simd + other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Quaternion { w: lhs.w + rhs.w, x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z }
+            Quaternion { w: this.w + other.w, x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
         }
     }
 
     #[inline(always)]
-    fn q_mul_scalar(lhs: Quaternion<Self>, rhs: Self) -> Quaternion<Self> {
+    fn q_mul_scalar(this: Quaternion<Self>, other: Self) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            let lhs_simd = f32x4::from(lhs);
-            let rhs_simd = f32x4::splat(rhs);
-            (lhs_simd * rhs_simd).into()
+            let this_simd = f32x4::from(this);
+            let other_simd = f32x4::splat(other);
+            (this_simd * other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Quaternion { w: lhs.w * a, x: lhs.x * a, y: lhs.y * a, z: lhs.z * a }
+            Quaternion { w: this.w * a, x: this.x * a, y: this.y * a, z: this.z * a }
         }
     }
 
     #[inline(always)]
-    fn q_div_scalar(lhs: Quaternion<Self>, a: Self) -> Quaternion<Self> {
-        Self::q_mul_scalar(lhs, 1.0 / a)
+    fn q_div_scalar(this: Quaternion<Self>, other: Self) -> Quaternion<Self> {
+        Self::q_mul_scalar(this, 1.0 / other)
     }
 
     #[inline(always)]
-    fn q_mul_add(lhs: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_mul_add(this: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            let v_lhs = f32x4::from(lhs);
+            let this_simd = f32x4::from(this);
             let v_b = f32x4::from(b);
             let v_a = f32x4::splat(a);
 
             // This maps to the Vector Fused Multiply-Add instruction
-            ((v_lhs * v_a) + v_b).into()
+            ((this_simd * v_a) + v_b).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Quaternion { w: lhs.w * a + b.w, x: lhs.x * a + b.x, y: lhs.y * a + b.y, z: lhs.z * a + b.z }
+            Quaternion { w: this.w * a + b.w, x: this.x * a + b.x, y: this.y * a + b.y, z: this.z * a + b.z }
         }
     }
 
     #[inline(always)]
-    fn q_mul(lhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_mul(this: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
             Quaternion {
-                w: lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z,
-                x: lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y,
-                y: lhs.w * rhs.y - lhs.x * rhs.z + lhs.y * rhs.w + lhs.z * rhs.x,
-                z: lhs.w * rhs.z + lhs.x * rhs.y - lhs.y * rhs.x + lhs.z * rhs.w,
+                w: this.w * other.w - this.x * other.x - this.y * other.y - this.z * other.z,
+                x: this.w * other.x + this.x * other.w + this.y * other.z - this.z * other.y,
+                y: this.w * other.y - this.x * other.z + this.y * other.w + this.z * other.x,
+                z: this.w * other.z + this.x * other.y - this.y * other.x + this.z * other.w,
             }
         }
         #[cfg(not(feature = "simd"))]
         {
             Quaternion {
-                w: lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z,
-                x: lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y,
-                y: lhs.w * rhs.y - lhs.x * rhs.z + lhs.y * rhs.w + lhs.z * rhs.x,
-                z: lhs.w * rhs.z + lhs.x * rhs.y - lhs.y * rhs.x + lhs.z * rhs.w,
+                w: this.w * other.w - this.x * other.x - this.y * other.y - this.z * other.z,
+                x: this.w * other.x + this.x * other.w + this.y * other.z - this.z * other.y,
+                y: this.w * other.y - this.x * other.z + this.y * other.w + this.z * other.x,
+                z: this.w * other.z + this.x * other.y - this.y * other.x + this.z * other.w,
             }
         }
     }
 
     #[inline(always)]
-    fn q_norm_squared(q: Quaternion<Self>) -> Self {
+    fn q_norm_squared(this: Quaternion<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
-            let q_simd = f32x4::from(q);
-            (q_simd * q_simd).reduce_sum()
+            let this_simd = f32x4::from(this);
+            (this_simd * this_simd).reduce_sum()
         }
         #[cfg(not(feature = "simd"))]
         {
-            q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z
+            this.w * this.w + this.x * this.x + this.y * this.y + this.z * this.z
         }
     }
 
     #[inline(always)]
-    fn q_normalize(q: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_normalize(this: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            // 1. Transmute to SIMD
-            let q_simd = f32x4::from(q);
-
-            // 2. Dot product (magnitude squared)
-            let norm_squared = (q_simd * q_simd).reduce_sum();
-            // 3. If norm_squared is zero, then this must be the unit quaternion
+            let this_simd = f32x4::from(this);
+            let norm_squared = (this_simd * this_simd).reduce_sum();
+            // If norm_squared is zero, then this must be the unit quaternion
             if norm_squared == 0.0 {
                 return Quaternion { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
             }
             let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses our hardware vrsqrt
-            let ret_simd = q_simd * f32x4::splat(norm_reciprocal);
-            ret_simd.into()
+            let scale = f32x4::splat(norm_reciprocal);
+            (this_simd * scale).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            let norm_squared = q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+            let norm_squared = this.w * this.w + this.x * this.x + this.y * this.y + this.z * this.z;
             if norm_squared == 0.0 {
                 return Quaternion::default();
             }
             let norm_reciprocal = norm_squared.reciprocal_sqrt();
             Quaternion {
-                w: q.x * norm_reciprocal,
-                x: q.x * norm_reciprocal,
-                y: q.y * norm_reciprocal,
-                z: q.z * norm_reciprocal,
+                w: this.x * norm_reciprocal,
+                x: this.x * norm_reciprocal,
+                y: this.y * norm_reciprocal,
+                z: this.z * norm_reciprocal,
             }
         }
     }
 
     #[inline(always)]
-    fn q_is_normalized(q: Quaternion<Self>) -> bool {
-        let norm_squared = Self::q_norm_squared(q);
+    fn q_is_normalized(this: Quaternion<Self>) -> bool {
+        let norm_squared = Self::q_norm_squared(this);
         approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
     }
 
     #[inline(always)]
-    fn q_conjugate(q: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
-            let q_simd = f32x4::from(q);
+            let this_simd = f32x4::from(this);
             // Negate x, y, z but keep w positive
-            // Mask: [1.0, -1.0, -1.0, -1.0]
-            let mask = f32x4::from_array([1.0, -1.0, -1.0, -1.0]);
-            let ret_simd = q_simd * mask;
+            let ret_simd = this_simd * f32x4::from_array([1.0, -1.0, -1.0, -1.0]);
             ret_simd.into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Quaternion { w: q.w, x: -q.x, y: -q.y, z: -q.z }
+            Quaternion { w: this.w, x: -this.x, y: -this.y, z: -this.z }
         }
     }
 }
@@ -221,73 +213,73 @@ impl QuaternionMath for f32 {
 
 impl QuaternionMath for f64 {
     #[inline(always)]
-    fn q_reciprocal(x: Self) -> Self {
-        1.0 / x
+    fn q_reciprocal(self: Self) -> Self {
+        1.0 / self
     }
 
     #[inline(always)]
-    fn q_neg(q: Quaternion<Self>) -> Quaternion<Self> {
-        Quaternion { w: -q.w, x: -q.x, y: -q.y, z: -q.z }
+    fn q_neg(this: Quaternion<Self>) -> Quaternion<Self> {
+        Quaternion { w: -this.w, x: -this.x, y: -this.y, z: -this.z }
     }
 
     #[inline(always)]
-    fn q_add(lhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self> {
-        Quaternion { w: lhs.w + rhs.w, x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z }
+    fn q_add(this: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self> {
+        Quaternion { w: this.w + other.w, x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
     }
 
     #[inline(always)]
-    fn q_mul_scalar(lhs: Quaternion<Self>, a: Self) -> Quaternion<Self> {
-        Quaternion { w: lhs.w * a, x: lhs.x * a, y: lhs.y * a, z: lhs.z * a }
+    fn q_mul_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self> {
+        Quaternion { w: this.w * a, x: this.x * a, y: this.y * a, z: this.z * a }
     }
 
     #[inline(always)]
-    fn q_div_scalar(lhs: Quaternion<Self>, a: Self) -> Quaternion<Self> {
-        Self::q_mul_scalar(lhs, 1.0 / a)
+    fn q_div_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self> {
+        Self::q_mul_scalar(this, 1.0 / a)
     }
 
     #[inline(always)]
-    fn q_mul_add(lhs: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
-        Quaternion { w: lhs.w * a + b.w, x: lhs.x * a + b.x, y: lhs.y * a + b.y, z: lhs.z * a + b.z }
+    fn q_mul_add(this: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
+        Quaternion { w: this.w * a + b.w, x: this.x * a + b.x, y: this.y * a + b.y, z: this.z * a + b.z }
     }
 
     #[inline(always)]
-    fn q_mul(lhs: Quaternion<Self>, rhs: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_mul(this: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self> {
         Quaternion {
-            w: lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z,
-            x: lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y,
-            y: lhs.w * rhs.y - lhs.x * rhs.z + lhs.y * rhs.w + lhs.z * rhs.x,
-            z: lhs.w * rhs.z + lhs.x * rhs.y - lhs.y * rhs.x + lhs.z * rhs.w,
+            w: this.w * other.w - this.x * other.x - this.y * other.y - this.z * other.z,
+            x: this.w * other.x + this.x * other.w + this.y * other.z - this.z * other.y,
+            y: this.w * other.y - this.x * other.z + this.y * other.w + this.z * other.x,
+            z: this.w * other.z + this.x * other.y - this.y * other.x + this.z * other.w,
         }
     }
 
     #[inline(always)]
-    fn q_norm_squared(q: Quaternion<Self>) -> Self {
-        q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z
+    fn q_norm_squared(this: Quaternion<Self>) -> Self {
+        this.w * this.w + this.x * this.x + this.y * this.y + this.z * this.z
     }
 
     #[inline(always)]
-    fn q_normalize(q: Quaternion<Self>) -> Quaternion<Self> {
-        let norm_squared = Self::q_norm_squared(q);
+    fn q_normalize(this: Quaternion<Self>) -> Quaternion<Self> {
+        let norm_squared = Self::q_norm_squared(this);
         if norm_squared == 0.0 {
             return Quaternion::default();
         }
         let norm_reciprocal = norm_squared.reciprocal_sqrt();
         Quaternion {
-            w: q.x * norm_reciprocal,
-            x: q.x * norm_reciprocal,
-            y: q.y * norm_reciprocal,
-            z: q.z * norm_reciprocal,
+            w: this.x * norm_reciprocal,
+            x: this.x * norm_reciprocal,
+            y: this.y * norm_reciprocal,
+            z: this.z * norm_reciprocal,
         }
     }
 
     #[inline(always)]
-    fn q_is_normalized(q: Quaternion<Self>) -> bool {
-        let norm_squared = Self::q_norm_squared(q);
+    fn q_is_normalized(this: Quaternion<Self>) -> bool {
+        let norm_squared = Self::q_norm_squared(this);
         approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
     }
 
     #[inline(always)]
-    fn q_conjugate(q: Quaternion<Self>) -> Quaternion<Self> {
-        Quaternion { w: q.w, x: -q.x, y: -q.y, z: -q.z }
+    fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self> {
+        Quaternion { w: this.w, x: -this.x, y: -this.y, z: -this.z }
     }
 }
