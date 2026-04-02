@@ -272,7 +272,7 @@ impl Vector3dMath for f64 {
 
     #[inline(always)]
     fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
-        this.x * other.x + this.y * other.y + other.z * other.z
+        this.x * other.x + this.y * other.y + this.z * other.z
     }
 
     #[inline(always)]

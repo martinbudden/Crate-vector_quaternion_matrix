@@ -28,6 +28,9 @@ mod vector3d;
 mod vector3d_math;
 mod vector3di;
 
+mod vector4d;
+mod vector4d_math;
+
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;
 pub use sqrt_methods::SqrtMethods;
@@ -51,3 +54,6 @@ pub use vector2di::{Vector2di8, Vector2di16, Vector2di32};
 pub use vector3d::{Vector3d, Vector3df32, Vector3df64};
 pub use vector3d_math::Vector3dMath;
 pub use vector3di::{Vector3di8, Vector3di16, Vector3di32};
+
+pub use vector4d::{Vector4d, Vector4df32, Vector4df64};
+pub use vector4d_math::Vector4dMath;

@@ -93,8 +93,8 @@ where
     T: Vector3dMath,
 {
     type Output = Vector3d<T>;
-    fn add(self, rhs: Self) -> Self {
-        T::v3_add(self, rhs)
+    fn add(self, other: Self) -> Self {
+        T::v3_add(self, other)
     }
 }
 
@@ -137,9 +137,9 @@ where
     T: Add<Output = T> + Vector3dMath,
 {
     type Output = Vector3d<T>;
-    fn sub(self, rhs: Self) -> Self {
+    fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
-        self + (-rhs)
+        self + (-other)
     }
 }
 
@@ -173,15 +173,15 @@ where
 /// ```
 impl Mul<Vector3d<f32>> for f32 {
     type Output = Vector3d<f32>;
-    fn mul(self, rhs: Vector3d<f32>) -> Vector3d<f32> {
-        Vector3d { x: self * rhs.x, y: self * rhs.y, z: self * rhs.z }
+    fn mul(self, other: Vector3d<f32>) -> Vector3d<f32> {
+        Vector3d { x: self * other.x, y: self * other.y, z: self * other.z }
     }
 }
 
 impl Mul<Vector3d<f64>> for f64 {
     type Output = Vector3d<f64>;
-    fn mul(self, rhs: Vector3d<f64>) -> Vector3d<f64> {
-        Vector3d { x: self * rhs.x, y: self * rhs.y, z: self * rhs.z }
+    fn mul(self, other: Vector3d<f64>) -> Vector3d<f64> {
+        Vector3d { x: self * other.x, y: self * other.y, z: self * other.z }
     }
 }
 
@@ -394,8 +394,8 @@ where
     }
 
     /// Return distance between two points, squared
-    pub fn distance_squared(self, rhs: Self) -> T {
-        (self - rhs).norm_squared()
+    pub fn distance_squared(self, other: Self) -> T {
+        (self - other).norm_squared()
     }
 }
 
@@ -468,10 +468,11 @@ where
     T: Copy + Zero + SqrtMethods + Vector3dMath + Vector3dMath,
 {
     // Return distance between two points
-    pub fn distance(self, rhs: Self) -> T {
-        self.distance_squared(rhs).sqrt()
+    pub fn distance(self, other: Self) -> T {
+        self.distance_squared(other).sqrt()
     }
 }
+
 impl<T> Vector3d<T>
 where
     T: Copy + Zero + One + SqrtMethods + Vector3dMath + Vector3dMath + QuaternionMath,
@@ -521,8 +522,8 @@ impl<T> From<Vector2d<T>> for Vector3d<T>
 where
     T: Zero,
 {
-    fn from(vec: Vector2d<T>) -> Self {
-        Self { x: vec.x, y: vec.y, z: T::zero() }
+    fn from(other: Vector2d<T>) -> Self {
+        Self { x: other.x, y: other.y, z: T::zero() }
     }
 }
 

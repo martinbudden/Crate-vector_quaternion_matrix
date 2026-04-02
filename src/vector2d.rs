@@ -77,8 +77,8 @@ where
     T: Copy + Vector2dMath,
 {
     type Output = Vector2d<T>;
-    fn add(self, rhs: Self) -> Self {
-        T::v2_add(self, rhs)
+    fn add(self, other: Self) -> Self {
+        T::v2_add(self, other)
     }
 }
 
@@ -351,7 +351,7 @@ impl<T> Vector2d<T>
 where
     T: Copy + Vector2dMath,
 {
-    /// Z component of vector cross product of self and rhs extended to 3D
+    /// Z component of vector cross product of self and other extended to 3D
     /// ```
     /// # use vector_quaternion_matrix::Vector2df32;
     /// let v = Vector2df32::new(2.0, 3.0);
@@ -378,8 +378,8 @@ where
     }
 
     /// Return distance between two points, squared
-    pub fn distance_squared(self, rhs: Self) -> T {
-        (self - rhs).norm_squared()
+    pub fn distance_squared(self, other: Self) -> T {
+        (self - other).norm_squared()
     }
 }
 
@@ -451,8 +451,8 @@ where
     T: Copy + Zero + SqrtMethods + Vector2dMath + Vector2dMath,
 {
     // Return distance between two points
-    pub fn distance(self, rhs: Self) -> T {
-        self.distance_squared(rhs).sqrt()
+    pub fn distance(self, other: Self) -> T {
+        self.distance_squared(other).sqrt()
     }
 }
 
