@@ -1093,6 +1093,7 @@ where
 }
 
 // **** From Array ****
+
 /// Matrix from array
 impl<T> From<[T; 9]> for Matrix3x3<T>
 where
@@ -1100,6 +1101,14 @@ where
 {
     fn from(input: [T; 9]) -> Self {
         Self { a: input }
+    }
+}
+
+impl<T> From<([T;4], [T;4], T)> for Matrix3x3<T>
+where T: Copy,
+{
+    fn from(v: ([T;4], [T;4], T)) -> Self {
+        Self { a: [v.0[0], v.0[1], v.0[2], v.0[3], v.1[0], v.1[1], v.1[2], v.1[3], v.2] }
     }
 }
 

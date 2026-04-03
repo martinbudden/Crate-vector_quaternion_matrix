@@ -91,16 +91,22 @@ impl Matrix3x3Math for f32 {
     fn m3x3_mul(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
         #[cfg(feature = "simd")]
         {
+            let a0_simd = f32x4::from_array([this.a[0], this.a[1], this.a[2], 0.0]);
+            let a3_simd = f32x4::from_array([this.a[3], this.a[4], this.a[5], 0.0]);
+            let a6_simd = f32x4::from_array([this.a[6], this.a[7], this.a[8], 0.0]);
+            let b0_simd = f32x4::from_array([other.a[0], other.a[3], other.a[6], 0.0]);
+            let b1_simd = f32x4::from_array([other.a[1], other.a[4], other.a[7], 0.0]);
+            let b2_simd = f32x4::from_array([other.a[2], other.a[5], other.a[8], 0.0]);
             let a = [
-                this.a[0] * other.a[0] + this.a[1] * other.a[3] + this.a[2] * other.a[6],
-                this.a[0] * other.a[1] + this.a[1] * other.a[4] + this.a[2] * other.a[7],
-                this.a[0] * other.a[2] + this.a[1] * other.a[5] + this.a[2] * other.a[8],
-                this.a[3] * other.a[0] + this.a[4] * other.a[3] + this.a[5] * other.a[6],
-                this.a[3] * other.a[1] + this.a[4] * other.a[4] + this.a[5] * other.a[7],
-                this.a[3] * other.a[2] + this.a[4] * other.a[5] + this.a[5] * other.a[8],
-                this.a[6] * other.a[0] + this.a[7] * other.a[3] + this.a[8] * other.a[6],
-                this.a[6] * other.a[1] + this.a[7] * other.a[4] + this.a[8] * other.a[7],
-                this.a[6] * other.a[2] + this.a[7] * other.a[5] + this.a[8] * other.a[8],
+                (a0_simd * b0_simd).reduce_sum(),
+                (a0_simd * b1_simd).reduce_sum(),
+                (a0_simd * b2_simd).reduce_sum(),
+                (a3_simd * b0_simd).reduce_sum(),
+                (a3_simd * b1_simd).reduce_sum(),
+                (a3_simd * b2_simd).reduce_sum(),
+                (a6_simd * b0_simd).reduce_sum(),
+                (a6_simd * b1_simd).reduce_sum(),
+                (a6_simd * b2_simd).reduce_sum(),
             ];
             Matrix3x3::from(a)
         }
@@ -219,18 +225,38 @@ impl Matrix3x3Math for f32 {
 
     #[inline(always)]
     fn m3x3_adjugate(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
-        let a = [
-            this.a[4] * this.a[8] - this.a[5] * this.a[7],    //  (e*i - f*h)
-            -(this.a[1] * this.a[8] - this.a[2] * this.a[7]), // -(b*i - c*h)
-            this.a[1] * this.a[5] - this.a[2] * this.a[4],    //  (b*f - c*e)
-            -(this.a[3] * this.a[8] - this.a[5] * this.a[6]), // -(d*i - f*g)
-            this.a[0] * this.a[8] - this.a[2] * this.a[6],    //  (a*i - c*g)
-            -(this.a[0] * this.a[5] - this.a[2] * this.a[3]), // -(a*f - c*d)
-            this.a[3] * this.a[7] - this.a[4] * this.a[6],    //  (d*h - e*g)
-            -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
-            this.a[0] * this.a[4] - this.a[1] * this.a[3],    //  (a*e - b*d)
-        ];
-        Matrix3x3::from(a)
+        #[cfg(feature = "simd")]
+        {
+            let a = this.a;
+
+            let x0 = [ a[4] * a[8], -a[1] * a[8],  a[1] * a[5], -a[3] * a[8] ];
+            let x1 = [-a[5] * a[7],  a[2] * a[7], -a[2] * a[4],  a[5] * a[6] ];
+
+            let x = core::array::from_fn(|i| x0[i] + x1[i]);
+
+            let y0 = [  a[0] * a[8], -a[0] * a[5] , a[3] * a[7], -a[0] * a[7] ];
+            let y1 = [ -a[2] * a[6],  a[2] * a[3], -a[4] * a[6],  a[1] * a[6] ];
+
+            let y = core::array::from_fn(|i| y0[i] + y1[i]);
+
+            let z = a[0] * a[4] - a[1] * a[3];
+            Matrix3x3::from((x, y, z))
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            let a = [
+                this.a[4] * this.a[8] - this.a[5] * this.a[7],    //  (e*i - f*h)
+                -(this.a[1] * this.a[8] - this.a[2] * this.a[7]), // -(b*i - c*h)
+                this.a[1] * this.a[5] - this.a[2] * this.a[4],    //  (b*f - c*e)
+                -(this.a[3] * this.a[8] - this.a[5] * this.a[6]), // -(d*i - f*g)
+                this.a[0] * this.a[8] - this.a[2] * this.a[6],    //  (a*i - c*g)
+                -(this.a[0] * this.a[5] - this.a[2] * this.a[3]), // -(a*f - c*d)
+                this.a[3] * this.a[7] - this.a[4] * this.a[6],    //  (d*h - e*g)
+                -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
+                this.a[0] * this.a[4] - this.a[1] * this.a[3],    //  (a*e - b*d)
+            ];
+            Matrix3x3::from(a)
+        }
     }
 }
 
