@@ -353,7 +353,7 @@ where
     T: Copy + Signed,
 {
     /// Return a copy of the quaternion with all components set to their absolute values
-    pub fn abs(&self) -> Self {
+    pub fn abs(self) -> Self {
         Self { w: self.w.abs(), x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
 
@@ -369,7 +369,7 @@ where
     T: Copy + FloatCore,
 {
     /// Return a copy of the quaternion with all components clamped to the specified range
-    pub fn clamp(&self, min: T, max: T) -> Self {
+    pub fn clamp(self, min: T, max: T) -> Self {
         Self {
             w: self.w.clamp(min, max),
             x: self.x.clamp(min, max),
@@ -393,7 +393,7 @@ where
     T: Copy + One + Add<Output = T> + Div<Output = T>,
 {
     /// Return the mean of all components of the quaternion
-    pub fn mean(&self) -> T {
+    pub fn mean(self) -> T {
         let four = T::one() + T::one() + T::one() + T::one();
         (self.w + self.x + self.y + self.z) / four
     }
@@ -426,13 +426,13 @@ where
     T: Copy + Zero + PartialOrd + SqrtMethods + QuaternionMath,
 {
     /// Return normalized form of the quaternion
-    pub fn normalized(&self) -> Self {
+    pub fn normalized(self) -> Self {
         let norm: T = self.norm();
         // If norm == 0.0 then the quaternion is already normalized
         if norm == T::zero() {
-            return *self;
+            return self;
         }
-        *self * T::q_reciprocal(norm)
+        self * T::q_reciprocal(norm)
     }
 
     /// Normalize the quaternion in place
@@ -644,7 +644,7 @@ where
         }
     }
 
-    pub fn gravity(&self) -> Vector3d<T> {
+    pub fn gravity(self) -> Vector3d<T> {
         let two = T::one() + T::one();
         Vector3d::<T> {
             x: (self.x * self.z - self.w * self.y) * two,
@@ -653,7 +653,7 @@ where
         }
     }
 
-    pub fn half_gravity(&self) -> Vector3d<T> {
+    pub fn half_gravity(self) -> Vector3d<T> {
         let half: T = T::one() / (T::one() + T::one());
         Vector3d::<T> {
             x: self.x * self.z - self.w * self.y,

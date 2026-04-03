@@ -390,11 +390,22 @@ where
     T: Copy + Add<Output = T> + Vector3dMath + Vector3dMath,
 {
     /// Return square of Euclidean norm
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// assert_eq!(38.0, v.norm_squared());
+    /// ```
     pub fn norm_squared(self) -> T {
         self.dot(self)
     }
 
     /// Return distance between two points, squared
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3df32::new(7.0, 11.0, 13.0);
+    /// assert_eq!(153.0, v.distance_squared(w));
+    /// ```
     pub fn distance_squared(self, other: Self) -> T {
         (self - other).norm_squared()
     }
@@ -405,11 +416,21 @@ where
     T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
 {
     /// Return the sum of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// assert_eq!(10.0, v.sum());
+    /// ```
     pub fn sum(self) -> T {
         self.x + self.y + self.z
     }
 
     /// Return the product of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// assert_eq!(30.0, v.product());
+    /// ```
     pub fn product(self) -> T {
         self.x * self.y * self.z
     }
@@ -421,6 +442,11 @@ where
     T: Copy + One + Add<Output = T> + Div<Output = T>,
 {
     /// Return the mean of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector3df32;
+    /// let v = Vector3df32::new(2.0, 3.0, 7.0);
+    /// assert_eq!(4.0, v.mean());
+    /// ```
     pub fn mean(self) -> T {
         let three = T::one() + T::one() + T::one();
         (self.x + self.y + self.z) / three

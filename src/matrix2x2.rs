@@ -501,22 +501,16 @@ where
 // **** impl abs ****
 impl<T> Matrix2x2<T>
 where
-    T: Copy + Signed,
+    T: Copy + Matrix2x2Math,
 {
     /// Return a copy of the matrix with all components set to their absolute values
-    pub fn abs(&self) -> Self {
-        let mut a = self.a;
-        for a in a.iter_mut() {
-            *a = a.abs();
-        }
-        Self { a }
+    pub fn abs(self) -> Self {
+        T::m2x2_abs(self)
     }
 
     /// Set all components of the matrix to their absolute values
     pub fn abs_in_place(&mut self) {
-        for a in self.a.iter_mut() {
-            *a = a.abs();
-        }
+        *self = self.abs();
     }
 }
 
@@ -551,7 +545,7 @@ where
     T: Copy + FloatCore,
 {
     /// Return a copy of the matrix with all components clamped to the specified range
-    pub fn clamp(&self, min: T, max: T) -> Self {
+    pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for a in a.iter_mut() {
             *a = a.clamp(min, max);
@@ -595,7 +589,7 @@ where
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 3.0 });
     /// assert_eq!(m.row(1), Vector2df32{ x: 7.0, y: 11.0 });
     /// ```
-    pub fn row(&self, row: usize) -> Vector2d<T> {
+    pub fn row(self, row: usize) -> Vector2d<T> {
         match row {
             0 => Vector2d::<T> { x: self.a[0], y: self.a[1] },
             // default to row 1 if row out of range
@@ -627,7 +621,7 @@ where
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 7.0 });
     /// assert_eq!(m.column(1), Vector2df32{ x: 3.0, y: 11.0 });
     /// ```
-    pub fn column(&self, column: usize) -> Vector2d<T> {
+    pub fn column(self, column: usize) -> Vector2d<T> {
         match column {
             0 => Vector2d::<T> { x: self.a[0], y: self.a[2] },
             // default to column 1 if column out of range
@@ -650,7 +644,7 @@ where
     /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  7.0,
     ///                                    3.0, 11.0]));
     /// ```
-    pub fn transpose(&self) -> Self {
+    pub fn transpose(self) -> Self {
         Self { a: [self.a[0], self.a[2], self.a[1], self.a[3]] }
     }
 
@@ -873,7 +867,7 @@ where
     /// let n = m.inverse();
     ///
     /// ```
-    pub fn inverse(&self) -> Self {
+    pub fn inverse(self) -> Self {
         let adjugate = self.adjugate();
         let determinant = self.determinant();
         adjugate / determinant
@@ -890,7 +884,7 @@ where
     /// assert_eq!(Matrix2x2f32::zero(), n);
     ///
     /// ```
-    pub fn inverse_or_zero(&self) -> Self {
+    pub fn inverse_or_zero(self) -> Self {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {
             return Self::zero();
@@ -909,7 +903,7 @@ where
     /// assert_eq!(None, n);
     ///
     /// ```
-    pub fn try_inverse(&self) -> Option<Self> {
+    pub fn try_inverse(self) -> Option<Self> {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {
             return None;
@@ -924,7 +918,7 @@ where
     /// let z = Matrix2x2f32::zero();
     /// assert!(z.is_near_zero());
     /// ```
-    pub fn is_near_zero(&self) -> bool {
+    pub fn is_near_zero(self) -> bool {
         for a in self.a.iter() {
             if a.abs() > T::EPSILON {
                 return false;
@@ -940,7 +934,7 @@ where
     /// let i = Matrix2x2f32::one();
     /// assert!(i.is_near_identity());
     /// ```
-    pub fn is_near_identity(&self) -> bool {
+    pub fn is_near_identity(self) -> bool {
         if self.a[1].abs() > T::EPSILON || self.a[2].abs() > T::EPSILON {
             return false;
         }

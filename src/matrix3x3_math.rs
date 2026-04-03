@@ -42,25 +42,25 @@ impl Matrix3x3Math for f32 {
 
     #[inline(always)]
     fn m3x3_neg(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|i| -this.a[i]);
+        let ret = core::array::from_fn(|ii| -this.a[ii]);
         Matrix3x3::from(ret)
     }
 
     #[inline(always)]
     fn m3x3_abs(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|i| this.a[i].abs());
+        let ret = core::array::from_fn(|ii| this.a[ii].abs());
         Matrix3x3::from(ret)
     }
 
     #[inline(always)]
     fn m3x3_add(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|i| this.a[i] + other.a[i]);
+        let ret = core::array::from_fn(|ii| this.a[ii] + other.a[ii]);
         Matrix3x3::from(ret)
     }
 
     #[inline(always)]
     fn m3x3_mul_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|i| this.a[i] * other);
+        let ret = core::array::from_fn(|ii| this.a[ii] * other);
         Matrix3x3::from(ret)
     }
 

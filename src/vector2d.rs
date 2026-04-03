@@ -374,11 +374,22 @@ where
     T: Copy + Add<Output = T> + Vector2dMath + Vector2dMath,
 {
     /// Return square of Euclidean norm
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// assert_eq!(13.0, v.norm_squared());
+    /// ```
     pub fn norm_squared(self) -> T {
         self.dot(self)
     }
 
     /// Return distance between two points, squared
+    /// ```
+    /// # use vector_quaternion_matrix::Vector2df32;
+    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let w = Vector2df32::new(7.0, 11.0);
+    /// assert_eq!(89.0, v.distance_squared(w));
+    /// ```
     pub fn distance_squared(self, other: Self) -> T {
         (self - other).norm_squared()
     }

@@ -367,6 +367,11 @@ where
     T: Copy + Add<Output = T> + Vector4dMath + Vector4dMath,
 {
     /// Return square of Euclidean norm
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// assert_eq!(87.0, v.norm_squared());
+    /// ```
     pub fn norm_squared(self) -> T {
         self.dot(self)
     }
@@ -382,13 +387,23 @@ where
     T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T>,
 {
     /// Return the sum of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// assert_eq!(17.0, v.sum());
+    /// ```
     pub fn sum(self) -> T {
-        self.x + self.y + self.z
+        self.x + self.y + self.z + self.t
     }
 
     /// Return the product of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// assert_eq!(210.0, v.product());
+    /// ```
     pub fn product(self) -> T {
-        self.x * self.y * self.z
+        self.x * self.y * self.z * self.t
     }
 }
 
@@ -398,9 +413,14 @@ where
     T: Copy + One + Add<Output = T> + Div<Output = T>,
 {
     /// Return the mean of all components of the vector
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// assert_eq!(4.25, v.mean());
+    /// ```
     pub fn mean(self) -> T {
-        let three = T::one() + T::one() + T::one();
-        (self.x + self.y + self.z) / three
+        let four = T::one() + T::one() + T::one() + T::one();
+        (self.x + self.y + self.z + self.t) / four
     }
 }
 
@@ -485,25 +505,6 @@ where
 }
 
 // **** From ****
-/// Vector4d from Vector2d
-/// ```
-/// # use vector_quaternion_matrix::{Vector2df32,Vector4df32};
-/// let v = Vector4df32::from(Vector2df32 { x: 2.0, y: 3.0 });
-/// let w: Vector4df32 = Vector2df32 { x: 7.0, y: 11.0 }.into();
-///
-/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 0.0, t: 0.0 });
-/// assert_eq!(w, Vector4df32 { x: 7.0, y: 11.0, z: 0.0, t: 0.0 });
-/// ```
-impl<T> From<Vector2d<T>> for Vector4d<T>
-where
-    T: Zero,
-{
-    fn from(other: Vector2d<T>) -> Self {
-        Self { x: other.x, y: other.y, z: T::zero(), t: T::zero() }
-    }
-}
-
-// **** From ****
 
 // **** From Tuple ****
 
@@ -516,7 +517,9 @@ where
 /// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 });
 /// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 17.0, t: 19.0 });
 /// ```
-impl<T> From<(T, T, T, T)> for Vector4d<T> {
+impl<T> From<(T, T, T, T)> for Vector4d<T> 
+where T: Copy
+{
     fn from((x, y, z, t): (T, T, T, T)) -> Self {
         Self { x, y, z, t }
     }
@@ -570,9 +573,27 @@ impl<T> From<Vector4d<T>> for [T; 4] {
 /// ```
 impl<T> From<Vector3d<T>> for Vector4d<T>
 where
-    T: Zero,
+    T: Copy + Zero,
 {
     fn from(other: Vector3d<T>) -> Self {
         Self { x: other.x, y: other.y, z: other.z, t: T::zero() }
+    }
+}
+
+/// Vector4d from Vector2d
+/// ```
+/// # use vector_quaternion_matrix::{Vector2df32,Vector4df32};
+/// let v = Vector4df32::from(Vector2df32 { x: 2.0, y: 3.0 });
+/// let w: Vector4df32 = Vector2df32 { x: 11.0, y: 13.0 }.into();
+///
+/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 0.0, t: 0.0 });
+/// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 0.0, t: 0.0 });
+/// ```
+impl<T> From<Vector2d<T>> for Vector4d<T>
+where
+    T: Copy + Zero,
+{
+    fn from(other: Vector2d<T>) -> Self {
+        Self { x: other.x, y: other.y, z: T::zero(), t: T::zero() }
     }
 }

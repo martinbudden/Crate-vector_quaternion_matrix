@@ -600,7 +600,7 @@ where
     T: Copy + FloatCore,
 {
     /// Return a copy of the matrix with all components clamped to the specified range
-    pub fn clamp(&self, min: T, max: T) -> Self {
+    pub fn clamp(self, min: T, max: T) -> Self {
         let mut data = self.a;
         for d in data.iter_mut() {
             *d = d.clamp(min, max);
@@ -650,7 +650,7 @@ where
     /// assert_eq!(m.row(1), Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
     /// assert_eq!(m.row(2), Vector3df32{ x: 17.0, y: 19.0, z: 23.0 });
     /// ```
-    pub fn row(&self, row: usize) -> Vector3d<T> {
+    pub fn row(self, row: usize) -> Vector3d<T> {
         match row {
             0 => Vector3d::<T> { x: self.a[0], y: self.a[1], z: self.a[2] },
             1 => Vector3d::<T> { x: self.a[3], y: self.a[4], z: self.a[5] },
@@ -691,7 +691,7 @@ where
     /// assert_eq!(m.column(1), Vector3df32{ x: 3.0, y: 11.0, z: 19.0 });
     /// assert_eq!(m.column(2), Vector3df32{ x: 5.0, y: 13.0, z: 23.0 });
     /// ```
-    pub fn column(&self, column: usize) -> Vector3d<T> {
+    pub fn column(self, column: usize) -> Vector3d<T> {
         match column {
             0 => Vector3d::<T> { x: self.a[0], y: self.a[3], z: self.a[6] },
             1 => Vector3d::<T> { x: self.a[1], y: self.a[4], z: self.a[7] },
@@ -717,7 +717,7 @@ where
     ///                                    3.0, 11.0, 19.0,
     ///                                    5.0, 13.0, 23.0]));
     /// ```
-    pub fn transpose(&self) -> Self {
+    pub fn transpose(self) -> Self {
         Self { a: [self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2], self.a[5], self.a[8]] }
     }
 
@@ -959,7 +959,7 @@ where
     /// let n = m.inverse();
     ///
     /// ```
-    pub fn inverse(&self) -> Self {
+    pub fn inverse(self) -> Self {
         let adjugate = self.adjugate();
         let determinant = self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
         adjugate / determinant
@@ -977,7 +977,7 @@ where
     /// assert_eq!(Matrix3x3f32::zero(), n);
     ///
     /// ```
-    pub fn inverse_or_zero(&self) -> Self {
+    pub fn inverse_or_zero(self) -> Self {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {
             return Self::zero();
@@ -997,7 +997,7 @@ where
     /// assert_eq!(Err(MatrixError::ZeroDeterminant), n);
     ///
     /// ```
-    pub fn try_inverse(&self) -> Result<Self, MatrixError> {
+    pub fn try_inverse(self) -> Result<Self, MatrixError> {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {
             return Err(MatrixError::ZeroDeterminant);
@@ -1013,7 +1013,7 @@ where
     /// let z = Matrix3x3f32::zero();
     /// assert!(z.is_near_zero());
     /// ```
-    pub fn is_near_zero(&self) -> bool {
+    pub fn is_near_zero(self) -> bool {
         for a in self.a.iter() {
             if a.abs() > T::EPSILON {
                 return false;
@@ -1029,7 +1029,7 @@ where
     /// let i = Matrix3x3f32::one();
     /// assert!(i.is_near_identity());
     /// ```
-    pub fn is_near_identity(&self) -> bool {
+    pub fn is_near_identity(self) -> bool {
         if self.a[1].abs() > T::EPSILON
             || self.a[2].abs() > T::EPSILON
             || self.a[3].abs() > T::EPSILON

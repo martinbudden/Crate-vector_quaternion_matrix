@@ -80,11 +80,8 @@ impl Matrix2x2Math for f32 {
 
     #[inline(always)]
     fn m2x2_abs(this: Matrix2x2<Self>) -> Matrix2x2<Self> {
-        let mut a = this.a;
-        for r in a.iter_mut() {
-            *r = r.abs();
-        }
-        Matrix2x2::from(a)
+        let ret = core::array::from_fn(|ii| this.a[ii].abs());
+        Matrix2x2::from(ret)
     }
 
     #[inline(always)]

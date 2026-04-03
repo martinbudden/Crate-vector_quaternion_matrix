@@ -45,7 +45,7 @@ fn sort3<T: PartialOrd + Copy>(arr: [T; 3]) -> [T; 3] {
 }
 
 impl Matrix3x3f32 {
-    pub fn eigen_symmetric1(&self) -> [f32; 3] {
+    pub fn eigen_symmetric1(self) -> [f32; 3] {
         let m00 = self[0];
         let m01 = self[1];
         let m02 = self[2];
@@ -116,7 +116,7 @@ where
 {
     // Return the normalized matrix N = (A - qI) / p
     #[allow(clippy::assign_op_pattern)] // so we don't need the MulAssign trait
-    pub fn normalize_with_intermediates(&self) -> (Self, T, T) {
+    pub fn normalize_with_intermediates(self) -> (Self, T, T) {
         let trace = self.trace();
         let q = trace / T::THREE;
 
@@ -161,7 +161,7 @@ where
         (n, p, q)
     }
 
-    pub fn eigen_symmetric_mb_t(&self) -> [T; 3] {
+    pub fn eigen_symmetric_mb_t(self) -> [T; 3] {
         let (n, p, q) = self.normalize_with_intermediates();
 
         // Clamp r to [-1, 1] for numerical stability
@@ -179,7 +179,7 @@ where
 }
 
 impl Matrix3x3f32 {
-    pub fn eigen_symmetric_mb(&self) -> [f32; 3] {
+    pub fn eigen_symmetric_mb(self) -> [f32; 3] {
         let (n, p, q) = self.normalize_with_intermediates();
         let r = n.top_right_determinant() / 2.0;
         // Clamp r to [-1, 1] for numerical stability
@@ -194,7 +194,7 @@ impl Matrix3x3f32 {
         // Sort eigenvalues and compute eigenvectors via (A - λI) × v = 0
         [eig1, eig2, eig3]
     }
-    pub fn eigen_symmetric(&self) -> [f32; 3] {
+    pub fn eigen_symmetric(self) -> [f32; 3] {
         let m00 = self[0];
         let m01 = self[1];
         let m02 = self[2];
@@ -257,13 +257,13 @@ impl Matrix3x3f32 {
         //let mut eigenvectors = [0.0f32; 9];
 
         // Simple solver for (A - λI) v = 0 using cross product of rows
-        /*for i in 0..3 {
-            let a = m00 - eigenvalues[i];
+        /*for ii in 0..3 {
+            let a = m00 - eigenvalues[ii];
             let b = m01;
             let c = m02;
-            let d = m11 - eigenvalues[i];
+            let d = m11 - eigenvalues[ii];
             let e = m12;
-            let f = m22 - eigenvalues[i];
+            let f = m22 - eigenvalues[ii];
 
             // Use cross product of first two rows of (A - λI)
             let v0 = b * f - c * e;
@@ -291,7 +291,7 @@ impl Matrix3x3f32 {
 }
 
 impl Matrix3x3f32 {
-    pub fn jacobi_eigen(&self) -> [f32; 3] {
+    pub fn jacobi_eigen(self) -> [f32; 3] {
         const MAX_ITERATION_COUNT: usize = 50;
         const TOL: f32 = 1e-6;
 
