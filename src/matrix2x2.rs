@@ -1,11 +1,11 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{MathConstants, Matrix2x2Math, Vector2d};
+use crate::{MathConstants, Matrix2x2Math, Vector2d, Matrix3x3};
 
-/// 2x2 matrix of `f32` values
+/// 2x2 matrix of `f32` values<br>
 pub type Matrix2x2f32 = Matrix2x2<f32>;
-/// 2x2 matrix of `f64` values
+/// 2x2 matrix of `f64` values<br><br>
 pub type Matrix2x2f64 = Matrix2x2<f64>;
 
 /// Zero determinant error.
@@ -16,9 +16,10 @@ pub enum MatrixError {
 
 // **** Define ****
 /// `Matrix2x2<T>`: 2x2 Matrix of type `T`.<br>
-/// Aliases `Matrix2x2f32` and `Matrix2x2f64` are provided.<br>
-/// Internal implementation is a flattened 1x2 matrix: an array of 4 elements stored in row-major order<br>
-/// That is the element `m[row][col]` is at array position `[row * 2 + col]`, so element `m01` is at `a[1]`.
+/// Aliases `Matrix2x2f32` and `Matrix2x2f64` are provided.<br><br>
+/// `Matrix2x2f32` uses **SIMD** accelerations implemented in `Matrix2x2Math`.<br><br>
+/// Internal implementation is using a flattened 1-dimensional array: an array of 4 elements stored in row-major order.
+/// That is the element `m[row][col]` is at array position `[row * 2 + col]`, so element `m01` is at `a[1]`.<br><br>
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Matrix2x2<T> {
@@ -543,6 +544,7 @@ where
         }
     }
 }
+
 // **** impl clamp ****
 impl<T> Matrix2x2<T>
 where
@@ -937,7 +939,7 @@ where
 
 // **** From ****
 
-/// Matrix from array
+/// Matrix2x2 from array
 impl<T> From<[T; 4]> for Matrix2x2<T>
 where
     T: Copy,
@@ -947,7 +949,7 @@ where
     }
 }
 
-/// Matrix from array of 2 vectors
+/// Matrix2x2 from array of 2 vectors
 impl<T> From<[Vector2d<T>; 2]> for Matrix2x2<T>
 where
     T: Copy,
@@ -957,9 +959,30 @@ where
     }
 }
 
-/// Matrix from 2 vectors
+/// Matrix2x2 from 2 vectors
 impl<T> From<(Vector2d<T>, Vector2d<T>)> for Matrix2x2<T> {
     fn from(v: (Vector2d<T>, Vector2d<T>)) -> Self {
         Self { a: [v.0.x, v.0.y, v.1.x, v.1.y] }
     }
 }
+
+/// Matrix2x2 from Matrix3x3. Takes top left of m3x3, discarding other values.
+/// ```
+/// # use vector_quaternion_matrix::{Matrix2x2f32,Matrix3x3f32};
+/// let m2 = Matrix2x2f32::from([ 2.0,  3.0,
+///                               7.0, 11.0]);
+/// let m3 = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+/// assert_eq!(m2, Matrix2x2f32::from(m3));
+/// ```
+impl<T> From<Matrix3x3<T>> for Matrix2x2<T> 
+where
+    T: Copy,
+{
+    fn from(m: Matrix3x3<T>) -> Self {
+        Self { a: [m.a[0], m.a[1], m.a[3], m.a[4]] }
+    }
+}
+
+

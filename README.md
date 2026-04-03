@@ -6,9 +6,10 @@ have 2d and 3d versions. So we have:
 
 1. 2D vectors: `Vector2d<T>`, `Vector2df32`, `Vector2df64`
 2. 3D vectors: `Vector3d<T>`, `Vector3df32`, `Vector3df64`
-3. [quaternions](https://en.wikipedia.org/wiki/Quaternion): `Quaternion<T>`, `Quaternionf32`, `Quaternionf64`
-4. 2D matrices: `Matrix2x2<T>`, `Matrix2x2f32`, `Matrix2x2f64`
-5. 3D matrices: `Matrix3x3<T>`, `Matrix3x3f32`,`Matrix3x3f64`
+3. 4D vectors: `Vector3d<T>`, `Vector4df32`, `Vector4df64`
+4. [quaternions](https://en.wikipedia.org/wiki/Quaternion): `Quaternion<T>`, `Quaternionf32`, `Quaternionf64`
+5. 2D matrices: `Matrix2x2<T>`, `Matrix2x2f32`, `Matrix2x2f64`
+6. 3D matrices: `Matrix3x3<T>`, `Matrix3x3f32`,`Matrix3x3f64`
 
 This crate is `no_std`, that it does not link to the standard library and so does not depend on an operating system
 and uses no allocation. This means it is suitable for embedded system.
@@ -18,7 +19,7 @@ and uses no allocation. This means it is suitable for embedded system.
 This crate provides implementations of the trigonometric methods normally provided by the standard library, namely:
 `sin`, `cos`, `sin_cos`, `tan`, `asin`, `acos`, `atan2`. The are provided in method_call syntax, ie `x.sin()`.
 
-The methods `sqrt`, `reciprocal_sqrt` and `half_reciprocal_sqrt` are also provided.
+The methods `sqrt` and `reciprocal_sqrt` are also provided.
 
 The `MathConstants` trait provides a the standard mathematical constants in a form that can be used in generic code
 ie `T:PI`.
@@ -67,19 +68,21 @@ I had previously written a C++ VectorQuaternionMatrix library, so porting that t
 
 ## Vector alignment
 
-By default Vector3df32 is aligned to a 16-byte boundary. This is controlled by the `align` feature flag. To turn off
+By default `Vector3df32` is aligned to a 16-byte boundary. This is controlled by the `align` feature flag. To turn off
 16-bit alignment, build with:
 
 `cargo build --no-default-features --features libm`
 
 ## Original implementation
 
-This crate was originally implemented as a C++ library. The
-[original implementation can be found here](https://github.com/martinbudden/Library-VectorQuaternionMatrix).
+I originally implemented this crate as a C++ library:
+[Library-VectorQuaternionMatrix](https://github.com/martinbudden/Library-VectorQuaternionMatrix).
+
+The capabilities of this crate now exceed those of the original.
 
 ## License
 
-Licensed under either of
+Licensed under either of:
 
 * Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
 * MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)

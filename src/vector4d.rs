@@ -3,12 +3,15 @@ use num_traits::{One, Signed, Zero, float::FloatCore};
 
 use crate::{SqrtMethods, Vector2d, Vector3d, Vector4dMath};
 
-/// 3-dimensional `{x, y, z}` vector of `f32` values
+/// 4-dimensional `{x, y, z, t}` vector of `f32` values<br>
 pub type Vector4df32 = Vector4d<f32>;
-/// 3-dimensional `{x, y, z}` vector of `f64` values
+/// 4-dimensional `{x, y, z, t}` vector of `f64` values<br><br>
 pub type Vector4df64 = Vector4d<f64>;
 
 // **** Define ****
+/// `Vector3d<T>`: 3D vector of type `T`.<br>
+/// Aliases `Vector4df32` and `Vector4df64` are provided.<br><br>
+/// `Vector4df32` uses **SIMD** accelerations implemented in `Vector4dMath`.<br><br>
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Vector4d<T> {

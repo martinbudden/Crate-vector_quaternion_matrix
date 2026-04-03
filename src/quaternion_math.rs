@@ -35,7 +35,7 @@ impl From<f32x4> for Quaternion<f32> {
 
 // **** Math ****
 
-/// Math functions for Quaternion, using SIMD accelerations for f32.
+/// Math functions for Quaternion, using **SIMD** accelerations for `f32`.<br><br>
 pub trait QuaternionMath: Sized {
     fn q_reciprocal(self) -> Self;
     fn q_neg(this: Quaternion<Self>) -> Quaternion<Self>;

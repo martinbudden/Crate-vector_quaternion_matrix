@@ -35,7 +35,7 @@ impl From<f32x2> for Vector2d<f32> {
 
 // **** Math ****
 
-/// Math functions for Vector2d, using SIMD accelerations for f32.
+/// Math functions for Vector2d, using **SIMD** accelerations for `f32`.<br>
 pub trait Vector2dMath: Sized {
     fn v2_reciprocal(self) -> Self;
     fn v2_neg(this: Vector2d<Self>) -> Vector2d<Self>;

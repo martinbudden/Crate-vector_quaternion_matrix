@@ -19,7 +19,7 @@ use num_traits::Float;
 // x.hypot()
 
 /// `no_std` implementations of mathematical functions in method call syntax<br>
-/// eg `x.sin()`, `x.cos()` etc.
+/// eg `x.sin()`, `x.cos()` etc.<br><br>
 pub trait TrigonometricMethods: Sized {
     fn sin_cos(self) -> (Self, Self);
     fn sin(self) -> Self;

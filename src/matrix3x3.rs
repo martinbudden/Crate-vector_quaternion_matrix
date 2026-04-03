@@ -4,9 +4,9 @@ use num_traits::{One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3Math, MatrixError, Quaternion, QuaternionMath, SqrtMethods, Vector3d};
 
-/// 3x3 matrix of `f32` values
+/// 3x3 matrix of `f32` values<br>
 pub type Matrix3x3f32 = Matrix3x3<f32>;
-/// 3x3 matrix of `f64` values
+/// 3x3 matrix of `f64` values<br><br>
 pub type Matrix3x3f64 = Matrix3x3<f64>;
 
 // **** Align ****
@@ -25,9 +25,10 @@ cfg_if! {
 if #[cfg(feature = "align")] {
 // High-performance 16-byte aligned version
 /// `Matrix3x3<T>`: 3x3 Matrix of type `T`.<br>
-/// Aliases `Matrix3x3f32` and `Matrix3x3f64` are provided.<br>
-/// Internal implementation is a flattened 3x3 matrix: an array of 9 elements stored in row-major order<br>
-/// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.
+/// Aliases `Matrix3x3f32` and `Matrix3x3f64` are provided.<br><br>
+/// `Matrix3x3f32` uses **SIMD** accelerations implemented in `Matrix3x3Math`.<br><br>
+/// Internal implementation is using a flattened 1-dimensional array: an array of 9 elements stored in row-major order.
+/// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Matrix3x3<T> {
@@ -1069,7 +1070,7 @@ where
 /// ```
 impl<T> From<Matrix2x2<T>> for Matrix3x3<T>
 where
-    T: Zero + Copy,
+    T: Copy + Zero,
 {
     fn from(m: Matrix2x2<T>) -> Self {
         Self { a: [m[0], m[1], T::zero(), m[2], m[3], T::zero(), T::zero(), T::zero(), T::zero()] }

@@ -6,19 +6,19 @@ use crate::math_methods::TrigonometricMethods;
 use crate::sqrt_methods::SqrtMethods;
 use crate::{QuaternionMath, Vector3d};
 
-/// quaternion of `f32` values
+/// Quaternion of `f32` values<br>
 pub type Quaternionf32 = Quaternion<f32>;
-/// quaternion of `f64` values
+/// Quaternion of `f64` values<br><br>
 pub type Quaternionf64 = Quaternion<f64>;
 
-/// RollPitchYaw `struct { roll: f32, pitch: f32, yaw: f32 }`
+/// RollPitchYaw `struct { roll: f32, pitch: f32, yaw: f32 }`<br>
 pub type RollPitchYawf32 = RollPitchYaw<f32>;
-/// RollPitchYaw `struct { roll: f64, pitch: f64, yaw: f64 }`
+/// RollPitchYaw `struct { roll: f64, pitch: f64, yaw: f64 }`<br>
 pub type RollPitchYawf64 = RollPitchYaw<f64>;
 
-/// RollPitch `struct { roll: f32, pitch: f32 }`
+/// RollPitch `struct { roll: f32, pitch: f32 }`<br>
 pub type RollPitchf32 = RollPitch<f32>;
-/// RollPitch `struct { roll: f64, pitch: f64 }`
+/// RollPitch `struct { roll: f64, pitch: f64 }`<br><br>
 pub type RollPitchf64 = RollPitch<f64>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -36,7 +36,8 @@ pub struct RollPitch<T> {
 
 // **** Define ****
 /// `Quaternion<T>`: quaternion type `T`.<br>
-/// Aliases `Quaternion32` and `Quaternionf64` are provided.
+/// Aliases `Quaternion32` and `Quaternionf64` are provided.<br><br>
+/// `Quaternionf32` uses **SIMD** accelerations implemented in `QuaternionMath`.<br><br>
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Quaternion<T> {

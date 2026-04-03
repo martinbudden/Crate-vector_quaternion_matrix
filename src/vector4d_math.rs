@@ -36,7 +36,7 @@ impl From<f32x4> for Vector4d<f32> {
 
 // **** Math ****
 
-/// Math functions for Vector4d, using SIMD accelerations for f32.
+/// Math functions for Vector4d, using **SIMD** accelerations for `f32`.<br><br>
 pub trait Vector4dMath: Sized {
     fn v4_reciprocal(self) -> Self;
     fn v4_neg(this: Vector4d<Self>) -> Vector4d<Self>;

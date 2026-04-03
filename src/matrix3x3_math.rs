@@ -3,6 +3,8 @@ use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "simd")] {
         //use core::{mem::transmute, simd::f32x4};
+        const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 48);
+        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 16);
     }
 }
 
@@ -10,7 +12,7 @@ use crate::{Matrix3x3, Vector3d};
 
 // **** Math ****
 
-/// Math functions for Matrix3x3, using SIMD accelerations for f32.
+/// Math functions for Matrix3x3, using **SIMD** accelerations for `f32`.<br><br>
 pub trait Matrix3x3Math: Sized {
     fn m3x3_reciprocal(self) -> Self;
     fn m3x3_neg(this: Matrix3x3<Self>) -> Matrix3x3<Self>;

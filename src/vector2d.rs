@@ -5,14 +5,15 @@ use num_traits::{One, Signed, Zero, float::FloatCore};
 
 use crate::{SqrtMethods, Vector2dMath, Vector3d};
 
-/// 2-dimensional `{x, y}` vector of `f32` values
+/// 2-dimensional `{x, y}` vector of `f32` values<br>
 pub type Vector2df32 = Vector2d<f32>;
-/// 2-dimensional `{x, y}` vector of `f64` values
+/// 2-dimensional `{x, y}` vector of `f64` values<br><br>
 pub type Vector2df64 = Vector2d<f64>;
 
 // **** Define ****
 /// `Vector2d<T>`: 2D vector of type `T`.<br>
-/// `Vector2d32` and `Vector2df64` and several integer aliases are provided.
+/// Aliases `Vector2df32` and `Vector2df64` are provided.<br><br>
+/// `Vector2df32` uses **SIMD** accelerations implemented in `Vector2dMath`.<br><br>
 #[repr(C, align(8))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Vector2d<T> {
