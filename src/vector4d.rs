@@ -504,25 +504,9 @@ where
 }
 
 // **** From ****
-/// Vector4d from Vector3d
-/// ```
-/// # use vector_quaternion_matrix::{Vector3df32,Vector4df32};
-/// let v = Vector4df32::from(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
-/// let w: Vector4df32 = Vector3df32 { x: 7.0, y: 11.0, z: 13.0 }.into();
-///
-/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 0.0 });
-/// assert_eq!(w, Vector4df32 { x: 7.0, y: 11.0, z: 13.0, t: 0.0 });
-/// ```
-impl<T> From<Vector3d<T>> for Vector4d<T>
-where
-    T: Zero,
-{
-    fn from(other: Vector3d<T>) -> Self {
-        Self { x: other.x, y: other.y, z: other.z, t: T::zero() }
-    }
-}
 
 // **** From Tuple ****
+
 /// Vector from tuple
 /// ```
 /// # use vector_quaternion_matrix::Vector4df32;
@@ -570,5 +554,25 @@ where
 impl<T> From<Vector4d<T>> for [T; 4] {
     fn from(v: Vector4d<T>) -> Self {
         [v.x, v.y, v.z, v.t]
+    }
+}
+
+// **** From Vector ****
+
+/// Vector4d from Vector3d
+/// ```
+/// # use vector_quaternion_matrix::{Vector3df32,Vector4df32};
+/// let v = Vector4df32::from(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+/// let w: Vector4df32 = Vector3df32 { x: 7.0, y: 11.0, z: 13.0 }.into();
+///
+/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 0.0 });
+/// assert_eq!(w, Vector4df32 { x: 7.0, y: 11.0, z: 13.0, t: 0.0 });
+/// ```
+impl<T> From<Vector3d<T>> for Vector4d<T>
+where
+    T: Zero,
+{
+    fn from(other: Vector3d<T>) -> Self {
+        Self { x: other.x, y: other.y, z: other.z, t: T::zero() }
     }
 }

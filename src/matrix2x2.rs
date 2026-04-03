@@ -1,7 +1,7 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{One, Signed, Zero, float::FloatCore};
 
-use crate::{MathConstants, Matrix2x2Math, Vector2d, Matrix3x3};
+use crate::{MathConstants, Matrix2x2Math, Matrix3x3, Vector2d};
 
 /// 2x2 matrix of `f32` values<br>
 pub type Matrix2x2f32 = Matrix2x2<f32>;
@@ -763,6 +763,20 @@ where
         T::m2x2_top_right_determinant(self)
     }
 
+    /// Return the sum of the squares of the top right elements
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let d = m.top_right_sum_squares();
+    ///
+    /// assert_eq!(3.0*3.0, d);
+    ///
+    /// ```
+    pub fn top_right_sum_squares(self) -> T {
+        T::m2x2_top_right_sum_squares(self)
+    }
+
     /// Return the sum of all components of the matrix
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -976,7 +990,7 @@ impl<T> From<(Vector2d<T>, Vector2d<T>)> for Matrix2x2<T> {
 ///                              17.0, 19.0, 23.0]);
 /// assert_eq!(m2, Matrix2x2f32::from(m3));
 /// ```
-impl<T> From<Matrix3x3<T>> for Matrix2x2<T> 
+impl<T> From<Matrix3x3<T>> for Matrix2x2<T>
 where
     T: Copy,
 {
@@ -984,5 +998,3 @@ where
         Self { a: [m.a[0], m.a[1], m.a[3], m.a[4]] }
     }
 }
-
-

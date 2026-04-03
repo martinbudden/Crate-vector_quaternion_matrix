@@ -2,8 +2,8 @@
 use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "align")] {
-        use core::{mem::transmute, simd::f32x4};
-        use core::simd::{num::SimdFloat};
+        use core::{mem::transmute};
+        use core::simd::{f32x4,num::SimdFloat};
     }
 }
 

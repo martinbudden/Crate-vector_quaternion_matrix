@@ -2,8 +2,8 @@
 use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "align")] {
-        use core::{mem::transmute, simd::f32x4};
-        use core::simd::{simd_swizzle,num::SimdFloat};
+        use core::{mem::transmute};
+        use core::simd::{f32x4,num::SimdFloat,simd_swizzle};
     }
 }
 
@@ -366,7 +366,11 @@ impl Vector3dMath for i16 {
             return Vector3d::default();
         }
         let norm_reciprocal = (norm_squared as f32).reciprocal_sqrt();
-        Vector3d { x: ((this.x as f32) * norm_reciprocal) as i16, y: ((this.y as f32) * norm_reciprocal) as i16, z: ((this.z as f32) * norm_reciprocal) as i16 }
+        Vector3d {
+            x: ((this.x as f32) * norm_reciprocal) as i16,
+            y: ((this.y as f32) * norm_reciprocal) as i16,
+            z: ((this.z as f32) * norm_reciprocal) as i16,
+        }
     }
 
     #[inline(always)]

@@ -503,70 +503,8 @@ where
 
 // **** From ****
 
-/// Vector2d from Vector3d, discarding z value.
-/// ```
-/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
-/// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }.into();
-/// let u = Vector2df32::from(Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
-///
-/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
-/// assert_eq!(u, Vector2df32 { x: 7.0, y: 11.0 });
-impl<T> From<Vector3d<T>> for Vector2d<T>
-where
-    T: Copy + Zero,
-{
-    fn from(v: Vector3d<T>) -> Self {
-        Vector2d::<T> { x: v.x, y: v.y }
-    }
-}
-
-/*
-/// Non-zero z component error.
-#[derive(Debug, PartialEq)]
-pub enum VectorError {
-    NonZeroZ,
-}
-
-/// Vector2d try_from Vector3d
-/// ```
-/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
-/// let result: Result<Vector2df32, _> = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }.try_into();
-/// match result {
-///     Ok(v2) => assert!(false),
-///     Err(_) => assert!(true),
-/// }
-/// let result: Result<Vector2df32, _> = Vector2df32::try_from(Vector3df32{ x: 2.0, y: 3.0, z: 5.0 });
-/// match result {
-///     Ok(v2) => assert!(false),
-///     Err(_) => assert!(true),
-/// }
-/// let result: Result<Vector2df32, _> = Vector3df32 { x: 2.0, y: 3.0, z: 0.0 }.try_into();
-/// match result {
-///     Ok(v2d) => assert_eq!(v2d, Vector2df32 { x: 2.0, y: 3.0 }),
-///     Err(_) => assert!(false),
-/// }
-/// let result: Result<Vector2df32, _> = Vector2df32::try_from(Vector3df32{ x: 2.0, y: 3.0, z: 0.0 });
-/// match result {
-///     Ok(v2d) => assert_eq!(v2d, Vector2df32 { x: 2.0, y: 3.0 }),
-///     Err(_) => assert!(false),
-/// }
-/// ```
-impl<T> TryFrom<Vector3d<T>> for Vector2d<T>
-where
-    T: Copy + Zero + PartialEq,
-{
-    type Error = VectorError;
-
-    fn try_from(v: Vector3d<T>) -> Result<Self, Self::Error> {
-        // In embedded/control systems, exact float comparison (== 0.0)
-        // is usually fine for a "pure" check, but you can also use
-        // a small epsilon if the Z comes from a calculation.
-        if v.z == T::zero() { Ok(Vector2d::<T> { x: v.x, y: v.y }) } else { Err(VectorError::NonZeroZ) }
-    }
-}
-*/
-
 // **** From Tuple ****
+
 /// Vector from tuple
 /// ```
 /// # use vector_quaternion_matrix::Vector2df32;
@@ -614,5 +552,24 @@ where
 impl<T> From<Vector2d<T>> for [T; 2] {
     fn from(v: Vector2d<T>) -> Self {
         [v.x, v.y]
+    }
+}
+
+// **** From Vector ****
+
+/// Vector2d from Vector3d, discarding z value.
+/// ```
+/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
+/// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }.into();
+/// let u = Vector2df32::from(Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
+///
+/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
+/// assert_eq!(u, Vector2df32 { x: 7.0, y: 11.0 });
+impl<T> From<Vector3d<T>> for Vector2d<T>
+where
+    T: Copy + Zero,
+{
+    fn from(v: Vector3d<T>) -> Self {
+        Vector2d::<T> { x: v.x, y: v.y }
     }
 }

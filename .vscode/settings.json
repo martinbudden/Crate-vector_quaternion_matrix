@@ -41,6 +41,7 @@
         "trunc",
         "uptilt",
         "VADD",
+        "vectorizer",
         "VFMA",
         "VMOV",
         "vreg",

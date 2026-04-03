@@ -543,25 +543,9 @@ where
 }
 
 // **** From ****
-/// Vector3d from Vector2d
-/// ```
-/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
-/// let v = Vector3df32::from(Vector2df32 { x: 2.0, y: 3.0 });
-/// let w: Vector3df32 = Vector2df32 { x: 7.0, y: 11.0 }.into();
-///
-/// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 0.0 });
-/// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 0.0 });
-/// ```
-impl<T> From<Vector2d<T>> for Vector3d<T>
-where
-    T: Zero,
-{
-    fn from(other: Vector2d<T>) -> Self {
-        Self { x: other.x, y: other.y, z: T::zero() }
-    }
-}
 
 // **** From Tuple ****
+
 /// Vector from tuple
 /// ```
 /// # use vector_quaternion_matrix::Vector3df32;
@@ -576,6 +560,8 @@ impl<T> From<(T, T, T)> for Vector3d<T> {
         Self { x, y, z }
     }
 }
+
+// **** From Array ****
 
 /// Vector from array
 /// ```
@@ -609,5 +595,59 @@ where
 impl<T> From<Vector3d<T>> for [T; 3] {
     fn from(v: Vector3d<T>) -> Self {
         [v.x, v.y, v.z]
+    }
+}
+
+// **** From Vector ****
+
+/// Vector3d from Vector2d
+/// ```
+/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
+/// let v = Vector3df32::from(Vector2df32 { x: 2.0, y: 3.0 });
+/// let w: Vector3df32 = Vector2df32 { x: 7.0, y: 11.0 }.into();
+///
+/// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 0.0 });
+/// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 0.0 });
+/// ```
+impl<T> From<Vector2d<T>> for Vector3d<T>
+where
+    T: Zero,
+{
+    fn from(other: Vector2d<T>) -> Self {
+        Self { x: other.x, y: other.y, z: T::zero() }
+    }
+}
+
+/// 3-dimensional `{x, y, z}` vector of `i16` values<br><br>
+pub type Vector3di16 = Vector3d<i16>;
+
+impl Mul<f32> for Vector3d<i16> {
+    type Output = Self;
+    fn mul(self, k: f32) -> Self {
+        Self { x: (self.x as f32 * k) as i16, y: (self.y as f32 * k) as i16, z: (self.z as f32 * k) as i16 }
+    }
+}
+
+/// `Vector3d<f32>` from `Vector3d<i16>`
+/// ```
+/// # use vector_quaternion_matrix::{Vector3df32,Vector3di16};
+/// let v_i16 = Vector3di16{x: 2, y: 3, z: 5};
+/// let v_f32 = Vector3df32::from(v_i16);
+///
+/// let w_f32 = Vector3df32{x: 7.0, y: 11.0, z: 13.0};
+/// let w_i16 : Vector3di16 = w_f32.into();
+///
+/// assert_eq!(v_f32, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w_i16, Vector3di16 { x: 7, y: 11, z: 13 });
+/// ```
+impl From<Vector3d<i16>> for Vector3d<f32> {
+    fn from(v: Vector3d<i16>) -> Self {
+        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
+    }
+}
+
+impl From<Vector3d<f32>> for Vector3d<i16> {
+    fn from(v: Vector3d<f32>) -> Self {
+        Self { x: v.x as i16, y: v.y as i16, z: v.z as i16 }
     }
 }

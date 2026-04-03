@@ -52,8 +52,7 @@ and self balancing robots and aircraft in particular.
 These requirements included:
 
 1. Ability to align vectors to 16-byte boundaries for performance.
-2. Support for `Vector3di16` and `Vector3di32` for reading data from Inertial Management Units (IMUs).
-   Some IMUs can return 20-bit values, hence the need for `Vector3di32`.
+2. Support for `Vector3di16` for reading data from Inertial Management Units (IMUs).
 3. Support for conversion between the integer vectors returned by the IMU and the floating point vectors required for mathematical operations.
 4. Ability to work with generic filters.
 5. Quaternion support for sensor fusion.
