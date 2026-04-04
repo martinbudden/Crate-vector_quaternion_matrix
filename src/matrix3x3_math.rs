@@ -22,6 +22,7 @@ pub trait Matrix3x3Math: Sized {
     fn m3x3_add(this: Matrix3x3<Self>, this: Matrix3x3<Self>) -> Matrix3x3<Self>;
     fn m3x3_mul_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self>;
     fn m3x3_div_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self>;
+    fn m3x3_mul_add(this: Matrix3x3<Self>, k: Self, other: Matrix3x3<Self>) -> Matrix3x3<Self>;
     fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
     fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self>;
     fn m3x3_mul(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self>;
@@ -69,6 +70,11 @@ impl Matrix3x3Math for f32 {
     #[inline(always)]
     fn m3x3_div_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self> {
         Self::m3x3_mul_scalar(this, 1.0 / other)
+    }
+
+    #[inline(always)]
+    fn m3x3_mul_add(this: Matrix3x3<Self>, k: Self, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
+        Self::m3x3_add(Self::m3x3_mul_scalar(this, k), other)
     }
 
     #[inline(always)]
@@ -317,6 +323,11 @@ impl Matrix3x3Math for f64 {
     #[inline(always)]
     fn m3x3_div_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self> {
         Self::m3x3_mul_scalar(this, 1.0 / other)
+    }
+
+    #[inline(always)]
+    fn m3x3_mul_add(this: Matrix3x3<Self>, k: Self, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
+        Self::m3x3_add(Self::m3x3_mul_scalar(this, k), other)
     }
 
     #[inline(always)]

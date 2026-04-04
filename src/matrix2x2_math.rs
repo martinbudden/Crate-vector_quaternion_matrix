@@ -44,6 +44,7 @@ pub trait Matrix2x2Math: Sized {
     fn m2x2_add(this: Matrix2x2<Self>, this: Matrix2x2<Self>) -> Matrix2x2<Self>;
     fn m2x2_mul_scalar(this: Matrix2x2<Self>, other: Self) -> Matrix2x2<Self>;
     fn m2x2_div_scalar(this: Matrix2x2<Self>, other: Self) -> Matrix2x2<Self>;
+    fn m2x2_mul_add(this: Matrix2x2<Self>, k: Self, other: Matrix2x2<Self>) -> Matrix2x2<Self>;
     fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self>;
     fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self>;
     fn m2x2_mul(this: Matrix2x2<Self>, other: Matrix2x2<Self>) -> Matrix2x2<Self>;
@@ -130,6 +131,11 @@ impl Matrix2x2Math for f32 {
     #[inline(always)]
     fn m2x2_div_scalar(this: Matrix2x2<Self>, other: Self) -> Matrix2x2<Self> {
         Self::m2x2_mul_scalar(this, 1.0 / other)
+    }
+
+    #[inline(always)]
+    fn m2x2_mul_add(this: Matrix2x2<Self>, k: Self, other: Matrix2x2<Self>) -> Matrix2x2<Self> {
+        Self::m2x2_add(Self::m2x2_mul_scalar(this, k), other)
     }
 
     #[inline(always)]
@@ -262,6 +268,11 @@ impl Matrix2x2Math for f64 {
     #[inline(always)]
     fn m2x2_div_scalar(this: Matrix2x2<Self>, other: Self) -> Matrix2x2<Self> {
         Self::m2x2_mul_scalar(this, 1.0 / other)
+    }
+
+    #[inline(always)]
+    fn m2x2_mul_add(this: Matrix2x2<Self>, k: Self, other: Matrix2x2<Self>) -> Matrix2x2<Self> {
+        Self::m2x2_add(Self::m2x2_mul_scalar(this, k), other)
     }
 
     #[inline(always)]

@@ -42,9 +42,9 @@ pub trait Vector2dMath: Sized {
     fn v2_reciprocal(self) -> Self;
     fn v2_neg(this: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_add(this: Vector2d<Self>, this: Vector2d<Self>) -> Vector2d<Self>;
-    fn v2_mul_scalar(this: Vector2d<Self>, other: Self) -> Vector2d<Self>;
-    fn v2_div_scalar(this: Vector2d<Self>, other: Self) -> Vector2d<Self>;
-    fn v2_mul_add(this: Vector2d<Self>, a: Self, b: Vector2d<Self>) -> Vector2d<Self>;
+    fn v2_mul_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self>;
+    fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self>;
+    fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_norm_squared(this: Vector2d<Self>) -> Self;
     fn v2_normalize(this: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_is_normalized(this: Vector2d<Self>) -> bool;
@@ -92,39 +92,39 @@ impl Vector2dMath for f32 {
     }
 
     #[inline(always)]
-    fn v2_mul_scalar(this: Vector2d<Self>, other: Self) -> Vector2d<Self> {
+    fn v2_mul_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
-            let other_simd = f32x2::splat(other);
+            let k_simd = f32x2::splat(k);
 
-            (this_simd * other_simd).into()
+            (this_simd * k_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: this.x * a, y: this.y * a }
+            Vector2d { x: this.x * k, y: this.y * k }
         }
     }
 
     #[inline(always)]
-    fn v2_div_scalar(this: Vector2d<Self>, other: Self) -> Vector2d<Self> {
-        Self::v2_mul_scalar(this, 1.0 / other)
+    fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
+        Self::v2_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v2_mul_add(this: Vector2d<Self>, a: Self, b: Vector2d<Self>) -> Vector2d<Self> {
+    fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
-            let v_b = f32x2::from(b);
-            let v_a = f32x2::splat(a);
+            let other_simd = f32x2::from(other);
+            let k_simd = f32x2::splat(k);
 
             // This maps to the Vector Fused Multiply-Add instruction
-            ((this_simd * v_a) + v_b).into()
+            ((this_simd * k_simd) + other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: this.x * a + b.x, y: this.y * a + b.y }
+            Vector2d { x: this.x * k + other.x, y: this.y * k + other.y }
         }
     }
 
@@ -147,7 +147,6 @@ impl Vector2dMath for f32 {
         #[cfg(feature = "simd")]
         {
             let norm_squared = Self::v2_norm_squared(this);
-
             // If norm_squared is zero, then this must be zero (default) vector
             if norm_squared == 0.0 {
                 return Vector2d::default();
@@ -202,6 +201,7 @@ impl Vector2dMath for f32 {
         }
     }
 
+    // **** dot ****
     #[inline(always)]
     fn v2_dot(this: Vector2d<Self>, other: Vector2d<Self>) -> Self {
         #[cfg(feature = "simd")]
@@ -242,18 +242,18 @@ impl Vector2dMath for f64 {
     }
 
     #[inline(always)]
-    fn v2_mul_scalar(this: Vector2d<Self>, a: Self) -> Vector2d<Self> {
-        Vector2d { x: this.x * a, y: this.y * a }
+    fn v2_mul_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
+        Vector2d { x: this.x * k, y: this.y * k }
     }
 
     #[inline(always)]
-    fn v2_div_scalar(this: Vector2d<Self>, a: Self) -> Vector2d<Self> {
-        Self::v2_mul_scalar(this, 1.0 / a)
+    fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
+        Self::v2_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v2_mul_add(this: Vector2d<Self>, a: Self, b: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x * a + b.x, y: this.y * a + b.y }
+    fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self> {
+        Vector2d { x: this.x * k + other.x, y: this.y * k + other.y }
     }
 
     #[inline(always)]

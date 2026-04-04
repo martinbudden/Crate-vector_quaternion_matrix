@@ -45,9 +45,9 @@ pub trait Vector3dMath: Sized {
     fn v3_reciprocal(self) -> Self;
     fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_add(this: Vector3d<Self>, this: Vector3d<Self>) -> Vector3d<Self>;
-    fn v3_mul_scalar(this: Vector3d<Self>, other: Self) -> Vector3d<Self>;
-    fn v3_div_scalar(this: Vector3d<Self>, other: Self) -> Vector3d<Self>;
-    fn v3_mul_add(this: Vector3d<Self>, a: Self, b: Vector3d<Self>) -> Vector3d<Self>;
+    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self>;
+    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self>;
+    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_norm_squared(this: Vector3d<Self>) -> Self;
     fn v3_normalize(this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_is_normalized(this: Vector3d<Self>) -> bool;
@@ -84,7 +84,6 @@ impl Vector3dMath for f32 {
             let this_simd = f32x4::from(this);
             let other_simd = f32x4::from(other);
 
-            // Add all 4 lanes (w, x, y, filler) in one cycle
             (this_simd + other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
@@ -94,39 +93,39 @@ impl Vector3dMath for f32 {
     }
 
     #[inline(always)]
-    fn v3_mul_scalar(this: Vector3d<Self>, other: Self) -> Vector3d<Self> {
+    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
-            let other_simd = f32x4::splat(other);
+            let k_simd = f32x4::splat(k);
 
-            (this_simd * other_simd).into()
+            (this_simd * k_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: this.x * a, y: this.y * a, z: this.z * a }
+            Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
         }
     }
 
     #[inline(always)]
-    fn v3_div_scalar(this: Vector3d<Self>, other: Self) -> Vector3d<Self> {
-        Self::v3_mul_scalar(this, 1.0 / other)
+    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+        Self::v3_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v3_mul_add(this: Vector3d<Self>, a: Self, b: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
-            let v_b = f32x4::from(b);
-            let v_a = f32x4::splat(a);
+            let other_simd = f32x4::from(other);
+            let k_simd = f32x4::splat(k) * f32x4::from_array([1.0, 1.0, 1.0, 0.0]);
 
             // This maps to the Vector Fused Multiply-Add instruction
-            ((this_simd * v_a) + v_b).into()
+            ((this_simd * k_simd) + other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: this.x * a + b.x, y: this.y * a + b.y, z: this.z * a + b.z }
+            Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
         }
     }
 
@@ -152,8 +151,9 @@ impl Vector3dMath for f32 {
             if norm_squared == 0.0 {
                 return Vector3d::default();
             }
-            let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses hardware vrsqrt
+
             let this_simd = f32x4::from(this);
+            let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses hardware vrsqrt
             let scale = f32x4::splat(norm_reciprocal);
             (this_simd * scale).into()
         }
@@ -210,6 +210,7 @@ impl Vector3dMath for f32 {
         }
     }
 
+    // **** dot ****
     #[inline(always)]
     fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
         //this.x * other.x + this.y * other.y + this.z * other.z
@@ -282,18 +283,18 @@ impl Vector3dMath for f64 {
     }
 
     #[inline(always)]
-    fn v3_mul_scalar(this: Vector3d<Self>, a: Self) -> Vector3d<Self> {
-        Vector3d { x: this.x * a, y: this.y * a, z: this.z * a }
+    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+        Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
     }
 
     #[inline(always)]
-    fn v3_div_scalar(this: Vector3d<Self>, a: Self) -> Vector3d<Self> {
-        Self::v3_mul_scalar(this, 1.0 / a)
+    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+        Self::v3_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v3_mul_add(this: Vector3d<Self>, a: Self, b: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * a + b.x, y: this.y * a + b.y, z: this.z * a + b.z }
+    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
     }
 
     #[inline(always)]
@@ -335,6 +336,7 @@ impl Vector3dMath for f64 {
         }
     }
 
+    // **** dot ****
     #[inline(always)]
     fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
         this.x * other.x + this.y * other.y + this.z * other.z
@@ -367,18 +369,18 @@ impl Vector3dMath for i16 {
     }
 
     #[inline(always)]
-    fn v3_mul_scalar(this: Vector3d<Self>, a: Self) -> Vector3d<Self> {
-        Vector3d { x: this.x * a, y: this.y * a, z: this.z * a }
+    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+        Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
     }
 
     #[inline(always)]
-    fn v3_div_scalar(this: Vector3d<Self>, a: Self) -> Vector3d<Self> {
-        Self::v3_mul_scalar(this, (1.0 / (a as f32)) as i16)
+    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+        Self::v3_mul_scalar(this, (1.0 / (k as f32)) as i16)
     }
 
     #[inline(always)]
-    fn v3_mul_add(this: Vector3d<Self>, a: Self, b: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * a + b.x, y: this.y * a + b.y, z: this.z * a + b.z }
+    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
     }
 
     #[inline(always)]

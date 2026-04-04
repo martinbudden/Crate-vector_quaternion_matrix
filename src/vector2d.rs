@@ -1,5 +1,5 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{One, Signed, Zero, float::FloatCore};
+use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{SqrtMethods, Vector2dMath, Vector3d};
 
@@ -119,6 +119,51 @@ where
 {
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
+    }
+}
+
+// **** MulAdd ****
+
+/// Multiply vector by constant and add another vector
+/// ```
+/// # use vector_quaternion_matrix::Vector2df32;
+/// # use num_traits::MulAdd;
+/// let mut v = Vector2df32::new(2.0, 3.0);
+/// let w = Vector2df32::new(5.0, 7.0);
+/// let k = 11.0;
+/// let r = v.mul_add(k, w);
+///
+/// assert_eq!(r, Vector2df32 { x: 27.0, y: 40.0 });
+/// ```
+impl<T> MulAdd<T> for Vector2d<T>
+where
+    T: Copy + Vector2dMath,
+{
+    type Output = Vector2d<T>;
+    fn mul_add(self, k: T, other: Self) -> Self {
+        T::v2_mul_add(self, k, other)
+    }
+}
+
+// **** MulAddAssign ****
+
+/// Multiply vector by constant and add another vector in place
+/// ```
+/// # use vector_quaternion_matrix::Vector2df32;
+/// # use num_traits::MulAddAssign;
+/// let mut v = Vector2df32::new(2.0, 3.0);
+/// let w = Vector2df32::new(5.0, 7.0);
+/// let k = 11.0;
+/// v.mul_add_assign(k, w);
+///
+/// assert_eq!(v, Vector2df32 { x: 27.0, y: 40.0 });
+/// ```
+impl<T> MulAddAssign<T> for Vector2d<T>
+where
+    T: Copy + Vector2dMath,
+{
+    fn mul_add_assign(&mut self, k: T, other: Self) {
+        *self = self.mul_add(k, other);
     }
 }
 
@@ -341,7 +386,7 @@ where
     }
 }
 
-// **** dot and cross ****
+// **** dot ****
 
 impl<T> Vector2d<T>
 where
@@ -362,6 +407,8 @@ where
         T::v2_dot(self, other)
     }
 }
+
+// **** cross ****
 
 impl<T> Vector2d<T>
 where
@@ -550,6 +597,8 @@ impl<T> From<(T, T)> for Vector2d<T> {
         Self { x, y }
     }
 }
+
+// **** From Array ****
 
 /// Vector from array
 /// ```

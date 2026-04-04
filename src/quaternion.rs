@@ -1,6 +1,6 @@
 use core::convert::From;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{One, Signed, Zero, float::FloatCore};
+use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::math_methods::TrigonometricMethods;
 use crate::sqrt_methods::SqrtMethods;
@@ -188,6 +188,51 @@ where
     }
 }
 
+// **** MulAdd ****
+
+/// Multiply quaternion by constant and add another quaternion in place
+/// ```
+/// # use vector_quaternion_matrix::Quaternionf32;
+/// # use num_traits::MulAdd;
+/// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let w = Quaternionf32::new(11.0, 13.0, 17.0, 19.0);
+/// let k = 23.0;
+/// let r = q.mul_add(k, w);
+///
+/// assert_eq!(r, Quaternionf32 { w: 57.0, x: 82.0, y: 132.0, z: 180.0 });
+/// ```
+impl<T> MulAdd<T> for Quaternion<T>
+where
+    T: Copy + QuaternionMath,
+{
+    type Output = Quaternion<T>;
+    fn mul_add(self, k: T, other: Self) -> Self {
+        T::q_mul_add(self, k, other)
+    }
+}
+
+// **** MulAddAssign ****
+
+/// Multiply quaternion by constant and add another quaternion in place
+/// ```
+/// # use vector_quaternion_matrix::Quaternionf32;
+/// # use num_traits::MulAddAssign;
+/// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let w = Quaternionf32::new(11.0, 13.0, 17.0, 19.0);
+/// let k = 23.0;
+/// q.mul_add_assign(k, w);
+///
+/// assert_eq!(q, Quaternionf32 { w: 57.0, x: 82.0, y: 132.0, z: 180.0 });
+/// ```
+impl<T> MulAddAssign<T> for Quaternion<T>
+where
+    T: Copy + QuaternionMath,
+{
+    fn mul_add_assign(&mut self, k: T, other: Self) {
+        *self = self.mul_add(k, other);
+    }
+}
+
 // **** Sub ****
 
 /// Subtract two quaternions
@@ -256,7 +301,7 @@ where
     }
 }
 
-// **** Div scalar ****
+// **** Div Scalar ****
 
 /// Divide a quaternion by a constant
 /// ```
@@ -276,7 +321,7 @@ where
     }
 }
 
-/// In-place divide a vector by a constant
+/// In-place divide a quaternion by a constant
 /// ```
 /// # use vector_quaternion_matrix::Quaternionf32;
 /// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
@@ -294,6 +339,8 @@ where
 }
 
 // **** Mul ****
+
+// **** MulAdd ****
 
 /// Multiply two quaternions
 impl<T> Mul<Quaternion<T>> for Quaternion<T>

@@ -1,5 +1,5 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{One, Signed, Zero, float::FloatCore};
+use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2Math, Matrix3x3, Vector2d};
 
@@ -15,6 +15,7 @@ pub enum MatrixError {
 }
 
 // **** Define ****
+
 /// `Matrix2x2<T>`: 2x2 Matrix of type `T`.<br>
 /// Aliases `Matrix2x2f32` and `Matrix2x2f64` are provided.<br><br>
 /// `Matrix2x2f32` uses **SIMD** accelerations implemented in `Matrix2x2Math`.<br><br>
@@ -25,6 +26,17 @@ pub enum MatrixError {
 pub struct Matrix2x2<T> {
     // Flattened 2x2 matrix: 4 elements in row-major order
     pub(crate) a: [T; 4],
+}
+
+// **** New ****
+impl<T> Matrix2x2<T>
+where
+    T: Copy,
+{
+    /// Create a matrix
+    pub const fn new(input: [T; 4]) -> Self {
+        Self { a: input }
+    }
 }
 
 // **** Zero ****
@@ -80,6 +92,7 @@ where
 }
 
 // **** Neg ****
+
 /// Negate matrix
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -102,6 +115,7 @@ where
 }
 
 // **** Add ****
+
 /// Add two matrices
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -126,12 +140,14 @@ where
     T: Copy + Matrix2x2Math,
 {
     type Output = Self;
+    #[inline(always)]
     fn add(self, other: Self) -> Self {
         T::m2x2_add(self, other)
     }
 }
 
 // **** AddAssign ****
+
 /// Add one matrix to another
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -148,12 +164,67 @@ impl<T> AddAssign for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
+    #[inline(always)]
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
     }
 }
 
+// **** MulAdd ****
+
+/// Multiply vector by constant and add another vector
+/// ```
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// # use num_traits::MulAdd;
+/// let m = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
+/// let n = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
+/// let k = 47.0;
+/// let r = m.mul_add(k, n);
+///
+/// assert_eq!(r, Matrix2x2f32::from([123.0, 172.0,
+///                                   370.0, 560.0]));
+/// ```
+impl<T> MulAdd<T> for Matrix2x2<T>
+where
+    T: Copy + Matrix2x2Math,
+{
+    type Output = Matrix2x2<T>;
+    #[inline(always)]
+    fn mul_add(self, k: T, other: Self) -> Self {
+        T::m2x2_mul_add(self, k, other)
+    }
+}
+
+// **** MulAddAssign ****
+
+/// Multiply vector by constant and add another vector in place
+/// ```
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// # use num_traits::MulAddAssign;
+/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0]);
+/// let n = Matrix2x2f32::from([29.0, 31.0,
+///                             41.0, 43.0]);
+/// let k = 47.0;
+/// m.mul_add_assign(k, n);
+///
+/// assert_eq!(m, Matrix2x2f32::from([123.0, 172.0,
+///                                   370.0, 560.0]));
+/// ```
+impl<T> MulAddAssign<T> for Matrix2x2<T>
+where
+    T: Copy + Matrix2x2Math,
+{
+    #[inline(always)]
+    fn mul_add_assign(&mut self, k: T, other: Self) {
+        *self = self.mul_add(k, other);
+    }
+}
+
 // **** Sub ****
+
 /// Subtract two matrices
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -171,6 +242,7 @@ where
     T: Copy + Matrix2x2Math,
 {
     type Output = Self;
+    #[inline(always)]
     fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
         self + (-other)
@@ -178,6 +250,7 @@ where
 }
 
 // **** SubAssign ****
+
 /// Subtract one matrix from another
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -194,12 +267,14 @@ impl<T> SubAssign for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
+    #[inline(always)]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
     }
 }
 
 // **** Pre-multiply ****
+
 /// Pre-multiply a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -213,26 +288,19 @@ where
 impl Mul<Matrix2x2<f32>> for f32 {
     type Output = Matrix2x2<f32>;
     fn mul(self, other: Matrix2x2<f32>) -> Matrix2x2<f32> {
-        let mut a = other.a;
-        for r in a.iter_mut() {
-            *r *= self;
-        }
-        Matrix2x2f32 { a }
+        f32::m2x2_mul_scalar(other, self)
     }
 }
 
 impl Mul<Matrix2x2<f64>> for f64 {
     type Output = Matrix2x2<f64>;
     fn mul(self, other: Matrix2x2<f64>) -> Matrix2x2<f64> {
-        let mut a = other.a;
-        for r in a.iter_mut() {
-            *r *= self;
-        }
-        Matrix2x2::<f64> { a }
+        f64::m2x2_mul_scalar(other, self)
     }
 }
 
 // **** Mul ****
+
 /// Multiply a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -254,6 +322,7 @@ where
 }
 
 // **** MulAssign ****
+
 /// In-place multiply a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -371,6 +440,7 @@ where
     }
 }
 // **** Div ****
+
 /// Divide a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -392,6 +462,7 @@ where
 }
 
 // **** DivAssign ****
+
 /// In-place divide a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -412,6 +483,7 @@ where
 }
 
 // **** Index ****
+
 /// Access matrix element by index
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -432,6 +504,7 @@ impl<T> Index<usize> for Matrix2x2<T> {
 }
 
 // **** IndexMut ****
+
 /// Set matrix element by index
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -491,17 +564,6 @@ impl<T> Index<(usize, usize)> for Matrix2x2<T> {
 impl<T> IndexMut<(usize, usize)> for Matrix2x2<T> {
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         &mut self.a[row * 2 + col]
-    }
-}
-
-// **** New ****
-impl<T> Matrix2x2<T>
-where
-    T: Copy,
-{
-    /// Create a matrix
-    pub const fn new(input: [T; 4]) -> Self {
-        Self { a: input }
     }
 }
 

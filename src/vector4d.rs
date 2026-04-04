@@ -1,5 +1,5 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{One, Signed, Zero, float::FloatCore};
+use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{SqrtMethods, Vector2d, Vector3d, Vector4dMath};
 
@@ -33,7 +33,7 @@ where
     }
 }
 
-// **** zero ****
+// **** Zero ****
 
 /// Zero vector
 /// ```
@@ -120,6 +120,51 @@ where
 {
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
+    }
+}
+
+// **** MulAdd ****
+
+/// Multiply vector by constant and add another vector
+/// ```
+/// # use vector_quaternion_matrix::Vector4df32;
+/// # use num_traits::MulAdd;
+/// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+/// let w = Vector4df32::new(11.0, 13.0, 17.0, 19.0);
+/// let k = 23.0;
+/// let r = v.mul_add(k, w);
+///
+/// assert_eq!(r, Vector4df32 { x: 57.0, y: 82.0, z: 132.0, t: 180.0 });
+/// ```
+impl<T> MulAdd<T> for Vector4d<T>
+where
+    T: Copy + Vector4dMath,
+{
+    type Output = Vector4d<T>;
+    fn mul_add(self, k: T, other: Self) -> Self {
+        T::v4_mul_add(self, k, other)
+    }
+}
+
+// **** MulAddAssign ****
+
+/// Multiply vector by constant and add another vector in place
+/// ```
+/// # use vector_quaternion_matrix::Vector4df32;
+/// # use num_traits::MulAddAssign;
+/// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+/// let w = Vector4df32::new(11.0, 13.0, 17.0, 19.0);
+/// let k = 23.0;
+/// v.mul_add_assign(k, w);
+///
+/// assert_eq!(v, Vector4df32 { x: 57.0, y: 82.0, z: 132.0, t: 180.0 });
+/// ```
+impl<T> MulAddAssign<T> for Vector4d<T>
+where
+    T: Copy + Vector4dMath,
+{
+    fn mul_add_assign(&mut self, k: T, other: Self) {
+        *self = self.mul_add(k, other);
     }
 }
 
@@ -397,6 +442,7 @@ where
     /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
     /// let w = Vector4df32::new(11.0, 13.0, 17.0, 19.0);
     /// assert_eq!(469.0, v.distance_squared(w));
+    /// ```
     pub fn distance_squared(self, other: Self) -> T {
         (self - other).norm_squared()
     }
@@ -489,7 +535,7 @@ where
     /// ```
     pub fn mean(self) -> T {
         let four = T::one() + T::one() + T::one() + T::one();
-        (self.x + self.y + self.z + self.t) / four
+        self.sum() / four
     }
 }
 

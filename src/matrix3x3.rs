@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{One, Signed, Zero, float::FloatCore};
+use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3Math, MatrixError, Quaternion, QuaternionMath, SqrtMethods, Vector3d};
 
@@ -10,9 +10,11 @@ pub type Matrix3x3f32 = Matrix3x3<f32>;
 pub type Matrix3x3f64 = Matrix3x3<f64>;
 
 // **** Define ****
+
 cfg_if! {
 if #[cfg(feature = "align")] {
 // High-performance 32-byte aligned version, allows use of SIMD and f32x8
+
 /// `Matrix3x3<T>`: 3x3 Matrix of type `T`.<br>
 /// Aliases `Matrix3x3f32` and `Matrix3x3f64` are provided.<br><br>
 /// `Matrix3x3f32` uses **SIMD** accelerations implemented in `Matrix3x3Math`.<br><br>
@@ -39,7 +41,19 @@ pub struct Matrix3x3<T> {
 }
 }
 
+// **** New ****
+impl<T> Matrix3x3<T>
+where
+    T: Copy,
+{
+    /// Create a matrix
+    pub const fn new(input: [T; 9]) -> Self {
+        Self { a: input }
+    }
+}
+
 // **** Zero ****
+
 /// Zero matrix
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -54,15 +68,19 @@ impl<T> Zero for Matrix3x3<T>
 where
     T: Copy + Zero + PartialEq + Matrix3x3Math,
 {
+    #[inline(always)]
     fn zero() -> Self {
         Self { a: [T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero()] }
     }
+
+    #[inline(always)]
     fn is_zero(&self) -> bool {
         self.a.iter().all(|&x| x == T::zero())
     }
 }
 
 // **** One ****
+
 /// Identity matrix
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -77,16 +95,19 @@ impl<T> One for Matrix3x3<T>
 where
     T: Copy + Zero + One + PartialEq + Matrix3x3Math,
 {
+    #[inline(always)]
     fn one() -> Self {
         Self { a: [T::one(), T::zero(), T::zero(), T::zero(), T::one(), T::zero(), T::zero(), T::zero(), T::one()] }
     }
 
+    #[inline(always)]
     fn is_one(&self) -> bool {
         self.a == [T::one(), T::zero(), T::zero(), T::zero(), T::one(), T::zero(), T::zero(), T::zero(), T::one()]
     }
 }
 
 // **** Neg ****
+
 /// Negate matrix
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -111,6 +132,7 @@ where
 }
 
 // **** Add ****
+
 /// Add two matrices
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -138,12 +160,14 @@ where
     T: Copy + Matrix3x3Math,
 {
     type Output = Self;
+    #[inline(always)]
     fn add(self, other: Self) -> Self {
         T::m3x3_add(self, other)
     }
 }
 
 // **** AddAssign ****
+
 /// Add one matrix to another
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -163,12 +187,72 @@ impl<T> AddAssign for Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
 {
+    #[inline(always)]
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
     }
 }
 
+// **** MulAdd ****
+
+/// Multiply vector by constant and add another vector
+/// ```
+/// # use vector_quaternion_matrix::Matrix3x3f32;
+/// # use num_traits::MulAdd;
+/// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
+/// let n = Matrix3x3f32::from([29.0, 31.0, 37.0,
+///                             41.0, 43.0, 47.0,
+///                             53.0, 59.0, 61.0]);
+/// let k = 67.0;
+/// let r = m.mul_add(k, n);
+/// assert_eq!(r, Matrix3x3f32::from([ 163.0,  232.0,  372.0,
+///                                    510.0,  780.0,  918.0,
+///                                   1192.0, 1332.0, 1602.0]));
+/// ```
+impl<T> MulAdd<T> for Matrix3x3<T>
+where
+    T: Copy + Matrix3x3Math,
+{
+    type Output = Self;
+    #[inline(always)]
+    fn mul_add(self, k: T, other: Self) -> Self {
+        T::m3x3_mul_add(self, k, other)
+    }
+}
+
+// **** MulAddAssign ****
+
+/// Multiply vector by constant and add another vector in place
+/// ```
+/// # use vector_quaternion_matrix::Matrix3x3f32;
+/// # use num_traits::MulAddAssign;
+/// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+///                                  7.0, 11.0, 13.0,
+///                                 17.0, 19.0, 23.0]);
+/// let n = Matrix3x3f32::from([29.0, 31.0, 37.0,
+///                             41.0, 43.0, 47.0,
+///                             53.0, 59.0, 61.0]);
+/// let k = 67.0;
+/// m.mul_add_assign(k, n);
+///
+/// assert_eq!(m, Matrix3x3f32::from([ 163.0,  232.0,  372.0,
+///                                    510.0,  780.0,  918.0,
+///                                   1192.0, 1332.0, 1602.0]));
+/// ```
+impl<T> MulAddAssign<T> for Matrix3x3<T>
+where
+    T: Copy + Matrix3x3Math,
+{
+    #[inline(always)]
+    fn mul_add_assign(&mut self, k: T, other: Self) {
+        *self = self.mul_add(k, other);
+    }
+}
+
 // **** Sub ****
+
 /// Subtract two matrices
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -189,6 +273,7 @@ where
     T: Copy + Matrix3x3Math,
 {
     type Output = Self;
+    #[inline(always)]
     fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
         self + (-other)
@@ -196,6 +281,7 @@ where
 }
 
 // **** SubAssign ****
+
 /// Subtract one matrix from another
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -215,12 +301,14 @@ impl<T> SubAssign for Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
 {
+    #[inline(always)]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
     }
 }
 
 // **** Pre-multiply ****
+
 /// Pre-multiply a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -256,6 +344,7 @@ impl Mul<Matrix3x3<f64>> for f64 {
 }
 
 // **** Mul ****
+
 /// Multiply a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -279,6 +368,7 @@ where
 }
 
 // **** MulAssign ****
+
 /// In-place multiply a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -403,6 +493,7 @@ where
     }
 }
 // **** Div ****
+
 /// Divide a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -426,6 +517,7 @@ where
 }
 
 // **** DivAssign ****
+
 /// In-place divide a matrix by a constant
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -448,6 +540,7 @@ where
 }
 
 // **** Index ****
+
 /// Access matrix element by index
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -474,6 +567,7 @@ impl<T> Index<usize> for Matrix3x3<T> {
 }
 
 // **** IndexMut ****
+
 /// Set matrix element by index
 /// ```
 /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -553,17 +647,6 @@ impl<T> Index<(usize, usize)> for Matrix3x3<T> {
 impl<T> IndexMut<(usize, usize)> for Matrix3x3<T> {
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         &mut self.a[row * 3 + col]
-    }
-}
-
-// **** New ****
-impl<T> Matrix3x3<T>
-where
-    T: Copy,
-{
-    /// Create a matrix
-    pub const fn new(input: [T; 9]) -> Self {
-        Self { a: input }
     }
 }
 

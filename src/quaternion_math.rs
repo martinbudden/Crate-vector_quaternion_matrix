@@ -42,11 +42,11 @@ pub trait QuaternionMath: Sized {
     fn q_add(this: Quaternion<Self>, this: Quaternion<Self>) -> Quaternion<Self>;
     fn q_mul_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self>;
     fn q_div_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self>;
-    fn q_mul(other: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self>;
-    fn q_mul_add(this: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_mul_add(this: Quaternion<Self>, k: Self, other: Quaternion<Self>) -> Quaternion<Self>;
     fn q_norm_squared(this: Quaternion<Self>) -> Self;
     fn q_normalize(this: Quaternion<Self>) -> Quaternion<Self>;
     fn q_is_normalized(this: Quaternion<Self>) -> bool;
+    fn q_mul(other: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self>;
     fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self>;
 }
 
@@ -106,19 +106,24 @@ impl QuaternionMath for f32 {
     }
 
     #[inline(always)]
-    fn q_mul_add(this: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
+    fn q_mul_add(this: Quaternion<Self>, k: Self, other: Quaternion<Self>) -> Quaternion<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
-            let v_b = f32x4::from(b);
-            let v_a = f32x4::splat(a);
+            let other_simd = f32x4::from(other);
+            let k_simd = f32x4::splat(k);
 
             // This maps to the Vector Fused Multiply-Add instruction
-            ((this_simd * v_a) + v_b).into()
+            ((this_simd * k_simd) + other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Quaternion { w: this.w * a + b.w, x: this.x * a + b.x, y: this.y * a + b.y, z: this.z * a + b.z }
+            Quaternion {
+                w: this.w * k + other.w,
+                x: this.x * k + other.x,
+                y: this.y * k + other.y,
+                z: this.z * k + other.z,
+            }
         }
     }
 
@@ -228,18 +233,23 @@ impl QuaternionMath for f64 {
     }
 
     #[inline(always)]
-    fn q_mul_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self> {
-        Quaternion { w: this.w * a, x: this.x * a, y: this.y * a, z: this.z * a }
+    fn q_mul_scalar(this: Quaternion<Self>, k: Self) -> Quaternion<Self> {
+        Quaternion { w: this.w * k, x: this.x * k, y: this.y * k, z: this.z * k }
     }
 
     #[inline(always)]
-    fn q_div_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self> {
-        Self::q_mul_scalar(this, 1.0 / a)
+    fn q_div_scalar(this: Quaternion<Self>, k: Self) -> Quaternion<Self> {
+        Self::q_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn q_mul_add(this: Quaternion<Self>, a: Self, b: Quaternion<Self>) -> Quaternion<Self> {
-        Quaternion { w: this.w * a + b.w, x: this.x * a + b.x, y: this.y * a + b.y, z: this.z * a + b.z }
+    fn q_mul_add(this: Quaternion<Self>, k: Self, other: Quaternion<Self>) -> Quaternion<Self> {
+        Quaternion {
+            w: this.w * k + other.w,
+            x: this.x * k + other.x,
+            y: this.y * k + other.y,
+            z: this.z * k + other.z,
+        }
     }
 
     #[inline(always)]

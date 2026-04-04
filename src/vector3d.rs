@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{One, Signed, Zero, float::FloatCore};
+use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{Quaternion, QuaternionMath, SqrtMethods, Vector2d, Vector3dMath};
 
@@ -140,6 +140,51 @@ where
     }
 }
 
+// **** MulAdd ****
+
+/// Multiply vector by constant and add another vector
+/// ```
+/// # use vector_quaternion_matrix::Vector3df32;
+/// # use num_traits::MulAdd;
+/// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
+/// let w = Vector3df32::new(7.0, 11.0, 13.0);
+/// let k = 17.0;
+/// let r = v.mul_add(k, w);
+///
+/// assert_eq!(r, Vector3df32 { x: 41.0, y: 62.0, z: 98.0 });
+/// ```
+impl<T> MulAdd<T> for Vector3d<T>
+where
+    T: Copy + Vector3dMath,
+{
+    type Output = Vector3d<T>;
+    fn mul_add(self, k: T, other: Self) -> Self {
+        T::v3_mul_add(self, k, other)
+    }
+}
+
+// **** MulAddAssign ****
+
+/// Multiply vector by constant and add another vector in place
+/// ```
+/// # use vector_quaternion_matrix::Vector3df32;
+/// # use num_traits::MulAddAssign;
+/// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
+/// let w = Vector3df32::new(7.0, 11.0, 13.0);
+/// let k = 17.0;
+/// v.mul_add_assign(k, w);
+///
+/// assert_eq!(v, Vector3df32 { x: 41.0, y: 62.0, z: 98.0 });
+/// ```
+impl<T> MulAddAssign<T> for Vector3d<T>
+where
+    T: Copy + Vector3dMath,
+{
+    fn mul_add_assign(&mut self, k: T, other: Self) {
+        *self = self.mul_add(k, other);
+    }
+}
+
 // **** Sub ****
 
 /// Subtract two vectors
@@ -245,7 +290,7 @@ where
     }
 }
 
-// **** Div by scalar ****
+// **** Div scalar ****
 
 /// Divide a vector by a constant
 /// ```
@@ -526,6 +571,8 @@ where
     }
 }
 
+// **** max ****
+
 impl<T> Vector3d<T>
 where
     T: Copy + Vector3dMath,
@@ -544,7 +591,7 @@ where
         T::v3_max(self)
     }
 
-    /// Return the max element in the vector
+    /// Return the min element in the vector
     /// ```
     /// # use vector_quaternion_matrix::Vector3df32;
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
