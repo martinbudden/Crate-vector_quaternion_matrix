@@ -1245,12 +1245,12 @@ where
                 // |x| bigger than |y|, so use x-form
                 let t = T::one() + (m.a[0] - m.a[4]) - m.a[8]; // 1 + 2(xx - yy) - 1 + 2(xx + yy) = 4xx
                 let q = Self { w: m.a[7] - m.a[5], x: t, y: m.a[1] + m.a[3], z: m.a[6] + m.a[2] };
-                return q * t.reciprocal_sqrt() * half;
+                return q * t.sqrt_reciprocal() * half;
             }
             // |y| bigger than |x|, so use y-form
             let t = T::one() - (m.a[0] - m.a[4]) - m.a[8]; // 1 - 2(xx - yy) - 1 + 2(xx + yy) = 4yy
             let q = Self { w: m.a[2] - m.a[6], x: m.a[1] + m.a[3], y: t, z: m.a[5] + m.a[7] };
-            return q * t.reciprocal_sqrt() * half;
+            return q * t.sqrt_reciprocal() * half;
         }
 
         // |(z,w)| bigger than |(x,y)|
@@ -1258,13 +1258,13 @@ where
             // |z| bigger than |w|, so use z-form
             let t = T::one() - m.a[0] - (m.a[4] - m.a[8]); // 1 - (1 - 2*(yy + zz)) - (2(yy - zz)) = 4zz
             let q = Self { w: m.a[3] - m.a[1], x: m.a[2] + m.a[6], y: m.a[5] + m.a[7], z: t };
-            return q * t.reciprocal_sqrt() * half;
+            return q * t.sqrt_reciprocal() * half;
         }
 
         // |w| bigger than |z|, so use w-form
         // ww + xx + yy + zz = 1, since unit quaternion, so xx + yy + zz =  1 - ww
         let t = T::one() + m.a[0] + m.a[4] + m.a[8]; // 1 + 1 - 2*(yy + zz) + 1 - 2(xx + zz) + 1 - 2(xx + yy) =  4 - 4(xx + yy + zz) = 4 - 4(1 - ww) = 4ww
         let q = Self { w: t, x: m.a[7] - m.a[5], y: m.a[2] - m.a[6], z: m.a[3] - m.a[1] };
-        q * t.reciprocal_sqrt() * half
+        q * t.sqrt_reciprocal() * half
     }
 }

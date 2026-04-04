@@ -571,7 +571,7 @@ where
         let half = T::one() / (T::one() + T::one());
         let a: T = self.w * self.x + self.y * self.z;
         let b: T = half - self.x * self.x - self.y * self.y;
-        b * (a * a + b * b).reciprocal_sqrt()
+        b * (a * a + b * b).sqrt_reciprocal()
     }
 
     pub fn sin_pitch(self) -> T {
@@ -586,28 +586,28 @@ where
 
     pub fn tan_pitch(self) -> T {
         let s: T = self.sin_pitch();
-        s * (T::one() - s * s).reciprocal_sqrt()
+        s * (T::one() - s * s).sqrt_reciprocal()
     }
 
     pub fn cos_yaw(self) -> T {
         let half = T::one() / (T::one() + T::one());
         let a: T = self.w * self.z + self.x * self.y;
         let b: T = half - self.y * self.y - self.z * self.z;
-        b * (a * a + b * b).reciprocal_sqrt()
+        b * (a * a + b * b).sqrt_reciprocal()
     }
 
     pub fn sin_yaw(self) -> T {
         let half = T::one() / (T::one() + T::one());
         let a: T = self.w * self.z + self.x * self.y;
         let b: T = half - self.y * self.y - self.z * self.z;
-        a * (a * a + b * b).reciprocal_sqrt()
+        a * (a * a + b * b).sqrt_reciprocal()
     }
 
     pub fn sin_roll(self) -> T {
         let half = T::one() / (T::one() + T::one());
         let a: T = self.w * self.x + self.y * self.z;
         let b: T = half - self.x * self.x - self.y * self.y;
-        a * (a * a + b * b).reciprocal_sqrt()
+        a * (a * a + b * b).sqrt_reciprocal()
     }
 
     /// clip sin(roll_angle) to +/-1.0 when roll angle outside range [-90 degrees, 90 degrees]
@@ -621,7 +621,7 @@ where
             }
             return T::one();
         }
-        a * (a * a + b * b).reciprocal_sqrt()
+        a * (a * a + b * b).sqrt_reciprocal()
     }
 }
 

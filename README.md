@@ -19,7 +19,7 @@ and uses no allocation. This means it is suitable for embedded system.
 This crate provides implementations of the trigonometric methods normally provided by the standard library, namely:
 `sin`, `cos`, `sin_cos`, `tan`, `asin`, `acos`, `atan2`. The are provided in method_call syntax, ie `x.sin()`.
 
-The methods `sqrt` and `reciprocal_sqrt` are also provided.
+The methods `sqrt` and `sqrt_reciprocal` are also provided.
 
 The `MathConstants` trait provides a the standard mathematical constants in a form that can be used in generic code
 ie `T:PI`.

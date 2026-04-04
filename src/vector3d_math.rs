@@ -153,7 +153,7 @@ impl Vector3dMath for f32 {
             }
 
             let this_simd = f32x4::from(this);
-            let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses hardware vrsqrt
+            let norm_reciprocal = norm_squared.sqrt_reciprocal(); // Uses hardware vrsqrt
             let scale = f32x4::splat(norm_reciprocal);
             (this_simd * scale).into()
         }
@@ -163,7 +163,7 @@ impl Vector3dMath for f32 {
             if norm_squared == 0.0 {
                 return Vector3d::default();
             }
-            let norm_reciprocal = norm_squared.reciprocal_sqrt();
+            let norm_reciprocal = norm_squared.sqrt_reciprocal();
             Vector3d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal, z: this.z * norm_reciprocal }
         }
     }
@@ -308,7 +308,7 @@ impl Vector3dMath for f64 {
         if norm_squared == 0.0 {
             return Vector3d::default();
         }
-        let norm_reciprocal = norm_squared.reciprocal_sqrt();
+        let norm_reciprocal = norm_squared.sqrt_reciprocal();
         Vector3d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal, z: this.z * norm_reciprocal }
     }
 
@@ -394,7 +394,7 @@ impl Vector3dMath for i16 {
         if norm_squared == 0 {
             return Vector3d::default();
         }
-        let norm_reciprocal = (norm_squared as f32).reciprocal_sqrt();
+        let norm_reciprocal = (norm_squared as f32).sqrt_reciprocal();
         Vector3d {
             x: ((this.x as f32) * norm_reciprocal) as i16,
             y: ((this.y as f32) * norm_reciprocal) as i16,

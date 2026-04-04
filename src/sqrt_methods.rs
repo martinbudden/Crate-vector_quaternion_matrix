@@ -1,11 +1,11 @@
 #![allow(clippy::excessive_precision)]
 use cfg_if::cfg_if;
 
-/// `no_std` implementations of `sqrt` and `reciprocal_sqrt` in  method call syntax<br>
-/// ie `x.sqrt()`, `x.reciprocal_sqrt()`
+/// `no_std` implementations of `sqrt` and `sqrt_reciprocal` in  method call syntax<br>
+/// ie `x.sqrt()`, `x.sqrt_reciprocal()`
 pub trait SqrtMethods: Sized {
     fn sqrt(self) -> Self;
-    fn reciprocal_sqrt(self) -> Self;
+    fn sqrt_reciprocal(self) -> Self;
 }
 
 cfg_if! {
@@ -17,7 +17,7 @@ cfg_if! {
                 self.sqrt()
             }
             #[inline(always)]
-            fn reciprocal_sqrt(self) -> f32 {
+            fn sqrt_reciprocal(self) -> f32 {
                 1.0 / self.sqrt()
             }
         }
@@ -27,7 +27,7 @@ cfg_if! {
                 self.sqrt()
             }
             #[inline(always)]
-            fn reciprocal_sqrt(self) -> f64 {
+            fn sqrt_reciprocal(self) -> f64 {
                 1.0 / self.sqrt()
             }
         }
@@ -54,7 +54,7 @@ cfg_if! {
                 }
             }
             #[inline(always)]
-            fn reciprocal_sqrt(self) -> f32 {
+            fn sqrt_reciprocal(self) -> f32 {
                 /*#[cfg(feature = "rp2350")]
                 {
                     let mut result: f32;
@@ -79,24 +79,24 @@ cfg_if! {
                 libm::sqrt(self)
             }
             #[inline(always)]
-            fn reciprocal_sqrt(self) -> f64 {
+            fn sqrt_reciprocal(self) -> f64 {
                 1.0 / libm::sqrt(self)
             }
         }
     } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
         impl SqrtMethods for f32 {
             fn sqrt(self) -> f32 {
-                1.0 / _reciprocal_sqrtf(self)
+                1.0 / _sqrt_reciprocalf(self)
             }
-            fn reciprocal_sqrt(self) -> f32 {
-                _reciprocal_sqrtf(self)
+            fn sqrt_reciprocal(self) -> f32 {
+                _sqrt_reciprocalf(self)
             }
         }
         impl SqrtMethods for f64 {
             fn sqrt(self) -> f64 {
                 compile_error!("Please enable the 'libm' or 'std' feature for math support.")
             }
-            fn reciprocal_sqrt(self) -> f64 {
+            fn sqrt_reciprocal(self) -> f64 {
                 compile_error!("Please enable the 'libm' or 'std' feature for math support.")
             }
         }
@@ -128,7 +128,7 @@ fn _sqrtf(x: f32) -> f32 {
         }
         #[cfg(not(feature = "libm"))]
         {
-            let result: f32 = 1.0 / _reciprocal_sqrtf(x);
+            let result: f32 = 1.0 / _sqrt_reciprocalf(x);
             result
         }
     }
@@ -161,7 +161,7 @@ impl MathExt for f32 {
 }*/
 
 #[inline(always)]
-fn _reciprocal_sqrtf(x: f32) -> f32 {
+fn _sqrt_reciprocalf(x: f32) -> f32 {
     let mut y: f32 = x;
     let mut i: i32 = y.to_bits().cast_signed();
     i = 0x5F375A86 - (i >> 1);
@@ -170,7 +170,7 @@ fn _reciprocal_sqrtf(x: f32) -> f32 {
 }
 
 #[inline(always)]
-fn _quake_reciprocal_sqrt(number: f32) -> f32 {
+fn _quake_sqrt_reciprocal(number: f32) -> f32 {
     let mut y: f32 = number;
     let mut i: i32 = y.to_bits().cast_signed();
     i = 0x5F375A86 - (i >> 1);
@@ -184,10 +184,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn reciprocal_sqrt() {
-        assert_eq!(_quake_reciprocal_sqrt(4.0), 0.49915406);
-        assert_eq!(_reciprocal_sqrtf(4.0), 0.49435496);
-        assert_eq!(4.0.reciprocal_sqrt(), 0.5);
+    fn sqrt_reciprocal() {
+        assert_eq!(_quake_sqrt_reciprocal(4.0), 0.49915406);
+        assert_eq!(_sqrt_reciprocalf(4.0), 0.49435496);
+        assert_eq!(4.0.sqrt_reciprocal(), 0.5);
     }
     #[test]
     fn sqrt() {

@@ -151,7 +151,7 @@ impl Vector4dMath for f32 {
             }
 
             let this_simd = f32x4::from(this);
-            let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses hardware vrsqrt
+            let norm_reciprocal = norm_squared.sqrt_reciprocal(); // Uses hardware vrsqrt
             let scale = f32x4::splat(norm_reciprocal);
             (this_simd * scale).into()
         }
@@ -161,7 +161,7 @@ impl Vector4dMath for f32 {
             if norm_squared == 0.0 {
                 return Vector4d::default();
             }
-            let norm_reciprocal = norm_squared.reciprocal_sqrt();
+            let norm_reciprocal = norm_squared.sqrt_reciprocal();
             Vector4d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal, z: this.z * norm_reciprocal }
         }
     }
@@ -290,7 +290,7 @@ impl Vector4dMath for f64 {
         if norm_squared == 0.0 {
             return Vector4d::default();
         }
-        let norm_reciprocal = norm_squared.reciprocal_sqrt();
+        let norm_reciprocal = norm_squared.sqrt_reciprocal();
         Vector4d {
             x: this.x * norm_reciprocal,
             y: this.y * norm_reciprocal,

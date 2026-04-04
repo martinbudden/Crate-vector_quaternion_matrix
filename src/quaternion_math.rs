@@ -172,7 +172,7 @@ impl QuaternionMath for f32 {
             if norm_squared == 0.0 {
                 return Quaternion { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
             }
-            let norm_reciprocal = norm_squared.reciprocal_sqrt(); // Uses our hardware vrsqrt
+            let norm_reciprocal = norm_squared.sqrt_reciprocal(); // Uses our hardware vrsqrt
             let scale = f32x4::splat(norm_reciprocal);
             (this_simd * scale).into()
         }
@@ -182,7 +182,7 @@ impl QuaternionMath for f32 {
             if norm_squared == 0.0 {
                 return Quaternion::default();
             }
-            let norm_reciprocal = norm_squared.reciprocal_sqrt();
+            let norm_reciprocal = norm_squared.sqrt_reciprocal();
             Quaternion {
                 w: this.x * norm_reciprocal,
                 x: this.x * norm_reciprocal,
@@ -273,7 +273,7 @@ impl QuaternionMath for f64 {
         if norm_squared == 0.0 {
             return Quaternion::default();
         }
-        let norm_reciprocal = norm_squared.reciprocal_sqrt();
+        let norm_reciprocal = norm_squared.sqrt_reciprocal();
         Quaternion {
             w: this.x * norm_reciprocal,
             x: this.x * norm_reciprocal,
