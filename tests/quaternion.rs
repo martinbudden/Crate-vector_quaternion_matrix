@@ -178,7 +178,7 @@ mod tests {
         let q_dot = Quaternion { w: 0.1, x: 0.2, y: 0.3, z: 0.4 };
         let dt = 0.01;
 
-        // This line now uses your SIMD Add, Mul, and AddAssign!
+        // This line uses SIMD Add, Mul, and AddAssign
         q += q_dot * dt;
 
         assert_abs_diff_eq!(q.w, 1.001, epsilon = 1e-6);
