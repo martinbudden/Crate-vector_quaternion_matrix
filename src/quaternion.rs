@@ -174,8 +174,8 @@ where
     type Output = Self;
 
     #[inline(always)]
-    fn add(self, rhs: Self) -> Self {
-        T::q_add(self, rhs)
+    fn add(self, other: Self) -> Self {
+        T::q_add(self, other)
     }
 }
 
@@ -187,16 +187,16 @@ where
     T: Copy + QuaternionMath,
 {
     #[inline(always)]
-    fn add_assign(&mut self, rhs: Self) {
+    fn add_assign(&mut self, other: Self) {
         // This mutates 'self' in place.
         // On RP2350, this avoids a stack copy of the current orientation.
-        *self = *self + rhs;
+        *self = *self + other;
     }
 }
 
 // **** MulAdd ****
 
-/// Multiply quaternion by constant and add another quaternion in place
+/// Multiply quaternion by constant and add another quaternion
 /// ```
 /// # use vector_quaternion_matrix::Quaternionf32;
 /// # use num_traits::MulAdd;
@@ -252,9 +252,9 @@ where
     type Output = Self;
 
     #[inline(always)]
-    fn sub(self, rhs: Self) -> Self {
+    fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
-        self + (-rhs)
+        self + (-other)
     }
 }
 
@@ -266,8 +266,8 @@ where
     T: Copy + Add<Output = T> + QuaternionMath,
 {
     #[inline(always)]
-    fn sub_assign(&mut self, rhs: Self) {
-        *self = *self - rhs;
+    fn sub_assign(&mut self, other: Self) {
+        *self = *self - other;
     }
 }
 
@@ -318,7 +318,7 @@ where
     }
 }
 
-// **** Div Scalar ****
+// **** Div by scalar ****
 
 /// Divide a quaternion by a constant
 /// ```
@@ -370,8 +370,8 @@ where
     type Output = Self;
 
     #[inline(always)]
-    fn mul(self, rhs: Self) -> Self {
-        T::q_mul(self, rhs)
+    fn mul(self, other: Self) -> Self {
+        T::q_mul(self, other)
     }
 }
 
@@ -383,8 +383,8 @@ where
     T: Copy + QuaternionMath,
 {
     #[inline(always)]
-    fn mul_assign(&mut self, rhs: Self) {
-        *self = self.mul(rhs);
+    fn mul_assign(&mut self, other: Self) {
+        *self = self.mul(other);
     }
 }
 
@@ -541,12 +541,13 @@ where
 
     /// Normalize the quaternion in place
     #[inline(always)]
-    pub fn normalize(&mut self) {
+    pub fn normalize(&mut self) -> Self {
         let norm: T = self.norm();
         // If norm == 0.0 then the quaternion is already normalized
         if norm != T::zero() {
             *self *= T::q_reciprocal(norm);
         }
+        *self
     }
 }
 
@@ -821,7 +822,7 @@ where
     }
 }
 
-// **** From ****
+// **** From Array ****
 
 /// Quaternion from array
 /// ```

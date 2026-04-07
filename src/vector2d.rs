@@ -75,7 +75,7 @@ where
     type Output = Self;
 
     #[inline(always)]
-    fn neg(self) -> Self::Output {
+    fn neg(self) -> Self {
         T::v2_neg(self)
     }
 }

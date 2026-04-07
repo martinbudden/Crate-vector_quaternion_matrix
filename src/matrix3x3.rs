@@ -130,7 +130,7 @@ where
     type Output = Self;
 
     #[inline(always)]
-    fn neg(self) -> Self::Output {
+    fn neg(self) -> Self {
         T::m3x3_neg(self)
     }
 }

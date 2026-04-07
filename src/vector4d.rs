@@ -76,7 +76,7 @@ where
     type Output = Self;
 
     #[inline(always)]
-    fn neg(self) -> Self::Output {
+    fn neg(self) -> Self {
         T::v4_neg(self)
     }
 }
@@ -357,6 +357,7 @@ impl<T> Index<usize> for Vector4d<T> {
 }
 
 // **** IndexMut ****
+
 // Set vector component by index
 /// ```
 /// # use vector_quaternion_matrix::Vector4df32;
@@ -509,7 +510,6 @@ where
     #[inline(always)]
     pub fn normalize(&mut self) -> Self {
         let norm = self.norm();
-        //#[allow(clippy::assign_op_pattern)]
         // If norm == 0.0 then the vector is already normalized
         if norm != T::zero() {
             *self *= T::v4_reciprocal(norm);
