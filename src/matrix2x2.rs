@@ -29,6 +29,15 @@ pub struct Matrix2x2<T> {
 }
 
 // **** New ****
+
+/// Create a matrix.
+/// ```
+/// # use vector_quaternion_matrix::Matrix2x2f32;
+/// let m = Matrix2x2f32::new([2.0,  3.0,
+///                            7.0, 11.0]);
+/// assert_eq!(m, Matrix2x2f32::from([ 2.0,  3.0,
+///                                    7.0, 11.0]));
+/// ```
 impl<T> Matrix2x2<T>
 where
     T: Copy,
@@ -45,11 +54,12 @@ where
 /// Zero matrix
 /// ```
 /// # use vector_quaternion_matrix::Matrix2x2f32;
-/// # use num_traits::Zero;
+/// # use num_traits::{Zero,zero};
 /// let z = Matrix2x2f32::zero();
 ///
 /// assert_eq!(z, Matrix2x2f32::from([ 0.0, 0.0,
 ///                                    0.0, 0.0]));
+/// assert!(z.is_zero());
 /// ```
 impl<T> Zero for Matrix2x2<T>
 where
@@ -592,48 +602,6 @@ impl<T> IndexMut<(usize, usize)> for Matrix2x2<T> {
     }
 }
 
-// **** abs ****
-impl<T> Matrix2x2<T>
-where
-    T: Copy + Matrix2x2Math,
-{
-    /// Return a copy of the matrix with all components set to their absolute values
-    #[inline(always)]
-    pub fn abs(self) -> Self {
-        T::m2x2_abs(self)
-    }
-
-    /// Set all components of the matrix to their absolute values
-    #[inline(always)]
-    pub fn abs_in_place(&mut self) -> Self {
-        *self = self.abs();
-        *self
-    }
-}
-
-// **** clamp ****
-impl<T> Matrix2x2<T>
-where
-    T: Copy + FloatCore,
-{
-    /// Return a copy of the matrix with all components clamped to the specified range
-    #[inline(always)]
-    pub fn clamp(self, min: T, max: T) -> Self {
-        let mut a = self.a;
-        for it in a.iter_mut() {
-            *it = it.clamp(min, max);
-        }
-        Self { a }
-    }
-
-    /// Clamp all components of the matrix to the specified range
-    #[inline(always)]
-    pub fn clamp_in_place(&mut self, min: T, max: T) -> Self {
-        *self = self.clamp(min, max);
-        *self
-    }
-}
-
 impl<T> Matrix2x2<T>
 where
     T: Copy,
@@ -700,6 +668,86 @@ where
             // default to column 1 if column out of range
             _ => Vector2d::<T> { x: self.a[1], y: self.a[3] },
         }
+    }
+}
+
+// **** abs ****
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + Matrix2x2Math,
+{
+    /// Return a copy of the matrix with all components set to their absolute values
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  -3.0,
+    ///                              7.0, -11.0]);
+    /// let n = m.absolute();
+    ///
+    /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  3.0,
+    ///                                    7.0, 11.0]));
+    /// ```
+    #[inline(always)]
+    pub fn absolute(self) -> Self {
+        T::m2x2_abs(self)
+    }
+
+    /// Set all components of the matrix to their absolute values
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let mut m = Matrix2x2f32::from([ 2.0,  -3.0,
+    ///                                  7.0, -11.0]);
+    /// m.abs();
+    ///
+    /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  3.0,
+    ///                                    7.0, 11.0]));
+    /// ```
+    #[inline(always)]
+    pub fn abs(&mut self) -> Self {
+        *self = T::m2x2_abs(*self);
+        *self
+    }
+}
+
+// **** clamp ****
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return a copy of the matrix with all components clamped to the specified range
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let n = m.clamped(2.5, 7.5);
+    ///
+    /// assert_eq!(n, Matrix2x2f32::from([ 2.5, 3.0,
+    ///                                    7.0, 7.5]));
+    /// ```
+    #[inline(always)]
+    pub fn clamped(self, min: T, max: T) -> Self {
+        let mut a = self.a;
+        for it in a.iter_mut() {
+            *it = it.clamp(min, max);
+        }
+        Self { a }
+    }
+
+    /// Clamp all components of the matrix to the specified range
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                                  7.0, 11.0]);
+    /// m.clamp(2.5, 7.5);
+    ///
+    /// assert_eq!(m, Matrix2x2f32::from([ 2.5, 3.0,
+    ///                                    7.0, 7.5]));
+    /// ```
+    #[inline(always)]
+    pub fn clamp(&mut self, min: T, max: T) -> Self {
+        *self = self.clamped(min, max);
+        *self
     }
 }
 
@@ -999,7 +1047,14 @@ where
 
 // **** From ****
 
-/// Matrix2x2 from array
+/// Matrix from 1D array
+/// ```
+/// # use vector_quaternion_matrix::{Matrix2x2f32};
+/// let m = Matrix2x2f32::from([ 2.0,  3.0,
+///                              7.0, 11.0 ]);
+/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
+///                                   7.0, 11.0 ]));
+/// ```
 impl<T> From<[T; 4]> for Matrix2x2<T>
 where
     T: Copy,
@@ -1010,7 +1065,32 @@ where
     }
 }
 
+/// Matrix from 2D array
+/// ```
+/// # use vector_quaternion_matrix::{Matrix2x2f32};
+/// let m = Matrix2x2f32::from([ [2.0,  3.0],
+///                              [7.0, 11.0] ]);
+/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
+///                                   7.0, 11.0 ]));
+/// ```
+impl<T> From<[[T; 2]; 2]> for Matrix2x2<T>
+where
+    T: Copy,
+{
+    #[inline(always)]
+    fn from(a: [[T; 2]; 2]) -> Self {
+        Self { a: [a[0][0], a[0][1], a[1][0], a[1][1]] }
+    }
+}
+
 /// Matrix2x2 from array of 2 vectors
+/// ```
+/// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
+/// let m = Matrix2x2f32::from([ Vector2df32::new(2.0,  3.0),
+///                              Vector2df32::new(7.0, 11.0) ]);
+/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
+///                                   7.0, 11.0 ]));
+/// ```
 impl<T> From<[Vector2d<T>; 2]> for Matrix2x2<T>
 where
     T: Copy,
@@ -1021,7 +1101,14 @@ where
     }
 }
 
-/// Matrix2x2 from 2 vectors
+/// Matrix2x2 from a tuple of 2 vectors
+/// ```
+/// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
+/// let m = Matrix2x2f32::from(( Vector2df32::new(2.0,  3.0),
+///                              Vector2df32::new(7.0, 11.0) ));
+/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
+///                                   7.0, 11.0 ]));
+/// ```
 impl<T> From<(Vector2d<T>, Vector2d<T>)> for Matrix2x2<T> {
     #[inline(always)]
     fn from(v: (Vector2d<T>, Vector2d<T>)) -> Self {

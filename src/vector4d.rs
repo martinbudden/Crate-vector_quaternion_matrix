@@ -23,6 +23,12 @@ pub struct Vector4d<T> {
 
 // **** New ****
 
+/// Create a vector.
+/// ```
+/// # use vector_quaternion_matrix::Vector4df32;
+/// let v = Vector4df32::new(2.0,  3.0, 7.0, 11.0);
+/// assert_eq!(v, Vector4df32 { x:2.0, y:3.0, z: 7.0, t: 11.0 });
+/// ```
 impl<T> Vector4d<T>
 where
     T: Copy,
@@ -388,15 +394,29 @@ where
     T: Copy + Signed,
 {
     /// Return a copy of the vector with all components set to their absolute values
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, -3.0, -5.0, 7.0);
+    /// let u = v.absolute();
+    ///
+    /// assert_eq!(u, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// ```
     #[inline(always)]
-    pub fn abs(self) -> Self {
+    pub fn absolute(self) -> Self {
         Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs(), t: self.t.abs() }
     }
 
     /// Set all components of the vector to their absolute values
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let mut v = Vector4df32::new(2.0, -3.0, -5.0, 7.0);
+    /// v.abs();
+    ///
+    /// assert_eq!(v, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// ```
     #[inline(always)]
-    pub fn abs_in_place(&mut self) {
-        *self = self.abs();
+    pub fn abs(&mut self) {
+        *self = self.absolute();
     }
 }
 
@@ -406,9 +426,16 @@ impl<T> Vector4d<T>
 where
     T: Copy + FloatCore,
 {
-    /// Return a copy of the vector with all components clamped to the specified range
+    /// Return a copy of the matrix with all components clamped to the specified range
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 7.0, 11.0);
+    /// let u = v.clamped(2.5, 7.5);
+    ///
+    /// assert_eq!(u, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
+    /// ```
     #[inline(always)]
-    pub fn clamp(self, min: T, max: T) -> Self {
+    pub fn clamped(self, min: T, max: T) -> Self {
         Self {
             x: self.x.clamp(min, max),
             y: self.y.clamp(min, max),
@@ -418,11 +445,17 @@ where
     }
 
     /// Clamp all components of the vector to the specified range
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let mut v = Vector4df32::new(2.0, 3.0, 7.0, 11.0);
+    /// v.clamp(2.5, 7.5);
+    ///
+    /// assert_eq!(v, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
+    /// ```
     #[inline(always)]
-    pub fn clamp_in_place(&mut self, min: T, max: T) {
-        self.x = self.x.clamp(min, max);
-        self.y = self.y.clamp(min, max);
-        self.z = self.z.clamp(min, max);
+    pub fn clamp(&mut self, min: T, max: T) -> Self {
+        *self = self.clamped(min, max);
+        *self
     }
 }
 

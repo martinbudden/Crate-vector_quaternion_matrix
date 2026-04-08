@@ -164,28 +164,28 @@ mod tests {
         assert_eq!(z, y);
     }
     #[test]
-    fn abs() {
+    fn absolute() {
         let a = Vector2df32 { x: -2.0, y: -3.0 };
-        assert_eq!(a.abs(), Vector2d { x: 2.0, y: 3.0 });
+        assert_eq!(a.absolute(), Vector2d { x: 2.0, y: 3.0 });
     }
     #[test]
-    fn abs_in_place() {
+    fn abs() {
         let a = Vector2df32 { x: -2.0, y: -3.0 };
         let mut b = a;
-        b.abs_in_place();
-        assert_eq!(b, a.abs());
+        b.abs();
+        assert_eq!(b, a.absolute());
+    }
+    #[test]
+    fn clamped() {
+        let a = Vector2d { x: -2.0, y: 3.0 };
+        assert_eq!(a.clamped(-1.0, 4.0), Vector2d { x: -1.0, y: 3.0 });
     }
     #[test]
     fn clamp() {
-        let a = Vector2d { x: -2.0, y: 3.0 };
-        assert_eq!(a.clamp(-1.0, 4.0), Vector2d { x: -1.0, y: 3.0 });
-    }
-    #[test]
-    fn clamp_in_place() {
         let a = Vector2d { x: 2.0, y: 3.0 };
         let mut b = a;
-        b.clamp_in_place(-1.0, 4.0);
-        assert_eq!(b, a.clamp(-1.0, 4.0));
+        b.clamp(-1.0, 4.0);
+        assert_eq!(b, a.clamped(-1.0, 4.0));
     }
     #[test]
     fn sum() {

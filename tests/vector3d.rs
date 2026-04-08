@@ -180,26 +180,26 @@ mod tests {
     #[test]
     fn abs() {
         let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
-        assert_eq!(a.abs(), Vector3d { x: 2.0, y: 3.0, z: 5.0 });
+        assert_eq!(a.absolute(), Vector3d { x: 2.0, y: 3.0, z: 5.0 });
     }
     #[test]
     fn abs_in_place() {
         let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
         let mut b = a;
-        b.abs_in_place();
-        assert_eq!(b, a.abs());
+        b.abs();
+        assert_eq!(b, a.absolute());
+    }
+    #[test]
+    fn clamped() {
+        let a = Vector3d { x: -2.0, y: 3.0, z: 5.0 };
+        assert_eq!(a.clamped(-1.0, 4.0), Vector3d { x: -1.0, y: 3.0, z: 4.0 });
     }
     #[test]
     fn clamp() {
-        let a = Vector3d { x: -2.0, y: 3.0, z: 5.0 };
-        assert_eq!(a.clamp(-1.0, 4.0), Vector3d { x: -1.0, y: 3.0, z: 4.0 });
-    }
-    #[test]
-    fn clamp_in_place() {
         let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
-        b.clamp_in_place(-1.0, 4.0);
-        assert_eq!(b, a.clamp(-1.0, 4.0));
+        b.clamp(-1.0, 4.0);
+        assert_eq!(b, a.clamped(-1.0, 4.0));
     }
     #[test]
     fn sum() {

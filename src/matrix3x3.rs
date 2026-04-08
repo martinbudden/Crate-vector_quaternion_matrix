@@ -44,6 +44,17 @@ pub struct Matrix3x3<T> {
 }
 
 // **** New ****
+
+/// Create a matrix.
+/// ```
+/// # use vector_quaternion_matrix::Matrix3x3f32;
+/// let m = Matrix3x3f32::new([ 2.0,  3.0,  5.0,
+///                             7.0, 11.0, 13.0,
+///                            17.0, 19.0, 23.0]);
+/// assert_eq!(m, Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+///                                    7.0, 11.0, 13.0,
+///                                   17.0, 19.0, 23.0]));
+/// ```
 impl<T> Matrix3x3<T>
 where
     T: Copy,
@@ -667,48 +678,6 @@ impl<T> IndexMut<(usize, usize)> for Matrix3x3<T> {
     }
 }
 
-// **** abs ****
-impl<T> Matrix3x3<T>
-where
-    T: Copy + Matrix3x3Math,
-{
-    /// Return a copy of the matrix with all components set to their absolute values
-    #[inline(always)]
-    pub fn abs(self) -> Self {
-        T::m3x3_abs(self)
-    }
-
-    /// Set all components of the matrix to their absolute values
-    #[inline(always)]
-    pub fn abs_in_place(&mut self) -> Self {
-        *self = self.abs();
-        *self
-    }
-}
-
-// **** clamp ****
-impl<T> Matrix3x3<T>
-where
-    T: Copy + FloatCore,
-{
-    /// Return a copy of the matrix with all components clamped to the specified range
-    #[inline(always)]
-    pub fn clamp(self, min: T, max: T) -> Self {
-        let mut a = self.a;
-        for it in a.iter_mut() {
-            *it = it.clamp(min, max);
-        }
-        Self { a }
-    }
-
-    /// Clamp all components of the matrix to the specified range
-    #[inline(always)]
-    pub fn clamp_in_place(&mut self, min: T, max: T) -> Self {
-        *self = self.clamp(min, max);
-        *self
-    }
-}
-
 impl<T> Matrix3x3<T>
 where
     T: Copy,
@@ -793,6 +762,94 @@ where
             // default to column 2 if column out of range
             _ => Vector3d::<T> { x: self.a[2], y: self.a[5], z: self.a[8] },
         }
+    }
+}
+
+// **** abs ****
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + Matrix3x3Math,
+{
+    /// Return a copy of the matrix with all components set to their absolute values
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// let m = Matrix3x3f32::new([ 2.0,  -3.0,   5.0,
+    ///                             7.0, -11.0,  13.0,
+    ///                            17.0,  19.0, -23.0]);
+    /// let n = m.absolute();
+    ///
+    /// assert_eq!(n, Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    ///                                    7.0, 11.0, 13.0,
+    ///                                   17.0, 19.0, 23.0]));
+    /// ```
+    #[inline(always)]
+    pub fn absolute(self) -> Self {
+        T::m3x3_abs(self)
+    }
+
+    /// Set all components of the matrix to their absolute values
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// let mut m = Matrix3x3f32::new([ 2.0,  -3.0,   5.0,
+    ///                                 7.0, -11.0,  13.0,
+    ///                                17.0,  19.0, -23.0]);
+    /// m.abs();
+    ///
+    /// assert_eq!(m, Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    ///                                    7.0, 11.0, 13.0,
+    ///                                   17.0, 19.0, 23.0]));
+    /// ```
+    #[inline(always)]
+    pub fn abs(&mut self) -> Self {
+        *self = T::m3x3_abs(*self);
+        *self
+    }
+}
+
+// **** clamp ****
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + FloatCore,    
+{
+    /// Return a copy of the matrix with all components clamped to the specified range
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// let m = Matrix3x3f32::new([ 2.0,  3.0,  -5.0,
+    ///                             7.0, 11.0,  13.0,
+    ///                            17.0, 19.0,  23.0]);
+    /// let n = m.clamped(7.0, 17.0);
+    ///
+    /// assert_eq!(n, Matrix3x3f32::from([ 7.0,  7.0,  7.0,
+    ///                                    7.0, 11.0, 13.0,
+    ///                                   17.0, 17.0, 17.0]));
+    /// ```
+    #[inline(always)]
+    pub fn clamped(self, min: T, max: T) -> Self {
+        let mut a = self.a;
+        for it in a.iter_mut() {
+            *it = it.clamp(min, max);
+        }
+        Self { a }
+    }
+
+    /// Clamp all components of the matrix to the specified range
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// let mut m = Matrix3x3f32::new([ 2.0,  3.0,  -5.0,
+    ///                                 7.0, 11.0,  13.0,
+    ///                                17.0, 19.0,  23.0]);
+    /// m.clamp(7.0, 17.0);
+    ///
+    /// assert_eq!(m, Matrix3x3f32::from([ 7.0,  7.0,  7.0,
+    ///                                    7.0, 11.0, 13.0,
+    ///                                   17.0, 17.0, 17.0]));
+    /// ```
+    #[inline(always)]
+    pub fn clamp(&mut self, min: T, max: T) -> Self {
+        *self = self.clamped(min, max);
+        *self
     }
 }
 
