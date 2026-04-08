@@ -1040,38 +1040,6 @@ where
         Ok(adjugate / determinant)
     }
 
-    /// Matrix top right determinant
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                              7.0, 11.0, 13.0,
-    ///                             17.0, 19.0, 23.0]);
-    /// let d = m.top_right_determinant();
-    ///
-    /// assert_eq!(76.0, d);
-    ///
-    /// ```
-    #[inline(always)]
-    pub fn top_right_determinant(self) -> T {
-        T::m3x3_top_right_determinant(self)
-    }
-
-    /// Return the sum of the squares of the top right elements
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                              7.0, 11.0, 13.0,
-    ///                             17.0, 19.0, 23.0]);
-    /// let d = m.top_right_sum_squares();
-    ///
-    /// assert_eq!(3.0*3.0 + 5.0*5.0 + 13.0*13.0, d);
-    ///
-    /// ```
-    #[inline(always)]
-    pub fn top_right_sum_squares(self) -> T {
-        T::m3x3_top_right_sum_squares(self)
-    }
-
     /// Return the sum of all components of the matrix
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
