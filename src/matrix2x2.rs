@@ -611,31 +611,6 @@ where
     }
 }
 
-/// Set components whose absolute value is less than EPSILON to zero.
-/// ```
-/// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32,MathConstants};
-///
-/// let mut m = Matrix2x2f32::from([ 2.0,  f32::EPSILON /2.0,
-///                              7.0, 11.0]);
-/// m.epsilonize();
-///
-/// assert_eq!(m, Matrix2x2f32::from([ 2.0,  0.0,
-///                                    7.0, 11.0]));
-/// ```
-impl<T> Matrix2x2<T>
-where
-    T: Copy + Signed + PartialOrd + MathConstants,
-{
-    /// If any component of the matrix is less than EPSILON in absolute value, set it to Zero.
-    pub fn epsilonize(&mut self) {
-        for a in self.a.iter_mut() {
-            if a.abs() <= T::EPSILON {
-                *a = T::zero();
-            }
-        }
-    }
-}
-
 // **** clamp ****
 impl<T> Matrix2x2<T>
 where
@@ -732,18 +707,18 @@ impl<T> Matrix2x2<T>
 where
     T: Copy,
 {
-    /// Transpose matrix
+    /// Return the transpose of this matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let n = m.transpose();
+    /// let n = m.transposed();
     ///
     /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  7.0,
     ///                                    3.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose(self) -> Self {
+    pub fn transposed(self) -> Self {
         Self { a: [self.a[0], self.a[2], self.a[1], self.a[3]] }
     }
 
@@ -752,34 +727,34 @@ where
     /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                                  7.0, 11.0]);
-    /// m.transpose_in_place();
+    /// m.transpose();
     ///
     /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  7.0,
     ///                                    3.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose_in_place(&mut self) -> Self {
-        *self = self.transpose();
+    pub fn transpose(&mut self) -> Self {
+        *self = self.transposed();
         *self
     }
 }
 
 impl<T> Matrix2x2<T>
 where
-    T: Copy + Matrix2x2Math + One + Neg<Output = T> + Add<Output = T>,
+    T: Copy + Matrix2x2Math,
 {
-    /// Adjugate of this matrix, ie the transpose of the cofactor matrix.
+    /// Return the adjugate of this matrix, ie the transpose of the cofactor matrix.
     /// Equivalent to the inverse but without dividing by the determinant of the matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let n = m.adjugate();
+    /// let n = m.adjugated();
     ///
     /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
     #[inline(always)]
-    pub fn adjugate(self) -> Self {
+    pub fn adjugated(self) -> Self {
         T::m2x2_adjugate(self)
     }
 
@@ -789,55 +764,45 @@ where
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
     /// let mut n = m;
-    /// n.adjugate_in_place();
+    /// n.adjugate();
     ///
-    /// assert_eq!(m.adjugate(), n);
+    /// assert_eq!(m.adjugated(), n);
     /// ```
     #[inline(always)]
-    pub fn adjugate_in_place(&mut self) -> Self {
-        *self = self.adjugate();
+    pub fn adjugate(&mut self) -> Self {
+        *self = self.adjugated();
         *self
     }
-    /// Add vector to diagonal of matrix, in-place
+    /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
-    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let n = m.inverted();
     ///
-    /// let v = Vector2df32{ x: 10.0, y: 20.0 };
-    ///
-    /// m.add_to_diagonal_in_place(v);
-    ///
-    /// assert_eq!(m, Matrix2x2f32::from([ 12.0,  3.0,
-    ///                                     7.0, 31.0]));
     /// ```
     #[inline(always)]
-    pub fn add_to_diagonal_in_place(&mut self, v: Vector2d<T>) -> Self {
-        self.a[0] = self.a[0] + v.x;
-        self.a[3] = self.a[3] + v.y;
-        *self
+    pub fn inverted(self) -> Self {
+        let adjugate = self.adjugated();
+        let determinant = self.determinant();
+        adjugate / determinant
     }
 
-    /// Subtract vector from diagonal of matrix, in-place
+    /// Invert this matrix, in-place. Does not check if the determinant is non-zero before inverting.
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                                  7.0, 11.0]);
+    /// m.inverse();
     ///
-    /// let v = Vector2df32{ x: 10.0, y: 20.0 };
-    ///
-    /// m.subtract_from_diagonal_in_place(v);
-    ///
-    /// assert_eq!(m, Matrix2x2f32::from([ -8.0,  3.0,
-    ///                                     7.0, -9.0]));
     /// ```
     #[inline(always)]
-    pub fn subtract_from_diagonal_in_place(&mut self, v: Vector2d<T>) -> Self {
-        self.a[0] = self.a[0] + (-v.x);
-        self.a[3] = self.a[3] + (-v.y);
+    pub fn inverse(&mut self) -> Self {
+        let adjugate = self.adjugated();
+        let determinant = self.determinant();
+        *self = adjugate / determinant;
         *self
     }
-
     /// Matrix determinant
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -851,6 +816,65 @@ where
     #[inline(always)]
     pub fn determinant(self) -> T {
         T::m2x2_determinant(self)
+    }
+    /// Return trace of matrix.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let trace = m.trace();
+    ///
+    /// assert_eq!(trace, 13.0);
+    /// ```
+    #[inline(always)]
+    pub fn trace(self) -> T {
+        T::m2x2_trace(self)
+    }
+}
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + Zero + One + Matrix2x2Math + MathConstants + PartialOrd + Signed,
+{
+    /// Return inverse of matrix or `T::zero()` if not invertible.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix2x2f32;
+    /// # use num_traits::Zero;
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 10.5]);
+    /// let n = m.invert_or_zero();
+    ///
+    /// assert_eq!(0.0, m.determinant());
+    /// assert_eq!(Matrix2x2f32::zero(), n);
+    ///
+    /// ```
+    pub fn invert_or_zero(self) -> Self {
+        let determinant = self.determinant();
+        if determinant.abs() < T::EPSILON {
+            return Self::zero();
+        }
+        let adjugate = self.adjugated();
+        adjugate / determinant
+    }
+
+    /// Return inverse of matrix or `MatrixError::ZeroDeterminant` if not invertible.
+    /// ```
+    /// # use vector_quaternion_matrix::{Matrix2x2f32,MatrixError};
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 10.5]);
+    /// let n = m.try_invert();
+    ///
+    /// assert_eq!(0.0, m.determinant());
+    /// assert_eq!(Err(MatrixError::ZeroDeterminant), n);
+    ///
+    /// ```
+    pub fn try_invert(self) -> Result<Self, MatrixError> {
+        let determinant = self.determinant();
+        if determinant.abs() < T::EPSILON {
+            return Err(MatrixError::ZeroDeterminant);
+        }
+        let adjugate = self.adjugated();
+        Ok(adjugate / determinant)
     }
 
     /// Matrix top right determinant
@@ -925,20 +949,6 @@ where
         T::m2x2_product(self)
     }
 
-    /// Return trace of matrix.
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
-    /// let trace = m.trace();
-    ///
-    /// assert_eq!(trace, 13.0);
-    /// ```
-    #[inline(always)]
-    pub fn trace(self) -> T {
-        T::m2x2_trace(self)
-    }
-
     /// Return the sum of the squares of the trace of the matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;
@@ -952,84 +962,7 @@ where
     pub fn trace_sum_squares(self) -> T {
         T::m2x2_trace_sum_squares(self)
     }
-}
 
-impl<T> Matrix2x2<T>
-where
-    T: Copy + Zero + One + Matrix2x2Math + MathConstants + PartialOrd + Signed,
-{
-    /// Invert matrix, in-place
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2f32;
-    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
-    /// m.invert_in_place();
-    ///
-    /// ```
-    #[inline(always)]
-    pub fn invert_in_place(&mut self) -> bool {
-        let adjugate = self.adjugate();
-        let determinant = self.determinant();
-        if determinant.abs() <= T::EPSILON {
-            return false;
-        }
-        *self = adjugate / determinant;
-        true
-    }
-
-    /// Return inverse of matrix
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
-    /// let n = m.inverse();
-    ///
-    /// ```
-    #[inline(always)]
-    pub fn inverse(self) -> Self {
-        let adjugate = self.adjugate();
-        let determinant = self.determinant();
-        adjugate / determinant
-    }
-    /// Return inverse of matrix or `T::zero()` if not invertible.
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2f32;
-    /// # use num_traits::Zero;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 10.5]);
-    /// let n = m.inverse_or_zero();
-    ///
-    /// assert_eq!(0.0, m.determinant());
-    /// assert_eq!(Matrix2x2f32::zero(), n);
-    ///
-    /// ```
-    pub fn inverse_or_zero(self) -> Self {
-        let determinant = self.determinant();
-        if determinant.abs() < T::EPSILON {
-            return Self::zero();
-        }
-        let adjugate = self.adjugate();
-        adjugate / determinant
-    }
-    /// Return inverse of matrix or `None` if not invertible.
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 10.5]);
-    /// let n = m.try_inverse();
-    ///
-    /// assert_eq!(0.0, m.determinant());
-    /// assert_eq!(None, n);
-    ///
-    /// ```
-    pub fn try_inverse(self) -> Result<Self, MatrixError> {
-        let determinant = self.determinant();
-        if determinant.abs() < T::EPSILON {
-            return Err(MatrixError::ZeroDeterminant);
-        }
-        let adjugate = self.adjugate();
-        Ok(adjugate / determinant)
-    }
     /// Return true if matrix is near zero
     /// ```
     /// # use vector_quaternion_matrix::Matrix2x2f32;

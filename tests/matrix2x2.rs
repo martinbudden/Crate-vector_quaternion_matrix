@@ -90,7 +90,7 @@ mod tests {
     #[test]
     fn adjugate() {
         let a: Matrix2x2<f32> = Matrix2x2::from([2.0, 3.0, 5.0, 7.0]);
-        let b = a.adjugate();
+        let b = a.adjugated();
         let c = a * b;
         let determinant = a.determinant();
         assert!((c / determinant).is_near_identity());
@@ -98,7 +98,7 @@ mod tests {
     #[test]
     fn inverse() {
         let a: Matrix2x2<f32> = Matrix2x2::from([2.0, 3.0, 5.0, 7.0]);
-        let b = a.inverse();
+        let b = a.inverted();
         let c = a * b;
         assert_eq!(1.0, c[0]);
         assert_eq!(0.0, c[1]);

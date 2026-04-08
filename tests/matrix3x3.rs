@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn adjugate() {
         let a: Matrix3x3<f32> = Matrix3x3::from([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
-        let b = a.adjugate();
+        let b = a.adjugated();
         assert_eq!(b, Matrix3x3f32::from([6.0, 26.0, -16.0, 60.0, -39.0, 9.0, -54.0, 13.0, 1.0]));
         let c = a * b;
         let determinant = a.determinant();
@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn inverse() {
         let a: Matrix3x3<f32> = Matrix3x3::from([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
-        let b = a.inverse();
+        let b = a.inverted();
         let c = a * b;
         assert!((c[0] - 1.0).abs() < f32::EPSILON);
         assert!((c[4] - 1.0).abs() < f32::EPSILON * 3.0);

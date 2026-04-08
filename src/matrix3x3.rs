@@ -800,20 +800,20 @@ impl<T> Matrix3x3<T>
 where
     T: Copy,
 {
-    /// Transpose matrix
+    /// Return the transpose of this matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
     /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let n = m.transpose();
+    /// let n = m.transposed();
     ///
     /// assert_eq!(n, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
     ///                                    3.0, 11.0, 19.0,
     ///                                    5.0, 13.0, 23.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose(self) -> Self {
+    pub fn transposed(self) -> Self {
         Self { a: [self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2], self.a[5], self.a[8]] }
     }
 
@@ -823,36 +823,36 @@ where
     /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                                  7.0, 11.0, 13.0,
     ///                                 17.0, 19.0, 23.0]);
-    /// m.transpose_in_place();
+    /// m.transpose();
     ///
     /// assert_eq!(m, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
     ///                                    3.0, 11.0, 19.0,
     ///                                    5.0, 13.0, 23.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose_in_place(&mut self) -> Self {
-        *self = self.transpose();
+    pub fn transpose(&mut self) -> Self {
+        *self = self.transposed();
         *self
     }
 }
 
 impl<T> Matrix3x3<T>
 where
-    T: Copy + Matrix3x3Math + One + Neg<Output = T> + Add<Output = T> + Sub<Output = T>,
+    T: Copy + Matrix3x3Math,
 {
-    /// Adjugate of this matrix, ie the transpose of the cofactor matrix.
+    /// Return the adjugate of this matrix, ie the transpose of the cofactor matrix.
     /// Equivalent to the inverse but without dividing by the determinant of the matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
     /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let n = m.adjugate();
+    /// let n = m.adjugated();
     ///
     /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
     #[inline(always)]
-    pub fn adjugate(self) -> Self {
+    pub fn adjugated(self) -> Self {
         T::m3x3_adjugate(self)
     }
 
@@ -863,61 +863,47 @@ where
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
     /// let mut n = m;
-    /// n.adjugate_in_place();
+    /// n.adjugate();
     ///
-    /// assert_eq!(m.adjugate(), n);
+    /// assert_eq!(m.adjugated(), n);
     /// ```
     #[inline(always)]
-    pub fn adjugate_in_place(&mut self) -> Self {
-        *self = self.adjugate();
+    pub fn adjugate(&mut self) -> Self {
+        *self = self.adjugated();
         *self
     }
-    /// Add vector to diagonal of matrix, in-place
+    /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix3x3f32,Vector3df32};
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    ///                              7.0, 11.0, 13.0,
+    ///                             17.0, 19.0, 23.0]);
+    /// let n = m.inverted();
+    ///
+    /// ```
+    #[inline(always)]
+    pub fn inverted(self) -> Self {
+        let adjugate = self.adjugated();
+        let determinant = self.determinant();
+        adjugate / determinant
+    }
+
+    /// Invert this matrix, in-place. Does not check if the determinant is non-zero before inverting.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
     /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                                  7.0, 11.0, 13.0,
     ///                                 17.0, 19.0, 23.0]);
+    /// m.inverse();
     ///
-    /// let v = Vector3df32{ x: 10.0, y: 20.0, z: 30.0 };
-    ///
-    /// m.add_to_diagonal_in_place(v);
-    ///
-    /// assert_eq!(m, Matrix3x3f32::from([ 12.0,  3.0,  5.0,
-    ///                                     7.0, 31.0, 13.0,
-    ///                                    17.0, 19.0, 53.0]));
     /// ```
     #[inline(always)]
-    pub fn add_to_diagonal_in_place(&mut self, v: Vector3d<T>) -> Self {
-        self.a[0] = self.a[0] + v.x;
-        self.a[4] = self.a[4] + v.y;
-        self.a[8] = self.a[8] + v.z;
+    pub fn inverse(&mut self) -> Self {
+        let adjugate = self.adjugated();
+        let determinant = self.determinant();
+        *self = adjugate / determinant;
         *self
     }
-
-    /// Subtract vector from diagonal of matrix, in-place
-    /// ```
-    /// # use vector_quaternion_matrix::{Matrix3x3f32,Vector3df32};
-    /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                                  7.0, 11.0, 13.0,
-    ///                                 17.0, 19.0, 23.0]);
-    ///
-    /// let v = Vector3df32{ x: 10.0, y: 20.0, z: 30.0 };
-    ///
-    /// m.subtract_from_diagonal_in_place(v);
-    ///
-    /// assert_eq!(m, Matrix3x3f32::from([ -8.0,  3.0,   5.0,
-    ///                                     7.0, -9.0,  13.0,
-    ///                                    17.0, 19.0,  -7.0]));
-    /// ```
-    #[inline(always)]
-    pub fn subtract_from_diagonal_in_place(&mut self, v: Vector3d<T>) -> Self {
-        self.a[0] = self.a[0] - v.x;
-        self.a[4] = self.a[4] - v.y;
-        self.a[8] = self.a[8] - v.z;
-        *self
-    }
-
     /// Matrix determinant
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -929,8 +915,72 @@ where
     /// assert_eq!(-78.0, d);
     ///
     /// ```
+    #[inline(always)]
     pub fn determinant(self) -> T {
         T::m3x3_determinant(self)
+    }
+
+    /// Return trace of matrix.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    ///                              7.0, 11.0, 13.0,
+    ///                             17.0, 19.0, 23.0]);
+    /// let t = m.trace();
+    ///
+    /// assert_eq!(t, 36.0);
+    /// ```
+    #[inline(always)]
+    pub fn trace(self) -> T {
+        T::m3x3_trace(self)
+    }
+}
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + Zero + One + Matrix3x3Math + MathConstants + PartialOrd + Signed,
+{
+    /// Return inverse of matrix or `T::zero()` if not invertible.
+    /// ```
+    /// # use vector_quaternion_matrix::Matrix3x3f32;
+    /// # use num_traits::Zero;
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    ///                              2.0,  3.0,  5.0,
+    ///                             17.0, 19.0, 23.0]);
+    /// let n = m.invert_or_zero();
+    ///
+    /// assert_eq!(0.0, m.determinant());
+    /// assert_eq!(Matrix3x3f32::zero(), n);
+    ///
+    /// ```
+    pub fn invert_or_zero(self) -> Self {
+        let determinant = self.determinant();
+        if determinant.abs() < T::EPSILON {
+            return Self::zero();
+        }
+        let adjugate = self.adjugated();
+        adjugate / determinant
+    }
+
+    /// Return inverse of matrix or `MatrixError::ZeroDeterminant` if not invertible.
+    /// ```
+    /// # use vector_quaternion_matrix::{Matrix3x3f32,MatrixError};
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    ///                              2.0,  3.0,  5.0,
+    ///                             17.0, 19.0, 23.0]);
+    /// let n = m.try_invert();
+    ///
+    /// assert_eq!(0.0, m.determinant());
+    /// assert_eq!(Err(MatrixError::ZeroDeterminant), n);
+    ///
+    /// ```
+    pub fn try_invert(self) -> Result<Self, MatrixError> {
+        let determinant = self.determinant();
+        if determinant.abs() < T::EPSILON {
+            return Err(MatrixError::ZeroDeterminant);
+        }
+        let adjugate = self.adjugated();
+        Ok(adjugate / determinant)
     }
 
     /// Matrix top right determinant
@@ -1010,20 +1060,6 @@ where
         T::m3x3_product(self)
     }
 
-    /// Return trace of matrix.
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                              7.0, 11.0, 13.0,
-    ///                             17.0, 19.0, 23.0]);
-    /// let t = m.trace();
-    ///
-    /// assert_eq!(t, 36.0);
-    /// ```
-    #[inline(always)]
-    pub fn trace(self) -> T {
-        T::m3x3_trace(self)
-    }
     /// Return the sum of the squares of the trace of the matrix.
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -1038,88 +1074,7 @@ where
     pub fn trace_sum_squares(self) -> T {
         T::m3x3_trace_sum_squares(self)
     }
-}
 
-impl<T> Matrix3x3<T>
-where
-    T: Copy + Zero + One + Matrix3x3Math + MathConstants + PartialOrd + Signed,
-{
-    /// Invert matrix, in-place
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let mut a = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                                  7.0, 11.0, 13.0,
-    ///                                 17.0, 19.0, 23.0]);
-    /// a.invert_in_place();
-    ///
-    /// ```
-    #[inline(always)]
-    pub fn invert_in_place(&mut self) -> bool {
-        let adjugate = self.adjugate();
-        let determinant = self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
-        if determinant.abs() <= T::EPSILON {
-            return false;
-        }
-        *self = adjugate / determinant;
-        true
-    }
-
-    /// Return inverse of matrix
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                              7.0, 11.0, 13.0,
-    ///                             17.0, 19.0, 23.0]);
-    /// let n = m.inverse();
-    ///
-    /// ```
-    #[inline(always)]
-    pub fn inverse(self) -> Self {
-        let adjugate = self.adjugate();
-        let determinant = self.a[0] * adjugate.a[0] + self.a[1] * adjugate.a[3] + self.a[2] * adjugate.a[6];
-        adjugate / determinant
-    }
-    /// Return inverse of matrix or zero if not invertible.
-    /// ```
-    /// # use vector_quaternion_matrix::Matrix3x3f32;
-    /// # use num_traits::Zero;
-    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                              2.0,  3.0,  5.0,
-    ///                             17.0, 19.0, 23.0]);
-    /// let n = m.inverse_or_zero();
-    ///
-    /// assert_eq!(0.0, m.determinant());
-    /// assert_eq!(Matrix3x3f32::zero(), n);
-    ///
-    /// ```
-    pub fn inverse_or_zero(self) -> Self {
-        let determinant = self.determinant();
-        if determinant.abs() < T::EPSILON {
-            return Self::zero();
-        }
-        let adjugate = self.adjugate();
-        adjugate / determinant
-    }
-    /// Return inverse of matrix or `None` if not invertible.
-    /// ```
-    /// # use vector_quaternion_matrix::{Matrix3x3f32,MatrixError};
-    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-    ///                              2.0,  3.0,  5.0,
-    ///                             17.0, 19.0, 23.0]);
-    /// let n = m.try_inverse();
-    ///
-    /// assert_eq!(0.0, m.determinant());
-    /// assert_eq!(Err(MatrixError::ZeroDeterminant), n);
-    ///
-    /// ```
-    pub fn try_inverse(self) -> Result<Self, MatrixError> {
-        let determinant = self.determinant();
-        if determinant.abs() < T::EPSILON {
-            return Err(MatrixError::ZeroDeterminant);
-        }
-        let adjugate = self.adjugate();
-        Ok(adjugate / determinant)
-    }
     /// Return true if matrix is near zero
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
