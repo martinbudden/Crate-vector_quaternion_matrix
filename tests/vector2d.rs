@@ -166,14 +166,14 @@ mod tests {
     #[test]
     fn absolute() {
         let a = Vector2df32 { x: -2.0, y: -3.0 };
-        assert_eq!(a.absolute(), Vector2d { x: 2.0, y: 3.0 });
+        assert_eq!(a.abs(), Vector2d { x: 2.0, y: 3.0 });
     }
     #[test]
     fn abs() {
         let a = Vector2df32 { x: -2.0, y: -3.0 };
         let mut b = a;
-        b.abs();
-        assert_eq!(b, a.absolute());
+        b.abs_mut();
+        assert_eq!(b, a.abs());
     }
     #[test]
     fn clamped() {

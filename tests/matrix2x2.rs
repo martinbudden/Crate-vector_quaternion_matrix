@@ -88,6 +88,20 @@ mod tests {
         assert_eq!(7.0, a[3]);
     }
     #[test]
+    fn transpose() {
+        let mut m: Matrix2x2<f32> = Matrix2x2::from([2.0, 3.0, 5.0, 7.0]);
+        m.transpose();
+        assert_eq!(Matrix2x2::from([2.0, 5.0, 3.0, 7.0]), m);
+        m.transpose();
+        assert_eq!(Matrix2x2::from([2.0, 3.0, 5.0, 7.0]), m);
+        m.transpose().transpose();
+        assert_eq!(Matrix2x2::from([2.0, 3.0, 5.0, 7.0]), m);
+        let n = m.transposed();
+        assert_eq!(Matrix2x2::from([2.0, 5.0, 3.0, 7.0]), n);
+        let p = n.transposed();
+        assert_eq!(m, p);
+    }
+    #[test]
     fn adjugate() {
         let a: Matrix2x2<f32> = Matrix2x2::from([2.0, 3.0, 5.0, 7.0]);
         let b = a.adjugated();

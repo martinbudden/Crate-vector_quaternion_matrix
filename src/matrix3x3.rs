@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
-use crate::{MathConstants, Matrix2x2, Matrix3x3Math, MatrixError, Quaternion, QuaternionMath, SqrtMethods, Vector3d};
+use crate::{MathConstants, Matrix2x2, Matrix3x3Math, Quaternion, QuaternionMath, SqrtMethods, Vector3d};
 
 /// 3x3 matrix of `f32` values<br>
 pub type Matrix3x3f32 = Matrix3x3<f32>;
@@ -763,6 +763,21 @@ where
             _ => Vector3d::<T> { x: self.a[2], y: self.a[5], z: self.a[8] },
         }
     }
+
+    /// Return matrix diagonal as a vector
+    /// ```
+    /// # use vector_quaternion_matrix::{Matrix3x3f32,Vector3df32};
+    ///
+    /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+    ///                              7.0, 11.0, 13.0,
+    ///                             17.0, 19.0, 23.0]);
+    /// let v = m.diagonal();
+    ///
+    /// assert_eq!(v, Vector3df32{ x: 2.0, y: 11.0, z: 23.0 });
+    /// ```
+    pub fn diagonal(self) -> Vector3d<T> {
+        Vector3d::<T> { x: self.a[0], y: self.a[4], z: self.a[8] }
+    }
 }
 
 // **** abs ****
@@ -801,9 +816,9 @@ where
     ///                                   17.0, 19.0, 23.0]));
     /// ```
     #[inline(always)]
-    pub fn abs(&mut self) -> Self {
+    pub fn abs(&mut self) -> &mut Self {
         *self = T::m3x3_abs(*self);
-        *self
+        self
     }
 }
 
@@ -811,7 +826,7 @@ where
 
 impl<T> Matrix3x3<T>
 where
-    T: Copy + FloatCore,    
+    T: Copy + FloatCore,
 {
     /// Return a copy of the matrix with all components clamped to the specified range
     /// ```
@@ -847,9 +862,9 @@ where
     ///                                   17.0, 17.0, 17.0]));
     /// ```
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) -> Self {
+    pub fn clamp(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamped(min, max);
-        *self
+        self
     }
 }
 
@@ -887,9 +902,9 @@ where
     ///                                    5.0, 13.0, 23.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose(&mut self) -> Self {
+    pub fn transpose(&mut self) -> &mut Self {
         *self = self.transposed();
-        *self
+        self
     }
 }
 
@@ -925,9 +940,9 @@ where
     /// assert_eq!(m.adjugated(), n);
     /// ```
     #[inline(always)]
-    pub fn adjugate(&mut self) -> Self {
+    pub fn adjugate(&mut self) -> &mut Self {
         *self = self.adjugated();
-        *self
+        self
     }
     /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
     /// ```
@@ -955,12 +970,13 @@ where
     ///
     /// ```
     #[inline(always)]
-    pub fn inverse(&mut self) -> Self {
+    pub fn inverse(&mut self) -> &mut Self {
         let adjugate = self.adjugated();
         let determinant = self.determinant();
         *self = adjugate / determinant;
-        *self
+        self
     }
+
     /// Matrix determinant
     /// ```
     /// # use vector_quaternion_matrix::Matrix3x3f32;
@@ -1019,25 +1035,25 @@ where
         adjugate / determinant
     }
 
-    /// Return inverse of matrix or `MatrixError::ZeroDeterminant` if not invertible.
+    /// Return inverse of matrix or `None` if not invertible.
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix3x3f32,MatrixError};
+    /// # use vector_quaternion_matrix::{Matrix3x3f32};
     /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              2.0,  3.0,  5.0,
     ///                             17.0, 19.0, 23.0]);
     /// let n = m.try_invert();
     ///
     /// assert_eq!(0.0, m.determinant());
-    /// assert_eq!(Err(MatrixError::ZeroDeterminant), n);
+    /// assert_eq!(None, n);
     ///
     /// ```
-    pub fn try_invert(self) -> Result<Self, MatrixError> {
+    pub fn try_invert(self) -> Option<Self> {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {
-            return Err(MatrixError::ZeroDeterminant);
+            return None;
         }
         let adjugate = self.adjugated();
-        Ok(adjugate / determinant)
+        Some(adjugate / determinant)
     }
 
     /// Return the sum of all components of the matrix
@@ -1165,6 +1181,26 @@ where
     #[inline(always)]
     fn from(m: Matrix2x2<T>) -> Self {
         Self { a: [m[0], m[1], T::zero(), m[2], m[3], T::zero(), T::zero(), T::zero(), T::zero()] }
+    }
+}
+
+/// Matrix2x2 from Matrix3x3. Takes top left of m3x3, discarding other values.
+/// ```
+/// # use vector_quaternion_matrix::{Matrix2x2f32,Matrix3x3f32};
+/// let m2 = Matrix2x2f32::from([ 2.0,  3.0,
+///                               7.0, 11.0]);
+/// let m3 = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+///                               7.0, 11.0, 13.0,
+///                              17.0, 19.0, 23.0]);
+/// assert_eq!(m2, Matrix2x2f32::from(m3));
+/// ```
+impl<T> From<Matrix3x3<T>> for Matrix2x2<T>
+where
+    T: Copy,
+{
+    #[inline(always)]
+    fn from(m: Matrix3x3<T>) -> Self {
+        Self { a: [m.a[0], m.a[1], m.a[3], m.a[4]] }
     }
 }
 

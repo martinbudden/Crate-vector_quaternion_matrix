@@ -397,12 +397,12 @@ where
     /// ```
     /// # use vector_quaternion_matrix::Vector4df32;
     /// let v = Vector4df32::new(2.0, -3.0, -5.0, 7.0);
-    /// let u = v.absolute();
+    /// let u = v.abs();
     ///
     /// assert_eq!(u, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
     #[inline(always)]
-    pub fn absolute(self) -> Self {
+    pub fn abs(self) -> Self {
         Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs(), t: self.t.abs() }
     }
 
@@ -410,13 +410,14 @@ where
     /// ```
     /// # use vector_quaternion_matrix::Vector4df32;
     /// let mut v = Vector4df32::new(2.0, -3.0, -5.0, 7.0);
-    /// v.abs();
+    /// v.abs_mut();
     ///
     /// assert_eq!(v, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
     #[inline(always)]
-    pub fn abs(&mut self) {
-        *self = self.absolute();
+    pub fn abs_mut(&mut self) -> &mut Self {
+        *self = self.abs();
+        self
     }
 }
 
@@ -453,9 +454,9 @@ where
     /// assert_eq!(v, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
     /// ```
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) -> Self {
+    pub fn clamp(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamped(min, max);
-        *self
+        self
     }
 }
 
@@ -541,13 +542,13 @@ where
 
     /// Normalize the vector in place
     #[inline(always)]
-    pub fn normalize(&mut self) -> Self {
+    pub fn normalize(&mut self) -> &mut Self {
         let norm = self.norm();
         // If norm == 0.0 then the vector is already normalized
         if norm != T::zero() {
             *self *= T::v4_reciprocal(norm);
         }
-        *self
+        self
     }
 }
 

@@ -46,7 +46,6 @@ pub use quaternion::{
 };
 pub use quaternion_math::QuaternionMath;
 
-pub use matrix2x2::MatrixError;
 pub use matrix2x2::{Matrix2x2, Matrix2x2f32, Matrix2x2f64};
 pub use matrix2x2_math::Matrix2x2Math;
 

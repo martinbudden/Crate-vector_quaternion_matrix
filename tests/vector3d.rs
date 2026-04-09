@@ -180,14 +180,14 @@ mod tests {
     #[test]
     fn abs() {
         let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
-        assert_eq!(a.absolute(), Vector3d { x: 2.0, y: 3.0, z: 5.0 });
+        assert_eq!(a.abs(), Vector3d { x: 2.0, y: 3.0, z: 5.0 });
     }
     #[test]
     fn abs_in_place() {
         let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
         let mut b = a;
-        b.abs();
-        assert_eq!(b, a.absolute());
+        b.abs_mut();
+        assert_eq!(b, a.abs());
     }
     #[test]
     fn clamped() {

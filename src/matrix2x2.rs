@@ -1,18 +1,12 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
-use crate::{MathConstants, Matrix2x2Math, Matrix3x3, Vector2d};
+use crate::{MathConstants, Matrix2x2Math, Vector2d};
 
 /// 2x2 matrix of `f32` values<br>
 pub type Matrix2x2f32 = Matrix2x2<f32>;
 /// 2x2 matrix of `f64` values<br><br>
 pub type Matrix2x2f64 = Matrix2x2<f64>;
-
-/// Zero determinant error.
-#[derive(Debug, PartialEq)]
-pub enum MatrixError {
-    ZeroDeterminant,
-}
 
 // **** Define ****
 
@@ -669,6 +663,20 @@ where
             _ => Vector2d::<T> { x: self.a[1], y: self.a[3] },
         }
     }
+
+    /// Return matrix diagonal as a vector
+    /// ```
+    /// # use vector_quaternion_matrix::{Matrix2x2f32,Vector2df32};
+    ///
+    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
+    ///                              7.0, 11.0]);
+    /// let v = m.diagonal();
+    ///
+    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 11.0 });
+    /// ```
+    pub fn diagonal(self) -> Vector2d<T> {
+        Vector2d::<T> { x: self.a[0], y: self.a[3] }
+    }
 }
 
 // **** abs ****
@@ -682,13 +690,13 @@ where
     /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([ 2.0,  -3.0,
     ///                              7.0, -11.0]);
-    /// let n = m.absolute();
+    /// let n = m.abs();
     ///
     /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  3.0,
     ///                                    7.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn absolute(self) -> Self {
+    pub fn abs(self) -> Self {
         T::m2x2_abs(self)
     }
 
@@ -697,15 +705,15 @@ where
     /// # use vector_quaternion_matrix::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::from([ 2.0,  -3.0,
     ///                                  7.0, -11.0]);
-    /// m.abs();
+    /// m.abs_mut();
     ///
     /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  3.0,
     ///                                    7.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn abs(&mut self) -> Self {
+    pub fn abs_mut(&mut self) -> &mut Self {
         *self = T::m2x2_abs(*self);
-        *self
+        self
     }
 }
 
@@ -745,9 +753,9 @@ where
     ///                                    7.0, 7.5]));
     /// ```
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) -> Self {
+    pub fn clamp(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamped(min, max);
-        *self
+        self
     }
 }
 
@@ -781,9 +789,9 @@ where
     ///                                    3.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose(&mut self) -> Self {
+    pub fn transpose(&mut self) -> &mut Self {
         *self = self.transposed();
-        *self
+        self
     }
 }
 
@@ -817,9 +825,9 @@ where
     /// assert_eq!(m.adjugated(), n);
     /// ```
     #[inline(always)]
-    pub fn adjugate(&mut self) -> Self {
+    pub fn adjugate(&mut self) -> &mut Self {
         *self = self.adjugated();
-        *self
+        self
     }
     /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
     /// ```
@@ -845,11 +853,11 @@ where
     ///
     /// ```
     #[inline(always)]
-    pub fn inverse(&mut self) -> Self {
+    pub fn inverse(&mut self) -> &mut Self {
         let adjugate = self.adjugated();
         let determinant = self.determinant();
         *self = adjugate / determinant;
-        *self
+        self
     }
     /// Matrix determinant
     /// ```
@@ -905,24 +913,24 @@ where
         adjugate / determinant
     }
 
-    /// Return inverse of matrix or `MatrixError::ZeroDeterminant` if not invertible.
+    /// Return inverse of matrix or `None` if not invertible.
     /// ```
-    /// # use vector_quaternion_matrix::{Matrix2x2f32,MatrixError};
+    /// # use vector_quaternion_matrix::{Matrix2x2f32};
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 10.5]);
     /// let n = m.try_invert();
     ///
     /// assert_eq!(0.0, m.determinant());
-    /// assert_eq!(Err(MatrixError::ZeroDeterminant), n);
+    /// assert_eq!(None, n);
     ///
     /// ```
-    pub fn try_invert(self) -> Result<Self, MatrixError> {
+    pub fn try_invert(self) -> Option<Self> {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {
-            return Err(MatrixError::ZeroDeterminant);
+            return None;
         }
         let adjugate = self.adjugated();
-        Ok(adjugate / determinant)
+        Some(adjugate / determinant)
     }
 
     /// Return the sum of all components of the matrix
@@ -1083,25 +1091,5 @@ impl<T> From<(Vector2d<T>, Vector2d<T>)> for Matrix2x2<T> {
     #[inline(always)]
     fn from(v: (Vector2d<T>, Vector2d<T>)) -> Self {
         Self { a: [v.0.x, v.0.y, v.1.x, v.1.y] }
-    }
-}
-
-/// Matrix2x2 from Matrix3x3. Takes top left of m3x3, discarding other values.
-/// ```
-/// # use vector_quaternion_matrix::{Matrix2x2f32,Matrix3x3f32};
-/// let m2 = Matrix2x2f32::from([ 2.0,  3.0,
-///                               7.0, 11.0]);
-/// let m3 = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
-///                               7.0, 11.0, 13.0,
-///                              17.0, 19.0, 23.0]);
-/// assert_eq!(m2, Matrix2x2f32::from(m3));
-/// ```
-impl<T> From<Matrix3x3<T>> for Matrix2x2<T>
-where
-    T: Copy,
-{
-    #[inline(always)]
-    fn from(m: Matrix3x3<T>) -> Self {
-        Self { a: [m.a[0], m.a[1], m.a[3], m.a[4]] }
     }
 }

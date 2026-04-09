@@ -538,13 +538,13 @@ where
 
     /// Normalize the quaternion in place
     #[inline(always)]
-    pub fn normalize(&mut self) -> Self {
+    pub fn normalize(&mut self) -> &mut Self {
         let norm: T = self.norm();
         // If norm == 0.0 then the quaternion is already normalized
         if norm != T::zero() {
             *self *= T::q_reciprocal(norm);
         }
-        *self
+        self
     }
 }
 
@@ -639,7 +639,7 @@ where
 {
     /// Rotate about the x-axis,
     /// equivalent to *= Quaternion(cos(theta/2), sin(theta/2), 0, 0)
-    pub fn rotate_x(&mut self, theta: T) -> Self {
+    pub fn rotate_x(&mut self, theta: T) -> &mut Self {
         let two = T::one() + T::one();
         let (sin, cos) = (theta / two).sin_cos();
         let wt: T = self.w * cos - self.x * sin;
@@ -648,11 +648,11 @@ where
         self.z = self.z * cos - self.y * sin;
         self.w = wt;
         self.y = yt;
-        *self
+        self
     }
     /// Rotate about the y-axis,
     /// equivalent to *= Quaternion(cos(theta/2), 0, sin(theta/2), 0)
-    pub fn rotate_y(&mut self, theta: T) -> Self {
+    pub fn rotate_y(&mut self, theta: T) -> &mut Self {
         let two = T::one() + T::one();
         let (sin, cos) = (theta / two).sin_cos();
         let wt: T = self.w * cos - self.y * sin;
@@ -661,12 +661,12 @@ where
         self.z = self.x * sin - self.z * cos;
         self.w = wt;
         self.x = xt;
-        *self
+        self
     }
 
     /// Rotate about the z-axis,
     /// equivalent to *= Quaternion(cos(theta/2), 0, 0, sin(theta/2))
-    pub fn rotate_z(&mut self, theta: T) -> Self {
+    pub fn rotate_z(&mut self, theta: T) -> &mut Self {
         let two = T::one() + T::one();
         let (sin, cos) = (theta / two).sin_cos();
         let wt: T = self.w * cos - self.z * sin;
@@ -675,7 +675,7 @@ where
         self.z = self.z * cos - self.w * sin;
         self.w = wt;
         self.x = xt;
-        *self
+        self
     }
 
     #[inline(always)]
@@ -780,17 +780,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy
-        + Zero
-        + One
-        + PartialEq
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>
-        + SqrtMethods
-        + TrigonometricMethods
-        + FloatCore,
+    T: Copy + TrigonometricMethods + FloatCore,
 {
     #[inline(always)]
     pub fn calculate_roll_degrees(self) -> T {
@@ -867,17 +857,7 @@ impl<T> From<Quaternion<T>> for [T; 4] {
 
 impl<T> From<(T, T)> for Quaternion<T>
 where
-    T: Copy
-        + Zero
-        + One
-        + PartialEq
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>
-        + SqrtMethods
-        + TrigonometricMethods
-        + FloatCore,
+    T: Copy + TrigonometricMethods + FloatCore,
 {
     #[inline(always)]
     fn from((roll_radians, pitch_radians): (T, T)) -> Self {
@@ -887,17 +867,7 @@ where
 
 impl<T> From<(T, T, T)> for Quaternion<T>
 where
-    T: Copy
-        + Zero
-        + One
-        + PartialEq
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>
-        + SqrtMethods
-        + TrigonometricMethods
-        + FloatCore,
+    T: Copy + TrigonometricMethods + FloatCore,
 {
     #[inline(always)]
     fn from((roll_radians, pitch_radians, yaw_radians): (T, T, T)) -> Self {
@@ -907,17 +877,7 @@ where
 
 impl<T> From<RollPitchYaw<T>> for Quaternion<T>
 where
-    T: Copy
-        + Zero
-        + One
-        + PartialEq
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>
-        + SqrtMethods
-        + TrigonometricMethods
-        + FloatCore,
+    T: Copy + TrigonometricMethods + FloatCore,
 {
     fn from(angles: RollPitchYaw<T>) -> Self {
         Quaternion::from_roll_pitch_yaw_angles_radians(angles.roll, angles.pitch, angles.yaw)
@@ -926,17 +886,7 @@ where
 
 impl<T> From<RollPitch<T>> for Quaternion<T>
 where
-    T: Copy
-        + Zero
-        + One
-        + PartialEq
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>
-        + SqrtMethods
-        + TrigonometricMethods
-        + FloatCore,
+    T: Copy + TrigonometricMethods + FloatCore,
 {
     #[inline(always)]
     fn from(angles: RollPitch<T>) -> Self {

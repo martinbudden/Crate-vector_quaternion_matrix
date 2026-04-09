@@ -413,12 +413,12 @@ where
     /// ```
     /// # use vector_quaternion_matrix::Vector3df32;
     /// let v = Vector3df32::new(2.0, -3.0, -5.0);
-    /// let u = v.absolute();
+    /// let u = v.abs();
     ///
     /// assert_eq!(u, Vector3df32::new(2.0, 3.0, 5.0));
     /// ```
     #[inline(always)]
-    pub fn absolute(self) -> Self {
+    pub fn abs(self) -> Self {
         Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
 
@@ -426,13 +426,14 @@ where
     /// ```
     /// # use vector_quaternion_matrix::Vector3df32;
     /// let mut v = Vector3df32::new(2.0, -3.0, -5.0);
-    /// v.abs();
+    /// v.abs_mut();
     ///
     /// assert_eq!(v, Vector3df32::new(2.0, 3.0, 5.0));
     /// ```
     #[inline(always)]
-    pub fn abs(&mut self) {
-        *self = self.absolute();
+    pub fn abs_mut(&mut self) -> &mut Self {
+        *self = self.abs();
+        self
     }
 }
 
@@ -464,9 +465,9 @@ where
     /// assert_eq!(v, Vector3df32::new(2.5, 3.0, 7.5));
     /// ```
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) -> Self {
+    pub fn clamp(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamped(min, max);
-        *self
+        self
     }
 }
 
@@ -574,14 +575,14 @@ where
 
     /// Normalize the vector in place
     #[inline(always)]
-    pub fn normalize(&mut self) -> Self {
+    pub fn normalize(&mut self) -> &mut Self {
         let norm = self.norm();
         //#[allow(clippy::assign_op_pattern)]
         // If norm == 0.0 then the vector is already normalized
         if norm != T::zero() {
             *self *= T::v3_reciprocal(norm);
         }
-        *self
+        self
     }
 }
 
@@ -782,6 +783,25 @@ where
     }
 }
 
+// **** From Vector ****
+
+/// Vector2d from Vector3d, discarding z value.
+/// ```
+/// # use vector_quaternion_matrix::{Vector2df32,Vector3df32};
+/// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }.into();
+/// let u = Vector2df32::from(Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
+///
+/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
+/// assert_eq!(u, Vector2df32 { x: 7.0, y: 11.0 });
+impl<T> From<Vector3d<T>> for Vector2d<T>
+where
+    T: Copy + Zero,
+{
+    #[inline(always)]
+    fn from(v: Vector3d<T>) -> Self {
+        Vector2d::<T> { x: v.x, y: v.y }
+    }
+}
 /// 3-dimensional `{x, y, z}` vector of `i16` values<br><br>
 pub type Vector3di16 = Vector3d<i16>;
 
