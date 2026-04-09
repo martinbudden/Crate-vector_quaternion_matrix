@@ -45,7 +45,7 @@ mod tests {
         assert_eq!(b, Quaternion { w: -2.0, x: -3.0, y: -5.0, z: -7.0 });
     }
     #[test]
-    fn test_quaternion_negation() {
+    fn quaternion_negation() {
         use approx::assert_abs_diff_eq;
 
         let q = Quaternion { x: 0.1, y: -0.2, z: 0.3, w: 0.9 };

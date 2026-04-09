@@ -270,11 +270,12 @@ impl Matrix3x3f32 {
             let v1 = c * d - a * f;
             let v2 = a * e - b * d;
 
-            let norm = (v0 * v0 + v1 * v1 + v2 * v2).sqrt();
-            if norm > 1e-6 {
-                eigenvectors[i * 3 + 0] = v0 / norm;
-                eigenvectors[i * 3 + 1] = v1 / norm;
-                eigenvectors[i * 3 + 2] = v2 / norm;
+            let norm_squared = v0 * v0 + v1 * v1 + v2 * v2;
+            if norm > 4e-6 {
+                let norm_reciprocal = norm_squared.sqrt_reciprocal();
+                eigenvectors[i * 3 + 0] = v0 * norm_reciprocal;
+                eigenvectors[i * 3 + 1] = v1 * norm_reciprocal;
+                eigenvectors[i * 3 + 2] = v2 * norm_reciprocal;
             } else {
                 // Fallback: identity vector
                 eigenvectors[i * 3 + 0] = 1.0;

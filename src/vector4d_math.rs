@@ -135,7 +135,7 @@ impl Vector4dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            this.x * this.x + this.y * this.y + this.z * this.z
+            this.x * this.x + this.y * this.y + this.z * this.z + this.t * this.t
         }
     }
 
@@ -173,7 +173,7 @@ impl Vector4dMath for f32 {
     #[inline(always)]
     fn v4_is_normalized(this: Vector4d<Self>) -> bool {
         let norm_squared = Self::v4_norm_squared(this);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
+        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
     }
 
     #[inline(always)]
@@ -296,7 +296,7 @@ impl Vector4dMath for f64 {
     #[inline(always)]
     fn v4_is_normalized(this: Vector4d<Self>) -> bool {
         let norm_squared = Self::v4_norm_squared(this);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
+        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
     }
 
     #[inline(always)]

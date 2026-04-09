@@ -583,6 +583,23 @@ where
 
 impl<T> Quaternion<T>
 where
+    T: Copy + QuaternionMath,
+{
+    // Return true if the vector is normalized.
+    #[inline(always)]
+    /// ```
+    /// # use vector_quaternion_matrix::Quaternionf32;
+    /// let v = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+    /// let n = v.normalized();
+    /// assert!(n.is_normalized());
+    /// ```
+    pub fn is_normalized(self) -> bool {
+        T::q_is_normalized(self)
+    }
+}
+
+impl<T> Quaternion<T>
+where
     T: Copy + Zero + One + Sub<Output = T> + Div<Output = T> + SqrtMethods,
 {
     pub fn rotate(self, v: &Vector3d<T>) -> Vector3d<T> {

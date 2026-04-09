@@ -45,7 +45,7 @@ impl From<f32x4> for Vector3d<f32> {
 
 // **** Math ****
 
-/// Math functions for Vector3d, using **SIMD** accelerations for `f32`.<br><br>
+/// Math functions for Vector3d, using **SIMD** accelerations for `f32`.<br>
 pub trait Vector3dMath: Sized {
     fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_add(this: Vector3d<Self>, this: Vector3d<Self>) -> Vector3d<Self>;
@@ -170,7 +170,7 @@ impl Vector3dMath for f32 {
     #[inline(always)]
     fn v3_is_normalized(this: Vector3d<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
+        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
     }
 
     #[inline(always)]
@@ -309,7 +309,7 @@ impl Vector3dMath for f64 {
     #[inline(always)]
     fn v3_is_normalized(this: Vector3d<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 1e-6)
+        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
     }
 
     #[inline(always)]

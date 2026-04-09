@@ -496,7 +496,7 @@ where
     /// ```
     #[inline(always)]
     pub fn norm_squared(self) -> T {
-        self.dot(self)
+        T::v4_norm_squared(self)
     }
 
     /// Return distance between two points, squared
@@ -583,6 +583,25 @@ where
     pub fn normalize_unchecked(&mut self) -> &mut Self {
         *self = self.normalized_unchecked();
         self
+    }
+}
+
+impl<T> Vector4d<T>
+where
+    T: Copy + Vector4dMath,
+{
+    // Return true if the vector is normalized.
+    #[inline(always)]
+    /// ```
+    /// # use vector_quaternion_matrix::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// let n = v.normalized();
+    /// let s = n.norm_squared();
+    /// assert_eq!(1.0, s);
+    /// assert!(n.is_normalized());
+    /// ```
+    pub fn is_normalized(self) -> bool {
+        T::v4_is_normalized(self)
     }
 }
 

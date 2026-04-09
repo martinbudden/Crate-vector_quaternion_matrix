@@ -242,6 +242,12 @@ mod tests {
         y.normalize();
         assert_eq!(z, y);
     }
+    #[test]
+    fn is_normalized() {
+        let a = Vector3df32::new(0.0067734555, 0.016385008, 0.0053294576);
+        let n = a.normalized();
+        assert!(n.is_normalized());
+    }
 
     #[test]
     fn test_quaternion_rotation_90_deg() {
