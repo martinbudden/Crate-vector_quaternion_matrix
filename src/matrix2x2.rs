@@ -601,15 +601,12 @@ where
     T: Copy,
 {
     pub fn set_row(&mut self, row: usize, value: Vector2d<T>) {
-        match row {
-            0 => {
-                self.a[0] = value.x;
-                self.a[1] = value.y;
-            }
-            _ => {
-                self.a[2] = value.x;
-                self.a[3] = value.y;
-            }
+        if row == 0 {
+            self.a[0] = value.x;
+            self.a[1] = value.y;
+        } else {
+            self.a[2] = value.x;
+            self.a[3] = value.y;
         }
     }
 
@@ -633,15 +630,12 @@ where
     }
 
     pub fn set_column(&mut self, column: usize, value: Vector2d<T>) {
-        match column {
-            0 => {
-                self.a[0] = value.x;
-                self.a[3] = value.y;
-            }
-            _ => {
-                self.a[1] = value.x;
-                self.a[2] = value.y;
-            }
+        if column == 0 {
+            self.a[0] = value.x;
+            self.a[3] = value.y;
+        } else {
+            self.a[1] = value.x;
+            self.a[2] = value.y;
         }
     }
 
@@ -736,7 +730,7 @@ where
     #[inline(always)]
     pub fn clamped(self, min: T, max: T) -> Self {
         let mut a = self.a;
-        for it in a.iter_mut() {
+        for it in &mut a {
             *it = it.clamp(min, max);
         }
         Self { a }
@@ -997,7 +991,7 @@ where
     /// assert!(z.is_near_zero());
     /// ```
     pub fn is_near_zero(self) -> bool {
-        for a in self.a.iter() {
+        for a in &self.a {
             if a.abs() > T::EPSILON {
                 return false;
             }

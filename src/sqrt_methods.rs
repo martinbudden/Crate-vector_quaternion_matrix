@@ -112,16 +112,16 @@ cfg_if! {
 fn _sqrt_reciprocalf(x: f32) -> f32 {
     let mut y: f32 = x;
     let mut i: i32 = y.to_bits().cast_signed();
-    i = 0x5F375A86 - (i >> 1);
+    i = 0x5F37_5A86 - (i >> 1);
     y = f32::from_bits(i.cast_unsigned());
-    y * (1.69000231 - 0.714158168 * x * y * y) // First iteration
+    y * (1.690_002_31 - 0.714_158_168 * x * y * y) // First iteration
 }
 
 #[inline(always)]
 fn _quake_sqrt_reciprocal(number: f32) -> f32 {
     let mut y: f32 = number;
     let mut i: i32 = y.to_bits().cast_signed();
-    i = 0x5F375A86 - (i >> 1);
+    i = 0x5F37_5A86 - (i >> 1);
     y = f32::from_bits(i.cast_unsigned());
     y * (1.5 - (number * 0.5 * y * y))
 }
@@ -129,12 +129,14 @@ fn _quake_sqrt_reciprocal(number: f32) -> f32 {
 #[cfg(test)]
 mod tests {
     #![allow(unused)]
+    #![allow(clippy::float_cmp)]
+    #![allow(clippy::used_underscore_items)]
     use super::*;
 
     #[test]
     fn sqrt_reciprocal() {
-        assert_eq!(_quake_sqrt_reciprocal(4.0), 0.49915406);
-        assert_eq!(_sqrt_reciprocalf(4.0), 0.49435496);
+        assert_eq!(_quake_sqrt_reciprocal(4.0), 0.499_154_06);
+        assert_eq!(_sqrt_reciprocalf(4.0), 0.494_354_96);
         assert_eq!(4.0.sqrt_reciprocal(), 0.5);
     }
     #[test]

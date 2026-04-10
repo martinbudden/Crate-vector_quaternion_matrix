@@ -327,7 +327,8 @@ impl Vector3dMath for i16 {
 
     #[inline(always)]
     fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
-        Self::v3_mul_scalar(this, (1.0 / (k as f32)) as i16)
+        #[allow(clippy::cast_possible_truncation)]
+        Self::v3_mul_scalar(this, (1.0 / f32::from(k)) as i16)
     }
 
     #[inline(always)]

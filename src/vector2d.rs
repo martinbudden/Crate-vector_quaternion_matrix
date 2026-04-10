@@ -352,8 +352,7 @@ impl<T> Index<usize> for Vector2d<T> {
     fn index(&self, index: usize) -> &T {
         match index {
             0 => &self.x,
-            1 => &self.y,
-            _ => &self.y, // default to z component if index out of range
+            _ => &self.y, // default to y component if index out of range
         }
     }
 }
@@ -374,8 +373,7 @@ impl<T> IndexMut<usize> for Vector2d<T> {
     fn index_mut(&mut self, index: usize) -> &mut T {
         match index {
             0 => &mut self.x,
-            1 => &mut self.y,
-            _ => &mut self.y, // default to z component if index out of range
+            _ => &mut self.y, // default to y component if index out of range
         }
     }
 }

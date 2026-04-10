@@ -281,7 +281,7 @@ impl Matrix3x3Math for f64 {
     #[inline(always)]
     fn m3x3_neg(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
         let mut a = this.a;
-        for r in a.iter_mut() {
+        for r in &mut a {
             *r = -*r;
         }
         Matrix3x3::from(a)
@@ -290,7 +290,7 @@ impl Matrix3x3Math for f64 {
     #[inline(always)]
     fn m3x3_abs(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
         let mut a = this.a;
-        for r in a.iter_mut() {
+        for r in &mut a {
             *r = r.abs();
         }
         Matrix3x3::from(a)
@@ -308,7 +308,7 @@ impl Matrix3x3Math for f64 {
     #[inline(always)]
     fn m3x3_mul_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self> {
         let mut a = this.a;
-        for r in a.iter_mut() {
+        for r in &mut a {
             *r *= other;
         }
         Matrix3x3::from(a)

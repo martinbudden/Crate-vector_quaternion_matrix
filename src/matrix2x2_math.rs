@@ -72,7 +72,7 @@ impl Matrix2x2Math for f32 {
         #[cfg(not(feature = "simd"))]
         {
             let mut a = this.a;
-            for r in a.iter_mut() {
+            for r in &mut a {
                 *r = -*r;
             }
             Matrix2x2::from(a)
@@ -117,7 +117,7 @@ impl Matrix2x2Math for f32 {
         #[cfg(not(feature = "simd"))]
         {
             let mut a = this.a;
-            for r in a.iter_mut() {
+            for r in &mut a {
                 *r *= other;
             }
             Matrix2x2::from(a)
@@ -225,7 +225,7 @@ impl Matrix2x2Math for f64 {
     #[inline(always)]
     fn m2x2_neg(this: Matrix2x2<Self>) -> Matrix2x2<Self> {
         let mut a = this.a;
-        for r in a.iter_mut() {
+        for r in &mut a {
             *r = -*r;
         }
         Matrix2x2::from(a)
@@ -234,7 +234,7 @@ impl Matrix2x2Math for f64 {
     #[inline(always)]
     fn m2x2_abs(this: Matrix2x2<Self>) -> Matrix2x2<Self> {
         let mut a = this.a;
-        for r in a.iter_mut() {
+        for r in &mut a {
             *r = r.abs();
         }
         Matrix2x2::from(a)
@@ -252,7 +252,7 @@ impl Matrix2x2Math for f64 {
     #[inline(always)]
     fn m2x2_mul_scalar(this: Matrix2x2<Self>, other: Self) -> Matrix2x2<Self> {
         let mut a = this.a;
-        for r in a.iter_mut() {
+        for r in &mut a {
             *r *= other;
         }
         Matrix2x2::from(a)

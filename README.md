@@ -29,7 +29,7 @@ but that is transparent to the user.)
 ## Mathematical methods and constants
 
 This crate also provides implementations of the trigonometric methods normally provided by the standard library, namely:
-`sin`, `cos`, `sin_cos`, `tan`, `asin`, `acos`, `atan2`. The are provided in method_call syntax, ie `x.sin()`.
+`sin`, `cos`, `sin_cos`, `tan`, `asin`, `acos`, `atan2`. The are provided in `method_call` syntax, ie `x.sin()`.
 
 The methods `sqrt` and `sqrt_reciprocal` are also provided.
 

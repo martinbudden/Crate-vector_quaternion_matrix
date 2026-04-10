@@ -97,15 +97,15 @@ cfg_if! {
         impl TrigonometricMethods for f32 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
-                _sin_cos(self)
+                sin_cos_approx(self)
             }
             #[inline(always)]
             fn sin(self) -> Self {
-                _sin(self)
+                sin_approx(self)
             }
             #[inline(always)]
             fn cos(self) -> Self {
-                _cos(self)
+                cos_approx(self)
             }
             #[inline(always)]
             fn tan(self) -> Self {
@@ -157,16 +157,16 @@ cfg_if! {
     } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
         impl TrigonometricMethods for f32 {
             fn sin_cos(self) -> (Self, Self) {
-                _sin_cos(self)
+                sin_cos_approx(self)
             }
             fn sin(self) -> Self {
-                _sin(self)
+                sin_approx(self)
             }
             fn cos(self) -> Self {
-                _cos(self)
+                cos_approx(self)
             }
             fn tan(self) -> Self {
-                (sin, cos) = _sin_cos(self);
+                (sin, cos) = sin_cos_approx(self);
                 sin / cos
             }
             fn asin(self) -> Self {
@@ -223,28 +223,28 @@ trait Cos6Coefficients {
 
 impl Sin5Coefficients for f32 {
     const SIN_C1: Self = core::f32::consts::FRAC_PI_2;
-    const SIN_C3: Self = -0.64568519592;
-    const SIN_C5: Self = 0.077562883496;
+    const SIN_C3: Self = -0.645_685_195_92;
+    const SIN_C5: Self = 0.077_562_883_496;
 }
 
 impl Cos6Coefficients for f32 {
     const COS_C0: Self = 1.0;
-    const COS_C2: Self = -1.23369765282;
-    const COS_C4: Self = 0.25360107422;
-    const COS_C6: Self = -0.020408373326;
+    const COS_C2: Self = -1.233_697_652_82;
+    const COS_C4: Self = 0.253_601_074_22;
+    const COS_C6: Self = -0.020_408_373_326;
 }
 
 impl Sin5Coefficients for f64 {
     const SIN_C1: Self = core::f64::consts::FRAC_PI_2;
-    const SIN_C3: Self = -0.64568519592;
-    const SIN_C5: Self = 0.077562883496;
+    const SIN_C3: Self = -0.645_685_195_92;
+    const SIN_C5: Self = 0.077_562_883_496;
 }
 
 impl Cos6Coefficients for f64 {
     const COS_C0: Self = 1.0;
-    const COS_C2: Self = -1.23369765282;
-    const COS_C4: Self = 0.25360107422;
-    const COS_C6: Self = -0.020408373326;
+    const COS_C2: Self = -1.233_697_652_82;
+    const COS_C4: Self = 0.253_601_074_22;
+    const COS_C6: Self = -0.020_408_373_326;
 }
 
 // sin4 (5.60E-07): x * (0.9999949932098388671875 + x2*(-0.166601598262786865234375 + x2*8.12153331935405731201171875e-3))
@@ -311,30 +311,34 @@ where
     if q & 2 == 0 { sin_cos } else { (-sin_cos.0, -sin_cos.1) }
 }
 
-fn _sin(x: f32) -> f32 {
+fn sin_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q;
+    #[allow(clippy::cast_possible_truncation)]
     sin_quadrant(r, q as i32)
 }
 
-fn _cos(x: f32) -> f32 {
+fn cos_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
+    #[allow(clippy::cast_possible_truncation)]
     cos_quadrant(r, q as i32)
 }
 
-fn _sin_cos(x: f32) -> (f32, f32) {
+fn sin_cos_approx(x: f32) -> (f32, f32) {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
+    #[allow(clippy::cast_possible_truncation)]
     sin_cos_quadrant(r, q as i32)
 }
 
 #[cfg(test)]
 mod tests {
     #![allow(unused)]
+    #![allow(clippy::float_cmp)]
     use super::*;
     #[test]
     fn asin() {

@@ -151,6 +151,7 @@ impl MathConstants for f64 {
 #[cfg(test)]
 mod tests {
     #![allow(unused)]
+    #![allow(clippy::float_cmp)]
     use super::*;
 
     struct Test<F> {

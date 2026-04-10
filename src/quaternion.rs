@@ -11,14 +11,14 @@ pub type Quaternionf32 = Quaternion<f32>;
 /// Quaternion of `f64` values<br><br>
 pub type Quaternionf64 = Quaternion<f64>;
 
-/// RollPitchYaw `struct { roll: f32, pitch: f32, yaw: f32 }`<br>
+/// `RollPitchYaw` `struct { roll: f32, pitch: f32, yaw: f32 }`<br>
 pub type RollPitchYawf32 = RollPitchYaw<f32>;
-/// RollPitchYaw `struct { roll: f64, pitch: f64, yaw: f64 }`<br>
+/// `RollPitchYaw` `struct { roll: f64, pitch: f64, yaw: f64 }`<br>
 pub type RollPitchYawf64 = RollPitchYaw<f64>;
 
-/// RollPitch `struct { roll: f32, pitch: f32 }`<br>
+/// `RollPitch` `struct { roll: f32, pitch: f32 }`<br>
 pub type RollPitchf32 = RollPitch<f32>;
-/// RollPitch `struct { roll: f64, pitch: f64 }`<br><br>
+/// `RollPitch` `struct { roll: f64, pitch: f64 }`<br><br>
 pub type RollPitchf64 = RollPitch<f64>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -669,7 +669,7 @@ impl<T> Quaternion<T>
 where
     T: Copy + Zero + One + PartialOrd + Neg<Output = T> + Sub<Output = T> + Div<Output = T> + SqrtMethods,
 {
-    /// clip sin(roll_angle) to +/-1.0 when roll angle outside range [-90 degrees, 90 degrees]
+    /// clip `sin(roll_angle)` to +/-1.0 when roll angle outside range [-90 degrees, 90 degrees]
     pub fn sin_roll_clipped(self) -> T {
         let half = T::one() / (T::one() + T::one());
         let a: T = self.w * self.x + self.y * self.z;

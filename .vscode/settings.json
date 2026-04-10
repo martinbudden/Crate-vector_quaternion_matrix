@@ -19,6 +19,7 @@
         "bytemuck",
         "cgmath",
         "chacha",
+        "clippy",
         "codegen",
         "cofactor",
         "corasick",

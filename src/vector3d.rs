@@ -397,7 +397,6 @@ impl<T> IndexMut<usize> for Vector3d<T> {
         match index {
             0 => &mut self.x,
             1 => &mut self.y,
-            2 => &mut self.z,
             _ => &mut self.z, // default to z component if index out of range
         }
     }
@@ -860,7 +859,8 @@ impl Mul<f32> for Vector3d<i16> {
 
     #[inline(always)]
     fn mul(self, k: f32) -> Self {
-        Self { x: (self.x as f32 * k) as i16, y: (self.y as f32 * k) as i16, z: (self.z as f32 * k) as i16 }
+        #[allow(clippy::cast_possible_truncation)]
+        Self { x: (f32::from(self.x) * k) as i16, y: (f32::from(self.y) * k) as i16, z: (f32::from(self.z) * k) as i16 }
     }
 }
 
@@ -879,13 +879,14 @@ impl Mul<f32> for Vector3d<i16> {
 impl From<Vector3d<i16>> for Vector3d<f32> {
     #[inline(always)]
     fn from(v: Vector3d<i16>) -> Self {
-        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
+        Self { x: f32::from(v.x), y: f32::from(v.y), z: f32::from(v.z) }
     }
 }
 
 impl From<Vector3d<f32>> for Vector3d<i16> {
     #[inline(always)]
     fn from(v: Vector3d<f32>) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
         Self { x: v.x as i16, y: v.y as i16, z: v.z as i16 }
     }
 }
