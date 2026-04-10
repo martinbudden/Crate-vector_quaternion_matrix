@@ -40,6 +40,10 @@ ie `T:PI`.
 
 **SIMD** support can be enabled with the `simd` feature.
 
+It is currently experimental and many of the implementations are naive "placeholder" implementations to be optimized at a later date.
+These placeholder implementations may be slower than the non-SIMD code, so if you used SIMD make sure you benchmark to show
+that you are indeed getting a performance improvement.
+
 This uses [portable simd](https://doc.rust-lang.org/core/simd/index.html), which requires the nightly compiler, since it is still
 unstable in rust.
 
