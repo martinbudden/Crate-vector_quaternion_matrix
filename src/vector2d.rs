@@ -601,13 +601,13 @@ where
     T: Copy + Vector2dMath,
 {
     // Return true if the vector is normalized.
-    #[inline(always)]
     /// ```
     /// # use vector_quaternion_matrix::Vector2df32;
     /// let v = Vector2df32::new(3.0, 4.0);
     /// let n = v.normalized();
     /// assert!(n.is_normalized());
     /// ```
+    #[inline(always)]
     pub fn is_normalized(self) -> bool {
         T::v2_is_normalized(self)
     }

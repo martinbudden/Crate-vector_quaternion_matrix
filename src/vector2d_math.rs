@@ -10,7 +10,7 @@ cfg_if! {
 const _: () = assert!(core::mem::size_of::<Vector2d<f32>>() == 8);
 const _: () = assert!(core::mem::align_of::<Vector2d<f32>>() == 8);
 
-use crate::{SqrtMethods, Vector2d};
+use crate::Vector2d;
 
 // **** From ****
 
@@ -46,7 +46,6 @@ pub trait Vector2dMath: Sized {
     fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self>;
     fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_norm_squared(this: Vector2d<Self>) -> Self;
-    fn v2_normalize(this: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_is_normalized(this: Vector2d<Self>) -> bool;
     fn v2_max(this: Vector2d<Self>) -> Self;
     fn v2_min(this: Vector2d<Self>) -> Self;
@@ -138,33 +137,6 @@ impl Vector2dMath for f32 {
     }
 
     #[inline(always)]
-    fn v2_normalize(this: Vector2d<Self>) -> Vector2d<Self> {
-        #[cfg(feature = "simd")]
-        {
-            let norm_squared = Self::v2_norm_squared(this);
-            // If norm_squared is zero, then this must be zero (default) vector
-            if norm_squared == 0.0 {
-                return Vector2d::default();
-            }
-
-            let this_simd = f32x2::from(this);
-            let norm_reciprocal = norm_squared.sqrt_reciprocal(); // Uses hardware vrsqrt
-            let scale = f32x2::splat(norm_reciprocal);
-
-            (this_simd * scale).into()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            let norm_squared = Self::v2_norm_squared(this);
-            if norm_squared == 0.0 {
-                return Vector2d::default();
-            }
-            let norm_reciprocal = norm_squared.sqrt_reciprocal();
-            Vector2d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal }
-        }
-    }
-
-    #[inline(always)]
     fn v2_is_normalized(this: Vector2d<Self>) -> bool {
         let norm_squared = Self::v2_norm_squared(this);
         approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
@@ -249,16 +221,6 @@ impl Vector2dMath for f64 {
     #[inline(always)]
     fn v2_norm_squared(this: Vector2d<Self>) -> Self {
         this.x * this.x + this.y * this.y
-    }
-
-    #[inline(always)]
-    fn v2_normalize(this: Vector2d<Self>) -> Vector2d<Self> {
-        let norm_squared = Self::v2_norm_squared(this);
-        if norm_squared == 0.0 {
-            return Vector2d::default();
-        }
-        let norm_reciprocal = norm_squared.sqrt_reciprocal();
-        Vector2d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal }
     }
 
     #[inline(always)]

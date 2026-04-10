@@ -526,13 +526,13 @@ where
     T: Copy + Zero + PartialEq + SqrtMethods + QuaternionMath,
 {
     /// Return normalized form of the quaternion, checking if the magnitude is zero
-    #[inline(always)]
     /// ```
     /// # use vector_quaternion_matrix::Quaternionf32;
     /// let q = Quaternionf32::new(0.0, 0.0, 0.0, 0.0);
     /// let r = q.normalized();
     /// assert_eq!(Quaternionf32 { w: 0.0, x: 0.0, y: 0.0, z: 0.0 }, r);
     /// ```
+    #[inline(always)]
     pub fn normalized(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the quaternion is already normalized
@@ -562,6 +562,7 @@ where
     /// let r = q.normalized_unchecked();
     /// assert_eq!(Quaternionf32 { w: 0.21442251, x: 0.32163376, y: 0.5360563, z: 0.7504788 }, r);
     /// ```
+    #[inline(always)]
     pub fn normalized_unchecked(self) -> Self {
         let norm_squared = self.norm_squared();
         self * norm_squared.sqrt_reciprocal()
@@ -586,13 +587,13 @@ where
     T: Copy + QuaternionMath,
 {
     // Return true if the vector is normalized.
-    #[inline(always)]
     /// ```
     /// # use vector_quaternion_matrix::Quaternionf32;
     /// let v = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
     /// let n = v.normalized();
     /// assert!(n.is_normalized());
     /// ```
+    #[inline(always)]
     pub fn is_normalized(self) -> bool {
         T::q_is_normalized(self)
     }

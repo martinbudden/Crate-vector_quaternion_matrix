@@ -10,7 +10,7 @@ cfg_if! {
 const _: () = assert!(core::mem::size_of::<Quaternion<f32>>() == 16);
 const _: () = assert!(core::mem::align_of::<Quaternion<f32>>() == 16);
 
-use crate::{Quaternion, SqrtMethods};
+use crate::Quaternion;
 
 // **** From ****
 
@@ -46,7 +46,6 @@ pub trait QuaternionMath: Sized {
     fn q_div_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self>;
     fn q_mul_add(this: Quaternion<Self>, k: Self, other: Quaternion<Self>) -> Quaternion<Self>;
     fn q_norm_squared(this: Quaternion<Self>) -> Self;
-    fn q_normalize(this: Quaternion<Self>) -> Quaternion<Self>;
     fn q_is_normalized(this: Quaternion<Self>) -> bool;
     fn q_mul(other: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self>;
     fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self>;
@@ -162,37 +161,6 @@ impl QuaternionMath for f32 {
     }
 
     #[inline(always)]
-    fn q_normalize(this: Quaternion<Self>) -> Quaternion<Self> {
-        #[cfg(feature = "simd")]
-        {
-            let this_simd = f32x4::from(this);
-            let norm_squared = (this_simd * this_simd).reduce_sum();
-            // If norm_squared is zero, then this must be the unit quaternion
-            if norm_squared == 0.0 {
-                return Quaternion { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
-            }
-            let norm_reciprocal = norm_squared.sqrt_reciprocal(); // Uses our hardware vrsqrt
-            let scale = f32x4::splat(norm_reciprocal);
-
-            (this_simd * scale).into()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            let norm_squared = this.w * this.w + this.x * this.x + this.y * this.y + this.z * this.z;
-            if norm_squared == 0.0 {
-                return Quaternion::default();
-            }
-            let norm_reciprocal = norm_squared.sqrt_reciprocal();
-            Quaternion {
-                w: this.x * norm_reciprocal,
-                x: this.x * norm_reciprocal,
-                y: this.y * norm_reciprocal,
-                z: this.z * norm_reciprocal,
-            }
-        }
-    }
-
-    #[inline(always)]
     fn q_is_normalized(this: Quaternion<Self>) -> bool {
         let norm_squared = Self::q_norm_squared(this);
         approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
@@ -261,21 +229,6 @@ impl QuaternionMath for f64 {
     #[inline(always)]
     fn q_norm_squared(this: Quaternion<Self>) -> Self {
         this.w * this.w + this.x * this.x + this.y * this.y + this.z * this.z
-    }
-
-    #[inline(always)]
-    fn q_normalize(this: Quaternion<Self>) -> Quaternion<Self> {
-        let norm_squared = Self::q_norm_squared(this);
-        if norm_squared == 0.0 {
-            return Quaternion::default();
-        }
-        let norm_reciprocal = norm_squared.sqrt_reciprocal();
-        Quaternion {
-            w: this.x * norm_reciprocal,
-            x: this.x * norm_reciprocal,
-            y: this.y * norm_reciprocal,
-            z: this.z * norm_reciprocal,
-        }
     }
 
     #[inline(always)]

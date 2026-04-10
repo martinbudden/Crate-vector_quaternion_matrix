@@ -591,7 +591,6 @@ where
     T: Copy + Vector4dMath,
 {
     // Return true if the vector is normalized.
-    #[inline(always)]
     /// ```
     /// # use vector_quaternion_matrix::Vector4df32;
     /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
@@ -600,6 +599,7 @@ where
     /// assert_eq!(1.0, s);
     /// assert!(n.is_normalized());
     /// ```
+    #[inline(always)]
     pub fn is_normalized(self) -> bool {
         T::v4_is_normalized(self)
     }

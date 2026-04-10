@@ -203,18 +203,22 @@ mod tests {
     }
     #[test]
     fn sum() {
-        let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.sum(), 10.0);
+        let a = Vector3di16 { x: 2, y: 3, z: 5 };
+        assert_eq!(a.sum(), 10);
     }
     #[test]
     fn mean() {
-        let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.mean(), 10.0 / 3.0);
     }
     #[test]
     fn product() {
-        let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.product(), 30.0);
+        let a = Vector3di16 { x: 2, y: 3, z: 5 };
+        assert_eq!(a.product(), 30);
     }
     #[test]
     fn dot() {
@@ -228,6 +232,13 @@ mod tests {
         let v2 = Vector3df32::new(4.0, 5.0, 6.0);
         // (1*4) + (2*5) + (3*6) = 4 + 10 + 18 = 32
         assert_eq!(v1.dot(v2), 32.0);
+
+        let a = Vector3di16 { x: 2, y: 3, z: 5 };
+        let b = Vector3di16 { x: 7, y: 11, z: 13 };
+        assert_eq!(a.dot(a), 38);
+        assert_eq!(a.dot(b), 112);
+        assert_eq!(b.dot(a), 112);
+        assert_eq!(b.dot(b), 339);
     }
     #[test]
     fn normalize_unchecked() {

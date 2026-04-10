@@ -10,7 +10,7 @@ cfg_if! {
 const _: () = assert!(core::mem::size_of::<Vector4d<f32>>() == 16);
 const _: () = assert!(core::mem::align_of::<Vector4d<f32>>() == 16);
 
-use crate::{SqrtMethods, Vector4d};
+use crate::Vector4d;
 
 // **** From ****
 
@@ -47,7 +47,6 @@ pub trait Vector4dMath: Sized {
     fn v4_div_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self>;
     fn v4_mul_add(this: Vector4d<Self>, k: Self, other: Vector4d<Self>) -> Vector4d<Self>;
     fn v4_norm_squared(this: Vector4d<Self>) -> Self;
-    fn v4_normalize(this: Vector4d<Self>) -> Vector4d<Self>;
     fn v4_is_normalized(this: Vector4d<Self>) -> bool;
     fn v4_max(this: Vector4d<Self>) -> Self;
     fn v4_min(this: Vector4d<Self>) -> Self;
@@ -136,37 +135,6 @@ impl Vector4dMath for f32 {
         #[cfg(not(feature = "simd"))]
         {
             this.x * this.x + this.y * this.y + this.z * this.z + this.t * this.t
-        }
-    }
-
-    #[inline(always)]
-    fn v4_normalize(this: Vector4d<Self>) -> Vector4d<Self> {
-        #[cfg(feature = "simd")]
-        {
-            let norm_squared = Self::v4_dot(this, this);
-            // If norm_squared is zero, then this must be zero (default) vector
-            if norm_squared == 0.0 {
-                return Vector4d::default();
-            }
-
-            let this_simd = f32x4::from(this);
-            let norm_reciprocal = norm_squared.sqrt_reciprocal(); // Uses hardware vrsqrt
-            let scale = f32x4::splat(norm_reciprocal);
-            (this_simd * scale).into()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            let norm_squared = Self::v4_norm_squared(this);
-            if norm_squared == 0.0 {
-                return Vector4d::default();
-            }
-            let norm_reciprocal = norm_squared.sqrt_reciprocal();
-            Vector4d {
-                x: this.x * norm_reciprocal,
-                y: this.y * norm_reciprocal,
-                z: this.z * norm_reciprocal,
-                t: this.t * norm_reciprocal,
-            }
         }
     }
 
@@ -276,21 +244,6 @@ impl Vector4dMath for f64 {
     #[inline(always)]
     fn v4_norm_squared(this: Vector4d<Self>) -> Self {
         this.x * this.x + this.y * this.y + this.z * this.z + this.t * this.t
-    }
-
-    #[inline(always)]
-    fn v4_normalize(this: Vector4d<Self>) -> Vector4d<Self> {
-        let norm_squared = Self::v4_norm_squared(this);
-        if norm_squared == 0.0 {
-            return Vector4d::default();
-        }
-        let norm_reciprocal = norm_squared.sqrt_reciprocal();
-        Vector4d {
-            x: this.x * norm_reciprocal,
-            y: this.y * norm_reciprocal,
-            z: this.z * norm_reciprocal,
-            t: this.t * norm_reciprocal,
-        }
     }
 
     #[inline(always)]

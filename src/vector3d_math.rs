@@ -16,7 +16,7 @@ cfg_if! {
     }
 }
 
-use crate::{SqrtMethods, Vector3d};
+use crate::Vector3d;
 
 // **** From ****
 
@@ -53,7 +53,6 @@ pub trait Vector3dMath: Sized {
     fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self>;
     fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_norm_squared(this: Vector3d<Self>) -> Self;
-    fn v3_normalize(this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_is_normalized(this: Vector3d<Self>) -> bool;
     fn v3_max(this: Vector3d<Self>) -> Self;
     fn v3_min(this: Vector3d<Self>) -> Self;
@@ -138,32 +137,6 @@ impl Vector3dMath for f32 {
         #[cfg(not(feature = "simd"))]
         {
             this.x * this.x + this.y * this.y + this.z * this.z
-        }
-    }
-
-    #[inline(always)]
-    fn v3_normalize(this: Vector3d<Self>) -> Vector3d<Self> {
-        #[cfg(feature = "simd")]
-        {
-            let norm_squared = Self::v3_norm_squared(this);
-            // If norm_squared is zero, then this must be zero (default) vector
-            if norm_squared == 0.0 {
-                return Vector3d::default();
-            }
-
-            let this_simd = f32x4::from(this);
-            let norm_reciprocal = norm_squared.sqrt_reciprocal(); // Uses hardware vrsqrt
-            let scale = f32x4::splat(norm_reciprocal);
-            (this_simd * scale).into()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            let norm_squared = Self::v3_norm_squared(this);
-            if norm_squared == 0.0 {
-                return Vector3d::default();
-            }
-            let norm_reciprocal = norm_squared.sqrt_reciprocal();
-            Vector3d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal, z: this.z * norm_reciprocal }
         }
     }
 
@@ -297,16 +270,6 @@ impl Vector3dMath for f64 {
     }
 
     #[inline(always)]
-    fn v3_normalize(this: Vector3d<Self>) -> Vector3d<Self> {
-        let norm_squared = Self::v3_norm_squared(this);
-        if norm_squared == 0.0 {
-            return Vector3d::default();
-        }
-        let norm_reciprocal = norm_squared.sqrt_reciprocal();
-        Vector3d { x: this.x * norm_reciprocal, y: this.y * norm_reciprocal, z: this.z * norm_reciprocal }
-    }
-
-    #[inline(always)]
     fn v3_is_normalized(this: Vector3d<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
         approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
@@ -375,20 +338,6 @@ impl Vector3dMath for i16 {
     #[inline(always)]
     fn v3_norm_squared(this: Vector3d<Self>) -> Self {
         this.x * this.x + this.y * this.y + this.z * this.z
-    }
-
-    #[inline(always)]
-    fn v3_normalize(this: Vector3d<Self>) -> Vector3d<Self> {
-        let norm_squared = Self::v3_norm_squared(this);
-        if norm_squared == 0 {
-            return Vector3d::default();
-        }
-        let norm_reciprocal = (norm_squared as f32).sqrt_reciprocal();
-        Vector3d {
-            x: ((this.x as f32) * norm_reciprocal) as i16,
-            y: ((this.y as f32) * norm_reciprocal) as i16,
-            z: ((this.z as f32) * norm_reciprocal) as i16,
-        }
     }
 
     #[inline(always)]

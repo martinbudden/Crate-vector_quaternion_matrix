@@ -624,13 +624,13 @@ where
     T: Copy + Vector3dMath,
 {
     // Return true if the vector is normalized.
-    #[inline(always)]
     /// ```
     /// # use vector_quaternion_matrix::Vector3df32;
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
     /// let n = v.normalized();
     /// assert!(n.is_normalized());
     /// ```
+    #[inline(always)]
     pub fn is_normalized(self) -> bool {
         T::v3_is_normalized(self)
     }
