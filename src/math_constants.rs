@@ -150,10 +150,11 @@ impl MathConstants for f64 {
 
 #[cfg(test)]
 mod tests {
-    #![allow(unused)]
     #![allow(clippy::float_cmp)]
+    #[allow(unused)]
     use super::*;
 
+    #[allow(unused)]
     struct Test<F> {
         t: F,
     }
@@ -180,6 +181,7 @@ mod tests {
         assert_eq!(0.5, Testf32::half());
         assert_eq!(2.0, Testf32::two());
     }
+    #[test]
     fn f64() {
         assert_eq!(core::f64::consts::PI, Testf64::pi());
         assert_eq!(0.5, Testf64::half());

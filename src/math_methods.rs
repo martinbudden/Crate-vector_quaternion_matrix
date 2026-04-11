@@ -337,7 +337,7 @@ fn sin_cos_approx(x: f32) -> (f32, f32) {
 
 #[cfg(test)]
 mod tests {
-    #![allow(unused)]
+    #[allow(unused)]
     use super::*;
     use approx::assert_abs_diff_eq;
     macro_rules! assert_near {

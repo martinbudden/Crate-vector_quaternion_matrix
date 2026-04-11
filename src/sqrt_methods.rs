@@ -128,9 +128,9 @@ fn _quake_sqrt_reciprocal(number: f32) -> f32 {
 
 #[cfg(test)]
 mod tests {
-    #![allow(unused)]
     #![allow(clippy::float_cmp)]
     #![allow(clippy::used_underscore_items)]
+    #[allow(unused)]
     use super::*;
 
     #[test]
