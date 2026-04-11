@@ -311,6 +311,7 @@ where
     if q & 2 == 0 { sin_cos } else { (-sin_cos.0, -sin_cos.1) }
 }
 
+#[must_use]
 pub fn sin_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
@@ -319,6 +320,7 @@ pub fn sin_approx(x: f32) -> f32 {
     sin_quadrant(r, q as i32)
 }
 
+#[must_use]
 pub fn cos_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
@@ -327,6 +329,7 @@ pub fn cos_approx(x: f32) -> f32 {
     cos_quadrant(r, q as i32)
 }
 
+#[must_use]
 pub fn sin_cos_approx(x: f32) -> (f32, f32) {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
     let q = libm::roundf(t); // nearest quadrant
