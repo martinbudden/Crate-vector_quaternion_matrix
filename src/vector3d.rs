@@ -180,6 +180,34 @@ where
     }
 }
 
+impl MulAdd<i32> for Vector3d<i16> {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul_add(self, k: i32, other: Self) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        Vector3d {
+            x: self.x * (k as i16) + other.x,
+            y: self.y * (k as i16) + other.y,
+            z: self.z * (k as i16) + other.z,
+        }
+    }
+}
+
+impl MulAdd<f32> for Vector3d<i16> {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul_add(self, k: f32, other: Self) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        Vector3d {
+            x: self.x * (k as i16) + other.x,
+            y: self.y * (k as i16) + other.y,
+            z: self.z * (k as i16) + other.z,
+        }
+    }
+}
+
 // **** MulAddAssign ****
 
 /// Multiply vector by constant and add another vector in place
@@ -296,6 +324,34 @@ where
     }
 }
 
+impl Mul<i32> for Vector3d<i16> {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul(self, k: i32) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        Vector3d { x: self.x * (k as i16), y: self.y * (k as i16), z: self.z * (k as i16) }
+    }
+}
+
+impl Mul<i16> for Vector3d<f32> {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul(self, k: i16) -> Self {
+        Vector3d { x: self.x * f32::from(k), y: self.y * f32::from(k), z: self.z * f32::from(k) }
+    }
+}
+
+impl Mul<i32> for Vector3d<f32> {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul(self, k: i32) -> Self {
+        #[allow(clippy::cast_precision_loss)]
+        Vector3d { x: self.x * (k as f32), y: self.y * (k as f32), z: self.z * (k as f32) }
+    }
+}
 // **** MulAssign ****
 
 /// In-place multiply a vector by a constant

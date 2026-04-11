@@ -238,6 +238,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
+name = "filters"
+version = "0.1.0"
+source = "git+https://github.com/martinbudden/crate-filters#0f88152e876a6807f5d2cd9f23a3e9853336482e"
+dependencies = [
+ "num-traits",
+ "rustc_version",
+ "vector-quaternion-matrix 0.1.0 (git+https://github.com/martinbudden/crate-vector-quaternion-matrix)",
+]
+
+[[package]]
 name = "find-msvc-tools"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -647,9 +657,22 @@ dependencies = [
  "approx",
  "cfg-if",
  "criterion",
+ "filters",
  "libm",
  "num-traits",
  "rand",
+ "rustc_version",
+]
+
+[[package]]
+name = "vector-quaternion-matrix"
+version = "0.1.0"
+source = "git+https://github.com/martinbudden/crate-vector-quaternion-matrix#85e5ca856ab4f5c52113f71ccdd624e58970af52"
+dependencies = [
+ "approx",
+ "cfg-if",
+ "libm",
+ "num-traits",
  "rustc_version",
 ]
 

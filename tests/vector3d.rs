@@ -304,4 +304,24 @@ mod tests {
         assert_abs_diff_eq!(body_v.y, original_v.y, epsilon = 1e-5);
         assert_abs_diff_eq!(body_v.z, original_v.z, epsilon = 1e-5);
     }
+    #[test]
+    fn filter_vector3di16_i32() {
+        use filters::{Pt1Filter, SignalFilter};
+
+        let mut filter = Pt1Filter::<Vector3d<i16>, i32>::new(1);
+
+        // test that filter with default settings performs no filtering
+        let output = filter.update(Vector3di16 { x: 2, y: 3, z: 5 });
+        assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, output);
+    }
+    #[test]
+    fn pt1_filter_vector3di16_f32() {
+        use filters::{Pt1Filter, SignalFilter};
+
+        let mut filter = Pt1Filter::<Vector3di16, f32>::new(1.0);
+
+        // test that filter with default settings performs no filtering
+        let output = filter.update(Vector3di16 { x: 2, y: 3, z: 5 });
+        assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, output);
+    }
 }
