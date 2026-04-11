@@ -10,27 +10,27 @@
 #![allow(clippy::inline_always)]
 #![allow(clippy::return_self_not_must_use)]
 
-pub mod math_constants;
-pub mod math_methods;
-pub mod sqrt_methods;
+mod math_constants;
+mod math_methods;
+mod sqrt_methods;
 
-pub mod vector2d;
-pub mod vector2d_math;
+mod vector2d;
+mod vector2d_math;
 
-pub mod vector3d;
-pub mod vector3d_math;
+mod vector3d;
+mod vector3d_math;
 
-pub mod vector4d;
-pub mod vector4d_math;
+mod vector4d;
+mod vector4d_math;
 
-pub mod matrix2x2;
-pub mod matrix2x2_math;
+mod matrix2x2;
+mod matrix2x2_math;
 
-pub mod matrix3x3;
-pub mod matrix3x3_math;
+mod matrix3x3;
+mod matrix3x3_math;
 
-pub mod quaternion;
-pub mod quaternion_math;
+mod quaternion;
+mod quaternion_math;
 
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;
