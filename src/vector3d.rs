@@ -910,6 +910,8 @@ where
 /// 3-dimensional `{x, y, z}` vector of `i16` values<br><br>
 pub type Vector3di16 = Vector3d<i16>;
 
+// **** Vector3di16 ****
+
 impl Mul<f32> for Vector3d<i16> {
     type Output = Self;
 
@@ -917,17 +919,6 @@ impl Mul<f32> for Vector3d<i16> {
     fn mul(self, k: f32) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Self { x: (f32::from(self.x) * k) as i16, y: (f32::from(self.y) * k) as i16, z: (f32::from(self.z) * k) as i16 }
-    }
-}
-
-impl Mul<f32> for Vector3d<i32> {
-    type Output = Self;
-
-    #[inline(always)]
-    fn mul(self, k: f32) -> Self {
-        #[allow(clippy::cast_precision_loss)]
-        #[allow(clippy::cast_possible_truncation)]
-        Self { x: ((self.x as f32) * k) as i32, y: ((self.y as f32) * k) as i32, z: ((self.z as f32) * k) as i32 }
     }
 }
 
@@ -955,5 +946,49 @@ impl From<Vector3d<f32>> for Vector3d<i16> {
     fn from(v: Vector3d<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Self { x: v.x as i16, y: v.y as i16, z: v.z as i16 }
+    }
+}
+
+// **** Vector3di16 ****
+
+/// 3-dimensional `{x, y, z}` vector of `i32` values<br><br>
+pub type Vector3di32 = Vector3d<i32>;
+
+impl Mul<f32> for Vector3d<i32> {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul(self, k: f32) -> Self {
+        #[allow(clippy::cast_precision_loss)]
+        #[allow(clippy::cast_possible_truncation)]
+        Self { x: ((self.x as f32) * k) as i32, y: ((self.y as f32) * k) as i32, z: ((self.z as f32) * k) as i32 }
+    }
+}
+
+/// `Vector3d<f32>` from `Vector3d<i32>`.
+/// ```
+/// # use vqm::{Vector3df32,Vector3di32};
+/// let v_i32 = Vector3di32{x: 2, y: 3, z: 5};
+/// let v_f32 = Vector3df32::from(v_i32);
+///
+/// let w_f32 = Vector3df32{x: 7.0, y: 11.0, z: 13.0};
+/// let w_i32 : Vector3di32 = w_f32.into();
+///
+/// assert_eq!(v_f32, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+/// assert_eq!(w_i32, Vector3di32 { x: 7, y: 11, z: 13 });
+/// ```
+impl From<Vector3d<i32>> for Vector3d<f32> {
+    #[inline(always)]
+    #[allow(clippy::cast_precision_loss)]
+    fn from(v: Vector3d<i32>) -> Self {
+        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
+    }
+}
+
+impl From<Vector3d<f32>> for Vector3d<i32> {
+    #[inline(always)]
+    fn from(v: Vector3d<f32>) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        Self { x: v.x as i32, y: v.y as i32, z: v.z as i32 }
     }
 }

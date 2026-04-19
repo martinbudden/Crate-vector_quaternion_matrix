@@ -21,7 +21,7 @@ Each type has versions for `f32` and `f64`. So we have:
 5. 2x2 matrices: `Matrix2x2f32`, `Matrix2x2f64`
 6. 3x3 matrices: `Matrix3x3f32`,`Matrix3x3f64`
 
-The 3D vector additionally has a `i16` version: `Vector3di16`.
+The 3D vector additionally has `i16` and `i32` versions: `Vector3di16` and `Vector3di32`.
 
 (Under the hood, types are implemented using generics, so `Vector3df32` is actually `Vector3d<f32>`,
 but that is transparent to the user.)

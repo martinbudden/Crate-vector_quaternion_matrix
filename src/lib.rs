@@ -43,7 +43,7 @@ pub use sqrt_methods::SqrtMethods;
 pub use vector2d::{Vector2d, Vector2df32, Vector2df64};
 pub use vector2d_math::Vector2dMath;
 
-pub use vector3d::{Vector3d, Vector3df32, Vector3df64, Vector3di16};
+pub use vector3d::{Vector3d, Vector3df32, Vector3df64, Vector3di16, Vector3di32};
 pub use vector3d_math::Vector3dMath;
 
 pub use vector4d::{Vector4d, Vector4df32, Vector4df64};

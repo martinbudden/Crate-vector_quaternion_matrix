@@ -11,7 +11,7 @@ keywords = ["vector", "quaternion", "matrix", "no_std"]
 categories = [
     "embedded",
     "mathematics",
-    "no-std::no-alloc",
+    "no-std",
     "science::robotics",
 ]
 

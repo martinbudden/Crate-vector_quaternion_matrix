@@ -682,6 +682,21 @@ where
         }
         a * (a * a + b * b).sqrt_reciprocal()
     }
+    pub fn sin_pitch_clipped(self) -> T {
+        let d = self.w * self.w - self.y * self.y;
+        let half_sin_pitch = self.w * self.y - self.x * self.z;
+
+        // if d < 0.0, then self is outside the range [-90, 90] degrees, so we return 1.0 or 1.0 according to the sign of sin_pitch
+        if d < T::zero() {
+            if half_sin_pitch < T::zero() {
+                return -T::one();
+            }
+            return T::one();
+        }
+        // self is in the range [-90, 90] degrees, so we can just return sin(self)
+        let two: T = T::one() + T::one();
+        two * half_sin_pitch
+    }
 }
 
 impl<T> Quaternion<T>

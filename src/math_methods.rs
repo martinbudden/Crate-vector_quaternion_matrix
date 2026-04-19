@@ -166,7 +166,7 @@ cfg_if! {
                 cos_approx(self)
             }
             fn tan(self) -> Self {
-                (sin, cos) = sin_cos_approx(self);
+                let (sin, cos) = sin_cos_approx(self);
                 sin / cos
             }
             fn asin(self) -> Self {

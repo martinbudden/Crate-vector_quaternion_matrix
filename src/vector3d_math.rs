@@ -379,3 +379,74 @@ impl Vector3dMath for i16 {
         }
     }
 }
+
+impl Vector3dMath for i32 {
+    #[inline(always)]
+    fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: -this.x, y: -this.y, z: -this.z }
+    }
+
+    #[inline(always)]
+    fn v3_add(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
+    }
+
+    #[inline(always)]
+    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+        Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
+    }
+
+    #[inline(always)]
+    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+        #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
+        Self::v3_mul_scalar(this, (1.0 / (k as f32)) as i32)
+    }
+
+    #[inline(always)]
+    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
+    }
+
+    #[inline(always)]
+    fn v3_norm_squared(this: Vector3d<Self>) -> Self {
+        this.x * this.x + this.y * this.y + this.z * this.z
+    }
+
+    #[inline(always)]
+    fn v3_is_normalized(this: Vector3d<Self>) -> bool {
+        let norm_squared = Self::v3_norm_squared(this);
+        norm_squared == 1
+    }
+
+    #[inline(always)]
+    fn v3_max(this: Vector3d<Self>) -> Self {
+        if this.x > this.y {
+            if this.x > this.z { this.x } else { this.z }
+        } else {
+            if this.y > this.z { this.y } else { this.z }
+        }
+    }
+
+    #[inline(always)]
+    fn v3_min(this: Vector3d<Self>) -> Self {
+        if this.x < this.y {
+            if this.x < this.z { this.x } else { this.z }
+        } else {
+            if this.y < this.z { this.y } else { this.z }
+        }
+    }
+
+    #[inline(always)]
+    fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
+        this.x * other.x + this.y * other.y + this.z * other.z
+    }
+
+    #[inline(always)]
+    fn v3_cross(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d {
+            x: this.y * other.z - this.z * other.y,
+            y: this.z * other.x - this.x * other.z,
+            z: this.x * other.y - this.y * other.x,
+        }
+    }
+}
