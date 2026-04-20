@@ -1,7 +1,7 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
-use crate::{SqrtMethods, Vector2dMath};
+use crate::{MathConstants, SqrtMethods, Vector2dMath};
 
 /// 2-dimensional `{x, y}` vector of `f32` values<br>
 pub type Vector2df32 = Vector2d<f32>;
@@ -621,6 +621,36 @@ where
         self.distance_squared(other).sqrt()
     }
 }
+
+// **** to_degrees ****
+
+impl<T> Vector2d<T>
+where
+    T: Copy + Mul<Output = T> + MathConstants,
+{
+    /// Convert the vector to degrees, assuming it is in radians.
+    /// ```
+    /// # use vqm::{Vector2df32, MathConstants};
+    /// let v = Vector2df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4);
+    /// assert_eq!(Vector2df32::new(90.0, 45.0), v.to_degrees());
+    /// ```
+    #[inline(always)]
+    pub fn to_degrees(self) -> Self {
+        Self { x: self.x * T::RADIANS_TO_DEGREES, y: self.y * T::RADIANS_TO_DEGREES, }
+    }
+
+    /// Convert the vector to radians, assuming it is in degrees.
+    /// ```
+    /// # use vqm::{Vector2df32, MathConstants};
+    /// let v = Vector2df32::new(90.0, 45.0);
+    /// assert_eq!(Vector2df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4), v.to_radians());
+    /// ```
+    #[inline(always)]
+    pub fn to_radians(self) -> Self {
+        Self { x: self.x * T::DEGREES_TO_RADIANS, y: self.y * T::DEGREES_TO_RADIANS, }
+    }
+}
+// **** sum ****
 
 impl<T> Vector2d<T>
 where

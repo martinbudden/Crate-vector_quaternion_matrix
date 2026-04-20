@@ -203,6 +203,13 @@ mod tests {
         assert_eq!(b, a.clamped(-1.0, 4.0));
     }
     #[test]
+    fn degrees_radians() {
+        use vqm::MathConstants;
+        let a = Vector3df32 { x: f32::FRAC_PI_2, y: f32::FRAC_PI_4, z: f32::FRAC_PI_6 };
+        let b = a.to_degrees();
+        assert_eq!(b, Vector3df32::new(90.0, 45.0, 30.0));
+    }
+    #[test]
     fn sum() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.sum(), 10.0);

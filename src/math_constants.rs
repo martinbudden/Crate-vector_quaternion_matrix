@@ -42,6 +42,9 @@ pub trait MathConstants {
     // const PHI: Self; // The golden ratio (φ)
     // const EGAMMA: Self; // Euler-Mascheroni constant (γ)
 
+    const RADIANS_TO_DEGREES: Self;
+    const DEGREES_TO_RADIANS: Self;
+
     const FILTER_PT2_CUTOFF_CORRECTION: Self;
     const FILTER_PT3_CUTOFF_CORRECTION: Self;
 
@@ -86,6 +89,9 @@ impl MathConstants for f32 {
     // const PHI: Self = core::f32::consts::PHI;
     // const EGAMMA: Self = core::f32::consts::EGAMMA;
 
+    const RADIANS_TO_DEGREES:f32 = 180.0 / Self::PI;
+    const DEGREES_TO_RADIANS:f32 = Self::PI / 180.0;
+
     // FilterPt<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
     const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;
     const FILTER_PT3_CUTOFF_CORRECTION: Self = 1.961_459_177;
@@ -129,6 +135,9 @@ impl MathConstants for f64 {
     const FRAC_1_SQRT_2: Self = core::f64::consts::FRAC_1_SQRT_2;
     // const PHI: Self = core::f64::consts::PHI;
     // const EGAMMA: Self = core::f64::consts::EGAMMA;
+
+    const RADIANS_TO_DEGREES:f64 = 180.0 / Self::PI;
+    const DEGREES_TO_RADIANS:f64 = Self::PI / 180.0;
 
     // FilterPt<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
     const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;

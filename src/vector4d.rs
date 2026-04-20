@@ -1,7 +1,7 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
-use crate::{SqrtMethods, Vector2d, Vector3d, Vector4dMath};
+use crate::{MathConstants, SqrtMethods, Vector2d, Vector3d, Vector4dMath};
 
 /// 4-dimensional `{x, y, z, t}` vector of `f32` values<br>
 pub type Vector4df32 = Vector4d<f32>;
@@ -615,6 +615,37 @@ where
         self.distance_squared(other).sqrt()
     }
 }
+
+// **** to_degrees ****
+
+impl<T> Vector4d<T>
+where
+    T: Copy + Mul<Output = T> + MathConstants,
+{
+    /// Convert the vector to degrees, assuming it is in radians.
+    /// ```
+    /// # use vqm::{Vector4df32, MathConstants};
+    /// let v = Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8);
+    /// assert_eq!(Vector4df32::new(90.0, 45.0, 30.0, 22.5), v.to_degrees());
+    /// ```
+    #[inline(always)]
+    pub fn to_degrees(self) -> Self {
+        Self { x: self.x * T::RADIANS_TO_DEGREES, y: self.y * T::RADIANS_TO_DEGREES, z: self.z * T::RADIANS_TO_DEGREES, t: self.t * T::RADIANS_TO_DEGREES }
+    }
+
+    /// Convert the vector to radians, assuming it is in degrees.
+    /// ```
+    /// # use vqm::{Vector4df32, MathConstants};
+    /// let v = Vector4df32::new(90.0, 45.0, 30.0, 22.5);
+    /// assert_eq!(Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8), v.to_radians());
+    /// ```
+    #[inline(always)]
+    pub fn to_radians(self) -> Self {
+        Self { x: self.x * T::DEGREES_TO_RADIANS, y: self.y * T::DEGREES_TO_RADIANS, z: self.z * T::DEGREES_TO_RADIANS, t: self.t * T::DEGREES_TO_RADIANS }
+    }
+}
+
+// **** sum ****
 
 impl<T> Vector4d<T>
 where
