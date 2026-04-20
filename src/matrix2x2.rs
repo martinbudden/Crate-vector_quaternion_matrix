@@ -1019,6 +1019,8 @@ where
 
 // **** From ****
 
+// **** From Array ****
+
 /// Matrix from 1D array.
 /// ```
 /// # use vqm::{Matrix2x2f32};
@@ -1055,7 +1057,7 @@ where
     }
 }
 
-/// Matrix2x2 from array of 2 vectors.
+/// Matrix from array of 2 vectors.
 /// ```
 /// # use vqm::{Matrix2x2f32,Vector2df32};
 /// let m = Matrix2x2f32::from([ Vector2df32::new(2.0,  3.0),
@@ -1073,7 +1075,7 @@ where
     }
 }
 
-/// Matrix2x2 from a tuple of 2 vectors.
+/// Matrix from tuple of 2 vectors.
 /// ```
 /// # use vqm::{Matrix2x2f32,Vector2df32};
 /// let m = Matrix2x2f32::from(( Vector2df32::new(2.0,  3.0),

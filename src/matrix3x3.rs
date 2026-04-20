@@ -408,14 +408,14 @@ where
 /// Multiply a vector by a matrix.
 /// ```
 /// # use vqm::Matrix3x3f32;
-/// # use vqm::Vector3d;
+/// # use vqm::Vector3df32;
 /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
 ///                              7.0, 11.0, 13.0,
 ///                             17.0, 19.0, 23.0]);
-/// let v = Vector3d::<f32>{x:29.0, y:31.0, z:37.0};
+/// let v = Vector3df32{x:29.0, y:31.0, z:37.0};
 /// let r = m * v;
 ///
-/// assert_eq!(r, Vector3d::<f32>{x:336.0, y:1025.0, z:1933.0});
+/// assert_eq!(r, Vector3df32{x:336.0, y:1025.0, z:1933.0});
 /// ```
 impl<T> Mul<Vector3d<T>> for Matrix3x3<T>
 where
@@ -1160,6 +1160,87 @@ where
 
 // **** From ****
 
+// **** From Array ****
+
+/// Matrix from 1D array.
+/// ```
+/// # use vqm::Matrix3x3f32;
+/// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
+///                              7.0, 11.0, 13.0,
+///                             17.0, 19.0, 23.0]);
+/// assert_eq!(m, Matrix3x3f32::new([ 2.0,  3.0,  5.0,
+///                                   7.0, 11.0, 13.0,
+///                                  17.0, 19.0, 23.0]));
+/// ```
+impl<T> From<[T; 9]> for Matrix3x3<T>
+where
+    T: Copy,
+{
+    #[inline(always)]
+    fn from(input: [T; 9]) -> Self {
+        Self { a: input }
+    }
+}
+
+/// Matrix from 2D array.
+/// ```
+/// # use vqm::Matrix3x3f32;
+/// let m = Matrix3x3f32::from([[ 2.0,  3.0,  5.0],
+///                             [ 7.0, 11.0, 13.0],
+///                             [17.0, 19.0, 23.0]]);
+/// assert_eq!(m, Matrix3x3f32::new([ 2.0,  3.0,  5.0,
+///                                   7.0, 11.0, 13.0,
+///                                  17.0, 19.0, 23.0]));
+/// ```
+impl<T> From<[[T; 3]; 3]> for Matrix3x3<T>
+where
+    T: Copy,
+{
+    #[inline(always)]
+    fn from(a: [[T; 3]; 3]) -> Self {
+        Self { a: [a[0][0], a[0][1], a[0][2], a[1][0], a[1][1], a[1][2],a[2][0], a[2][1], a[2][2]] }
+    }
+}
+
+/// Matrix from array of 2 vectors.
+/// ```
+/// # use vqm::{Matrix3x3f32,Vector3df32};
+/// let m = Matrix3x3f32::from([ Vector3df32::new( 2.0,  3.0,  5.0),
+///                              Vector3df32::new( 7.0, 11.0, 13.0),
+///                              Vector3df32::new(17.0, 19.0, 23.0) ]);
+/// assert_eq!(m, Matrix3x3f32::new([ 2.0,  3.0,  5.0,
+///                                   7.0, 11.0, 13.0,
+///                                  17.0, 19.0, 23.0]));
+/// ```
+impl<T> From<[Vector3d<T>; 3]> for Matrix3x3<T>
+where
+    T: Copy,
+{
+    #[inline(always)]
+    fn from(v: [Vector3d<T>; 3]) -> Self {
+        Self { a: [v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z] }
+    }
+}
+
+/// Matrix from tuple of 3 vectors.
+/// ```
+/// # use vqm::{Matrix3x3f32,Vector3df32};
+/// let m = Matrix3x3f32::from(( Vector3df32::new( 2.0,  3.0,  5.0),
+///                              Vector3df32::new( 7.0, 11.0, 13.0),
+///                              Vector3df32::new(17.0, 19.0, 23.0) ));
+/// assert_eq!(m, Matrix3x3f32::new([ 2.0,  3.0,  5.0,
+///                                   7.0, 11.0, 13.0,
+///                                  17.0, 19.0, 23.0]));
+/// ```
+impl<T> From<(Vector3d<T>, Vector3d<T>, Vector3d<T>)> for Matrix3x3<T> {
+    #[inline(always)]
+    fn from(v: (Vector3d<T>, Vector3d<T>, Vector3d<T>)) -> Self {
+        Self { a: [v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z] }
+    }
+}
+
+// **** From Matrix ****
+
 /// Matrix3x3 from Matrix2x2.
 /// ```
 /// # use vqm::{Matrix2x2f32,Matrix3x3f32};
@@ -1204,35 +1285,7 @@ where
     }
 }
 
-// **** From Array ****
-
-/// Matrix from array.
-impl<T> From<[T; 9]> for Matrix3x3<T>
-where
-    T: Copy,
-{
-    #[inline(always)]
-    fn from(input: [T; 9]) -> Self {
-        Self { a: input }
-    }
-}
-
-impl<T> From<[Vector3d<T>; 3]> for Matrix3x3<T>
-where
-    T: Copy,
-{
-    #[inline(always)]
-    fn from(v: [Vector3d<T>; 3]) -> Self {
-        Self { a: [v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z] }
-    }
-}
-
-impl<T> From<(Vector3d<T>, Vector3d<T>, Vector3d<T>)> for Matrix3x3<T> {
-    #[inline(always)]
-    fn from(v: (Vector3d<T>, Vector3d<T>, Vector3d<T>)) -> Self {
-        Self { a: [v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z] }
-    }
-}
+// **** From Quaternion ****
 
 /// Create rotation matrix from quaternion.
 ///

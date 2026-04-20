@@ -662,6 +662,8 @@ where
     }
 }
 
+// **** max ****
+
 impl<T> Vector4d<T>
 where
     T: Copy + Vector4dMath,
@@ -779,6 +781,8 @@ where
         Self { x: other.x, y: other.y, z: other.z, t: T::zero() }
     }
 }
+
+// **** From Vector ****
 
 /// Vector4d from Vector2d.
 /// ```

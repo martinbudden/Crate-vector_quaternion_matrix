@@ -244,6 +244,14 @@ where
 // **** Sub ****
 
 /// Subtract two quaternions.
+/// ```
+/// # use vqm::Quaternionf32;
+/// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let w = Quaternionf32::new(11.0, 13.0, 17.0, 19.0);
+/// let r = q - w;
+///
+/// assert_eq!(r, Quaternionf32 { w: -9.0, x: -10.0, y: -12.0, z: -12.0 });
+/// ```
 impl<T> Sub for Quaternion<T>
 where
     T: Copy + QuaternionMath,
@@ -260,6 +268,14 @@ where
 // **** SubAssign ****
 
 /// Subtract one quaternion from another.
+/// ```
+/// # use vqm::Quaternionf32;
+/// let mut r = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let w = Quaternionf32::new(11.0, 13.0, 17.0, 19.0);
+/// r -= w;
+///
+/// assert_eq!(r, Quaternionf32 { w: -9.0, x: -10.0, y: -12.0, z: -12.0 });
+/// ```
 impl<T> SubAssign for Quaternion<T>
 where
     T: Copy + QuaternionMath,

@@ -352,6 +352,7 @@ impl Mul<i32> for Vector3d<f32> {
         Vector3d { x: self.x * (k as f32), y: self.y * (k as f32), z: self.z * (k as f32) }
     }
 }
+
 // **** MulAssign ****
 
 /// In-place multiply a vector by a constant.
