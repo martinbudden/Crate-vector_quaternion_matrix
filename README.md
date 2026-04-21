@@ -88,12 +88,12 @@ Sometimes `invert` is used, sometimes `inverse`.
 | Crate                                               | return                              | in-place                                 |
 | --------------------------------------------------- | ----------------------------------- | ---------------------------------------- |
 | vqm                                                 | `fn inverted(self) -> Self;`        | `fn invert(&mut self) -> &mut Self;`     |
-| [vek](https://crates.io/crates/vek)                 | `fn inverted(self) -> Self;`        | `fn invert(&mut self);`                  |
-| [ultraviolet](https://crates.io/crates/ultraviolet) | `fn inversed(&self) -> Self;`       | `fn inverse(&mut self);`                 |
 | [glam](https://crates.io/crates/glam)               | `fn inverse(&self) -> Self;`        | N/A                                      |
 | [static-math](https://crates.io/crates/static-math) | `fn inverse(&self) -> Option<>;`    | N/A                                      |
-| [cg-math](https://crates.io/crates/cg-math)         | `fn invert(&self) -> Option<>;`     | N/A                                      |
 | [nalgebra](https://crates.io/crates/nalgebra)       | `fn try_inverse(self) -> Option<>;` | `fn try_inverse_mut(&mut self) -> bool;` |
+| [cg-math](https://crates.io/crates/cg-math)         | `fn invert(&self) -> Option<>;`     | N/A                                      |
+| [vek](https://crates.io/crates/vek)                 | `fn inverted(self) -> Self;`        | `fn invert(&mut self);`                  |
+| [ultraviolet](https://crates.io/crates/ultraviolet) | `fn inversed(&self) -> Self;`       | `fn inverse(&mut self);`                 |
 
 Note that only `vqm` and `vek` pass parameters by value.
 
@@ -110,7 +110,7 @@ See [ARCHITECTURE.md] for details on `vqm`'s internals.
 
 Apart from implementing Matrix4x4, I have no planned major extensions to this crate.
 
-My main focus will be on fixing any bugs that come up in usage.
+My main focus is on adding doctests and fixing any bugs that come up in usage.
 
 I may at some point add the ability to calculate eigenvalues and eigenvectors.
 

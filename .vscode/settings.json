@@ -27,6 +27,7 @@
         "cpufeatures",
         "debuginfo",
         "deque",
+        "doctests",
         "eabi",
         "eabihf",
         "EGAMMA",

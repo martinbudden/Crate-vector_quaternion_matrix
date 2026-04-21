@@ -2,6 +2,7 @@ use core::fmt;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Index};
 
 /// A memory-efficient 64-bit set for embedded environments.
+/// Note that it data is a one-tuple: this makes comparison with `BitSet128` clearer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BitSet64(u64);
 
@@ -119,6 +120,28 @@ impl Index<usize> for BitSet64 {
     }
 }
 
+/// `BitSet64` from `u32`.
+/// ```
+/// # use vqm::BitSet64;
+/// ```
+impl From<u32> for BitSet64 {
+    #[inline(always)]
+    fn from(a: u32) -> Self {
+        Self(u64::from(a))
+    }
+}
+
+/// `BitSet64` from `(u32,u32)`.
+/// ```
+/// # use vqm::BitSet64;
+/// ```
+impl From<(u32, u32)> for BitSet64 {
+    #[inline(always)]
+    fn from((a, b): (u32, u32)) -> Self {
+        Self(u64::from(a) << 32 | u64::from(b))
+    }
+}
+
 /*impl Iterator for BitSet64Iter {
     type Item = u8;
 
@@ -211,6 +234,10 @@ mod tests {
         assert!(bits.test(42));
         let mask = bits;
         assert!(mask.test(42));
+    }
+    #[test]
+    fn from() {
+        let _bits = BitSet64::from((0xab_u32, 0x12_u32));
     }
     #[test]
     fn exercise() {
