@@ -10,6 +10,9 @@
 #![warn(clippy::doc_paragraphs_missing_punctuation)]
 #![allow(clippy::inline_always)]
 #![allow(clippy::return_self_not_must_use)]
+#![allow(clippy::must_use_candidate)]
+
+mod bitset64;
 
 mod math_constants;
 mod math_methods;
@@ -33,10 +36,13 @@ mod matrix3x3_math;
 mod quaternion;
 mod quaternion_math;
 
+#[doc(hidden)]
+pub use bitset64::{BitSet64, BitSet64Iter};
+
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;
 #[doc(hidden)]
-// the trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use
+// The trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use.
 pub use math_methods::{cos_approx, sin_approx, sin_cos_approx};
 pub use sqrt_methods::SqrtMethods;
 
