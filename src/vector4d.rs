@@ -630,7 +630,12 @@ where
     /// ```
     #[inline(always)]
     pub fn to_degrees(self) -> Self {
-        Self { x: self.x * T::RADIANS_TO_DEGREES, y: self.y * T::RADIANS_TO_DEGREES, z: self.z * T::RADIANS_TO_DEGREES, t: self.t * T::RADIANS_TO_DEGREES }
+        Self {
+            x: self.x * T::RADIANS_TO_DEGREES,
+            y: self.y * T::RADIANS_TO_DEGREES,
+            z: self.z * T::RADIANS_TO_DEGREES,
+            t: self.t * T::RADIANS_TO_DEGREES,
+        }
     }
 
     /// Convert the vector to radians, assuming it is in degrees.
@@ -641,7 +646,12 @@ where
     /// ```
     #[inline(always)]
     pub fn to_radians(self) -> Self {
-        Self { x: self.x * T::DEGREES_TO_RADIANS, y: self.y * T::DEGREES_TO_RADIANS, z: self.z * T::DEGREES_TO_RADIANS, t: self.t * T::DEGREES_TO_RADIANS }
+        Self {
+            x: self.x * T::DEGREES_TO_RADIANS,
+            y: self.y * T::DEGREES_TO_RADIANS,
+            z: self.z * T::DEGREES_TO_RADIANS,
+            t: self.t * T::DEGREES_TO_RADIANS,
+        }
     }
 }
 
