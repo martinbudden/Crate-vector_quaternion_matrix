@@ -174,9 +174,9 @@ mod tests {
     fn normalized_unchecked() {
         let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
         let b = a / 38.0_f32.sqrt();
-        assert_eq!(a.normalized_unchecked(), b);
+        assert_eq!(a.normalize_unchecked(), b);
         let z = Vector3d { x: 0.0, y: 0.0, z: 0.0 };
-        assert_eq!(z.normalized(), z);
+        assert_eq!(z.normalize(), z);
     }
     #[test]
     fn abs() {
@@ -184,23 +184,23 @@ mod tests {
         assert_eq!(a.abs(), Vector3d { x: 2.0, y: 3.0, z: 5.0 });
     }
     #[test]
-    fn abs_mut() {
+    fn abs_in_place() {
         let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
         let mut b = a;
-        b.abs_mut();
+        b.abs_in_place();
         assert_eq!(b, a.abs());
     }
     #[test]
     fn clamped() {
         let a = Vector3d { x: -2.0, y: 3.0, z: 5.0 };
-        assert_eq!(a.clamped(-1.0, 4.0), Vector3d { x: -1.0, y: 3.0, z: 4.0 });
+        assert_eq!(a.clamp(-1.0, 4.0), Vector3d { x: -1.0, y: 3.0, z: 4.0 });
     }
     #[test]
     fn clamp() {
         let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
-        b.clamp(-1.0, 4.0);
-        assert_eq!(b, a.clamped(-1.0, 4.0));
+        b.clamp_in_place(-1.0, 4.0);
+        assert_eq!(b, a.clamp(-1.0, 4.0));
     }
     #[test]
     fn degrees_radians() {
@@ -251,20 +251,20 @@ mod tests {
     #[test]
     fn normalize_unchecked() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let a_normalized = a.normalized_unchecked();
+        let a_normalized = a.normalize_unchecked();
         let mut b = a;
-        b.normalize_unchecked();
+        b.normalize_unchecked_in_place();
         //b.normalize_unchecked();
         assert_eq!(b, a_normalized);
         let z = Vector3df32 { x: 0.0, y: 0.0, z: 0.0 };
         let mut y = z;
-        y.normalize();
+        y.normalize_in_place();
         assert_eq!(z, y);
     }
     #[test]
     fn is_normalized() {
         let a = Vector3df32::new(0.0067734555, 0.016385008, 0.0053294576);
-        let n = a.normalized();
+        let n = a.normalize();
         assert!(n.is_normalized());
     }
 

@@ -61,7 +61,7 @@ fn bench_matrix(c: &mut Criterion) {
                     }
                 }
             },
-            |m| black_box(m).inverted(),
+            |m| black_box(m).inverse(),
             BatchSize::SmallInput,
         );
     });

@@ -465,8 +465,9 @@ where
 
     /// Set all components of the quaternion to their absolute values.
     #[inline(always)]
-    pub fn abs_mut(&mut self) {
+    pub fn abs_in_place(&mut self) -> &mut Self {
         *self = self.abs();
+        self
     }
 }
 
@@ -478,7 +479,7 @@ where
 {
     /// Return a copy of the quaternion with all components clamped to the specified range.
     #[inline(always)]
-    pub fn clamped(self, min: T, max: T) -> Self {
+    pub fn clamp(self, min: T, max: T) -> Self {
         Self {
             w: self.w.clamp(min, max),
             x: self.x.clamp(min, max),
@@ -489,11 +490,9 @@ where
 
     /// Clamp all components of the quaternion to the specified range.
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) {
-        self.w = self.w.clamp(min, max);
-        self.x = self.x.clamp(min, max);
-        self.y = self.y.clamp(min, max);
-        self.z = self.z.clamp(min, max);
+    pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
+        *self = self.clamp(min, max);
+        self
     }
 }
 
@@ -545,11 +544,11 @@ where
     /// ```
     /// # use vqm::Quaternionf32;
     /// let q = Quaternionf32::new(0.0, 0.0, 0.0, 0.0);
-    /// let r = q.normalized();
+    /// let r = q.normalize();
     /// assert_eq!(Quaternionf32 { w: 0.0, x: 0.0, y: 0.0, z: 0.0 }, r);
     /// ```
     #[inline(always)]
-    pub fn normalized(self) -> Self {
+    pub fn normalize(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the quaternion is already normalized
         if norm_squared == T::zero() {
@@ -562,12 +561,12 @@ where
     /// ```
     /// # use vqm::Quaternionf32;
     /// let mut q = Quaternionf32::new(0.0, 0.0, 0.0, 0.0);
-    /// q.normalize();
+    /// q.normalize_in_place();
     /// assert_eq!(Quaternionf32 { w: 0.0, x: 0.0, y: 0.0, z: 0.0 }, q);
     /// ```
     #[inline(always)]
-    pub fn normalize(&mut self) -> &mut Self {
-        *self = self.normalized();
+    pub fn normalize_in_place(&mut self) -> &mut Self {
+        *self = self.normalize();
         self
     }
 
@@ -588,11 +587,11 @@ where
     /// ```
     /// # use vqm::Quaternionf32;
     /// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
-    /// q.normalize_unchecked();
+    /// q.normalize_unchecked_in_place();
     /// assert_eq!(Quaternionf32 { w: 0.21442251, x: 0.32163376, y: 0.5360563, z: 0.7504788 }, q);
     /// ```
     #[inline(always)]
-    pub fn normalize_unchecked(&mut self) -> &mut Self {
+    pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {
         *self = self.normalized_unchecked();
         self
     }
@@ -606,7 +605,7 @@ where
     /// ```
     /// # use vqm::Quaternionf32;
     /// let v = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
-    /// let n = v.normalized();
+    /// let n = v.normalize();
     /// assert!(n.is_normalized());
     /// ```
     #[inline(always)]

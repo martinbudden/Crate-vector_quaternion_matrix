@@ -66,18 +66,17 @@ If `no_align` is used then SIMD support is not available.
 
 ## Naming convention for "return" and "in-place" versions of functions
 
-Several functions (eg `normalize`, `clamp`, `transpose`, `adjugate`, and `invert`) have both "return" and "in-place" forms.
-The convention used is that the verbal name (eg `normalize`) is used for the in-place form, and the adjectival name (eg `normalized`)
-is used for the return form. So we have:
+Several functions (eg `normalize`, `clamp`, `transpose`, `adjugate`, and `inverse`) have both "return" and "in-place" forms.
+The convention used is that the `_in_place` suffix is used for the "in-place" form.
 
 ```rust
 # use vqm::Vector3df32;
 // return form:
     let v = Vector3df32::new(2.0, 3.0, 5.0);
-    let n = v.normalized();
+    let n = v.normalize();
 // in-place form:
     let mut v = Vector3df32::new(2.0, 3.0, 5.0);
-    v.normalize();
+    v.normalize_in_place();
 ```
 
 ## Invert or Inverse?
@@ -85,15 +84,15 @@ is used for the return form. So we have:
 As illustrated below, there is no universal convention for the name of the function used to invert a matrix.
 Sometimes `invert` is used, sometimes `inverse`.
 
-| Crate                                               | return                              | in-place                                 |
-| --------------------------------------------------- | ----------------------------------- | ---------------------------------------- |
-| vqm                                                 | `fn inverted(self) -> Self;`        | `fn invert(&mut self) -> &mut Self;`     |
-| [glam](https://crates.io/crates/glam)               | `fn inverse(&self) -> Self;`        | N/A                                      |
-| [static-math](https://crates.io/crates/static-math) | `fn inverse(&self) -> Option<>;`    | N/A                                      |
-| [nalgebra](https://crates.io/crates/nalgebra)       | `fn try_inverse(self) -> Option<>;` | `fn try_inverse_mut(&mut self) -> bool;` |
-| [cg-math](https://crates.io/crates/cg-math)         | `fn invert(&self) -> Option<>;`     | N/A                                      |
-| [vek](https://crates.io/crates/vek)                 | `fn inverted(self) -> Self;`        | `fn invert(&mut self);`                  |
-| [ultraviolet](https://crates.io/crates/ultraviolet) | `fn inversed(&self) -> Self;`       | `fn inverse(&mut self);`                 |
+| Crate                                               | return                               | in-place                                           |
+| --------------------------------------------------- | ------------------------------------ | -------------------------------------------------- |
+| [vqm](https://crates.io/crates/vqm)                 | `fn inverse(self) -> Self;`          | `fn inverse_in_place(&mut self) -> &mut Self;`     |
+| [glam](https://crates.io/crates/glam)               | `fn inverse(&self) -> Self;`         | N/A                                                |
+| [static-math](https://crates.io/crates/static-math) | `fn inverse(&self) -> Option<>;`     | N/A                                                |
+| [nalgebra](https://crates.io/crates/nalgebra)       | `fn try_inverse(&self) -> Option<>;` | `fn try_inverse_mut(&mut self) -> bool;`           |
+| [cg-math](https://crates.io/crates/cg-math)         | `fn invert(&self) -> Option<>;`      | N/A                                                |
+| [vek](https://crates.io/crates/vek)                 | `fn inverted(self) -> Self;`         | `fn invert(&mut self);`                            |
+| [ultraviolet](https://crates.io/crates/ultraviolet) | `fn inversed(&self) -> Self;`        | `fn inverse(&mut self);`                           |
 
 Note that only `vqm` and `vek` pass parameters by value.
 

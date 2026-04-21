@@ -401,12 +401,12 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let mut v = Vector2df32::new(2.0, -3.0);
-    /// v.abs_mut();
+    /// v.abs_in_place();
     ///
     /// assert_eq!(v, Vector2df32::new(2.0, 3.0));
     /// ```
     #[inline(always)]
-    pub fn abs_mut(&mut self) -> &mut Self {
+    pub fn abs_in_place(&mut self) -> &mut Self {
         *self = self.abs();
         self
     }
@@ -422,12 +422,12 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let v = Vector2df32::new(2.0, 3.0);
-    /// let u = v.clamped(2.5, 7.5);
+    /// let u = v.clamp(2.5, 7.5);
     ///
     /// assert_eq!(u, Vector2df32::new(2.5, 3.0));
     /// ```
     #[inline(always)]
-    pub fn clamped(self, min: T, max: T) -> Self {
+    pub fn clamp(self, min: T, max: T) -> Self {
         Self { x: self.x.clamp(min, max), y: self.y.clamp(min, max) }
     }
 
@@ -435,13 +435,13 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let mut v = Vector2df32::new(2.0, 3.0);
-    /// v.clamp(2.5, 7.5);
+    /// v.clamp_in_place(2.5, 7.5);
     ///
     /// assert_eq!(v, Vector2df32::new(2.5, 3.0));
     /// ```
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) -> &mut Self {
-        *self = self.clamped(min, max);
+    pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
+        *self = self.clamp(min, max);
         self
     }
 }
@@ -541,11 +541,11 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let v = Vector2df32::new(0.0, 0.0);
-    /// let n = v.normalized();
+    /// let n = v.normalize();
     /// assert_eq!(Vector2df32 { x: 0.0, y: 0.0 }, n);
     /// ```
     #[inline(always)]
-    pub fn normalized(self) -> Self {
+    pub fn normalize(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the vector is already normalized
         if norm_squared == T::zero() {
@@ -558,12 +558,12 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let mut v = Vector2df32::new(3.0, 4.0);
-    /// v.normalize();
+    /// v.normalize_in_place();
     /// assert_eq!(Vector2df32 { x: 0.6, y: 0.8 }, v);
     /// ```
     #[inline(always)]
-    pub fn normalize(&mut self) -> &mut Self {
-        *self = self.normalized();
+    pub fn normalize_in_place(&mut self) -> &mut Self {
+        *self = self.normalize();
         self
     }
 
@@ -571,11 +571,11 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let v = Vector2df32::new(3.0, 4.0);
-    /// let n = v.normalized_unchecked();
+    /// let n = v.normalize_unchecked();
     /// assert_eq!(Vector2df32 { x: 0.6, y: 0.8 }, n);
     /// ```
     #[inline(always)]
-    pub fn normalized_unchecked(self) -> Self {
+    pub fn normalize_unchecked(self) -> Self {
         let norm_squared = self.norm_squared();
         self * norm_squared.sqrt_reciprocal()
     }
@@ -584,12 +584,12 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let mut v = Vector2df32::new(3.0, 4.0);
-    /// v.normalize_unchecked();
+    /// v.normalize_unchecked_in_place();
     /// assert_eq!(Vector2df32 { x: 0.6, y: 0.8 }, v);
     /// ```
     #[inline(always)]
-    pub fn normalize_unchecked(&mut self) -> &mut Self {
-        *self = self.normalized_unchecked();
+    pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {
+        *self = self.normalize_unchecked();
         self
     }
 }
@@ -602,7 +602,7 @@ where
     /// ```
     /// # use vqm::Vector2df32;
     /// let v = Vector2df32::new(3.0, 4.0);
-    /// let n = v.normalized();
+    /// let n = v.normalize();
     /// assert!(n.is_normalized());
     /// ```
     #[inline(always)]

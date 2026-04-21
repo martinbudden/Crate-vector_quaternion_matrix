@@ -135,18 +135,18 @@ mod tests {
         let b = a / 87.0_f32.sqrt();
         assert_eq!(a.normalized_unchecked(), b);
         let z = Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 };
-        assert_eq!(z.normalized(), z);
+        assert_eq!(z.normalize(), z);
     }
     #[test]
     fn normalize_unchecked() {
         let a = Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         let a_normalized = a.normalized_unchecked();
         let mut b = a;
-        b.normalize_unchecked();
+        b.normalize_unchecked_in_place();
         assert_eq!(b, a_normalized);
         let z = Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 };
         let mut y = z;
-        y.normalize();
+        y.normalize_in_place();
         assert_eq!(z, y);
     }
     #[test]
@@ -155,23 +155,23 @@ mod tests {
         assert_eq!(a.abs(), Quaternion { w: 2.0, x: 3.0, y: 5.0, z: 7.0 });
     }
     #[test]
-    fn abs_mut() {
+    fn abs_in_place() {
         let a = Quaternion { w: -2.0, x: -3.0, y: 5.0, z: 7.0 };
         let mut b = a;
-        b.abs_mut();
+        b.abs_in_place();
         assert_eq!(b, a.abs());
     }
     #[test]
     fn clamped() {
         let a = Quaternion { w: -5.0, x: -2.0, y: 3.0, z: 5.0 };
-        assert_eq!(a.clamped(-1.0, 4.0), Quaternion { w: -1.0, x: -1.0, y: 3.0, z: 4.0 });
+        assert_eq!(a.clamp(-1.0, 4.0), Quaternion { w: -1.0, x: -1.0, y: 3.0, z: 4.0 });
     }
     #[test]
     fn clamp() {
         let a = Quaternion { w: -5.0, x: -2.0, y: 3.0, z: 5.0 };
         let mut b = a;
-        b.clamp(-1.0, 4.0);
-        assert_eq!(b, a.clamped(-1.0, 4.0));
+        b.clamp_in_place(-1.0, 4.0);
+        assert_eq!(b, a.clamp(-1.0, 4.0));
     }
     #[test]
     fn integration_step() {

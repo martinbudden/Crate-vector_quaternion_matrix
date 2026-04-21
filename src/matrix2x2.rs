@@ -699,13 +699,13 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::from([ 2.0,  -3.0,
     ///                                  7.0, -11.0]);
-    /// m.abs_mut();
+    /// m.abs_in_place();
     ///
     /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  3.0,
     ///                                    7.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn abs_mut(&mut self) -> &mut Self {
+    pub fn abs_in_place(&mut self) -> &mut Self {
         *self = T::m2x2_abs(*self);
         self
     }
@@ -722,13 +722,13 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let n = m.clamped(2.5, 7.5);
+    /// let n = m.clamp(2.5, 7.5);
     ///
     /// assert_eq!(n, Matrix2x2f32::from([ 2.5, 3.0,
     ///                                    7.0, 7.5]));
     /// ```
     #[inline(always)]
-    pub fn clamped(self, min: T, max: T) -> Self {
+    pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for it in &mut a {
             *it = it.clamp(min, max);
@@ -741,14 +741,14 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                                  7.0, 11.0]);
-    /// m.clamp(2.5, 7.5);
+    /// m.clamp_in_place(2.5, 7.5);
     ///
     /// assert_eq!(m, Matrix2x2f32::from([ 2.5, 3.0,
     ///                                    7.0, 7.5]));
     /// ```
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) -> &mut Self {
-        *self = self.clamped(min, max);
+    pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
+        *self = self.clamp(min, max);
         self
     }
 }
@@ -762,13 +762,13 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let n = m.transposed();
+    /// let n = m.transpose();
     ///
     /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  7.0,
     ///                                    3.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn transposed(self) -> Self {
+    pub fn transpose(self) -> Self {
         Self { a: [self.a[0], self.a[2], self.a[1], self.a[3]] }
     }
 
@@ -777,14 +777,14 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                                  7.0, 11.0]);
-    /// m.transpose();
+    /// m.transpose_in_place();
     ///
     /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  7.0,
     ///                                    3.0, 11.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose(&mut self) -> &mut Self {
-        *self = self.transposed();
+    pub fn transpose_in_place(&mut self) -> &mut Self {
+        *self = self.transpose();
         self
     }
 }
@@ -799,12 +799,12 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let n = m.adjugated();
+    /// let n = m.adjugate();
     ///
     /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
     #[inline(always)]
-    pub fn adjugated(self) -> Self {
+    pub fn adjugate(self) -> Self {
         T::m2x2_adjugate(self)
     }
 
@@ -814,13 +814,13 @@ where
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
     /// let mut n = m;
-    /// n.adjugate();
+    /// n.adjugate_in_place();
     ///
-    /// assert_eq!(m.adjugated(), n);
+    /// assert_eq!(m.adjugate(), n);
     /// ```
     #[inline(always)]
-    pub fn adjugate(&mut self) -> &mut Self {
-        *self = self.adjugated();
+    pub fn adjugate_in_place(&mut self) -> &mut Self {
+        *self = self.adjugate();
         self
     }
     /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
@@ -828,12 +828,12 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                              7.0, 11.0]);
-    /// let n = m.inverted();
+    /// let n = m.inverse();
     ///
     /// ```
     #[inline(always)]
-    pub fn inverted(self) -> Self {
-        let adjugate = self.adjugated();
+    pub fn inverse(self) -> Self {
+        let adjugate = self.adjugate();
         let determinant = self.determinant();
         adjugate / determinant
     }
@@ -843,12 +843,12 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
     ///                                  7.0, 11.0]);
-    /// m.invert();
+    /// m.invert_in_place();
     ///
     /// ```
     #[inline(always)]
-    pub fn invert(&mut self) -> &mut Self {
-        let adjugate = self.adjugated();
+    pub fn invert_in_place(&mut self) -> &mut Self {
+        let adjugate = self.adjugate();
         let determinant = self.determinant();
         *self = adjugate / determinant;
         self
@@ -903,7 +903,7 @@ where
         if determinant.abs() < T::EPSILON {
             return Self::zero();
         }
-        let adjugate = self.adjugated();
+        let adjugate = self.adjugate();
         adjugate / determinant
     }
 
@@ -923,7 +923,7 @@ where
         if determinant.abs() < T::EPSILON {
             return None;
         }
-        let adjugate = self.adjugated();
+        let adjugate = self.adjugate();
         Some(adjugate / determinant)
     }
 

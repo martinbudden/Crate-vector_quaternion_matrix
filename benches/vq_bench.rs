@@ -89,7 +89,7 @@ fn bench_vq(c: &mut Criterion) {
                 let a: [f32; 3] = rng().random();
                 Vector3df32::from(a)
             },
-            |v| black_box(v).normalized(),
+            |v| black_box(v).normalize(),
             BatchSize::SmallInput,
         );
     });
@@ -106,7 +106,7 @@ fn bench_vq(c: &mut Criterion) {
                     }
                 }
             },
-            |v| black_box(v).normalized_unchecked(),
+            |v| black_box(v).normalize_unchecked(),
             BatchSize::SmallInput,
         );
     });
@@ -117,7 +117,7 @@ fn bench_vq(c: &mut Criterion) {
                 let a: [f32; 4] = rng().random();
                 Quaternionf32::from(a)
             },
-            |q| black_box(q).normalized(),
+            |q| black_box(q).normalize(),
             BatchSize::SmallInput,
         );
     });
@@ -128,7 +128,7 @@ fn bench_vq(c: &mut Criterion) {
                 let a: [f32; 4] = rng().random();
                 Quaternionf32::from(a)
             },
-            |q| black_box(*black_box(q).normalize()),
+            |q| black_box(*black_box(q).normalize_in_place()),
             BatchSize::SmallInput,
         );
     });

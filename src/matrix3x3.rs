@@ -834,14 +834,14 @@ where
     /// let m = Matrix3x3f32::new([ 2.0,  3.0,  -5.0,
     ///                             7.0, 11.0,  13.0,
     ///                            17.0, 19.0,  23.0]);
-    /// let n = m.clamped(7.0, 17.0);
+    /// let n = m.clamp(7.0, 17.0);
     ///
     /// assert_eq!(n, Matrix3x3f32::from([ 7.0,  7.0,  7.0,
     ///                                    7.0, 11.0, 13.0,
     ///                                   17.0, 17.0, 17.0]));
     /// ```
     #[inline(always)]
-    pub fn clamped(self, min: T, max: T) -> Self {
+    pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for it in &mut a {
             *it = it.clamp(min, max);
@@ -855,15 +855,15 @@ where
     /// let mut m = Matrix3x3f32::new([ 2.0,  3.0,  -5.0,
     ///                                 7.0, 11.0,  13.0,
     ///                                17.0, 19.0,  23.0]);
-    /// m.clamp(7.0, 17.0);
+    /// m.clamp_in_place(7.0, 17.0);
     ///
     /// assert_eq!(m, Matrix3x3f32::from([ 7.0,  7.0,  7.0,
     ///                                    7.0, 11.0, 13.0,
     ///                                   17.0, 17.0, 17.0]));
     /// ```
     #[inline(always)]
-    pub fn clamp(&mut self, min: T, max: T) -> &mut Self {
-        *self = self.clamped(min, max);
+    pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
+        *self = self.clamp(min, max);
         self
     }
 }
@@ -878,14 +878,14 @@ where
     /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let n = m.transposed();
+    /// let n = m.transpose();
     ///
     /// assert_eq!(n, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
     ///                                    3.0, 11.0, 19.0,
     ///                                    5.0, 13.0, 23.0]));
     /// ```
     #[inline(always)]
-    pub fn transposed(self) -> Self {
+    pub fn transpose(self) -> Self {
         Self { a: [self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2], self.a[5], self.a[8]] }
     }
 
@@ -895,15 +895,15 @@ where
     /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                                  7.0, 11.0, 13.0,
     ///                                 17.0, 19.0, 23.0]);
-    /// m.transpose();
+    /// m.transpose_in_place();
     ///
     /// assert_eq!(m, Matrix3x3f32::from([ 2.0,  7.0, 17.0,
     ///                                    3.0, 11.0, 19.0,
     ///                                    5.0, 13.0, 23.0]));
     /// ```
     #[inline(always)]
-    pub fn transpose(&mut self) -> &mut Self {
-        *self = self.transposed();
+    pub fn transpose_in_place(&mut self) -> &mut Self {
+        *self = self.transpose();
         self
     }
 }
@@ -919,12 +919,12 @@ where
     /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let n = m.adjugated();
+    /// let n = m.adjugate();
     ///
     /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
     #[inline(always)]
-    pub fn adjugated(self) -> Self {
+    pub fn adjugate(self) -> Self {
         T::m3x3_adjugate(self)
     }
 
@@ -935,13 +935,13 @@ where
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
     /// let mut n = m;
-    /// n.adjugate();
+    /// n.adjugate_in_place();
     ///
-    /// assert_eq!(m.adjugated(), n);
+    /// assert_eq!(m.adjugate(), n);
     /// ```
     #[inline(always)]
-    pub fn adjugate(&mut self) -> &mut Self {
-        *self = self.adjugated();
+    pub fn adjugate_in_place(&mut self) -> &mut Self {
+        *self = self.adjugate();
         self
     }
     /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
@@ -950,12 +950,12 @@ where
     /// let m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                              7.0, 11.0, 13.0,
     ///                             17.0, 19.0, 23.0]);
-    /// let n = m.inverted();
+    /// let n = m.inverse();
     ///
     /// ```
     #[inline(always)]
-    pub fn inverted(self) -> Self {
-        let adjugate = self.adjugated();
+    pub fn inverse(self) -> Self {
+        let adjugate = self.adjugate();
         let determinant = self.determinant();
         adjugate / determinant
     }
@@ -966,12 +966,12 @@ where
     /// let mut m = Matrix3x3f32::from([ 2.0,  3.0,  5.0,
     ///                                  7.0, 11.0, 13.0,
     ///                                 17.0, 19.0, 23.0]);
-    /// m.invert();
+    /// m.invert_in_place();
     ///
     /// ```
     #[inline(always)]
-    pub fn invert(&mut self) -> &mut Self {
-        let adjugate = self.adjugated();
+    pub fn invert_in_place(&mut self) -> &mut Self {
+        let adjugate = self.adjugate();
         let determinant = self.determinant();
         *self = adjugate / determinant;
         self
@@ -1031,7 +1031,7 @@ where
         if determinant.abs() < T::EPSILON {
             return Self::zero();
         }
-        let adjugate = self.adjugated();
+        let adjugate = self.adjugate();
         adjugate / determinant
     }
 
@@ -1052,7 +1052,7 @@ where
         if determinant.abs() < T::EPSILON {
             return None;
         }
-        let adjugate = self.adjugated();
+        let adjugate = self.adjugate();
         Some(adjugate / determinant)
     }
 
