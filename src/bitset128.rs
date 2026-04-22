@@ -9,7 +9,7 @@ pub struct BitSet128(u64, u64);
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct BitSet128Iter {
-    bits: (u64,u64),
+    bits: (u64, u64),
     current_bit: u8,
 }
 

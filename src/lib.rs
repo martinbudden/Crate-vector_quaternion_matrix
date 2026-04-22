@@ -12,8 +12,8 @@
 #![allow(clippy::return_self_not_must_use)]
 #![allow(clippy::must_use_candidate)]
 
-mod bitset64;
 mod bitset128;
+mod bitset64;
 
 mod math_constants;
 mod math_methods;
