@@ -13,6 +13,7 @@
 #![allow(clippy::must_use_candidate)]
 
 mod bitset64;
+mod bitset128;
 
 mod math_constants;
 mod math_methods;
