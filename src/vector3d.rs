@@ -499,7 +499,7 @@ impl<T> Vector3d<T>
 where
     T: Copy + FloatCore,
 {
-    /// Return a copy of the matrix with all components clamped to the specified range.
+    /// Return a copy of the vector with all components clamped to the specified range.
     /// ```
     /// # use vqm::Vector3df32;
     /// let v = Vector3df32::new(2.0, 3.0, 11.0);

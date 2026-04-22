@@ -427,7 +427,7 @@ impl<T> Vector4d<T>
 where
     T: Copy + FloatCore,
 {
-    /// Return a copy of the matrix with all components clamped to the specified range.
+    /// Return a copy of the vector with all components clamped to the specified range.
     /// ```
     /// # use vqm::Vector4df32;
     /// let v = Vector4df32::new(2.0, 3.0, 7.0, 11.0);

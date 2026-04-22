@@ -181,6 +181,14 @@ where
 // **** AddAssign ****
 
 /// Add one quaternion to another.
+/// ```
+/// # use vqm::Quaternionf32;
+/// let mut r = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let w = Quaternionf32::new(11.0, 13.0, 17.0, 19.0);
+/// r += w;
+///
+/// assert_eq!(r, Quaternionf32 { w: 13.0, x: 16.0, y: 22.0, z: 26.0 });
+/// ```
 impl<T> AddAssign for Quaternion<T>
 where
     T: Copy + QuaternionMath,
@@ -289,6 +297,13 @@ where
 // **** Scalar Mul ****
 
 /// Pre-multiply quaternion by a constant.
+/// ```
+/// # use vqm::Quaternionf32;
+/// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let r = 2.0 * q;
+///
+/// assert_eq!(r, Quaternionf32 { w: 4.0, x: 6.0, y: 10.0, z: 14.0 });
+/// ```
 impl Mul<Quaternion<f32>> for f32 {
     type Output = Quaternion<f32>;
     #[inline(always)]
@@ -308,6 +323,13 @@ impl Mul<Quaternion<f64>> for f64 {
 // **** Mul Scalar ****
 
 /// Multiply quaternion by a constant.
+/// ```
+/// # use vqm::Quaternionf32;
+/// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let r = q * 2.0;
+///
+/// assert_eq!(r, Quaternionf32 { w: 4.0, x: 6.0, y: 10.0, z: 14.0 });
+/// ```
 impl<T> Mul<T> for Quaternion<T>
 where
     T: Copy + QuaternionMath,
@@ -323,6 +345,13 @@ where
 // **** MulAssign ****
 
 /// In-place multiply a quaternion by a constant.
+/// ```
+/// # use vqm::Quaternionf32;
+/// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+/// let r = q * 2.0;
+///
+/// assert_eq!(r, Quaternionf32 { w: 4.0, x: 6.0, y: 10.0, z: 14.0 });
+/// ```
 impl<T> MulAssign<T> for Quaternion<T>
 where
     T: Copy + QuaternionMath,
@@ -458,12 +487,26 @@ where
     T: Copy + Signed,
 {
     /// Return a copy of the quaternion with all components set to their absolute values.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(2.0, -3.0, -5.0, 7.0);
+    /// let r = q.abs();
+    ///
+    /// assert_eq!(r, Quaternionf32::new(2.0, 3.0, 5.0, 7.0));
+    /// ```
     #[inline(always)]
     pub fn abs(self) -> Self {
         Self { w: self.w.abs(), x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
 
     /// Set all components of the quaternion to their absolute values.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let mut q = Quaternionf32::new(2.0, -3.0, -5.0, 7.0);
+    /// q.abs_in_place();
+    ///
+    /// assert_eq!(q, Quaternionf32::new(2.0, 3.0, 5.0, 7.0));
+    /// ```
     #[inline(always)]
     pub fn abs_in_place(&mut self) -> &mut Self {
         *self = self.abs();
@@ -478,6 +521,13 @@ where
     T: Copy + FloatCore,
 {
     /// Return a copy of the quaternion with all components clamped to the specified range.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(2.0, 3.0, 7.0, 11.0);
+    /// let r = q.clamp(2.5, 7.5);
+    ///
+    /// assert_eq!(r, Quaternionf32::new(2.5, 3.0, 7.0, 7.5));
+    /// ```
     #[inline(always)]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self {
@@ -489,24 +539,17 @@ where
     }
 
     /// Clamp all components of the quaternion to the specified range.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let mut q = Quaternionf32::new(2.0, 3.0, 7.0, 11.0);
+    /// q.clamp_in_place(2.5, 7.5);
+    ///
+    /// assert_eq!(q, Quaternionf32::new(2.5, 3.0, 7.0, 7.5));
+    /// ```
     #[inline(always)]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamp(min, max);
         self
-    }
-}
-
-// **** mean ****
-
-impl<T> Quaternion<T>
-where
-    T: Copy + One + Add<Output = T> + Div<Output = T>,
-{
-    /// Return the mean of all components of the quaternion.
-    #[inline(always)]
-    pub fn mean(self) -> T {
-        let four = T::one() + T::one() + T::one() + T::one();
-        (self.w + self.x + self.y + self.z) / four
     }
 }
 
@@ -601,11 +644,13 @@ impl<T> Quaternion<T>
 where
     T: Copy + QuaternionMath,
 {
-    // Return true if the vector is normalized.
+    // Return true if the quaternion is normalized.
     /// ```
     /// # use vqm::Quaternionf32;
     /// let v = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
     /// let n = v.normalize();
+    /// let s = n.norm_squared();
+    /// assert_eq!(1.0, s);
     /// assert!(n.is_normalized());
     /// ```
     #[inline(always)]
@@ -613,6 +658,50 @@ where
         T::q_is_normalized(self)
     }
 }
+
+// **** sum ****
+
+impl<T> Quaternion<T>
+where
+    T: Copy + Add<Output = T> + Mul<Output = T>,
+{
+    /// Return the sum of all components of the quaternion.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+    /// assert_eq!(17.0, q.sum());
+    /// ```
+    #[inline(always)]
+    pub fn sum(self) -> T {
+        self.w + self.x + self.y + self.z
+    }
+    /// Return the product of all components of the quaternion.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+    /// assert_eq!(210.0, q.product());
+    /// ```
+    #[inline(always)]
+    pub fn product(self) -> T {
+        self.w * self.x * self.y * self.z
+    }
+}
+
+// **** mean ****
+
+impl<T> Quaternion<T>
+where
+    T: Copy + One + Add<Output = T> + Div<Output = T>,
+{
+    /// Return the mean of all components of the quaternion.
+    #[inline(always)]
+    pub fn mean(self) -> T {
+        let four = T::one() + T::one() + T::one() + T::one();
+        (self.w + self.x + self.y + self.z) / four
+    }
+}
+
+// **** rotate ***
 
 impl<T> Quaternion<T>
 where
@@ -895,6 +984,29 @@ where
     }
 }
 
+// **** From ****
+
+// **** From Tuple ****
+
+/// Quaternion from tuple.
+/// ```
+/// # use vqm::Quaternionf32;
+/// let v = Quaternionf32::from((2.0, 3.0, 5.0, 7.0));
+/// let w: Quaternionf32 = (11.0, 13.0, 17.0, 19.0).into();
+///
+/// assert_eq!(v, Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 });
+/// assert_eq!(w, Quaternionf32 { w: 11.0, x: 13.0, y: 17.0, z: 19.0 });
+/// ```
+impl<T> From<(T, T, T, T)> for Quaternion<T>
+where
+    T: Copy,
+{
+    #[inline(always)]
+    fn from((w, x, y, z): (T, T, T, T)) -> Self {
+        Self { w, x, y, z }
+    }
+}
+
 // **** From Array ****
 
 /// Quaternion from array.
@@ -920,7 +1032,6 @@ where
 /// Array from quaternion.
 /// ```
 /// # use vqm::Quaternionf32;
-///
 /// let q = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
 ///
 /// let a = <[f32; 4]>::from(q);
