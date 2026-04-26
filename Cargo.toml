@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/martinbudden/crate-vector-quaternion-matrix"
 description = "A vector, quaternion, and matrix library targeted at embedded systems and robotics."
-keywords = ["vector", "quaternion", "matrix", "no_std"]
+keywords = ["vector", "quaternion", "matrix", "no_std", "robotics"]
 categories = [
     "embedded",
     "mathematics",
@@ -34,7 +34,7 @@ simd = []
 rustflags = ["-C", "target-cpu=cortex-m0plus"]
 
 # used by RP2350
-[target.thumbv8m.main-none-eabihf] # hf = Hard Float
+[target.thumbv8m.main-none-eabihf] # hf = hardware floating point
 rustflags = [
     "-C",
     "target-cpu=cortex-m33",
