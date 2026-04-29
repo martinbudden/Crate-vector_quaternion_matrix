@@ -816,7 +816,7 @@ where
     /// assert_eq!(m, Matrix3x3f32::from([  2.0, 17.0, 59.0,
     ///                                     5.0, 11.0, 47.0,
     ///                                    23.0, 31.0, 41.0]));
-        /// ```
+    /// ```
     #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
         *self = T::m3x3_abs(*self);
