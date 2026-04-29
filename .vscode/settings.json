@@ -32,6 +32,7 @@
         "eabihf",
         "EGAMMA",
         "Eigen",
+        "elementwise",
         "Filterf",
         "foldhash",
         "fract",

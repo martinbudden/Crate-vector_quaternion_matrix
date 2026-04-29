@@ -1,3 +1,4 @@
+#![allow(clippy::inline_always)]
 use cfg_if::cfg_if;
 
 cfg_if! {
@@ -30,15 +31,15 @@ pub trait Matrix3x3Math: Sized {
     fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
     fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self>;
     fn m3x3_mul(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self>;
-    fn m3x3_determinant(this: Matrix3x3<Self>) -> Self;
-    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self;
-    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self;
     fn m3x3_trace(this: Matrix3x3<Self>) -> Self;
     fn m3x3_trace_sum_squares(this: Matrix3x3<Self>) -> Self;
     fn m3x3_sum(this: Matrix3x3<Self>) -> Self;
     fn m3x3_mean(this: Matrix3x3<Self>) -> Self;
     fn m3x3_product(this: Matrix3x3<Self>) -> Self;
-    fn m3x3_adjugate(this: Matrix3x3<Self>) -> Matrix3x3<Self>;
+    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self;
+    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self;
+    fn m3x3_determinant(this: Matrix3x3<Self>) -> Self;
+    fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self);
 }
 
 impl Matrix3x3Math for f32 {
@@ -135,69 +136,6 @@ impl Matrix3x3Math for f32 {
     }
 
     #[inline(always)]
-    fn m3x3_determinant(this: Matrix3x3<Self>) -> Self {
-        #[cfg(feature = "simd")]
-        {
-            let a_simd = f32x4::from_array([this.a[0], -this.a[1], this.a[2], 0.0]);
-
-            let d = [
-                this.a[4] * this.a[8] - this.a[5] * this.a[7],
-                this.a[3] * this.a[8] - this.a[5] * this.a[6],
-                this.a[3] * this.a[7] - this.a[4] * this.a[6],
-                0.0,
-            ];
-            let d_simd = f32x4::from_array(d);
-
-            (a_simd * d_simd).reduce_sum()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
-                - this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
-                + this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
-        }
-    }
-
-    #[inline(always)]
-    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self {
-        //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
-        //            a0     a4    a8    a5    a5     a1     a1    a8    a5    a2     a2     a1    a5    a4    a2
-        #[cfg(feature = "simd")]
-        {
-            let a_simd = f32x4::from_array([this.a[0], -this.a[1], this.a[2], 0.0]);
-
-            let d = [
-                this.a[4] * this.a[8] - this.a[5] * this.a[5],
-                this.a[1] * this.a[8] - this.a[5] * this.a[2],
-                this.a[1] * this.a[5] - this.a[4] * this.a[2],
-                0.0,
-            ];
-            let d_simd = f32x4::from_array(d);
-
-            (a_simd * d_simd).reduce_sum()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[5])
-                - this.a[1] * (this.a[1] * this.a[8] - this.a[5] * this.a[2])
-                + this.a[2] * (this.a[1] * this.a[5] - this.a[4] * this.a[2])
-        }
-    }
-
-    #[inline(always)]
-    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
-        #[cfg(feature = "simd")]
-        {
-            let top_right_simd = f32x4::from_array([this.a[1], this.a[2], this.a[5], 0.0]);
-            (top_right_simd * top_right_simd).reduce_sum()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            this.a[1] * this.a[1] + this.a[2] * this.a[2] + this.a[5] * this.a[5]
-        }
-    }
-
-    #[inline(always)]
     fn m3x3_trace(this: Matrix3x3<Self>) -> Self {
         this.a[0] + this.a[4] + this.a[8]
     }
@@ -231,8 +169,72 @@ impl Matrix3x3Math for f32 {
     }
 
     #[inline(always)]
-    fn m3x3_adjugate(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
+    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
         #[cfg(feature = "simd")]
+        {
+            let top_right_simd = f32x4::from_array([this.a[1], this.a[2], this.a[5], 0.0]);
+            (top_right_simd * top_right_simd).reduce_sum()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            this.a[1] * this.a[1] + this.a[2] * this.a[2] + this.a[5] * this.a[5]
+        }
+    }
+
+    #[inline(always)]
+    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self {
+        //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
+        //            a0     a4    a8    a5    a5     a1     a1    a8    a5    a2     a2     a1    a5    a4    a2
+        #[cfg(feature = "simd")]
+        {
+            let a_simd = f32x4::from_array([this.a[0], -this.a[1], this.a[2], 0.0]);
+
+            let d = [
+                this.a[4] * this.a[8] - this.a[5] * this.a[5],
+                this.a[1] * this.a[8] - this.a[5] * this.a[2],
+                this.a[1] * this.a[5] - this.a[4] * this.a[2],
+                0.0,
+            ];
+            let d_simd = f32x4::from_array(d);
+
+            (a_simd * d_simd).reduce_sum()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[5])
+                - this.a[1] * (this.a[1] * this.a[8] - this.a[5] * this.a[2])
+                + this.a[2] * (this.a[1] * this.a[5] - this.a[4] * this.a[2])
+        }
+    }
+
+    #[inline(always)]
+    fn m3x3_determinant(this: Matrix3x3<Self>) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            let a_simd = f32x4::from_array([this.a[0], -this.a[1], this.a[2], 0.0]);
+
+            let d = [
+                this.a[4] * this.a[8] - this.a[5] * this.a[7],
+                this.a[3] * this.a[8] - this.a[5] * this.a[6],
+                this.a[3] * this.a[7] - this.a[4] * this.a[6],
+                0.0,
+            ];
+            let d_simd = f32x4::from_array(d);
+
+            (a_simd * d_simd).reduce_sum()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
+                - this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
+                + this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
+        }
+    }
+
+    #[rustfmt::skip]
+    #[inline]
+    fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
+        /*#[cfg(feature = "simd")]
         {
             let a = this.a;
 
@@ -257,21 +259,24 @@ impl Matrix3x3Math for f32 {
 
             Matrix3x3::from([r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], a[0] * a[4] - a[1] * a[3]])
         }
-        #[cfg(not(feature = "simd"))]
-        {
-            let a = [
-                this.a[4] * this.a[8] - this.a[5] * this.a[7],    //  (e*i - f*h)
-                -(this.a[1] * this.a[8] - this.a[2] * this.a[7]), // -(b*i - c*h)
-                this.a[1] * this.a[5] - this.a[2] * this.a[4],    //  (b*f - c*e)
-                -(this.a[3] * this.a[8] - this.a[5] * this.a[6]), // -(d*i - f*g)
-                this.a[0] * this.a[8] - this.a[2] * this.a[6],    //  (a*i - c*g)
-                -(this.a[0] * this.a[5] - this.a[2] * this.a[3]), // -(a*f - c*d)
-                this.a[3] * this.a[7] - this.a[4] * this.a[6],    //  (d*h - e*g)
-                -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
-                this.a[0] * this.a[4] - this.a[1] * this.a[3],    //  (a*e - b*d)
-            ];
-            Matrix3x3::from(a)
-        }
+        #[cfg(not(feature = "simd"))]*/
+        let ei_fh = this.a[4] * this.a[8] - this.a[5] * this.a[7];
+        let di_fg = this.a[3] * this.a[8] - this.a[5] * this.a[6];
+        let dh_eg = this.a[3] * this.a[7] - this.a[4] * this.a[6];
+        let determinant = this.a[0] * ei_fh - this.a[1]*di_fg + this.a[2]* dh_eg;
+
+        let a = [
+              ei_fh,                                          //  (e*i - f*h)
+            -(this.a[1] * this.a[8] - this.a[2] * this.a[7]), // -(b*i - c*h)
+              this.a[1] * this.a[5] - this.a[2] * this.a[4],  //  (b*f - c*e)
+            - di_fg,                                          // -(d*i - f*g)
+              this.a[0] * this.a[8] - this.a[2] * this.a[6],  //  (a*i - c*g)
+            -(this.a[0] * this.a[5] - this.a[2] * this.a[3]), // -(a*f - c*d)
+              dh_eg,                                          //  (d*h - e*g)
+            -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
+              this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
+        ];
+        (Matrix3x3::from(a), determinant)
     }
 }
 
@@ -359,27 +364,6 @@ impl Matrix3x3Math for f64 {
     }
 
     #[inline(always)]
-    fn m3x3_determinant(this: Matrix3x3<Self>) -> Self {
-        this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
-            - this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
-            + this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
-    }
-
-    #[inline(always)]
-    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self {
-        //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
-        //             0     4     8     5      5      1      1     8    5     2        2     1    5      4     2
-        this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[5])
-            - this.a[1] * (this.a[1] * this.a[8] - this.a[5] * this.a[2])
-            + this.a[2] * (this.a[1] * this.a[5] - this.a[4] * this.a[2])
-    }
-
-    #[inline(always)]
-    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
-        this.a[1] * this.a[1] + this.a[2] * this.a[2] + this.a[5] * this.a[5]
-    }
-
-    #[inline(always)]
     fn m3x3_trace(this: Matrix3x3<Self>) -> Self {
         this.a[0] + this.a[4] + this.a[8]
     }
@@ -405,18 +389,47 @@ impl Matrix3x3Math for f64 {
     }
 
     #[inline(always)]
-    fn m3x3_adjugate(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
+    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
+        this.a[1] * this.a[1] + this.a[2] * this.a[2] + this.a[5] * this.a[5]
+    }
+
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self {
+        //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
+        //             0     4     8     5      5      1      1     8    5     2        2     1    5      4     2
+          this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[5])
+        - this.a[1] * (this.a[1] * this.a[8] - this.a[5] * this.a[2])
+        + this.a[2] * (this.a[1] * this.a[5] - this.a[4] * this.a[2])
+    }
+
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m3x3_determinant(this: Matrix3x3<Self>) -> Self {
+         this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
+        -this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
+        +this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
+    }
+
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
+        let ei_fh = this.a[4] * this.a[8] - this.a[5] * this.a[7];
+        let di_fg = this.a[3] * this.a[8] - this.a[5] * this.a[6];
+        let dh_eg = this.a[3] * this.a[7] - this.a[4] * this.a[6];
+        let determinant = this.a[0] * ei_fh - this.a[1]*di_fg + this.a[2]* dh_eg;
+
         let a = [
-            this.a[4] * this.a[8] - this.a[5] * this.a[7],    //  (e*i - f*h)
+              ei_fh,                                          //  (e*i - f*h)
             -(this.a[1] * this.a[8] - this.a[2] * this.a[7]), // -(b*i - c*h)
-            this.a[1] * this.a[5] - this.a[2] * this.a[4],    //  (b*f - c*e)
-            -(this.a[3] * this.a[8] - this.a[5] * this.a[6]), // -(d*i - f*g)
-            this.a[0] * this.a[8] - this.a[2] * this.a[6],    //  (a*i - c*g)
+              this.a[1] * this.a[5] - this.a[2] * this.a[4],  //  (b*f - c*e)
+            - di_fg,                                          // -(d*i - f*g)
+              this.a[0] * this.a[8] - this.a[2] * this.a[6],  //  (a*i - c*g)
             -(this.a[0] * this.a[5] - this.a[2] * this.a[3]), // -(a*f - c*d)
-            this.a[3] * this.a[7] - this.a[4] * this.a[6],    //  (d*h - e*g)
+              dh_eg,                                          //  (d*h - e*g)
             -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
-            this.a[0] * this.a[4] - this.a[1] * this.a[3],    //  (a*e - b*d)
+              this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
         ];
-        Matrix3x3::from(a)
+        (Matrix3x3::from(a), determinant)
     }
 }

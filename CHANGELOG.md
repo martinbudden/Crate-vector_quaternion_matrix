@@ -9,18 +9,28 @@ that is each release may contain incompatible API changes.
 
 Once the API has stabilized this project will adopt semantic versioning, the first release to do so will be `0.2.0`.
 
-## [Unreleased]
+## [Possible future]
 
 ### Added
 
 - May add `Matrix4x4`.
 - May consider adding eigenvalues and eigenvectors.
 
+## [Unreleased]
+
+### Added
+
+- Quaternion calculate_euler_angles_radians() and calculate_euler_angles_degrees() functions
+
 ### Changed
+
+- changed many functions from `#[inline(always)]` to `#[inline]`
 
 ### Removed
 
 ### Deprecated
+
+At some point [0.1.0] will be [YANKED]
 
 ### Fixed
 
@@ -43,10 +53,6 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 - Changed back to use verbal form for return functions and _in_place suffix for in place versions,
   ie `transpose` and `transpose_in_place` rather than `transpose` and `transposed`.
 - Updated README.md
-
-### Deprecated
-
-At some point [0.1.0] will be [YANKED]
 
 ## [0.1.0] - 2023-03-05
 

@@ -1,3 +1,4 @@
+#![allow(clippy::inline_always)]
 use cfg_if::cfg_if;
 
 cfg_if! {
@@ -51,6 +52,8 @@ pub trait Vector3dMath: Sized {
     fn v3_add(this: Vector3d<Self>, this: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self>;
     fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self>;
+    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
+    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self>;
     fn v3_norm_squared(this: Vector3d<Self>) -> Self;
     fn v3_is_normalized(this: Vector3d<Self>) -> bool;
@@ -108,6 +111,34 @@ impl Vector3dMath for f32 {
     #[inline(always)]
     fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
         Self::v3_mul_scalar(this, 1.0 / k)
+    }
+
+    #[inline(always)]
+    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x4::from(this);
+            let other_simd = f32x4::from(other);
+            this_simd * other.simd
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+        }
+    }
+
+    #[inline(always)]
+    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x4::from(this);
+            let other_simd = f32x4::from(other);
+            this_simd / other.simd
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
+        }
     }
 
     #[inline(always)]
@@ -260,6 +291,16 @@ impl Vector3dMath for f64 {
     }
 
     #[inline(always)]
+    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+    }
+
+    #[inline(always)]
+    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
+    }
+
+    #[inline(always)]
     fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
         Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
     }
@@ -332,6 +373,17 @@ impl Vector3dMath for i16 {
     }
 
     #[inline(always)]
+    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+    }
+
+    #[inline(always)]
+    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        #[allow(clippy::cast_possible_truncation)]
+        Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
+    }
+
+    #[inline(always)]
     fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
         Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
     }
@@ -400,6 +452,17 @@ impl Vector3dMath for i32 {
     fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
         #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
         Self::v3_mul_scalar(this, (1.0 / (k as f32)) as i32)
+    }
+
+    #[inline(always)]
+    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+    }
+
+    #[inline(always)]
+    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+        #[allow(clippy::cast_possible_truncation)]
+        Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
     }
 
     #[inline(always)]

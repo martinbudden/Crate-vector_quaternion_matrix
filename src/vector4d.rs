@@ -34,7 +34,7 @@ where
     T: Copy,
 {
     /// Create a vector.
-    #[inline(always)]
+    #[inline]
     pub const fn new(x: T, y: T, z: T, t: T) -> Self {
         Self { x, y, z, t }
     }
@@ -54,12 +54,12 @@ impl<T> Zero for Vector4d<T>
 where
     T: Copy + Zero + PartialEq + Vector4dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn zero() -> Self {
         Self { x: T::zero(), y: T::zero(), z: T::zero(), t: T::zero() }
     }
 
-    #[inline(always)]
+    #[inline]
     fn is_zero(&self) -> bool {
         self.x == T::zero() && self.y == T::zero() && self.z == T::zero() && self.z == T::zero()
     }
@@ -81,7 +81,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn neg(self) -> Self {
         T::v4_neg(self)
     }
@@ -92,11 +92,11 @@ where
 /// Add two vectors.
 /// ```
 /// # use vqm::Vector4df32;
-/// let u = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// let v = Vector4df32::new(11.0, 13.0, 17.0, 19.0);
+/// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+/// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
 /// let r = u + v;
 ///
-/// assert_eq!(r, Vector4df32 { x: 13.0, y: 16.0, z: 22.0, t: 26.0 });
+/// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
 /// ```
 impl<T> Add for Vector4d<T>
 where
@@ -104,7 +104,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn add(self, other: Self) -> Self {
         T::v4_add(self, other)
     }
@@ -115,11 +115,11 @@ where
 /// Add one vector to another.
 /// ```
 /// # use vqm::Vector4df32;
-/// let mut r = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// let u = Vector4df32::new(11.0, 13.0, 17.0, 19.0);
+/// let mut r = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+/// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
 /// r += u;
 ///
-/// assert_eq!(r, Vector4df32 { x: 13.0, y: 16.0, z: 22.0, t: 26.0 });
+/// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
 ///
 /// # use num_traits::zero;
 /// let z: Vector4df32 = zero();
@@ -130,7 +130,7 @@ impl<T> AddAssign for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
     }
@@ -155,7 +155,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
         T::v4_mul_add(self, k, other)
     }
@@ -178,7 +178,7 @@ impl<T> MulAddAssign<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
         *self = self.mul_add(k, other);
     }
@@ -189,11 +189,11 @@ where
 /// Subtract two vectors.
 /// ```
 /// # use vqm::Vector4df32;
-/// let u = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// let v = Vector4df32::new(11.0, 13.0, 17.0, 23.0);
+/// let u = Vector4df32::new(2.0, 5.0, 13.0, 17.0);
+/// let v = Vector4df32::new(3.0, 7.0, 11.0, 23.0);
 /// let r = u - v;
 ///
-/// assert_eq!(r, Vector4df32 { x: -9.0, y: -10.0, z: -12.0, t: -16.0 });
+/// assert_eq!(r, Vector4df32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
 /// ```
 impl<T> Sub for Vector4d<T>
 where
@@ -201,7 +201,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
         self + (-other)
@@ -223,7 +223,7 @@ impl<T> SubAssign for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
     }
@@ -241,7 +241,7 @@ where
 /// ```
 impl Mul<Vector4d<f32>> for f32 {
     type Output = Vector4d<f32>;
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Vector4d<f32>) -> Vector4d<f32> {
         f32::v4_mul_scalar(other, self)
     }
@@ -249,7 +249,7 @@ impl Mul<Vector4d<f32>> for f32 {
 
 impl Mul<Vector4d<f64>> for f64 {
     type Output = Vector4d<f64>;
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Vector4d<f64>) -> Vector4d<f64> {
         f64::v4_mul_scalar(other, self)
     }
@@ -271,7 +271,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, k: T) -> Self {
         T::v4_mul_scalar(self, k)
     }
@@ -291,7 +291,7 @@ impl<T> MulAssign<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn mul_assign(&mut self, k: T) {
         *self = *self * k;
     }
@@ -313,7 +313,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn div(self, k: T) -> Self {
         T::v4_div_scalar(self, k)
     }
@@ -331,7 +331,7 @@ impl<T> DivAssign<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn div_assign(&mut self, k: T) {
         *self = self.div(k);
     }
@@ -351,7 +351,7 @@ where
 /// ```
 impl<T> Index<usize> for Vector4d<T> {
     type Output = T;
-    #[inline(always)]
+    #[inline]
     fn index(&self, index: usize) -> &T {
         match index {
             0 => &self.x,
@@ -376,7 +376,7 @@ impl<T> Index<usize> for Vector4d<T> {
 /// assert_eq!(v, Vector4df32 { x:7.0, y:11.0, z:13.0, t: 17.0 });
 /// ```
 impl<T> IndexMut<usize> for Vector4d<T> {
-    #[inline(always)]
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
         match index {
             0 => &mut self.x,
@@ -401,7 +401,7 @@ where
     ///
     /// assert_eq!(u, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn abs(self) -> Self {
         Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs(), t: self.t.abs() }
     }
@@ -414,7 +414,7 @@ where
     ///
     /// assert_eq!(v, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
         *self = self.abs();
         self
@@ -435,7 +435,7 @@ where
     ///
     /// assert_eq!(u, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self {
             x: self.x.clamp(min, max),
@@ -453,7 +453,7 @@ where
     ///
     /// assert_eq!(v, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamp(min, max);
         self
@@ -476,7 +476,7 @@ where
     ///
     /// assert_eq!(x, 279.0);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn dot(self, other: Self) -> T {
         T::v4_dot(self, other)
     }
@@ -494,7 +494,7 @@ where
     /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
     /// assert_eq!(87.0, v.norm_squared());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn norm_squared(self) -> T {
         T::v4_norm_squared(self)
     }
@@ -506,7 +506,7 @@ where
     /// let w = Vector4df32::new(11.0, 13.0, 17.0, 19.0);
     /// assert_eq!(469.0, v.distance_squared(w));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn distance_squared(self, other: Self) -> T {
         (self - other).norm_squared()
     }
@@ -519,7 +519,7 @@ where
     T: Copy + SqrtMethods + Vector4dMath,
 {
     /// Return Euclidean norm.
-    #[inline(always)]
+    #[inline]
     pub fn norm(self) -> T {
         Self::norm_squared(self).sqrt()
     }
@@ -536,7 +536,7 @@ where
     /// let n = v.normalize();
     /// assert_eq!(Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 }, n);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the vector is already normalized
@@ -553,7 +553,7 @@ where
     /// v.normalize_in_place();
     /// assert_eq!(Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 }, v);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize_in_place(&mut self) -> &mut Self {
         *self = self.normalize();
         self
@@ -566,7 +566,7 @@ where
     /// let n = v.normalize_unchecked();
     /// assert_eq!(Vector4df32 { x: 0.21442251, y: 0.32163376, z: 0.5360563, t: 0.7504788 }, n);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize_unchecked(self) -> Self {
         let norm_squared = self.norm_squared();
         self * norm_squared.sqrt_reciprocal()
@@ -579,7 +579,7 @@ where
     /// v.normalize_unchecked_in_place();
     /// assert_eq!(Vector4df32 { x: 0.21442251, y: 0.32163376, z: 0.5360563, t: 0.7504788 }, v);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {
         *self = self.normalize_unchecked();
         self
@@ -599,7 +599,7 @@ where
     /// assert_eq!(1.0, s);
     /// assert!(n.is_normalized());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn is_normalized(self) -> bool {
         T::v4_is_normalized(self)
     }
@@ -610,7 +610,7 @@ where
     T: Copy + Zero + SqrtMethods + Vector4dMath,
 {
     // Return distance between two points
-    #[inline(always)]
+    #[inline]
     pub fn distance(self, other: Self) -> T {
         self.distance_squared(other).sqrt()
     }
@@ -628,7 +628,7 @@ where
     /// let v = Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8);
     /// assert_eq!(Vector4df32::new(90.0, 45.0, 30.0, 22.5), v.to_degrees());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn to_degrees(self) -> Self {
         Self {
             x: self.x * T::RADIANS_TO_DEGREES,
@@ -644,7 +644,7 @@ where
     /// let v = Vector4df32::new(90.0, 45.0, 30.0, 22.5);
     /// assert_eq!(Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8), v.to_radians());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn to_radians(self) -> Self {
         Self {
             x: self.x * T::DEGREES_TO_RADIANS,
@@ -667,7 +667,7 @@ where
     /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
     /// assert_eq!(17.0, v.sum());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn sum(self) -> T {
         self.x + self.y + self.z + self.t
     }
@@ -678,7 +678,7 @@ where
     /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
     /// assert_eq!(210.0, v.product());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn product(self) -> T {
         self.x * self.y * self.z * self.t
     }
@@ -696,7 +696,7 @@ where
     /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
     /// assert_eq!(4.25, v.mean());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn mean(self) -> T {
         let four = T::one() + T::one() + T::one() + T::one();
         self.sum() / four
@@ -719,7 +719,7 @@ where
     /// assert_eq!(7.0, w.max());
     /// assert_eq!(7.0, x.max());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn max(self) -> T {
         T::v4_max(self)
     }
@@ -734,7 +734,7 @@ where
     /// assert_eq!(2.0, w.min());
     /// assert_eq!(2.0, x.min());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn min(self) -> T {
         T::v4_min(self)
     }
@@ -757,7 +757,7 @@ impl<T> From<(T, T, T, T)> for Vector4d<T>
 where
     T: Copy,
 {
-    #[inline(always)]
+    #[inline]
     fn from((x, y, z, t): (T, T, T, T)) -> Self {
         Self { x, y, z, t }
     }
@@ -778,7 +778,7 @@ impl<T> From<[T; 4]> for Vector4d<T>
 where
     T: Copy,
 {
-    #[inline(always)]
+    #[inline]
     fn from(v: [T; 4]) -> Self {
         Self { x: v[0], y: v[1], z: v[2], t: v[3] }
     }
@@ -796,7 +796,7 @@ where
 /// assert_eq!(b, [2.0, 3.0, 5.0, 7.0]);
 /// ```
 impl<T> From<Vector4d<T>> for [T; 4] {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector4d<T>) -> Self {
         [v.x, v.y, v.z, v.t]
     }
@@ -817,7 +817,7 @@ impl<T> From<Vector3d<T>> for Vector4d<T>
 where
     T: Copy + Zero,
 {
-    #[inline(always)]
+    #[inline]
     fn from(other: Vector3d<T>) -> Self {
         Self { x: other.x, y: other.y, z: other.z, t: T::zero() }
     }
@@ -838,7 +838,7 @@ impl<T> From<Vector2d<T>> for Vector4d<T>
 where
     T: Copy + Zero,
 {
-    #[inline(always)]
+    #[inline]
     fn from(other: Vector2d<T>) -> Self {
         Self { x: other.x, y: other.y, z: T::zero(), t: T::zero() }
     }

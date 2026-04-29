@@ -53,7 +53,7 @@ where
     T: Copy,
 {
     /// Create a vector.
-    #[inline(always)]
+    #[inline]
     pub const fn new(x: T, y: T, z: T) -> Self {
         Self { x, y, z }
     }
@@ -73,12 +73,12 @@ impl<T> Zero for Vector3d<T>
 where
     T: Copy + Zero + PartialEq + Vector3dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn zero() -> Self {
         Self { x: T::zero(), y: T::zero(), z: T::zero() }
     }
 
-    #[inline(always)]
+    #[inline]
     fn is_zero(&self) -> bool {
         self.x == T::zero() && self.y == T::zero() && self.z == T::zero()
     }
@@ -100,7 +100,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn neg(self) -> Self {
         T::v3_neg(self)
     }
@@ -111,11 +111,11 @@ where
 /// Add two vectors.
 /// ```
 /// # use vqm::Vector3df32;
-/// let u = Vector3df32::new(2.0, 3.0, 5.0);
-/// let v = Vector3df32::new(7.0, 11.0, 13.0);
+/// let u = Vector3df32::new(2.0, 5.0, 11.0);
+/// let v = Vector3df32::new(3.0, 7.0, 13.0);
 /// let r = u + v;
 ///
-/// assert_eq!(r, Vector3df32 { x: 9.0, y: 14.0, z: 18.0 });
+/// assert_eq!(r, Vector3df32 { x: 5.0, y: 12.0, z: 24.0 });
 /// ```
 impl<T> Add for Vector3d<T>
 where
@@ -123,7 +123,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn add(self, other: Self) -> Self {
         T::v3_add(self, other)
     }
@@ -134,11 +134,11 @@ where
 /// Add one vector to another.
 /// ```
 /// # use vqm::Vector3df32;
-/// let mut r = Vector3df32::new(2.0, 3.0, 5.0);
-/// let u = Vector3df32::new(7.0, 11.0, 13.0);
+/// let mut r = Vector3df32::new(2.0, 5.0, 11.0);
+/// let u = Vector3df32::new(3.0, 7.0, 13.0);
 /// r += u;
 ///
-/// assert_eq!(r, Vector3df32 { x: 9.0, y: 14.0, z: 18.0 });
+/// assert_eq!(r, Vector3df32 { x: 5.0, y: 12.0, z: 24.0 });
 ///
 /// # use num_traits::zero;
 /// let z: Vector3df32 = zero();
@@ -149,7 +149,7 @@ impl<T> AddAssign for Vector3d<T>
 where
     T: Copy + Vector3dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
     }
@@ -174,7 +174,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
         T::v3_mul_add(self, k, other)
     }
@@ -183,7 +183,7 @@ where
 impl MulAdd<i32> for Vector3d<i16> {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul_add(self, k: i32, other: Self) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Vector3d {
@@ -197,7 +197,7 @@ impl MulAdd<i32> for Vector3d<i16> {
 impl MulAdd<f32> for Vector3d<i16> {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul_add(self, k: f32, other: Self) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Vector3d {
@@ -225,7 +225,7 @@ impl<T> MulAddAssign<T> for Vector3d<T>
 where
     T: Copy + Vector3dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
         *self = self.mul_add(k, other);
     }
@@ -236,11 +236,11 @@ where
 /// Subtract two vectors.
 /// ```
 /// # use vqm::Vector3df32;
-/// let u = Vector3df32::new(2.0, 3.0, 5.0);
-/// let v = Vector3df32::new(7.0, 11.0, 13.0);
+/// let u = Vector3df32::new(2.0, 5.0, 13.0);
+/// let v = Vector3df32::new(3.0, 7.0, 11.0);
 /// let r = u - v;
 ///
-/// assert_eq!(r, Vector3df32 { x: -5.0, y: -8.0, z: -8.0 });
+/// assert_eq!(r, Vector3df32 { x: -1.0, y: -2.0, z: 2.0 });
 /// ```
 impl<T> Sub for Vector3d<T>
 where
@@ -248,7 +248,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
         self + (-other)
@@ -270,7 +270,7 @@ impl<T> SubAssign for Vector3d<T>
 where
     T: Copy + Vector3dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
     }
@@ -288,7 +288,7 @@ where
 /// ```
 impl Mul<Vector3d<f32>> for f32 {
     type Output = Vector3d<f32>;
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Vector3d<f32>) -> Vector3d<f32> {
         f32::v3_mul_scalar(other, self)
     }
@@ -296,7 +296,7 @@ impl Mul<Vector3d<f32>> for f32 {
 
 impl Mul<Vector3d<f64>> for f64 {
     type Output = Vector3d<f64>;
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Vector3d<f64>) -> Vector3d<f64> {
         f64::v3_mul_scalar(other, self)
     }
@@ -318,7 +318,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, k: T) -> Self {
         T::v3_mul_scalar(self, k)
     }
@@ -327,7 +327,7 @@ where
 impl Mul<i32> for Vector3d<i16> {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, k: i32) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Vector3d { x: self.x * (k as i16), y: self.y * (k as i16), z: self.z * (k as i16) }
@@ -337,7 +337,7 @@ impl Mul<i32> for Vector3d<i16> {
 impl Mul<i16> for Vector3d<f32> {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, k: i16) -> Self {
         Vector3d { x: self.x * f32::from(k), y: self.y * f32::from(k), z: self.z * f32::from(k) }
     }
@@ -346,7 +346,7 @@ impl Mul<i16> for Vector3d<f32> {
 impl Mul<i32> for Vector3d<f32> {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, k: i32) -> Self {
         #[allow(clippy::cast_precision_loss)]
         Vector3d { x: self.x * (k as f32), y: self.y * (k as f32), z: self.z * (k as f32) }
@@ -367,9 +367,32 @@ impl<T> MulAssign<T> for Vector3d<T>
 where
     T: Copy + Vector3dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn mul_assign(&mut self, k: T) {
         *self = *self * k;
+    }
+}
+
+// **** Mul Elementwise ****
+
+/// Elementwise multiply a vector by another vector.
+/// ```
+/// # use vqm::Vector3df32;
+/// let v = Vector3df32::new(2.0, 5.0, 11.0);
+/// let u = Vector3df32::new(3.0, 7.0, 13.0);
+/// let r = v * u;
+///
+/// assert_eq!(r, Vector3df32 { x: 6.0, y: 35.0, z: 143.0 });
+/// ```
+impl<T> Mul<Vector3d<T>> for Vector3d<T>
+where
+    T: Copy + Vector3dMath,
+{
+    type Output = Self;
+
+    #[inline]
+    fn mul(self, other: Self) -> Self {
+        T::v3_mul_elementwise(self, other)
     }
 }
 
@@ -389,7 +412,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn div(self, k: T) -> Self {
         T::v3_div_scalar(self, k)
     }
@@ -407,9 +430,32 @@ impl<T> DivAssign<T> for Vector3d<T>
 where
     T: Copy + Vector3dMath,
 {
-    #[inline(always)]
+    #[inline]
     fn div_assign(&mut self, k: T) {
         *self = self.div(k);
+    }
+}
+
+// **** Div Elementwise ****
+
+/// Elementwise divide a vector by another vector.
+/// ```
+/// # use vqm::Vector3df32;
+/// let v = Vector3df32::new(3.0, 7.0, 13.0);
+/// let u = Vector3df32::new(2.0, 5.0, 11.0);
+/// let r = v / u;
+///
+/// assert_eq!(r, Vector3df32 { x: 1.5, y: 1.4, z: 13.0 / 11.0 });
+/// ```
+impl<T> Div<Vector3d<T>> for Vector3d<T>
+where
+    T: Copy + Vector3dMath,
+{
+    type Output = Self;
+
+    #[inline]
+    fn div(self, other: Self) -> Self {
+        T::v3_div_elementwise(self, other)
     }
 }
 
@@ -426,7 +472,7 @@ where
 /// ```
 impl<T> Index<usize> for Vector3d<T> {
     type Output = T;
-    #[inline(always)]
+    #[inline]
     fn index(&self, index: usize) -> &T {
         match index {
             0 => &self.x,
@@ -449,7 +495,7 @@ impl<T> Index<usize> for Vector3d<T> {
 /// assert_eq!(v, Vector3df32 { x:7.0, y:11.0, z:13.0 });
 /// ```
 impl<T> IndexMut<usize> for Vector3d<T> {
-    #[inline(always)]
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
         match index {
             0 => &mut self.x,
@@ -473,7 +519,7 @@ where
     ///
     /// assert_eq!(u, Vector3df32::new(2.0, 3.0, 5.0));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn abs(self) -> Self {
         Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
@@ -486,7 +532,7 @@ where
     ///
     /// assert_eq!(v, Vector3df32::new(2.0, 3.0, 5.0));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
         *self = self.abs();
         self
@@ -507,7 +553,7 @@ where
     ///
     /// assert_eq!(u, Vector3df32::new(2.5, 3.0, 7.5));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self { x: self.x.clamp(min, max), y: self.y.clamp(min, max), z: self.z.clamp(min, max) }
     }
@@ -520,7 +566,7 @@ where
     ///
     /// assert_eq!(v, Vector3df32::new(2.5, 3.0, 7.5));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamp(min, max);
         self
@@ -543,7 +589,7 @@ where
     ///
     /// assert_eq!(x, 112.0);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn dot(self, other: Self) -> T {
         T::v3_dot(self, other)
     }
@@ -565,7 +611,7 @@ where
     ///
     /// assert_eq!(x, Vector3df32::new(-16.0, 9.0, 1.0));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn cross(self, other: Self) -> Vector3d<T> {
         T::v3_cross(self, other)
     }
@@ -583,7 +629,7 @@ where
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
     /// assert_eq!(38.0, v.norm_squared());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn norm_squared(self) -> T {
         T::v3_norm_squared(self)
     }
@@ -595,7 +641,7 @@ where
     /// let w = Vector3df32::new(7.0, 11.0, 13.0);
     /// assert_eq!(153.0, v.distance_squared(w));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn distance_squared(self, other: Self) -> T {
         (self - other).norm_squared()
     }
@@ -608,7 +654,7 @@ where
     T: Copy + SqrtMethods + Vector3dMath,
 {
     /// Return Euclidean norm.
-    #[inline(always)]
+    #[inline]
     pub fn norm(self) -> T {
         Self::norm_squared(self).sqrt()
     }
@@ -625,7 +671,7 @@ where
     /// let n = v.normalize();
     /// assert_eq!(Vector3df32 { x: 0.0, y: 0.0, z: 0.0 }, n);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the vector is already normalized
@@ -642,7 +688,7 @@ where
     /// v.normalize_in_place();
     /// assert_eq!(Vector3df32 { x: 0.0, y: 0.0, z: 0.0 }, v);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize_in_place(&mut self) -> &mut Self {
         *self = self.normalize();
         self
@@ -655,7 +701,7 @@ where
     /// let n = v.normalize_unchecked();
     /// assert_eq!(Vector3df32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, n);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize_unchecked(self) -> Self {
         let norm_squared = self.norm_squared();
         self * norm_squared.sqrt_reciprocal()
@@ -668,7 +714,7 @@ where
     /// v.normalize_unchecked_in_place();
     /// assert_eq!(Vector3df32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, v);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {
         *self = self.normalize_unchecked();
         self
@@ -686,7 +732,7 @@ where
     /// let n = v.normalize();
     /// assert!(n.is_normalized());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn is_normalized(self) -> bool {
         T::v3_is_normalized(self)
     }
@@ -697,7 +743,7 @@ where
     T: Copy + Zero + SqrtMethods + Vector3dMath,
 {
     // Return distance between two points
-    #[inline(always)]
+    #[inline]
     pub fn distance(self, other: Self) -> T {
         self.distance_squared(other).sqrt()
     }
@@ -715,7 +761,7 @@ where
     /// let v = Vector3df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6);
     /// assert_eq!(Vector3df32::new(90.0, 45.0, 30.0), v.to_degrees());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn to_degrees(self) -> Self {
         Self { x: self.x * T::RADIANS_TO_DEGREES, y: self.y * T::RADIANS_TO_DEGREES, z: self.z * T::RADIANS_TO_DEGREES }
     }
@@ -726,7 +772,7 @@ where
     /// let v = Vector3df32::new(90.0, 45.0, 30.0);
     /// assert_eq!(Vector3df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6), v.to_radians());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn to_radians(self) -> Self {
         Self { x: self.x * T::DEGREES_TO_RADIANS, y: self.y * T::DEGREES_TO_RADIANS, z: self.z * T::DEGREES_TO_RADIANS }
     }
@@ -744,7 +790,7 @@ where
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
     /// assert_eq!(10.0, v.sum());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn sum(self) -> T {
         self.x + self.y + self.z
     }
@@ -755,7 +801,7 @@ where
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
     /// assert_eq!(30.0, v.product());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn product(self) -> T {
         self.x * self.y * self.z
     }
@@ -773,7 +819,7 @@ where
     /// let v = Vector3df32::new(2.0, 3.0, 7.0);
     /// assert_eq!(4.0, v.mean());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn mean(self) -> T {
         let three = T::one() + T::one() + T::one();
         self.sum() / three
@@ -796,7 +842,7 @@ where
     /// assert_eq!(5.0, w.max());
     /// assert_eq!(5.0, x.max());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn max(self) -> T {
         T::v3_max(self)
     }
@@ -811,7 +857,7 @@ where
     /// assert_eq!(2.0, w.min());
     /// assert_eq!(2.0, x.min());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn min(self) -> T {
         T::v3_min(self)
     }
@@ -821,7 +867,7 @@ impl<T> Vector3d<T>
 where
     T: Copy + Zero + One + SqrtMethods + Vector3dMath + QuaternionMath,
 {
-    #[inline(always)]
+    #[inline]
     pub fn rotate_by(self, q: Quaternion<T>) -> Self {
         // Extract the vector part of the quaternion (x, y, z)
         let q_xyz = Vector3d { x: q.x, y: q.y, z: q.z };
@@ -833,7 +879,7 @@ where
         // This is the optimized Rodrigues form
         self + (uv * q.w) + q_xyz.cross(uv)
     }
-    #[inline(always)]
+    #[inline]
     pub fn rotate_back_by(self, q: Quaternion<T>) -> Self {
         // Rotating 'back' is just rotating by the inverse (conjugate)
         self.rotate_by(q.conjugate())
@@ -854,7 +900,7 @@ where
 /// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 13.0 });
 /// ```
 impl<T> From<(T, T, T)> for Vector3d<T> {
-    #[inline(always)]
+    #[inline]
     fn from((x, y, z): (T, T, T)) -> Self {
         Self { x, y, z }
     }
@@ -875,7 +921,7 @@ impl<T> From<[T; 3]> for Vector3d<T>
 where
     T: Copy,
 {
-    #[inline(always)]
+    #[inline]
     fn from(v: [T; 3]) -> Self {
         Self { x: v[0], y: v[1], z: v[2] }
     }
@@ -893,7 +939,7 @@ where
 /// assert_eq!(b, [2.0, 3.0, 5.0]);
 /// ```
 impl<T> From<Vector3d<T>> for [T; 3] {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector3d<T>) -> Self {
         [v.x, v.y, v.z]
     }
@@ -914,7 +960,7 @@ impl<T> From<Vector2d<T>> for Vector3d<T>
 where
     T: Copy + Zero,
 {
-    #[inline(always)]
+    #[inline]
     fn from(other: Vector2d<T>) -> Self {
         Self { x: other.x, y: other.y, z: T::zero() }
     }
@@ -925,16 +971,16 @@ where
 /// Vector2d from Vector3d, discarding z value.
 /// ```
 /// # use vqm::{Vector2df32,Vector3df32};
-/// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 }.into();
-/// let u = Vector2df32::from(Vector3df32{ x: 7.0, y: 11.0, z: 13.0 });
+/// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 5.0, z: 11.0 }.into();
+/// let u = Vector2df32::from(Vector3df32{ x: 3.0, y: 7.0, z: 13.0 });
 ///
-/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
-/// assert_eq!(u, Vector2df32 { x: 7.0, y: 11.0 });
+/// assert_eq!(v, Vector2df32 { x: 2.0, y: 5.0 });
+/// assert_eq!(u, Vector2df32 { x: 3.0, y: 7.0 });
 impl<T> From<Vector3d<T>> for Vector2d<T>
 where
     T: Copy + Zero,
 {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector3d<T>) -> Self {
         Vector2d::<T> { x: v.x, y: v.y }
     }
@@ -947,7 +993,7 @@ pub type Vector3di16 = Vector3d<i16>;
 impl Mul<f32> for Vector3d<i16> {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, k: f32) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Self { x: (f32::from(self.x) * k) as i16, y: (f32::from(self.y) * k) as i16, z: (f32::from(self.z) * k) as i16 }
@@ -967,14 +1013,14 @@ impl Mul<f32> for Vector3d<i16> {
 /// assert_eq!(w_i16, Vector3di16 { x: 7, y: 11, z: 13 });
 /// ```
 impl From<Vector3d<i16>> for Vector3d<f32> {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector3d<i16>) -> Self {
         Self { x: f32::from(v.x), y: f32::from(v.y), z: f32::from(v.z) }
     }
 }
 
 impl From<Vector3d<f32>> for Vector3d<i16> {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector3d<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Self { x: v.x as i16, y: v.y as i16, z: v.z as i16 }
@@ -982,14 +1028,14 @@ impl From<Vector3d<f32>> for Vector3d<i16> {
 }
 
 impl From<[i16; 3]> for Vector3d<f32> {
-    #[inline(always)]
+    #[inline]
     fn from(v: [i16; 3]) -> Self {
         Self { x: f32::from(v[0]), y: f32::from(v[1]), z: f32::from(v[2]) }
     }
 }
 
 impl From<Vector3d<f32>> for [i16; 3] {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector3d<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         [v.x as i16, v.y as i16, v.z as i16]
@@ -1004,7 +1050,7 @@ pub type Vector3di32 = Vector3d<i32>;
 impl Mul<f32> for Vector3d<i32> {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, k: f32) -> Self {
         #[allow(clippy::cast_precision_loss)]
         #[allow(clippy::cast_possible_truncation)]
@@ -1025,7 +1071,7 @@ impl Mul<f32> for Vector3d<i32> {
 /// assert_eq!(w_i32, Vector3di32 { x: 7, y: 11, z: 13 });
 /// ```
 impl From<Vector3d<i32>> for Vector3d<f32> {
-    #[inline(always)]
+    #[inline]
     #[allow(clippy::cast_precision_loss)]
     fn from(v: Vector3d<i32>) -> Self {
         Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
@@ -1033,7 +1079,7 @@ impl From<Vector3d<i32>> for Vector3d<f32> {
 }
 
 impl From<Vector3d<f32>> for Vector3d<i32> {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector3d<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         Self { x: v.x as i32, y: v.y as i32, z: v.z as i32 }
@@ -1041,7 +1087,7 @@ impl From<Vector3d<f32>> for Vector3d<i32> {
 }
 
 impl From<[i32; 3]> for Vector3d<f32> {
-    #[inline(always)]
+    #[inline]
     fn from(v: [i32; 3]) -> Self {
         #[allow(clippy::cast_precision_loss)]
         Self { x: v[0] as f32, y: v[1] as f32, z: v[2] as f32 }
@@ -1049,7 +1095,7 @@ impl From<[i32; 3]> for Vector3d<f32> {
 }
 
 impl From<Vector3d<f32>> for [i32; 3] {
-    #[inline(always)]
+    #[inline]
     fn from(v: Vector3d<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         [v.x as i32, v.y as i32, v.z as i32]

@@ -1,3 +1,4 @@
+#![allow(clippy::inline_always)]
 use cfg_if::cfg_if;
 
 cfg_if! {
@@ -44,6 +45,8 @@ pub trait Vector2dMath: Sized {
     fn v2_add(this: Vector2d<Self>, this: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_mul_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self>;
     fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self>;
+    fn v2_mul_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self>;
+    fn v2_div_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self>;
     fn v2_norm_squared(this: Vector2d<Self>) -> Self;
     fn v2_is_normalized(this: Vector2d<Self>) -> bool;
@@ -103,6 +106,34 @@ impl Vector2dMath for f32 {
     #[inline(always)]
     fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
         Self::v2_mul_scalar(this, 1.0 / k)
+    }
+
+    #[inline(always)]
+    fn v2_mul_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x2::from(this);
+            let other_simd = f32x2::from(other);
+            this_simd * other.simd
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector2d { x: this.x * other.x, y: this.y * other.y }
+        }
+    }
+
+    #[inline(always)]
+    fn v2_div_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x2::from(this);
+            let other_simd = f32x2::from(other);
+            this_simd / other.simd
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector2d { x: this.x / other.x, y: this.y / other.y }
+        }
     }
 
     #[inline(always)]
@@ -211,6 +242,16 @@ impl Vector2dMath for f64 {
     #[inline(always)]
     fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
         Self::v2_mul_scalar(this, 1.0 / k)
+    }
+
+    #[inline(always)]
+    fn v2_mul_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
+        Vector2d { x: this.x * other.x, y: this.y * other.y }
+    }
+
+    #[inline(always)]
+    fn v2_div_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
+        Vector2d { x: this.x / other.x, y: this.y / other.y }
     }
 
     #[inline(always)]

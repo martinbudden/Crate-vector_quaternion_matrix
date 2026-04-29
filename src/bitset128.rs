@@ -138,7 +138,7 @@ impl Index<usize> for BitSet128 {
 
 /// `BitSet128` from `u32`.
 impl From<u32> for BitSet128 {
-    #[inline(always)]
+    #[inline]
     fn from(a: u32) -> Self {
         Self(u64::from(a), 0)
     }
@@ -146,7 +146,7 @@ impl From<u32> for BitSet128 {
 
 /// `BitSet64` from `(u32,u32)`.
 impl From<(u32, u32)> for BitSet128 {
-    #[inline(always)]
+    #[inline]
     fn from((a, b): (u32, u32)) -> Self {
         Self(u64::from(a) << 32 | u64::from(b), 0)
     }

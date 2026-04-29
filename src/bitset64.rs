@@ -125,7 +125,7 @@ impl Index<usize> for BitSet64 {
 /// # use vqm::BitSet64;
 /// ```
 impl From<u32> for BitSet64 {
-    #[inline(always)]
+    #[inline]
     fn from(a: u32) -> Self {
         Self(u64::from(a))
     }
@@ -136,7 +136,7 @@ impl From<u32> for BitSet64 {
 /// # use vqm::BitSet64;
 /// ```
 impl From<(u32, u32)> for BitSet64 {
-    #[inline(always)]
+    #[inline]
     fn from((a, b): (u32, u32)) -> Self {
         Self(u64::from(a) << 32 | u64::from(b))
     }

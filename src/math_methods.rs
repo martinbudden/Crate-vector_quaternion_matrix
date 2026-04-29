@@ -1,3 +1,4 @@
+#![allow(clippy::inline_always)]
 #![allow(clippy::excessive_precision)]
 
 use cfg_if::cfg_if;

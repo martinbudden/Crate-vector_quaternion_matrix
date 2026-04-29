@@ -1,3 +1,4 @@
+#![allow(clippy::inline_always)]
 use cfg_if::cfg_if;
 
 cfg_if! {

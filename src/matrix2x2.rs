@@ -27,17 +27,17 @@ pub struct Matrix2x2<T> {
 /// Create a matrix.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let m = Matrix2x2f32::new([2.0,  3.0,
-///                            7.0, 11.0]);
-/// assert_eq!(m, Matrix2x2f32::from([ 2.0,  3.0,
-///                                    7.0, 11.0]));
+/// let m = Matrix2x2f32::new([  2.0,  17.0,
+///                              5.0,  11.0]);
+/// assert_eq!(m, Matrix2x2f32::from([  2.0,  17.0,
+///                                     5.0,  11.0]));
 /// ```
 impl<T> Matrix2x2<T>
 where
     T: Copy,
 {
     /// Create a matrix.
-    #[inline(always)]
+    #[inline]
     pub const fn new(input: [T; 4]) -> Self {
         Self { a: input }
     }
@@ -59,12 +59,12 @@ impl<T> Zero for Matrix2x2<T>
 where
     T: Copy + Zero + PartialEq + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn zero() -> Self {
         Self { a: [T::zero(), T::zero(), T::zero(), T::zero()] }
     }
 
-    #[inline(always)]
+    #[inline]
     fn is_zero(&self) -> bool {
         self.a.iter().all(|&x| x == T::zero())
     }
@@ -85,12 +85,12 @@ impl<T> One for Matrix2x2<T>
 where
     T: Copy + Zero + One + PartialEq + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn one() -> Self {
         Self { a: [T::one(), T::zero(), T::zero(), T::one()] }
     }
 
-    #[inline(always)]
+    #[inline]
     fn is_one(&self) -> bool {
         self.a == [T::one(), T::zero(), T::zero(), T::one()]
     }
@@ -101,12 +101,12 @@ where
 /// Negate matrix.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
 /// m = - m;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([ -2.0,  -3.0,
-///                                    -7.0, -11.0]));
+/// assert_eq!(m, Matrix2x2f32::from([ -2.0, -17.0,
+///                                    -5.0, -11.0]));
 /// ```
 impl<T> Neg for Matrix2x2<T>
 where
@@ -114,7 +114,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn neg(self) -> Self {
         T::m2x2_neg(self)
     }
@@ -125,14 +125,14 @@ where
 /// Add two matrices.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
+/// let n = Matrix2x2f32::from([  3.0, 19.0,
+///                               7.0, 13.0]);
 /// let r = m + n;
 ///
-/// assert_eq!(r, Matrix2x2f32::from([31.0, 34.0,
-///                                   48.0, 54.0]));
+/// assert_eq!(r, Matrix2x2f32::from([  5.0, 36.0,
+///                                    12.0, 24.0]));
 ///
 /// # use num_traits::Zero;
 ///
@@ -147,7 +147,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn add(self, other: Self) -> Self {
         T::m2x2_add(self, other)
     }
@@ -158,20 +158,20 @@ where
 /// Add one matrix to another.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
+/// let mut m = Matrix2x2f32::from([  2.0,  17.0,
+///                                   5.0,  11.0]);
+/// let n = Matrix2x2f32::from([  3.0,  19.0,
+///                               7.0,  13.0]);
 /// m += n;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([31.0, 34.0,
-///                                   48.0, 54.0]));
+/// assert_eq!(m, Matrix2x2f32::from([  5.0, 36.0,
+///                                    12.0, 24.0]));
 /// ```
 impl<T> AddAssign for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
     }
@@ -183,15 +183,15 @@ where
 /// ```
 /// # use vqm::Matrix2x2f32;
 /// # use num_traits::MulAdd;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
-/// let k = 47.0;
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
+/// let n = Matrix2x2f32::from([  3.0, 19.0,
+///                               7.0, 13.0]);
+/// let k = 137.0;
 /// let r = m.mul_add(k, n);
 ///
-/// assert_eq!(r, Matrix2x2f32::from([123.0, 172.0,
-///                                   370.0, 560.0]));
+/// assert_eq!(r, Matrix2x2f32::from([  277.0, 2348.0,
+///                                     692.0, 1520.0]));
 /// ```
 impl<T> MulAdd<T> for Matrix2x2<T>
 where
@@ -199,7 +199,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
         T::m2x2_mul_add(self, k, other)
     }
@@ -211,21 +211,21 @@ where
 /// ```
 /// # use vqm::Matrix2x2f32;
 /// # use num_traits::MulAddAssign;
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
-/// let k = 47.0;
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
+/// let n = Matrix2x2f32::from([  3.0, 19.0,
+///                               7.0, 13.0]);
+/// let k = 137.0;
 /// m.mul_add_assign(k, n);
 ///
-/// assert_eq!(m, Matrix2x2f32::from([123.0, 172.0,
-///                                   370.0, 560.0]));
+/// assert_eq!(m, Matrix2x2f32::from([  277.0, 2348.0,
+///                                     692.0, 1520.0]));
 /// ```
 impl<T> MulAddAssign<T> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
         *self = self.mul_add(k, other);
     }
@@ -236,14 +236,14 @@ where
 /// Subtract two matrices.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
+/// let n = Matrix2x2f32::from([  3.0, 13.0,
+///                               7.0, 19.0]);
 /// let r = m - n;
 ///
-/// assert_eq!(r, Matrix2x2f32::from([-27.0, -28.0,
-///                                   -34.0, -32.0]));
+/// assert_eq!(r, Matrix2x2f32::from([  -1.0,  4.0,
+///                                     -2.0, -8.0]));
 /// ```
 impl<T> Sub for Matrix2x2<T>
 where
@@ -251,7 +251,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
         self + (-other)
@@ -263,20 +263,20 @@ where
 /// Subtract one matrix from another.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
+/// let n = Matrix2x2f32::from([  3.0, 13.0,
+///                               7.0, 19.0]);
 /// m -= n;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([-27.0, -28.0,
-///                                   -34.0, -32.0]));
+/// assert_eq!(m, Matrix2x2f32::from([  -1.0,  4.0,
+///                                     -2.0, -8.0]));
 /// ```
 impl<T> SubAssign for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
     }
@@ -287,17 +287,17 @@ where
 /// Pre-multiply a matrix by a constant.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
 /// let r = 2.0 * m;
 ///
-/// assert_eq!(r, Matrix2x2f32::from([ 4.0,  6.0,
-///                                   14.0, 22.0]));
+/// assert_eq!(r, Matrix2x2f32::from([  4.0, 34.0,
+///                                    10.0, 22.0]));
 /// ```
 impl Mul<Matrix2x2<f32>> for f32 {
     type Output = Matrix2x2<f32>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Matrix2x2<f32>) -> Matrix2x2<f32> {
         f32::m2x2_mul_scalar(other, self)
     }
@@ -305,7 +305,7 @@ impl Mul<Matrix2x2<f32>> for f32 {
 
 impl Mul<Matrix2x2<f64>> for f64 {
     type Output = Matrix2x2<f64>;
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Matrix2x2<f64>) -> Matrix2x2<f64> {
         f64::m2x2_mul_scalar(other, self)
     }
@@ -316,12 +316,12 @@ impl Mul<Matrix2x2<f64>> for f64 {
 /// Multiply a matrix by a constant.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
 /// let r = m * 2.0;
 ///
-/// assert_eq!(r, Matrix2x2f32::from([ 4.0,  6.0,
-///                                   14.0, 22.0]));
+/// assert_eq!(r, Matrix2x2f32::from([  4.0, 34.0,
+///                                    10.0, 22.0]));
 /// ```
 impl<T> Mul<T> for Matrix2x2<T>
 where
@@ -329,7 +329,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: T) -> Self {
         T::m2x2_mul_scalar(self, other)
     }
@@ -340,18 +340,18 @@ where
 /// In-place multiply a matrix by a constant.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
 /// m *= 2.0;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([ 4.0,  6.0,
-///                                   14.0, 22.0]));
+/// assert_eq!(m, Matrix2x2f32::from([  4.0, 34.0,
+///                                    10.0, 22.0]));
 /// ```
 impl<T> MulAssign<T> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn mul_assign(&mut self, other: T) {
         *self = *self * other;
     }
@@ -360,21 +360,20 @@ where
 /// Multiply a vector by a matrix.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// # use vqm::Vector2d;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
-/// let v = Vector2d::<f32>{x:29.0, y:31.0};
+/// # use vqm::Vector2df32;
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
+/// let v = Vector2df32{x:3.0, y:7.0};
 /// let r = m * v;
 ///
-/// assert_eq!(r, Vector2d::<f32>{x:2.0*29.0 + 3.0*31.0, y:7.0*29.0 + 11.0*31.0});
+/// assert_eq!(r, Vector2df32{x:2.0*3.0 + 17.0*7.0, y:5.0*3.0 + 11.0*7.0});
 /// ```
 impl<T> Mul<Vector2d<T>> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
     type Output = Vector2d<T>;
-
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Vector2d<T>) -> Vector2d<T> {
         T::m2x2_mul_vector(self, other)
     }
@@ -384,12 +383,12 @@ where
 /// ```
 /// # use vqm::Matrix2x2f32;
 /// # use vqm::Vector2df32;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
-/// let v = Vector2df32{x:29.0, y:31.0};
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
+/// let v = Vector2df32{x:3.0, y:7.0};
 /// let r = v * m;
 ///
-/// assert_eq!(r, Vector2df32{x:29.0*2.0 + 31.0*7.0, y:29.0*3.0 +31.0*11.0});
+/// assert_eq!(r, Vector2df32{x:3.0*2.0 + 7.0*5.0, y:3.0*17.0 + 7.0*11.0});
 /// ```
 impl<T> Mul<Matrix2x2<T>> for Vector2d<T>
 where
@@ -397,7 +396,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Matrix2x2<T>) -> Self {
         T::m2x2_vector_mul(self, other)
     }
@@ -406,15 +405,15 @@ where
 /// Multiply two matrices.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
+/// let n = Matrix2x2f32::from([  3.0, 13.0,
+///                               7.0, 19.0]);
 /// let r = m * n;
 ///
 /// assert_eq!(r, Matrix2x2f32::from([
-///    2.0 * 29.0 +  3.0 * 41.0,   2.0 * 31.0 +  3.0 * 43.0,
-///    7.0 * 29.0 + 11.0 * 41.0,   7.0 * 31.0 + 11.0 * 43.0,
+///    2.0 * 3.0 + 17.0 * 7.0,  2.0 * 13.0 + 17.0 * 19.0,
+///    5.0 * 3.0 + 11.0 * 7.0,  5.0 * 13.0 + 11.0 * 19.0,
 /// ]));
 ///
 /// # use num_traits::One;
@@ -430,7 +429,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Self) -> Self {
         T::m2x2_mul(self, other)
     }
@@ -439,16 +438,15 @@ where
 /// Multiply one matrix by another.
 /// ```
 /// # use vqm::Matrix2x2f32;
-///
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
-/// let n = Matrix2x2f32::from([29.0, 31.0,
-///                             41.0, 43.0]);
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
+/// let n = Matrix2x2f32::from([  3.0, 13.0,
+///                               7.0, 19.0]);
 /// m *= n;
 ///
 /// assert_eq!(m, Matrix2x2f32::from([
-///    2.0 * 29.0 +  3.0 * 41.0,   2.0 * 31.0 +  3.0 * 43.0,
-///    7.0 * 29.0 + 11.0 * 41.0,   7.0 * 31.0 + 11.0 * 43.0,
+///    2.0 * 3.0 + 17.0 * 7.0,  2.0 * 13.0 + 17.0 * 19.0,
+///    5.0 * 3.0 + 11.0 * 7.0,  5.0 * 13.0 + 11.0 * 19.0,
 /// ]));
 ///
 /// ```
@@ -456,7 +454,7 @@ impl<T> MulAssign<Matrix2x2<T>> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn mul_assign(&mut self, other: Matrix2x2<T>) {
         *self = *self * other;
     }
@@ -466,7 +464,7 @@ where
 /// Divide a matrix by a constant.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
+/// let m = Matrix2x2f32::from([  2.0,  3.0,
 ///                              7.0, 11.0]);
 /// let r = m / 2.0;
 ///
@@ -479,7 +477,7 @@ where
 {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn div(self, other: T) -> Self {
         T::m2x2_div_scalar(self, other)
     }
@@ -490,18 +488,18 @@ where
 /// In-place divide a matrix by a constant.
 /// ```
 /// # use vqm::Matrix2x2f32;
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
 /// m /= 2.0;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([ 1.0, 1.5,
-///                                    3.5, 5.5]));
+/// assert_eq!(m, Matrix2x2f32::from([ 1.0, 8.5,
+///                                    2.5, 5.5]));
 /// ```
 impl<T> DivAssign<T> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    #[inline(always)]
+    #[inline]
     fn div_assign(&mut self, other: T) {
         *self = *self / other;
     }
@@ -513,17 +511,17 @@ where
 /// ```
 /// # use vqm::Matrix2x2f32;
 ///
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
 ///
 /// assert_eq!(m[0], 2.0);
-/// assert_eq!(m[1], 3.0);
-/// assert_eq!(m[2], 7.0);
+/// assert_eq!(m[1], 17.0);
+/// assert_eq!(m[2], 5.0);
 /// assert_eq!(m[3], 11.0);
 /// ```
 impl<T> Index<usize> for Matrix2x2<T> {
     type Output = T;
-    #[inline(always)]
+    #[inline]
     fn index(&self, index: usize) -> &T {
         &self.a[index]
     }
@@ -535,19 +533,19 @@ impl<T> Index<usize> for Matrix2x2<T> {
 /// ```
 /// # use vqm::Matrix2x2f32;
 ///
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
 ///
-/// m[0] = 29.0;
-/// m[1] = 31.0;
-/// m[2] = 37.0;
-/// m[3] = 41.0;
+/// m[0] = 3.0;
+/// m[1] = 7.0;
+/// m[2] = 13.0;
+/// m[3] = 19.0;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([29.0, 31.0,
-///                                       37.0, 41.0]));
+/// assert_eq!(m, Matrix2x2f32::from([  3.0,  7.0,
+///                                    13.0, 19.0]));
 /// ```
 impl<T> IndexMut<usize> for Matrix2x2<T> {
-    #[inline(always)]
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
         &mut self.a[index]
     }
@@ -557,18 +555,18 @@ impl<T> IndexMut<usize> for Matrix2x2<T> {
 /// ```
 /// # use vqm::Matrix2x2f32;
 ///
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0]);
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
 ///
 /// assert_eq!(m[(0,0)], 2.0);
-/// assert_eq!(m[(0,1)], 3.0);
-/// assert_eq!(m[(1,0)], 7.0);
+/// assert_eq!(m[(0,1)], 17.0);
+/// assert_eq!(m[(1,0)], 5.0);
 /// assert_eq!(m[(1,1)], 11.0);
 /// ```
 impl<T> Index<(usize, usize)> for Matrix2x2<T> {
     type Output = T;
 
-    #[inline(always)]
+    #[inline]
     fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
         &self.a[row * 2 + col]
     }
@@ -578,19 +576,19 @@ impl<T> Index<(usize, usize)> for Matrix2x2<T> {
 /// ```
 /// # use vqm::Matrix2x2f32;
 ///
-/// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-///                                  7.0, 11.0]);
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
 ///
-/// m[(0,0)] = 29.0;
-/// m[(0,1)] = 31.0;
-/// m[(1,0)] = 41.0;
-/// m[(1,1)] = 43.0;
+/// m[(0,0)] = 3.0;
+/// m[(0,1)] = 7.0;
+/// m[(1,0)] = 11.0;
+/// m[(1,1)] = 13.0;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([29.0, 31.0,
-///                                   41.0, 43.0]));
+/// assert_eq!(m, Matrix2x2f32::from([  3.0, 7.0,
+///                                    11.0, 13.0]));
 /// ```
 impl<T> IndexMut<(usize, usize)> for Matrix2x2<T> {
-    #[inline(always)]
+    #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         &mut self.a[row * 2 + col]
     }
@@ -614,12 +612,12 @@ where
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2df32};
     ///
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let v = m.row(0);
     ///
-    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 3.0 });
-    /// assert_eq!(m.row(1), Vector2df32{ x: 7.0, y: 11.0 });
+    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 17.0 });
+    /// assert_eq!(m.row(1), Vector2df32{ x: 5.0, y: 11.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector2d<T> {
         match row {
@@ -643,12 +641,12 @@ where
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2df32};
     ///
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let v = m.column(0);
     ///
-    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 7.0 });
-    /// assert_eq!(m.column(1), Vector2df32{ x: 3.0, y: 11.0 });
+    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 5.0 });
+    /// assert_eq!(m.column(1), Vector2df32{ x: 17.0, y: 11.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector2d<T> {
         match column {
@@ -662,8 +660,8 @@ where
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2df32};
     ///
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let v = m.diagonal();
     ///
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 11.0 });
@@ -682,14 +680,14 @@ where
     /// Return a copy of the matrix with all components set to their absolute values.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  -3.0,
-    ///                              7.0, -11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, -17.0,
+    ///                               5.0, -11.0]);
     /// let n = m.abs();
     ///
-    /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  3.0,
-    ///                                    7.0, 11.0]));
+    /// assert_eq!(n, Matrix2x2f32::from([  2.0, 17.0,
+    ///                                     5.0, 11.0]));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn abs(self) -> Self {
         T::m2x2_abs(self)
     }
@@ -697,14 +695,14 @@ where
     /// Set all components of the matrix to their absolute values.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let mut m = Matrix2x2f32::from([ 2.0,  -3.0,
-    ///                                  7.0, -11.0]);
+    /// let mut m = Matrix2x2f32::from([  2.0, -17.0,
+    ///                                   5.0, -11.0]);
     /// m.abs_in_place();
     ///
-    /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  3.0,
-    ///                                    7.0, 11.0]));
+    /// assert_eq!(m, Matrix2x2f32::from([  2.0, 17.0,
+    ///                                     5.0, 11.0]));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
         *self = T::m2x2_abs(*self);
         self
@@ -720,14 +718,14 @@ where
     /// Return a copy of the matrix with all components clamped to the specified range.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let n = m.clamp(2.5, 7.5);
     ///
-    /// assert_eq!(n, Matrix2x2f32::from([ 2.5, 3.0,
-    ///                                    7.0, 7.5]));
+    /// assert_eq!(n, Matrix2x2f32::from([ 2.5, 7.5,
+    ///                                    5.0, 7.5]));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for it in &mut a {
@@ -739,14 +737,14 @@ where
     /// Clamp all components of the matrix to the specified range.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
+    /// let mut m = Matrix2x2f32::from([  2.0,  3.0,
     ///                                  7.0, 11.0]);
     /// m.clamp_in_place(2.5, 7.5);
     ///
     /// assert_eq!(m, Matrix2x2f32::from([ 2.5, 3.0,
     ///                                    7.0, 7.5]));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamp(min, max);
         self
@@ -760,14 +758,14 @@ where
     /// Return the transpose of this matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let n = m.transpose();
     ///
-    /// assert_eq!(n, Matrix2x2f32::from([ 2.0,  7.0,
-    ///                                    3.0, 11.0]));
+    /// assert_eq!(n, Matrix2x2f32::from([  2.0,  5.0,
+    ///                                    17.0, 11.0]));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn transpose(self) -> Self {
         Self { a: [self.a[0], self.a[2], self.a[1], self.a[3]] }
     }
@@ -775,14 +773,14 @@ where
     /// Transpose matrix, in-place.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
+    /// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                                   5.0, 11.0]);
     /// m.transpose_in_place();
     ///
-    /// assert_eq!(m, Matrix2x2f32::from([ 2.0,  7.0,
-    ///                                    3.0, 11.0]));
+    /// assert_eq!(m, Matrix2x2f32::from([  2.0,  5.0,
+    ///                                    17.0, 11.0]));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn transpose_in_place(&mut self) -> &mut Self {
         *self = self.transpose();
         self
@@ -797,13 +795,13 @@ where
     /// Equivalent to the inverse but without dividing by the determinant of the matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let n = m.adjugate();
     ///
     /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn adjugate(self) -> Self {
         T::m2x2_adjugate(self)
     }
@@ -811,14 +809,14 @@ where
     /// Adjugate matrix, in-place.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let mut n = m;
     /// n.adjugate_in_place();
     ///
     /// assert_eq!(m.adjugate(), n);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn adjugate_in_place(&mut self) -> &mut Self {
         *self = self.adjugate();
         self
@@ -826,12 +824,12 @@ where
     /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let n = m.inverse();
     ///
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn inverse(self) -> Self {
         let adjugate = self.adjugate();
         let determinant = self.determinant();
@@ -841,12 +839,12 @@ where
     /// Invert this matrix, in-place. Does not check if the determinant is non-zero before inverting.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let mut m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                                  7.0, 11.0]);
+    /// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                                   5.0, 11.0]);
     /// m.invert_in_place();
     ///
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn invert_in_place(&mut self) -> &mut Self {
         let adjugate = self.adjugate();
         let determinant = self.determinant();
@@ -856,27 +854,27 @@ where
     /// Matrix determinant.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let d = m.determinant();
     ///
-    /// assert_eq!(2.0*11.0 - 3.0*7.0, d);
+    /// assert_eq!(2.0*11.0 - 17.0*5.0, d);
     ///
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn determinant(self) -> T {
         T::m2x2_determinant(self)
     }
     /// Return trace of matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let trace = m.trace();
     ///
     /// assert_eq!(trace, 13.0);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn trace(self) -> T {
         T::m2x2_trace(self)
     }
@@ -890,8 +888,8 @@ where
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// # use num_traits::Zero;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 10.5]);
+    /// let m = Matrix2x2f32::from([  2.0,  3.0,
+    ///                               7.0, 10.5]);
     /// let n = m.inverse_or_zero();
     ///
     /// assert_eq!(0.0, m.determinant());
@@ -910,8 +908,8 @@ where
     /// Return inverse of matrix or `None` if not invertible.
     /// ```
     /// # use vqm::{Matrix2x2f32};
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 10.5]);
+    /// let m = Matrix2x2f32::from([  2.0,  3.0,
+    ///                               7.0, 10.5]);
     /// let n = m.try_invert();
     ///
     /// assert_eq!(0.0, m.determinant());
@@ -930,13 +928,13 @@ where
     /// Return the sum of all components of the matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let s = m.sum();
     ///
-    /// assert_eq!(s, 23.0);
+    /// assert_eq!(s, 35.0);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn sum(self) -> T {
         T::m2x2_sum(self)
     }
@@ -944,13 +942,13 @@ where
     /// Return the mean of all components of the matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let mean = m.mean();
     ///
-    /// assert_eq!(mean, 23.0 / 4.0);
+    /// assert_eq!(mean, 35.0 / 4.0);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn mean(self) -> T {
         T::m2x2_mean(self)
     }
@@ -958,13 +956,13 @@ where
     /// Return the product of all components of the matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let product = m.product();
     ///
-    /// assert_eq!(product, 462.0);
+    /// assert_eq!(product, 1870.0);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn product(self) -> T {
         T::m2x2_product(self)
     }
@@ -972,13 +970,13 @@ where
     /// Return the sum of the squares of the trace of the matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::from([ 2.0,  3.0,
-    ///                              7.0, 11.0]);
+    /// let m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                               5.0, 11.0]);
     /// let t = m.trace_sum_squares();
     ///
     /// assert_eq!(t, 2.0 * 2.0 + 11.0 * 11.0);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn trace_sum_squares(self) -> T {
         T::m2x2_trace_sum_squares(self)
     }
@@ -1024,16 +1022,16 @@ where
 /// Matrix from 1D array.
 /// ```
 /// # use vqm::{Matrix2x2f32};
-/// let m = Matrix2x2f32::from([ 2.0,  3.0,
-///                              7.0, 11.0 ]);
-/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
-///                                   7.0, 11.0 ]));
+/// let m = Matrix2x2f32::from([  2.0, 17.0,
+///                               5.0, 11.0]);
+/// assert_eq!(m, Matrix2x2f32::new([  2.0, 17.0,
+///                                    5.0, 11.0 ]));
 /// ```
 impl<T> From<[T; 4]> for Matrix2x2<T>
 where
     T: Copy,
 {
-    #[inline(always)]
+    #[inline]
     fn from(input: [T; 4]) -> Self {
         Self { a: input }
     }
@@ -1042,49 +1040,49 @@ where
 /// Matrix from 2D array.
 /// ```
 /// # use vqm::{Matrix2x2f32};
-/// let m = Matrix2x2f32::from([ [2.0,  3.0],
-///                              [7.0, 11.0] ]);
-/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
-///                                   7.0, 11.0 ]));
+/// let m = Matrix2x2f32::from([[  2.0, 17.0],
+///                             [  5.0, 11.0]]);
+/// assert_eq!(m, Matrix2x2f32::new([  2.0, 17.0,
+///                                    5.0, 11.0 ]));
 /// ```
 impl<T> From<[[T; 2]; 2]> for Matrix2x2<T>
 where
     T: Copy,
 {
-    #[inline(always)]
+    #[inline]
     fn from(a: [[T; 2]; 2]) -> Self {
         Self { a: [a[0][0], a[0][1], a[1][0], a[1][1]] }
     }
 }
 
-/// Matrix from array of 2 vectors.
+/// Matrix from array of vectors.
 /// ```
 /// # use vqm::{Matrix2x2f32,Vector2df32};
-/// let m = Matrix2x2f32::from([ Vector2df32::new(2.0,  3.0),
-///                              Vector2df32::new(7.0, 11.0) ]);
-/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
-///                                   7.0, 11.0 ]));
+/// let m = Matrix2x2f32::from([ Vector2df32::new(2.0, 17.0),
+///                              Vector2df32::new(5.0, 11.0) ]);
+/// assert_eq!(m, Matrix2x2f32::new([  2.0, 17.0,
+///                                    5.0, 11.0 ]));
 /// ```
 impl<T> From<[Vector2d<T>; 2]> for Matrix2x2<T>
 where
     T: Copy,
 {
-    #[inline(always)]
+    #[inline]
     fn from(v: [Vector2d<T>; 2]) -> Self {
         Self { a: [v[0].x, v[0].y, v[1].x, v[1].y] }
     }
 }
 
-/// Matrix from tuple of 2 vectors.
+/// Matrix from tuple of vectors.
 /// ```
 /// # use vqm::{Matrix2x2f32,Vector2df32};
-/// let m = Matrix2x2f32::from(( Vector2df32::new(2.0,  3.0),
-///                              Vector2df32::new(7.0, 11.0) ));
-/// assert_eq!(m, Matrix2x2f32::new([ 2.0,  3.0,
-///                                   7.0, 11.0 ]));
+/// let m = Matrix2x2f32::from(( Vector2df32::new(2.0, 17.0),
+///                              Vector2df32::new(5.0, 11.0) ));
+/// assert_eq!(m, Matrix2x2f32::new([  2.0, 17.0,
+///                                    5.0, 11.0 ]));
 /// ```
 impl<T> From<(Vector2d<T>, Vector2d<T>)> for Matrix2x2<T> {
-    #[inline(always)]
+    #[inline]
     fn from(v: (Vector2d<T>, Vector2d<T>)) -> Self {
         Self { a: [v.0.x, v.0.y, v.1.x, v.1.y] }
     }

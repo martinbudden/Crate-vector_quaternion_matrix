@@ -1,4 +1,6 @@
 #![allow(clippy::excessive_precision)]
+#![allow(clippy::inline_always)]
+
 use cfg_if::cfg_if;
 
 /// `no_std` implementations of `sqrt` and `sqrt_reciprocal` in  method call syntax<br>
