@@ -332,14 +332,14 @@ where
 /// Pre-multiply a matrix by a constant.
 /// ```
 /// # use vqm::Matrix3x3f32;
-/// let m = Matrix3x3f32::from([  2.0,   3.0,   5.0,
-///                              11.0,  13.0,  17.0,
-///                              23.0,  29.0,  31.0]);
+/// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
+///                               5.0, 11.0, 47.0,
+///                              23.0, 31.0, 41.0]);
 /// let r = 2.0 * m;
 ///
-/// assert_eq!(r, Matrix3x3f32::from([  4.0,  6.0, 10.0,
-///                                    22.0, 26.0, 34.0,
-///                                    46.0, 58.0, 62.0]));
+/// assert_eq!(r, Matrix3x3f32::from([  4.0, 34.0, 118.0,
+///                                    10.0, 22.0,  94.0,
+///                                    46.0, 62.0,  82.0]));
 /// ```
 impl Mul<Matrix3x3<f32>> for f32 {
     type Output = Matrix3x3<f32>;
@@ -362,14 +362,14 @@ impl Mul<Matrix3x3<f64>> for f64 {
 /// Multiply a matrix by a constant.
 /// ```
 /// # use vqm::Matrix3x3f32;
-/// let m = Matrix3x3f32::from([  2.0,   3.0,   5.0,
-///                              11.0,  13.0,  17.0,
-///                              23.0,  29.0,  31.0]);
+/// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
+///                               5.0, 11.0, 47.0,
+///                              23.0, 31.0, 41.0]);
 /// let r = m * 2.0;
 ///
-/// assert_eq!(r, Matrix3x3f32::from([  4.0,  6.0, 10.0,
-///                                    22.0, 26.0, 34.0,
-///                                    46.0, 58.0, 62.0]));
+/// assert_eq!(r, Matrix3x3f32::from([  4.0, 34.0, 118.0,
+///                                    10.0, 22.0,  94.0,
+///                                    46.0, 62.0,  82.0]));
 /// ```
 impl<T> Mul<T> for Matrix3x3<T>
 where
@@ -388,14 +388,14 @@ where
 /// In-place multiply a matrix by a constant.
 /// ```
 /// # use vqm::Matrix3x3f32;
-/// let mut m = Matrix3x3f32::from([  2.0,   3.0,   5.0,
-///                                  11.0,  13.0,  17.0,
-///                                  23.0,  29.0,  31.0]);
+/// let mut m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
+///                                   5.0, 11.0, 47.0,
+///                                  23.0, 31.0, 41.0]);
 /// m *= 2.0;
 ///
-/// assert_eq!(m, Matrix3x3f32::from([  4.0,  6.0, 10.0,
-///                                    22.0, 26.0, 34.0,
-///                                    46.0, 58.0, 62.0]));
+/// assert_eq!(m, Matrix3x3f32::from([  4.0, 34.0, 118.0,
+///                                    10.0, 22.0,  94.0,
+///                                    46.0, 62.0,  82.0]));
 /// ```
 impl<T> MulAssign<T> for Matrix3x3<T>
 where
@@ -411,13 +411,13 @@ where
 /// ```
 /// # use vqm::Matrix3x3f32;
 /// # use vqm::Vector3df32;
-/// let m = Matrix3x3f32::from([  2.0,   3.0,   5.0,
-///                              11.0,  13.0,  17.0,
-///                              23.0,  29.0,  31.0]);
-/// let v = Vector3df32{x:59.0, y:61.0, z:67.0};
+/// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
+///                               5.0, 11.0, 47.0,
+///                              23.0, 31.0, 41.0]);
+/// let v = Vector3df32{x:3.0, y:7.0, z:13.0};
 /// let r = m * v;
 ///
-/// assert_eq!(r, Vector3df32{x:636.0, y:2581.0, z:5203.0});
+/// assert_eq!(r, Vector3df32{x:892.0, y:703.0, z:819.0});
 /// ```
 impl<T> Mul<Vector3d<T>> for Matrix3x3<T>
 where
@@ -604,18 +604,18 @@ impl<T> Index<usize> for Matrix3x3<T> {
 ///                                  23.0, 31.0, 41.0]);
 ///
 /// m[0] = 3.0;
-/// m[1] = 7.0;
-/// m[2] = 13.0;
-/// m[3] = 19.0;
-/// m[4] = 29.0;
-/// m[5] = 37.0;
-/// m[6] = 43.0;
-/// m[7] = 53.0;
-/// m[8] = 61.0;
+/// m[1] = 19.0;
+/// m[2] = 61.0;
+/// m[3] = 7.0;
+/// m[4] = 13.0;
+/// m[5] = 53.0;
+/// m[6] = 29.0;
+/// m[7] = 37.0;
+/// m[8] = 43.0;
 ///
-/// assert_eq!(m, Matrix3x3f32::from([  3.0,  7.0, 13.0,
-///                                    19.0, 29.0, 37.0,
-///                                    43.0, 53.0, 61.0]));
+/// assert_eq!(m, Matrix3x3f32::from([  3.0, 19.0, 61.0,
+///                                     7.0, 13.0, 53.0,
+///                                    29.0, 37.0, 43.0]));
 /// ```
 impl<T> IndexMut<usize> for Matrix3x3<T> {
     #[inline]
@@ -791,9 +791,9 @@ where
     /// Return a copy of the matrix with all components set to their absolute values.
     /// ```
     /// # use vqm::Matrix3x3f32;
-    /// let m = Matrix3x3f32::from([  2.0, -17.0, 59.0,
-    ///                               5.0, -11.0, 47.0,
-    ///                              23.0, 31.0, -41.0]);
+    /// let m = Matrix3x3f32::from([  2.0, -17.0,  59.0,
+    ///                               5.0, -11.0,  47.0,
+    ///                              23.0,  31.0, -41.0]);
     /// let n = m.abs();
     ///
     /// assert_eq!(n, Matrix3x3f32::from([  2.0, 17.0, 59.0,
@@ -855,7 +855,7 @@ where
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let mut m = Matrix3x3f32::from([  2.0, 17.0, -59.0,
-    ///                                   5.0, 11.0, 47.0,
+    ///                                   5.0, 11.0,  47.0,
     ///                                  23.0, 31.0, -41.0]);
     /// m.clamp_in_place(7.0, 17.0);
     ///
@@ -1168,9 +1168,9 @@ where
     /// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
     ///                               5.0, 11.0, 47.0,
     ///                              23.0, 31.0, 41.0]);
-/// assert_eq!(m, Matrix3x3f32::new([  2.0,  17.0,  59.0,
-///                                    5.0,  11.0,  47.0,
-///                                   23.0,  31.0,  41.0]));
+/// assert_eq!(m, Matrix3x3f32::new([  2.0, 17.0, 59.0,
+///                                    5.0, 11.0, 47.0,
+///                                   23.0, 31.0, 41.0]));
 /// ```
 impl<T> From<[T; 9]> for Matrix3x3<T>
 where
@@ -1188,9 +1188,9 @@ where
 /// let m = Matrix3x3f32::from([[  2.0, 17.0, 59.0],
 ///                             [  5.0, 11.0, 47.0],
 ///                             [ 23.0, 31.0, 41.0]]);
-/// assert_eq!(m, Matrix3x3f32::new([  2.0,  17.0,  59.0,
-///                                    5.0,  11.0,  47.0,
-///                                   23.0,  31.0,  41.0]));
+/// assert_eq!(m, Matrix3x3f32::new([  2.0, 17.0, 59.0,
+///                                    5.0, 11.0, 47.0,
+///                                   23.0, 31.0, 41.0]));
 /// ```
 impl<T> From<[[T; 3]; 3]> for Matrix3x3<T>
 where
@@ -1205,12 +1205,12 @@ where
 /// Matrix from array of vectors.
 /// ```
 /// # use vqm::{Matrix3x3f32,Vector3df32};
-/// let m = Matrix3x3f32::from([ Vector3df32::new( 2.0,  3.0,  5.0),
-///                              Vector3df32::new(11.0, 13.0, 17.0),
-///                              Vector3df32::new(23.0, 29.0, 31.0) ]);
-/// assert_eq!(m, Matrix3x3f32::new([  2.0,   3.0,   5.0,
-///                                   11.0,  13.0,  17.0,
-///                                   23.0,  29.0,  31.0]));
+/// let m = Matrix3x3f32::from([ Vector3df32::new( 2.0, 17.0, 59.0),
+///                              Vector3df32::new( 5.0, 11.0, 47.0),
+///                              Vector3df32::new(23.0, 31.0, 41.0) ]);
+/// assert_eq!(m, Matrix3x3f32::new([  2.0, 17.0, 59.0,
+///                                    5.0, 11.0, 47.0,
+///                                   23.0, 31.0, 41.0]));
 /// ```
 impl<T> From<[Vector3d<T>; 3]> for Matrix3x3<T>
 where
@@ -1225,12 +1225,12 @@ where
 /// Matrix from tuple of vectors.
 /// ```
 /// # use vqm::{Matrix3x3f32,Vector3df32};
-/// let m = Matrix3x3f32::from(( Vector3df32::new( 2.0,  3.0,  5.0),
-///                              Vector3df32::new(11.0, 13.0, 17.0),
-///                              Vector3df32::new(23.0, 29.0, 31.0) ));
-/// assert_eq!(m, Matrix3x3f32::new([  2.0,   3.0,   5.0,
-///                                   11.0,  13.0,  17.0,
-///                                   23.0,  29.0,  31.0]));
+/// let m = Matrix3x3f32::from(( Vector3df32::new( 2.0, 17.0, 59.0),
+///                              Vector3df32::new( 5.0, 11.0, 47.0),
+///                              Vector3df32::new(23.0, 31.0, 41.0) ));
+/// assert_eq!(m, Matrix3x3f32::new([  2.0, 17.0, 59.0,
+///                                    5.0, 11.0, 47.0,
+///                                   23.0, 31.0, 41.0]));
 /// ```
 impl<T> From<(Vector3d<T>, Vector3d<T>, Vector3d<T>)> for Matrix3x3<T> {
     #[inline]
@@ -1270,9 +1270,9 @@ where
 /// # use vqm::{Matrix2x2f32,Matrix3x3f32};
 /// let m2 = Matrix2x2f32::from([ 2.0, 17.0,
 ///                               5.0, 11.0]);
-/// let m3 = Matrix3x3f32::from([ 2.0, 17.0,  5.0,
-///                               5.0, 11.0, 13.0,
-///                              17.0, 19.0, 23.0]);
+/// let m3 = Matrix3x3f32::from([ 2.0, 17.0, 59.0,
+///                               5.0, 11.0, 47.0,
+///                              23.0, 31.0, 41.0]);
 /// assert_eq!(m2, Matrix2x2f32::from(m3));
 /// ```
 impl<T> From<Matrix3x3<T>> for Matrix2x2<T>

@@ -9,7 +9,8 @@ pub type Vector4df32 = Vector4d<f32>;
 pub type Vector4df64 = Vector4d<f64>;
 
 // **** Define ****
-/// `Vector3d<T>`: 3D vector of type `T`.<br>
+
+/// `Vector4d<T>`: 3D vector of type `T`.<br>
 /// Aliases `Vector4df32` and `Vector4df64` are provided.<br><br>
 /// `Vector4df32` uses **SIMD** accelerations implemented in `Vector4dMath`.<br><br>
 #[repr(C, align(16))]
@@ -297,6 +298,29 @@ where
     }
 }
 
+// **** Mul Elementwise ****
+
+/// Elementwise multiply a vector by another vector.
+/// ```
+/// # use vqm::Vector4df32;
+/// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+/// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+/// let r = v * u;
+///
+/// assert_eq!(r, Vector4df32 { x: 6.0, y: 35.0, z: 143.0, t: 323.0 });
+/// ```
+impl<T> Mul<Vector4d<T>> for Vector4d<T>
+where
+    T: Copy + Vector4dMath,
+{
+    type Output = Self;
+
+    #[inline]
+    fn mul(self, other: Self) -> Self {
+        T::v4_mul_elementwise(self, other)
+    }
+}
+
 // **** Div by scalar ****
 
 /// Divide a vector by a constant.
@@ -334,6 +358,29 @@ where
     #[inline]
     fn div_assign(&mut self, k: T) {
         *self = self.div(k);
+    }
+}
+
+// **** Div Elementwise ****
+
+/// Elementwise divide a vector by another vector.
+/// ```
+/// # use vqm::Vector4df32;
+/// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+/// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+/// let r = v / u;
+///
+/// assert_eq!(r, Vector4df32 { x: 1.5, y: 1.4, z: 13.0 / 11.0, t: 19.0 / 17.0 });
+/// ```
+impl<T> Div<Vector4d<T>> for Vector4d<T>
+where
+    T: Copy + Vector4dMath,
+{
+    type Output = Self;
+
+    #[inline]
+    fn div(self, other: Self) -> Self {
+        T::v4_div_elementwise(self, other)
     }
 }
 

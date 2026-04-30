@@ -33,6 +33,9 @@ mod matrix2x2_math;
 mod matrix3x3;
 mod matrix3x3_math;
 
+mod matrix4x4;
+mod matrix4x4_math;
+
 mod quaternion;
 mod quaternion_math;
 
@@ -41,6 +44,7 @@ pub use bitset64::{BitSet64, BitSet64Iter};
 
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;
+
 #[doc(hidden)]
 // The trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use.
 pub use math_methods::{cos_approx, sin_approx, sin_cos_approx};
@@ -55,9 +59,8 @@ pub use vector3d_math::Vector3dMath;
 pub use vector4d::{Vector4d, Vector4df32, Vector4df64};
 pub use vector4d_math::Vector4dMath;
 
-pub use quaternion::{
-    Quaternion, Quaternionf32, Quaternionf64, RollPitchYawf32, RollPitchYawf64, RollPitchf32, RollPitchf64,
-};
+pub use quaternion::{Quaternion, Quaternionf32, Quaternionf64};
+pub use quaternion::{RollPitchYawf32, RollPitchYawf64, RollPitchf32, RollPitchf64};
 pub use quaternion_math::QuaternionMath;
 
 pub use matrix2x2::{Matrix2x2, Matrix2x2f32, Matrix2x2f64};
@@ -65,3 +68,6 @@ pub use matrix2x2_math::Matrix2x2Math;
 
 pub use matrix3x3::{Matrix3x3, Matrix3x3f32, Matrix3x3f64};
 pub use matrix3x3_math::Matrix3x3Math;
+
+pub use matrix4x4::{Matrix4x4, Matrix4x4f32, Matrix4x4f64};
+pub use matrix4x4_math::Matrix4x4Math;

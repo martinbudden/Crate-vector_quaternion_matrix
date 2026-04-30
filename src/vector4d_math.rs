@@ -46,6 +46,8 @@ pub trait Vector4dMath: Sized {
     fn v4_add(this: Vector4d<Self>, this: Vector4d<Self>) -> Vector4d<Self>;
     fn v4_mul_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self>;
     fn v4_div_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self>;
+    fn v4_mul_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self>;
+    fn v4_div_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self>;
     fn v4_mul_add(this: Vector4d<Self>, k: Self, other: Vector4d<Self>) -> Vector4d<Self>;
     fn v4_norm_squared(this: Vector4d<Self>) -> Self;
     fn v4_is_normalized(this: Vector4d<Self>) -> bool;
@@ -102,6 +104,34 @@ impl Vector4dMath for f32 {
     #[inline(always)]
     fn v4_div_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self> {
         Self::v4_mul_scalar(this, 1.0 / k)
+    }
+
+    #[inline(always)]
+    fn v4_mul_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x4::from(this);
+            let other_simd = f32x4::from(other);
+            this_simd * other.simd
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector4d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z, t: this.t * other.t }
+        }
+    }
+
+    #[inline(always)]
+    fn v4_div_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x4::from(this);
+            let other_simd = f32x4::from(other);
+            this_simd / other.simd
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Vector4d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z, t: this.t / other.t }
+        }
     }
 
     #[inline(always)]
@@ -235,6 +265,16 @@ impl Vector4dMath for f64 {
     #[inline(always)]
     fn v4_div_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self> {
         Self::v4_mul_scalar(this, 1.0 / k)
+    }
+
+    #[inline(always)]
+    fn v4_mul_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
+        Vector4d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z, t: this.t * other.t }
+    }
+
+    #[inline(always)]
+    fn v4_div_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
+        Vector4d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z, t: this.t / other.t }
     }
 
     #[inline(always)]
