@@ -107,9 +107,9 @@ Note that only `vqm` and `vek` pass parameters by value.
 
 ## Future directions
 
-Apart from implementing Matrix4x4, I have no planned major extensions to this crate.
+I have no planned major extensions to this crate.
 
-My main focus is on adding doctests and fixing any bugs that come up in usage.
+My main focus is on improving documentation and tests, and fixing any bugs that come up in usage.
 
 I may at some point add the ability to calculate eigenvalues and eigenvectors.
 

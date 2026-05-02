@@ -83,9 +83,16 @@ impl<T> Zero for Matrix3x3<T>
 where
     T: Copy + Zero + PartialEq + Matrix3x3Math,
 {
+    #[rustfmt::skip]
     #[inline]
     fn zero() -> Self {
-        Self { a: [T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero(), T::zero()] }
+        Self {
+            a: [
+                T::zero(), T::zero(), T::zero(),
+                T::zero(), T::zero(), T::zero(),
+                T::zero(), T::zero(), T::zero(),
+            ],
+        }
     }
 
     #[inline]
@@ -110,14 +117,26 @@ impl<T> One for Matrix3x3<T>
 where
     T: Copy + Zero + One + PartialEq + Matrix3x3Math,
 {
+    #[rustfmt::skip]
     #[inline]
     fn one() -> Self {
-        Self { a: [T::one(), T::zero(), T::zero(), T::zero(), T::one(), T::zero(), T::zero(), T::zero(), T::one()] }
+        Self {
+            a: [
+                T::one(),  T::zero(), T::zero(),
+                T::zero(), T::one(),  T::zero(),
+                T::zero(), T::zero(), T::one()
+            ]
+        }
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn is_one(&self) -> bool {
-        self.a == [T::one(), T::zero(), T::zero(), T::zero(), T::one(), T::zero(), T::zero(), T::zero(), T::one()]
+        self.a == [
+            T::one(),  T::zero(), T::zero(),
+            T::zero(), T::one(),  T::zero(),
+            T::zero(), T::zero(), T::one(),
+        ]
     }
 }
 
@@ -1167,9 +1186,9 @@ where
 /// Matrix from 1D array.
 /// ```
 /// # use vqm::Matrix3x3f32;
-    /// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
-    ///                               5.0, 11.0, 47.0,
-    ///                              23.0, 31.0, 41.0]);
+/// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
+///                               5.0, 11.0, 47.0,
+///                              23.0, 31.0, 41.0]);
 /// assert_eq!(m, Matrix3x3f32::new([  2.0, 17.0, 59.0,
 ///                                    5.0, 11.0, 47.0,
 ///                                   23.0, 31.0, 41.0]));

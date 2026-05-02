@@ -87,25 +87,21 @@ impl Matrix4x4Math for f32 {
                 res[j] += this.a[i + j * 4] * col_scalar;
             }
         }
-        
         Vector4d { x: res[0], y: res[1], z: res[2], t: res[3] }
     }
 
     #[inline]
     fn m4x4_mul(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let mut ret = [0.0; 16];
-        
+
         // Explicitly tell the compiler we are working with fixed 4-element chunks
         for i in 0..4 {
-            let row = &this.a[i*4..(i*4)+4];
+            let row = &this.a[i * 4..(i * 4) + 4];
             for j in 0..4 {
-                // By using a local sum and fixed indices, 
+                // By using a local sum and fixed indices,
                 // LLVM can more easily unroll this into SIMD 'Multiply-Add' instructions.
-                ret[i*4 + j] = 
-                    row[0] * other.a[j]      +
-                    row[1] * other.a[j + 4]  +
-                    row[2] * other.a[j + 8]  +
-                    row[3] * other.a[j + 12];
+                ret[i * 4 + j] =
+                    row[0] * other.a[j] + row[1] * other.a[j + 4] + row[2] * other.a[j + 8] + row[3] * other.a[j + 12];
             }
         }
         Matrix4x4::from(ret)
@@ -276,18 +272,15 @@ impl Matrix4x4Math for f64 {
     #[inline]
     fn m4x4_mul(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let mut ret = [0.0; 16];
-        
+
         // Explicitly tell the compiler we are working with fixed 4-element chunks
         for i in 0..4 {
-            let row = &this.a[i*4..(i*4)+4];
+            let row = &this.a[i * 4..(i * 4) + 4];
             for j in 0..4 {
-                // By using a local sum and fixed indices, 
+                // By using a local sum and fixed indices,
                 // LLVM can more easily unroll this into SIMD 'Multiply-Add' instructions.
-                ret[i*4 + j] = 
-                    row[0] * other.a[j]      +
-                    row[1] * other.a[j + 4]  +
-                    row[2] * other.a[j + 8]  +
-                    row[3] * other.a[j + 12];
+                ret[i * 4 + j] =
+                    row[0] * other.a[j] + row[1] * other.a[j + 4] + row[2] * other.a[j + 8] + row[3] * other.a[j + 12];
             }
         }
         Matrix4x4::from(ret)

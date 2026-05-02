@@ -64,27 +64,16 @@ impl<T> Zero for Matrix4x4<T>
 where
     T: Copy + Zero + PartialEq + Matrix4x4Math,
 {
+    #[rustfmt::skip]
     #[inline]
     fn zero() -> Self {
         Self {
             a: [
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(), //
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(), //
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(), //
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(),
-            ], //
+                T::zero(), T::zero(), T::zero(), T::zero(),
+                T::zero(), T::zero(), T::zero(), T::zero(),
+                T::zero(), T::zero(), T::zero(), T::zero(),
+                T::zero(), T::zero(), T::zero(), T::zero(),
+            ],
         }
     }
 
@@ -111,22 +100,28 @@ impl<T> One for Matrix4x4<T>
 where
     T: Copy + Zero + One + PartialEq + Matrix4x4Math,
 {
+    #[rustfmt::skip]
     #[inline]
     fn one() -> Self {
         Self {
-        a :   [ T::one(),  T::zero(), T::zero(), T::zero(), //
-                T::zero(), T::one(),  T::zero(), T::zero(), //
-                T::zero(), T::zero(), T::one(),  T::zero(), //
-                T::zero(), T::zero(), T::zero(), T::one()] //
+            a: [
+                T::one(),  T::zero(), T::zero(), T::zero(),
+                T::zero(), T::one(),  T::zero(), T::zero(),
+                T::zero(), T::zero(), T::one(),  T::zero(),
+                T::zero(), T::zero(), T::zero(), T::one()
+            ]
         }
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn is_one(&self) -> bool {
-        self.a == [ T::one(), T::zero(), T::zero(), T::zero(), //
-                    T::zero(), T::one(), T::zero(), T::zero(), //
-                    T::zero(), T::zero(), T::one(), T::zero(), //
-                    T::zero(), T::zero(), T::zero(), T::one()] //
+        self.a == [
+            T::one(),  T::zero(), T::zero(), T::zero(),
+            T::zero(), T::one(),  T::zero(), T::zero(),
+            T::zero(), T::zero(), T::one(),  T::zero(),
+            T::zero(), T::zero(), T::zero(), T::one()
+        ]
     }
 }
 
@@ -195,7 +190,6 @@ where
         T::m4x4_add(self, other)
     }
 }
-
 
 // **** AddAssign ****
 
@@ -505,7 +499,7 @@ where
 ///   23.0* 19.0 + 31.0* 13.0 + 41.0* 37.0 + 103.0* 79.0,
 ///   23.0* 61.0 + 31.0* 53.0 + 41.0* 43.0 + 103.0* 89.0,
 ///   23.0*131.0 + 31.0*113.0 + 41.0*107.0 + 103.0*101.0,
-/// 
+///
 ///   67.0*  3.0 + 73.0*  7.0 + 83.0* 29.0 +  97.0* 71.0,
 ///   67.0* 19.0 + 73.0* 13.0 + 83.0* 37.0 +  97.0* 79.0,
 ///   67.0* 61.0 + 73.0* 53.0 + 83.0* 43.0 +  97.0* 89.0,
@@ -559,7 +553,7 @@ where
 ///   23.0* 19.0 + 31.0* 13.0 + 41.0* 37.0 + 103.0* 79.0,
 ///   23.0* 61.0 + 31.0* 53.0 + 41.0* 43.0 + 103.0* 89.0,
 ///   23.0*131.0 + 31.0*113.0 + 41.0*107.0 + 103.0*101.0,
-/// 
+///
 ///   67.0*  3.0 + 73.0*  7.0 + 83.0* 29.0 +  97.0* 71.0,
 ///   67.0* 19.0 + 73.0* 13.0 + 83.0* 37.0 +  97.0* 79.0,
 ///   67.0* 61.0 + 73.0* 53.0 + 83.0* 43.0 +  97.0* 89.0,
@@ -575,7 +569,6 @@ where
         *self = *self * other;
     }
 }
-
 
 // **** Div ****
 
@@ -1065,7 +1058,7 @@ where
     /// assert_eq!(Matrix4x4f32::one(), n*m/m.determinant());
     /// ```
     #[inline]
-    pub fn adjugate(self) -> (Self,T) {
+    pub fn adjugate(self) -> (Self, T) {
         let (adjugate, determinant) = T::m4x4_adjugate(self);
         (adjugate, determinant)
     }
@@ -1449,12 +1442,26 @@ where
 {
     #[inline]
     fn from(m: Matrix2x2<T>) -> Self {
-        Self { a: [
-            m[0], m[1], T::zero(), T::zero(), //
-            m[2], m[3],  T::zero(), T::zero(), //
-            T::zero(), T::zero(), T::zero(), T::zero(), //
-            T::zero(), T::zero(), T::zero(), T::zero() //
-            ] }
+        Self {
+            a: [
+                m[0],
+                m[1],
+                T::zero(),
+                T::zero(), //
+                m[2],
+                m[3],
+                T::zero(),
+                T::zero(), //
+                T::zero(),
+                T::zero(),
+                T::zero(),
+                T::zero(), //
+                T::zero(),
+                T::zero(),
+                T::zero(),
+                T::zero(), //
+            ],
+        }
     }
 }
 

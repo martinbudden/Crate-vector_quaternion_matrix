@@ -13,18 +13,13 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Added
 
-- May add `Matrix4x4`.
 - May consider adding eigenvalues and eigenvectors.
 
 ## [Unreleased]
 
 ### Added
 
-- Quaternion calculate_euler_angles_radians() and calculate_euler_angles_degrees() functions
-
 ### Changed
-
-- changed many functions from `#[inline(always)]` to `#[inline]`
 
 ### Removed
 
@@ -33,6 +28,19 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 At some point [0.1.0] will be [YANKED]
 
 ### Fixed
+
+### Security
+
+## [0.1.2]
+
+### Added
+
+- Quaternion calculate_euler_angles_radians() and calculate_euler_angles_degrees() functions
+- Elementwise multiplication and division of vectors.
+
+### Changed
+
+- changed many functions from `#[inline(always)]` to `#[inline]`
 
 ### Security
 
