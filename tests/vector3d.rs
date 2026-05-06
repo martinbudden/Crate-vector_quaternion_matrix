@@ -324,7 +324,7 @@ mod tests {
     }
     #[test]
     fn filter_vector3di16_i32() {
-        use filters::{Pt1Filter, SignalFilter};
+        use signal_filters::{Pt1Filter, SignalFilter};
 
         let mut filter = Pt1Filter::<Vector3d<i16>, i32>::new(1);
 
@@ -334,7 +334,7 @@ mod tests {
     }
     #[test]
     fn pt1_filter_vector3di16_f32() {
-        use filters::{Pt1Filter, SignalFilter};
+        use signal_filters::{Pt1Filter, SignalFilter};
 
         let mut filter = Pt1Filter::<Vector3di16, f32>::new(1.0);
 
@@ -342,29 +342,15 @@ mod tests {
         let output = filter.update(Vector3di16 { x: 2, y: 3, z: 5 });
         assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, output);
     }
-    /*#[test]
+    #[test]
     fn filter_vector3di32_i32() {
-        use filters::{Pt1Filter, SignalFilter};
+        use signal_filters::{Pt1Filter, SignalFilter};
         type Vector3di32 = Vector3d<i32>;
 
         let mut filter = Pt1Filter::<Vector3d<i32>, i32>::new(1);
 
         // test that filter with default settings performs no filtering
         let output = filter.update(Vector3di32 { x: 2, y: 3, z: 5 });
-        assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, output);
+        assert_eq!(Vector3di32 { x: 2, y: 3, z: 5 }, output);
     }
-    #[test]
-    fn pt1_filter_vector3di32_f32() {
-        use filters::{Pt1Filter, SignalFilter};
-        type Vector3di32 = Vector3d<i32>;
-
-        let mut filter = Pt1Filter::<Vector3di32, f32>::new(1.0);
-
-        // test that filter with default settings performs no filtering
-        let output = filter.update(Vector3di32{  x: 2, y: 3, z: 5 });
-        assert_eq!(2, output.x);
-        assert_eq!(3, output.y);
-        assert_eq!(5, output.z);
-
-    }*/
 }

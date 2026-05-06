@@ -62,7 +62,7 @@ criterion = { version = "0.8.2", features = ["html_reports"] }
 rand = "0.10.1" 
 #rand = { version = "0.10.1", features = ["small_rng"] }
 approx = { version = "0.5.1", default-features = false }
-filters = { git = "https://github.com/martinbudden/crate-filters" }
+signal-filters = "0.1.2" 
 
 # see https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.dev]
