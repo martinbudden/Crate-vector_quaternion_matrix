@@ -1,16 +1,12 @@
+use core::cmp::Ordering;
 use core::fmt;
+use core::iter::FromIterator;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Index};
 
 /// A memory-efficient 64-bit set for embedded environments.
 /// Note that it data is a one-tuple: this makes comparison with `BitSet128` clearer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BitSet64(u64);
-
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct BitSet64Iter {
-    bits: u64,
-    current_bit: u8,
-}
 
 impl Default for BitSet64 {
     fn default() -> Self {
@@ -23,13 +19,17 @@ impl BitSet64 {
     pub const fn new() -> Self {
         Self(0)
     }
+}
 
+impl BitSet64 {
     /// Resets all bits to 0.
+    #[inline]
     pub fn reset_all(&mut self) {
         self.0 = 0;
     }
 
     /// Resets the bit at `index` to 0. Does nothing if the index is out of bounds.
+    #[inline]
     pub fn reset(&mut self, index: u8) {
         if index < 64 {
             self.0 &= !(1 << index);
@@ -37,11 +37,13 @@ impl BitSet64 {
     }
 
     /// Sets all bits to 1.
+    #[inline]
     pub fn set_all(&mut self) {
         self.0 = u64::MAX;
     }
 
     /// Sets the bit at `index` to 1. Does nothing if the index is out of bounds.
+    #[inline]
     pub fn set(&mut self, index: u8) {
         if index < 64 {
             self.0 |= 1 << index;
@@ -50,13 +52,65 @@ impl BitSet64 {
 
     /// Tests if the bit at `index` is 1.
     /// Returns false if the bit is 0 or index is out of bounds.
+    #[inline]
     pub fn test(&self, index: u8) -> bool {
         if index < 64 { (self.0 & (1 << index)) != 0 } else { false }
     }
-    /// Returns an iterator over the indices of all bits that are set to 1.
-    #[allow(clippy::iter_without_into_iter)] // TODO: fix this iterator
-    pub fn iter(&self) -> BitSet64Iter {
-        BitSet64Iter { bits: self.0, current_bit: 0 }
+
+    /// Returns the number of set bits (population count).
+    #[inline]
+    pub const fn count_ones(&self) -> u32 {
+        self.0.count_ones()
+    }
+
+    /// Returns the number of leading zeros.
+    #[inline]
+    pub const fn leading_zeros(&self) -> u32 {
+        self.0.leading_zeros()
+    }
+
+    /// Returns true if no bits are set.
+    #[inline]
+    pub const fn is_empty(&self) -> bool {
+        self.0 == 0
+    }
+
+    /// Returns the highest index set, or None if the bitset is empty.
+    /// Useful for finding the "top" of a priority queue or resource map.
+    pub fn last_set(&self) -> Option<u8> {
+        if self.is_empty() {
+            None
+        } else {
+            #[allow(clippy::cast_possible_truncation)]
+            Some(63 - self.0.leading_zeros() as u8)
+        }
+    }
+
+    /// Returns true if this bitset contains all the bits set in `other`.
+    #[inline]
+    pub fn is_superset(&self, other: &BitSet64) -> bool {
+        (self.0 & other.0) == other.0
+    }
+
+    /// Returns true if this bitset is a subset of `other`.
+    #[inline]
+    pub fn is_subset(&self, other: &BitSet64) -> bool {
+        other.is_superset(self)
+    }
+}
+
+impl PartialOrd for BitSet64 {
+    #[inline]
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for BitSet64 {
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        // We delegate the comparison to the underlying u64
+        self.0.cmp(&other.0)
     }
 }
 
@@ -107,6 +161,7 @@ impl Index<u8> for BitSet64 {
         if self.test(index) { &true } else { &false }
     }
 }
+
 impl Index<usize> for BitSet64 {
     type Output = bool;
 
@@ -139,43 +194,61 @@ impl From<(u32, u32)> for BitSet64 {
     }
 }
 
-/*impl Iterator for BitSet64Iter {
-    type Item = u8;
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct BitSet64Iter(u64);
 
-    fn next(&mut self) -> Option<Self::Item> {
-        while self.current_bit < 64 {
-            let bit = self.current_bit;
-            self.current_bit += 1;
-
-            if (self.bits & (1 << bit)) != 0 {
-                return Some(bit);
-            }
-        }
-        None
-    }
-}*/
-
-#[allow(clippy::copy_iterator)] // TODO: fix this iterator
-#[allow(clippy::cast_possible_truncation)]
+/// Consuming iterator.
 impl Iterator for BitSet64Iter {
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.bits == 0 {
-            return None;
+        if self.0 == 0 {
+            None
+        } else {
+            // Find the index of the least significant bit set to 1
+            #[allow(clippy::cast_possible_truncation)]
+            let index = self.0.trailing_zeros() as u8;
+            // Clear the least significant bit to prep for next iteration
+            self.0 &= self.0 - 1;
+            Some(index)
         }
+    }
+}
 
-        // Find the index of the next 1-bit
-        let bit = self.bits.trailing_zeros() as u8;
+/// Non-consuming iterator.
+impl IntoIterator for &BitSet64 {
+    type Item = u8;
+    type IntoIter = BitSet64Iter;
 
-        if bit >= 64 {
-            self.bits = 0;
-            return None;
+    fn into_iter(self) -> Self::IntoIter {
+        // Since BitSet64 is Copy and just a u64,
+        // we just pass the underlying value to the iterator.
+        BitSet64Iter(self.0)
+    }
+}
+
+impl BitSet64 {
+    /// Returns an iterator over the indices of the set bits.
+    pub fn iter(&self) -> BitSet64Iter {
+        self.into_iter()
+    }
+}
+
+impl FromIterator<u8> for BitSet64 {
+    fn from_iter<I: IntoIterator<Item = u8>>(iter: I) -> Self {
+        let mut bitset = Self::new();
+        for index in iter {
+            bitset.set(index);
         }
+        bitset
+    }
+}
 
-        // Clear that bit so we can find the next one
-        self.bits &= !(1 << bit);
-        Some(bit)
+impl Extend<u8> for BitSet64 {
+    fn extend<I: IntoIterator<Item = u8>>(&mut self, iter: I) {
+        for index in iter {
+            self.set(index);
+        }
     }
 }
 
@@ -222,6 +295,12 @@ mod tests {
         bits.set(42);
         assert!(bits[42u8]);
         assert!(bits.test(42));
+    }
+    #[allow(unused)]
+    #[test]
+    fn const_new() {
+        const FLAGS: BitSet64 = BitSet64::new();
+        const EMPTY_CHECK: bool = FLAGS.is_empty(); // Evaluated at compile time
     }
     #[test]
     fn assign() {
@@ -275,5 +354,106 @@ mod tests {
         assert!(diff.test(10));
         assert!(!diff.test(20));
         assert!(diff.test(30));
+    }
+    #[test]
+    fn iterator_consuming() {
+        let mut bits = BitSet64::new();
+        bits.set(2);
+        bits.set(10);
+
+        let mut sum = 0;
+        let mut count = 0;
+        for bit in &bits {
+            sum += bit;
+            count += 1;
+        }
+        assert_eq!(2, count);
+        assert_eq!(12, sum);
+    }
+    #[test]
+    fn into_iter_consuming() {
+        let mut bits = BitSet64::new();
+        bits.set(0);
+        bits.set(10);
+        bits.set(63);
+
+        // Consuming iterator
+        let mut iter = bits.into_iter();
+
+        assert_eq!(iter.next(), Some(0));
+        assert_eq!(iter.next(), Some(10));
+        assert_eq!(iter.next(), Some(63));
+        assert_eq!(iter.next(), None);
+
+        // bits is moved here and can no longer be used
+    }
+
+    #[test]
+    fn non_consuming_iterator() {
+        let bits = BitSet64(0b1101); // Bits 0, 2, and 3 are set
+
+        let mut sum = 0;
+        let mut count = 0;
+
+        // Use reference to bits rather than bits.iter()
+        for bit in &bits {
+            sum += bit;
+            count += 1;
+        }
+        assert_eq!(3, count);
+        assert_eq!(5, sum);
+
+        let mut sum = 0;
+        let mut count = 0;
+        // Using a reference in a loop
+        for bit in &bits {
+            sum += bit;
+            count += 1;
+        }
+        assert_eq!(3, count);
+        assert_eq!(5, sum);
+    }
+
+    #[test]
+    fn non_consuming_iterator2() {
+        let mut bits = BitSet64::new();
+        bits.set(5);
+        bits.set(12);
+
+        // Test using the .iter() method
+        let count = bits.iter().count();
+        assert_eq!(count, 2);
+
+        // Test using & reference in a for-loop
+        let mut last_val = 0;
+        for bit in &bits {
+            last_val = bit;
+        }
+        assert_eq!(last_val, 12);
+
+        // test original bits is still valid
+        assert!(bits.test(5));
+    }
+
+    #[test]
+    fn from_iterator() {
+        let indices = [1, 3, 5];
+        // collect() uses FromIterator
+        let bits: BitSet64 = indices.iter().copied().collect();
+
+        assert!(bits.test(1));
+        assert!(bits.test(3));
+        assert!(bits.test(5));
+        assert!(!bits.test(2));
+    }
+
+    #[test]
+    fn empty_and_full() {
+        let empty = BitSet64::new();
+        assert_eq!(empty.iter().count(), 0);
+
+        let mut full = BitSet64::new();
+        full.set_all();
+        assert_eq!(full.iter().count(), 64);
     }
 }
