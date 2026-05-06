@@ -31,31 +31,27 @@ impl BitSet128 {
         self.1 = 0;
     }
 
-    /// Resets the bit at `index` to 0.
-    /// Returns false if index is out of bounds (>= 64).
-    pub fn reset(&mut self, index: u8) -> bool {
+    /// Resets the bit at `index` to 0. Does nothing if the index is out of bounds.
+    pub fn reset(&mut self, index: u8) {
         if index < 64 {
             self.0 &= !(1 << index);
-            true
         } else if index < 128 {
             self.1 &= !(1 << (index - 64));
-            true
-        } else {
-            false
         }
     }
 
-    /// Sets the bit at `index` to 1.
-    /// Returns false if index is out of bounds (>= 64).
-    pub fn set(&mut self, index: u8) -> bool {
+    /// Sets all bits to 1.
+    pub fn set_all(&mut self) {
+        self.0 = u64::MAX;
+        self.1 = u64::MAX;
+    }
+
+    /// Sets the bit at `index` to 1. Does nothing if index is out of bounds.
+    pub fn set(&mut self, index: u8) {
         if index < 64 {
             self.0 |= 1 << index;
-            true
         } else if index < 128 {
             self.1 |= 1 << (index - 64);
-            true
-        } else {
-            false
         }
     }
 
@@ -214,14 +210,14 @@ mod tests {
     #[test]
     fn new() {
         let mut bits = BitSet128::new();
-        _ = bits.set(42);
+        bits.set(42);
         assert!(bits[42u8]);
         assert!(bits.test(42));
     }
     #[test]
     fn assign() {
         let mut bits = BitSet128::new();
-        _ = bits.set(42);
+        bits.set(42);
         assert!(bits[42u8]);
         assert!(bits.test(42));
         let mask = bits;
@@ -242,12 +238,12 @@ mod tests {
         //system_flags &= BitSet128(0x0000_FFFF_FFFF_FFFF);
 
         let mut set_a = BitSet128::new();
-        _ = set_a.set(10);
-        _ = set_a.set(20);
+        set_a.set(10);
+        set_a.set(20);
 
         let mut set_b = BitSet128::new();
-        _ = set_b.set(20);
-        _ = set_b.set(30);
+        set_b.set(20);
+        set_b.set(30);
 
         // Intersection (AND): only bit 20 remains
         let common = set_a & set_b;
