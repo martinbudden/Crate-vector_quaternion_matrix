@@ -2,22 +2,23 @@ use core::cmp::Ordering;
 use core::fmt;
 use core::iter::FromIterator;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Index};
+use serde::{Deserialize, Serialize};
 
 /// A memory-efficient 64-bit set for embedded environments.
 /// Note that it data is a one-tuple: this makes comparison with `BitSet128` clearer.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BitSet64(u64);
-
-impl Default for BitSet64 {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 impl BitSet64 {
     /// Create a new empty bitset.
     pub const fn new() -> Self {
         Self(0)
+    }
+}
+
+impl Default for BitSet64 {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -114,6 +115,8 @@ impl Ord for BitSet64 {
     }
 }
 
+// **** Bit operations ****
+
 impl BitOr for BitSet64 {
     type Output = Self;
     fn bitor(self, rhs: Self) -> Self::Output {
@@ -194,6 +197,8 @@ impl From<(u32, u32)> for BitSet64 {
     }
 }
 
+// **** Iter ****
+
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct BitSet64Iter(u64);
 
@@ -252,6 +257,8 @@ impl Extend<u8> for BitSet64 {
     }
 }
 
+// **** fmt ****
+
 impl fmt::Binary for BitSet64 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Handle the "0b" prefix if requested via {:#b}
@@ -282,11 +289,16 @@ mod tests {
     use super::*;
 
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    #[allow(unused)]
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
+    fn is_config<
+        T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq + Serialize + for<'a> Deserialize<'a>,
+    >() {
+    }
 
     #[test]
     fn normal_types() {
-        is_full::<BitSet64>();
+        is_config::<BitSet64>();
         is_normal::<BitSet64Iter>();
     }
     #[test]

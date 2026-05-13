@@ -31,6 +31,26 @@ At some point [0.1.0] will be [YANKED]
 
 ### Security
 
+## [0.1.4] - 2026-05-13
+
+### Added
+
+- `Deserialize` and `Serialize` for `BitSet64` and `BitSet128`.
+
+### Changed
+
+- removed return value from `set` and `reset` in `BitSet`s.
+
+## [0.1.3] - 2026-05-06
+
+### Added
+
+- `BitSet64Iter`.
+
+### Changed
+
+- removed return value from `set` and `reset` in `BitSet`s.
+
 ## [0.1.2]
 
 ### Added
@@ -41,8 +61,6 @@ At some point [0.1.0] will be [YANKED]
 ### Changed
 
 - changed many functions from `#[inline(always)]` to `#[inline]`
-
-### Security
 
 ## [0.1.1]
 

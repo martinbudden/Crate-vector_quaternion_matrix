@@ -1,16 +1,20 @@
 #![allow(unused)]
 
+use core::cmp::Ordering;
 use core::fmt;
+use core::iter::FromIterator;
 use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Index};
+use serde::{Deserialize, Serialize};
 
 /// A memory-efficient 128-bit set for embedded environments.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BitSet128(u64, u64);
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct BitSet128Iter {
-    bits: (u64, u64),
-    current_bit: u8,
+impl BitSet128 {
+    /// Create a new empty bitset.
+    pub const fn new() -> Self {
+        Self(0, 0)
+    }
 }
 
 impl Default for BitSet128 {
@@ -20,18 +24,15 @@ impl Default for BitSet128 {
 }
 
 impl BitSet128 {
-    /// Create a new empty bitset.
-    pub const fn new() -> Self {
-        Self(0, 0)
-    }
-
     /// Resets all bits to 0.
+    #[inline]
     pub fn reset_all(&mut self) {
         self.0 = 0;
         self.1 = 0;
     }
 
     /// Resets the bit at `index` to 0. Does nothing if the index is out of bounds.
+    #[inline]
     pub fn reset(&mut self, index: u8) {
         if index < 64 {
             self.0 &= !(1 << index);
@@ -41,12 +42,14 @@ impl BitSet128 {
     }
 
     /// Sets all bits to 1.
+    #[inline]
     pub fn set_all(&mut self) {
         self.0 = u64::MAX;
         self.1 = u64::MAX;
     }
 
-    /// Sets the bit at `index` to 1. Does nothing if index is out of bounds.
+    /// Sets the bit at `index` to 1. Does nothing if the index is out of bounds.
+    #[inline]
     pub fn set(&mut self, index: u8) {
         if index < 64 {
             self.0 |= 1 << index;
@@ -57,6 +60,7 @@ impl BitSet128 {
 
     /// Tests if the bit at `index` is 1.
     /// Returns false if the bit is 0 or index is out of bounds.
+    #[inline]
     pub fn test(&self, index: u8) -> bool {
         if index < 64 {
             (self.0 & (1 << index)) != 0
@@ -66,29 +70,39 @@ impl BitSet128 {
             false
         }
     }
-    // Returns an iterator over the indices of all bits that are set to 1.
-    //pub fn iter(&self) -> BitSet128Iter {
-    //    BitSet128Iter { bits: (self.0, self.1), current_bit: 0 }
-    //}
+
+    /// Returns the number of set bits (population count).
+    #[inline]
+    pub const fn count_ones(&self) -> u32 {
+        self.0.count_ones() + self.1.count_ones()
+    }
+
+    /// Returns true if no bits are set.
+    #[inline]
+    pub const fn is_empty(&self) -> bool {
+        self.0 == 0 && self.1 == 0
+    }
 }
+
+// **** Bit operations ****
 
 impl BitOr for BitSet128 {
     type Output = Self;
-    fn bitor(self, rhs: Self) -> Self {
+    fn bitor(self, rhs: Self) -> Self::Output {
         Self(self.0 | rhs.0, self.1 | rhs.1)
     }
 }
 
 impl BitAnd for BitSet128 {
     type Output = Self;
-    fn bitand(self, rhs: Self) -> Self {
+    fn bitand(self, rhs: Self) -> Self::Output {
         Self(self.0 & rhs.0, self.1 & rhs.1)
     }
 }
 
 impl BitXor for BitSet128 {
     type Output = Self;
-    fn bitxor(self, rhs: Self) -> Self {
+    fn bitxor(self, rhs: Self) -> Self::Output {
         Self(self.0 ^ rhs.0, self.1 ^ rhs.1)
     }
 }
@@ -122,6 +136,7 @@ impl Index<u8> for BitSet128 {
         if self.test(index) { &true } else { &false }
     }
 }
+
 impl Index<usize> for BitSet128 {
     type Output = bool;
 
@@ -148,21 +163,12 @@ impl From<(u32, u32)> for BitSet128 {
     }
 }
 
-/*impl Iterator for BitSet128Iter {
-    type Item = u8;
+// **** Iter ****
 
-    fn next(&mut self) -> Option<Self::Item> {
-        while self.current_bit < 64 {
-            let bit = self.current_bit;
-            self.current_bit += 1;
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct BitSet128Iter(u64, u64);
 
-            if (self.bits & (1 << bit)) != 0 {
-                return Some(bit);
-            }
-        }
-        None
-    }
-}*/
+// **** fmt ****
 
 impl fmt::Binary for BitSet128 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -205,7 +211,6 @@ mod tests {
     #[test]
     fn normal_types() {
         is_full::<BitSet128>();
-        is_normal::<BitSet128Iter>();
     }
     #[test]
     fn new() {

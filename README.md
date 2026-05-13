@@ -19,7 +19,8 @@ Each type has versions for `f32` and `f64`. So we have:
 3. 4D vectors: `Vector4df32`, `Vector4df64`
 4. [quaternions](https://en.wikipedia.org/wiki/Quaternion): `Quaternionf32`, `Quaternionf64`
 5. 2x2 matrices: `Matrix2x2f32`, `Matrix2x2f64`
-6. 3x3 matrices: `Matrix3x3f32`,`Matrix3x3f64`
+6. 3x3 matrices: `Matrix3x3f32`, `Matrix3x3f64`
+7. 4x4 matrices: `Matrix4x4f32`, `Matrix4x4f64`
 
 The 3D vector additionally has `i16` and `i32` versions: `Vector3di16` and `Vector3di32`.
 
