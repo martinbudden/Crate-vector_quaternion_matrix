@@ -1,5 +1,5 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, SqrtMethods, Vector2dMath};
 
@@ -62,6 +62,21 @@ where
     fn is_zero(&self) -> bool {
         self.x == T::zero() && self.y == T::zero()
     }
+}
+
+/// Const zero vector.
+/// ```
+/// # use vqm::Vector2df32;
+/// # use num_traits::{zero,Zero,ConstZero};
+/// let z = Vector2df32::ZERO;
+/// assert!(z.is_zero());
+/// assert_eq!(z, Vector2df32 { x: 0.0, y: 0.0 });
+/// ```
+impl<T> ConstZero for Vector2d<T>
+where
+    T: Copy + ConstZero + PartialEq + Vector2dMath,
+{
+    const ZERO: Self = Self { x: T::ZERO, y: T::ZERO };
 }
 
 // **** Neg ****

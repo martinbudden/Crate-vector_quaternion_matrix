@@ -1,5 +1,5 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, SqrtMethods, Vector2d, Vector3d, Vector4dMath};
 
@@ -64,6 +64,21 @@ where
     fn is_zero(&self) -> bool {
         self.x == T::zero() && self.y == T::zero() && self.z == T::zero() && self.z == T::zero()
     }
+}
+
+/// Const zero vector.
+/// ```
+/// # use vqm::Vector4df32;
+/// # use num_traits::{zero,Zero,ConstZero};
+/// let z = Vector4df32::ZERO;
+/// assert!(z.is_zero());
+/// assert_eq!(z, Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
+/// ```
+impl<T> ConstZero for Vector4d<T>
+where
+    T: Copy + ConstZero + PartialEq + Vector4dMath,
+{
+    const ZERO: Self = Self { x: T::ZERO, y: T::ZERO, z: T::ZERO, t: T::ZERO };
 }
 
 // **** Neg ****

@@ -1,5 +1,5 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2Math, Vector2d};
 
@@ -59,15 +59,41 @@ impl<T> Zero for Matrix2x2<T>
 where
     T: Copy + Zero + PartialEq + Matrix2x2Math,
 {
+    #[rustfmt::skip]
     #[inline]
     fn zero() -> Self {
-        Self { a: [T::zero(), T::zero(), T::zero(), T::zero()] }
+        Self {
+            a: [
+                T::zero(), T::zero(),
+                T::zero(), T::zero(),
+            ],
+        }
     }
 
     #[inline]
     fn is_zero(&self) -> bool {
         self.a.iter().all(|&x| x == T::zero())
     }
+}
+
+/// Const zero matrix.
+/// ```
+/// # use vqm::Matrix2x2f32;
+/// # use num_traits::{zero,Zero,ConstZero};
+/// let m = Matrix2x2f32::ZERO;
+/// assert!(m.is_zero());
+/// ```
+impl<T> ConstZero for Matrix2x2<T>
+where
+    T: Copy + ConstZero + PartialEq + Matrix2x2Math,
+{
+    #[rustfmt::skip]
+    const ZERO: Self = Self {
+        a: [
+            T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO,
+        ]
+    };
 }
 
 // **** One ****
@@ -85,15 +111,47 @@ impl<T> One for Matrix2x2<T>
 where
     T: Copy + Zero + One + PartialEq + Matrix2x2Math,
 {
+    #[rustfmt::skip]
     #[inline]
     fn one() -> Self {
-        Self { a: [T::one(), T::zero(), T::zero(), T::one()] }
+        Self {
+            a: [
+                T::one(),  T::zero(),
+                T::zero(), T::one(),
+            ],
+        }
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn is_one(&self) -> bool {
-        self.a == [T::one(), T::zero(), T::zero(), T::one()]
+        self.a == [
+            T::one(),  T::zero(),
+            T::zero(), T::one(),
+        ]
     }
+}
+
+/// Const identity matrix.
+/// ```
+/// # use vqm::Matrix2x2f32;
+/// # use num_traits::ConstOne;
+/// let i = Matrix2x2f32::ONE;
+///
+/// assert_eq!(i, Matrix2x2f32::from([ 1.0, 0.0,
+///                                    0.0, 1.0]));
+/// ```
+impl<T> ConstOne for Matrix2x2<T>
+where
+    T: Copy + ConstZero + ConstOne + PartialEq + Matrix2x2Math,
+{
+    #[rustfmt::skip]
+    const ONE: Self = Self {
+        a: [
+            T::ONE,  T::ZERO,
+            T::ZERO, T::ONE,
+        ]
+    };
 }
 
 // **** Neg ****

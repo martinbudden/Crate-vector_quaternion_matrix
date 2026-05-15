@@ -1,6 +1,6 @@
 #![allow(unused)]
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2, Matrix4x4Math, Quaternion, QuaternionMath, SqrtMethods, Vector3d, Vector4d};
 
@@ -83,6 +83,27 @@ where
     }
 }
 
+/// Const zero matrix.
+/// ```
+/// # use vqm::Matrix4x4f32;
+/// # use num_traits::{zero,Zero,ConstZero};
+/// let m = Matrix4x4f32::ZERO;
+/// assert!(m.is_zero());
+/// ```
+impl<T> ConstZero for Matrix4x4<T>
+where
+    T: Copy + ConstZero + PartialEq + Matrix4x4Math,
+{
+    #[rustfmt::skip]
+    const ZERO: Self = Self {
+        a: [
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+        ]
+    };
+}
 // **** One ****
 
 /// Identity matrix.
@@ -123,6 +144,32 @@ where
             T::zero(), T::zero(), T::zero(), T::one()
         ]
     }
+}
+
+/// Const identity matrix.
+/// ```
+/// # use vqm::Matrix4x4f32;
+/// # use num_traits::ConstOne;
+/// let i = Matrix4x4f32::ONE;
+///
+/// assert_eq!(i, Matrix4x4f32::from([ 1.0, 0.0, 0.0, 0.0,
+///                                    0.0, 1.0, 0.0, 0.0,
+///                                    0.0, 0.0, 1.0, 0.0,
+///                                    0.0, 0.0, 0.0, 1.0]));
+/// ```
+impl<T> ConstOne for Matrix4x4<T>
+where
+    T: Copy + ConstZero + ConstOne + PartialEq + Matrix4x4Math,
+{
+    #[rustfmt::skip]
+    const ONE: Self = Self {
+        a: [
+            T::ONE,  T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ONE,  T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ONE,  T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ONE,
+        ]
+    };
 }
 
 // **** Neg ****

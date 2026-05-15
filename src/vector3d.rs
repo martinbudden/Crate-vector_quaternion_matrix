@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2d, Vector3dMath};
 
@@ -18,7 +18,7 @@ if #[cfg(feature = "no_align")] {
 /// `Vector3d<T>`: 3D vector of type `T`.<br>
 /// Aliases `Vector3df32`, `Vector3df64`, `Vector3di16`, and `Vector3di32` are provided.<br><br>
 #[repr(C, align(4))]
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vector3d<T> {
     pub x: T,
     pub y: T,
@@ -31,13 +31,22 @@ pub struct Vector3d<T> {
 /// Aliases `Vector3df32`, `Vector3df64`, `Vector3di16`, and `Vector3di32`  are provided.<br><br>
 /// `Vector3df32` uses **SIMD** accelerations implemented in `Vector3dMath`.<br><br>
 #[repr(C, align(16))]
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vector3d<T> {
     pub x: T,
     pub y: T,
     pub z: T,
 }
 }
+}
+
+impl<T> Default for Vector3d<T>
+where
+    T: Copy + Zero,
+{
+    fn default() -> Self {
+        Self::new(T::zero(), T::zero(), T::zero())
+    }
 }
 
 // **** New ****
@@ -82,6 +91,21 @@ where
     fn is_zero(&self) -> bool {
         self.x == T::zero() && self.y == T::zero() && self.z == T::zero()
     }
+}
+
+/// Const zero vector.
+/// ```
+/// # use vqm::Vector3df32;
+/// # use num_traits::{zero,Zero,ConstZero};
+/// let z = Vector3df32::ZERO;
+/// assert!(z.is_zero());
+/// assert_eq!(z, Vector3df32 { x: 0.0, y: 0.0, z: 0.0 });
+/// ```
+impl<T> ConstZero for Vector3d<T>
+where
+    T: Copy + ConstZero + PartialEq + Vector3dMath,
+{
+    const ZERO: Self = Self { x: T::ZERO, y: T::ZERO, z: T::ZERO };
 }
 
 // **** Neg ****

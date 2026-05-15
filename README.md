@@ -10,7 +10,7 @@ and uses no allocation. This means it is suitable for embedded system.
 
 Vectors have 2D, 3D, and 4D versions.
 
-Matrices have 2x2 and 3x3 versions.
+Matrices have 2x2, 3x3, and 4x4 versions.
 
 Each type has versions for `f32` and `f64`. So we have:
 

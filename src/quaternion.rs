@@ -1,5 +1,6 @@
 use core::convert::From;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
+use num_traits::{ConstOne, ConstZero};
 use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::math_methods::TrigonometricMethods;
@@ -107,6 +108,21 @@ where
     }
 }
 
+/// Const zero quaternion.
+/// ```
+/// # use vqm::Quaternionf32;
+/// # use num_traits::{Zero,ConstZero};
+/// let z = Quaternionf32::ZERO;
+/// assert!(z.is_zero());
+/// assert_eq!(z, Quaternionf32 { w:0.0, x: 0.0, y: 0.0, z: 0.0 });
+/// ```
+impl<T> ConstZero for Quaternion<T>
+where
+    T: Copy + ConstZero + PartialEq + QuaternionMath,
+{
+    const ZERO: Self = Self { w: T::ZERO, x: T::ZERO, y: T::ZERO, z: T::ZERO };
+}
+
 // **** One ****
 
 /// Unit quaternion.
@@ -131,6 +147,22 @@ where
     fn is_one(&self) -> bool {
         self.w == T::one() && self.x == T::zero() && self.y == T::zero() && self.z == T::zero()
     }
+}
+
+/// Const unit quaternion.
+/// ```
+/// # use vqm::Quaternionf32;
+/// # use num_traits::ConstOne;
+///
+/// let i = Quaternionf32::ONE;
+///
+/// assert_eq!(i, Quaternionf32 { w: 1.0, x: 0.0, y: 0.0, z: 0.0 });
+/// ```
+impl<T> ConstOne for Quaternion<T>
+where
+    T: Copy + ConstZero + ConstOne + PartialEq + Sub<Output = T> + QuaternionMath,
+{
+    const ONE: Self = Self { w: T::ONE, x: T::ZERO, y: T::ZERO, z: T::ZERO };
 }
 
 // **** Neg ****
