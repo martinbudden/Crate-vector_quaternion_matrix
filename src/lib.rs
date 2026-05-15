@@ -11,9 +11,6 @@
 #![allow(clippy::return_self_not_must_use)]
 #![allow(clippy::must_use_candidate)]
 
-mod bitset128;
-mod bitset64;
-
 mod math_constants;
 mod math_methods;
 mod sqrt_methods;
@@ -38,9 +35,6 @@ mod matrix4x4_math;
 
 mod quaternion;
 mod quaternion_math;
-
-#[doc(hidden)]
-pub use bitset64::{BitSet64, BitSet64Iter};
 
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;

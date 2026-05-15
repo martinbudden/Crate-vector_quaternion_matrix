@@ -38,6 +38,10 @@ At some point [0.1.0] will be [YANKED]
 - `ConstZero` traits to vectors, quaternions, and matrices.
 - `ConstOne` traits to quaternions and matrices.
 
+### Removed
+
+- `BitSet64` and `BitSet128`.
+
 ## [0.1.4] - 2026-05-13
 
 ### Added
