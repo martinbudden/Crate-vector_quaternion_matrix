@@ -31,6 +31,13 @@ At some point [0.1.0] will be [YANKED]
 
 ### Security
 
+## [0.1.6] - 2026-05-16
+
+### Changed
+
+- `serde` to use `default-features = false`.
+- release build no longer dependent on `approx` crate.
+
 ## [0.1.5] - 2026-05-16
 
 ### Added

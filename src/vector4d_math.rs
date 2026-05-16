@@ -172,7 +172,7 @@ impl Vector4dMath for f32 {
     #[inline(always)]
     fn v4_is_normalized(this: Vector4d<Self>) -> bool {
         let norm_squared = Self::v4_norm_squared(this);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
+        (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
@@ -290,7 +290,7 @@ impl Vector4dMath for f64 {
     #[inline(always)]
     fn v4_is_normalized(this: Vector4d<Self>) -> bool {
         let norm_squared = Self::v4_norm_squared(this);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
+        (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]

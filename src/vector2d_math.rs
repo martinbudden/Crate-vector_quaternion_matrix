@@ -170,7 +170,7 @@ impl Vector2dMath for f32 {
     #[inline(always)]
     fn v2_is_normalized(this: Vector2d<Self>) -> bool {
         let norm_squared = Self::v2_norm_squared(this);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
+        (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
@@ -267,7 +267,7 @@ impl Vector2dMath for f64 {
     #[inline(always)]
     fn v2_is_normalized(q: Vector2d<Self>) -> bool {
         let norm_squared = Self::v2_norm_squared(q);
-        approx::abs_diff_eq!(norm_squared, 1.0, epsilon = 4e-6)
+        (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
