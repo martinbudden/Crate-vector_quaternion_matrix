@@ -733,7 +733,7 @@ checksum = "999ea968bb2ec2aaa7779c29e3f0452621612cb6e1a0eec7416792e25d90dde5"
 dependencies = [
  "num-traits",
  "rustc_version",
- "vqm 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vqm 0.1.5",
 ]
 
 [[package]]
@@ -813,6 +813,21 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 [[package]]
 name = "vqm"
 version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2473afa8b99e8cf9cf3692d80f304996cbff05a63bb060d6f0affe6c296e6cd"
+dependencies = [
+ "approx",
+ "cfg-if",
+ "libm",
+ "num-traits",
+ "postcard",
+ "rustc_version",
+ "serde",
+]
+
+[[package]]
+name = "vqm"
+version = "0.1.6"
 dependencies = [
  "approx",
  "cfg-if",
@@ -824,21 +839,6 @@ dependencies = [
  "rustc_version",
  "serde",
  "signal-filters",
-]
-
-[[package]]
-name = "vqm"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2473afa8b99e8cf9cf3692d80f304996cbff05a63bb060d6f0affe6c296e6cd"
-dependencies = [
- "approx",
- "cfg-if",
- "libm",
- "num-traits",
- "postcard",
- "rustc_version",
- "serde",
 ]
 
 [[package]]
