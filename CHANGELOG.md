@@ -31,7 +31,7 @@ At some point [0.1.0] will be [YANKED]
 
 ### Security
 
-## [0.1.5] - 2026-05-15
+## [0.1.5] - 2026-05-16
 
 ### Added
 
