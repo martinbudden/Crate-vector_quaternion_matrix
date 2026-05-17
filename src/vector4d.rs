@@ -1,5 +1,7 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::{MathConstants, SqrtMethods, Vector2d, Vector3d, Vector4dMath};
 
@@ -13,8 +15,9 @@ pub type Vector4df64 = Vector4d<f64>;
 /// `Vector4d<T>`: 3D vector of type `T`.<br>
 /// Aliases `Vector4df32` and `Vector4df64` are provided.<br><br>
 /// `Vector4df32` uses **SIMD** accelerations implemented in `Vector4dMath`.<br><br>
-#[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C, align(16))]
 pub struct Vector4d<T> {
     pub x: T,
     pub y: T,

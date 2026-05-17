@@ -16,54 +16,37 @@ categories = [
 ]
 
 [package.metadata.docs.rs]
+all-features = true
 rustdoc-args = ["--html-in-header", "katex-header.html"]
 
 [build-dependencies]
 rustc_version = "0.4.1"
 
-# Note the RP2350 uses thumbv8m and the RP2040 uses thumbv6m.
-# RP2350: thumbv8m.main-none-eabihf (Cortex-M33, ARMv8-M, Hard Float)
-# RP2040: thumbv6m-none-eabi (Cortex-M0+, ARMv6-M, Soft Float)
-
-# used by RP2040
-[target.thumbv6m-none-eabi]
-rustflags = ["-C", "target-cpu=cortex-m0plus"]
-
-# used by RP2350
-[target.thumbv8m.main-none-eabihf] # hf = hardware floating point
-rustflags = [
-    "-C",
-    "target-cpu=cortex-m33",
-    # No need to manually specify +vfp4sp or +fp-armv8d16sp; 
-    # cortex-m33 + eabihf target handles this automatically.
-    # "-C", "target-feature=+fp-armv8d16sp", # This enables the specific floating-point features for the M33
-    # "-C", "target-feature=+vfp4sp", # Enables single-precision FPU
-]
-
 [features]
-default = ["libm"]
-#default = ["libm", "simd",]
-#default = ["libm", "no_align"]
-std = []
-libm = ["num-traits/libm"]
+#default = ["libm", "serde"]
+default = ["libm",]
+#default = ["std", "serde"]
+#default = ["std"]
+std = ["num-traits/std"]
+libm = ["dep:libm", "num-traits/libm"]
+serde = ["dep:serde", "postcard"]
 no_align = []
 simd = []
 
-
 [dependencies]
-# libm is required for num_traits, sqrt, and trigonometric functions in no_std
-libm = { version = "0.2.16" } 
+# Marked optional so they aren't compiled unless requested
+libm = { version = "0.2.16", optional = true } 
+serde = { version = "1.0.228", default-features = false, features = ["derive"], optional = true }
+postcard = { version = "1.1.3", default-features = false, features = ["embedded-io"], optional = true }
+
+# Mandatory dependencies
 num-traits = { version = "0.2.19", default-features = false }
 cfg-if = "1.0.4"
-serde = { version = "1.0.228", default-features = false, features = ["derive"] }
-postcard = { version = "1.1.3", features = ["embedded-io"] }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
-rand = "0.10.1" 
-#rand = { version = "0.10.1", features = ["small_rng"] }
+rand = "0.10.1"
 approx = { version = "0.5.1", default-features = false }
-signal-filters = "0.1.4" 
 
 # see https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.dev]

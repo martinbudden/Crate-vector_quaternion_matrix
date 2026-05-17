@@ -2,6 +2,8 @@ use core::convert::From;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstOne, ConstZero};
 use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::math_methods::TrigonometricMethods;
 use crate::sqrt_methods::SqrtMethods;
@@ -40,8 +42,9 @@ pub struct RollPitch<T> {
 /// `Quaternion<T>`: quaternion type `T`.<br>
 /// Aliases `Quaternion32` and `Quaternionf64` are provided.<br><br>
 /// `Quaternionf32` uses **SIMD** accelerations implemented in `QuaternionMath`.<br><br>
-#[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C, align(16))]
 pub struct Quaternion<T> {
     pub w: T,
     pub x: T,
@@ -737,25 +740,30 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + One + Sub<Output = T> + Div<Output = T> + SqrtMethods,
+    T: Copy + Zero + One + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + SqrtMethods,
 {
     pub fn rotate(self, v: &Vector3d<T>) -> Vector3d<T> {
         let two: T = T::one() + T::one();
         let half = T::one() / two;
+
         let x2: T = self.x * self.x;
         let y2: T = self.y * self.y;
         let z2: T = self.z * self.z;
+
         Vector3d::<T> {
-            x: v.x * (half - y2 - z2)
+            x: (v.x * (half - y2 - z2)
                 + v.y * (self.x * self.y - self.w * self.z)
-                + v.z * (self.w * self.y + self.x * self.z),
-            y: v.x * (self.w * self.z + self.x * self.y)
+                + v.z * (self.w * self.y + self.x * self.z))
+                * two,
+            y: (v.x * (self.w * self.z + self.x * self.y)
                 + v.y * (half - x2 - z2)
-                + v.z * (self.y * self.z - self.w * self.x),
-            z: v.x * (self.x * self.z - self.w * self.y)
+                + v.z * (self.y * self.z - self.w * self.x))
+                * two,
+            z: (v.x * (self.w * self.y + self.x * self.z)
                 + v.y * (self.w * self.x + self.y * self.z)
-                + v.z * (half - x2 - y2),
-        } //* two
+                + v.z * (half - x2 - y2))
+                * two,
+        }
     }
     pub fn cos_roll(self) -> T {
         let half = T::one() / (T::one() + T::one());

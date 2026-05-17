@@ -1,5 +1,7 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::{MathConstants, Matrix2x2Math, Vector2d};
 
@@ -15,8 +17,9 @@ pub type Matrix2x2f64 = Matrix2x2<f64>;
 /// `Matrix2x2f32` uses **SIMD** accelerations implemented in `Matrix2x2Math`.<br><br>
 /// Internal implementation is using a flattened 1-dimensional array: an array of 4 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 2 + col]`, so element `m01` is at `a[1]`.<br><br>
-#[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C, align(16))]
 pub struct Matrix2x2<T> {
     // Flattened 2x2 matrix: 4 elements in row-major order
     pub(crate) a: [T; 4],

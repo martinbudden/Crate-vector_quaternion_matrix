@@ -9,14 +9,23 @@ const _: () = assert!(core::mem::align_of::<Vector2df64>() == 8);
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "serde")]
+    use serde::{Deserialize, Serialize};
 
     #[allow(unused)]
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
+    #[cfg(feature = "serde")]
+    fn is_config<
+        T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq + Serialize + for<'a> Deserialize<'a>,
+    >() {
+    }
 
     #[test]
     fn normal_types() {
         is_full::<Vector2d<f32>>();
+        #[cfg(feature = "serde")]
+        is_config::<Vector2d<f32>>();
     }
     #[test]
     fn default() {

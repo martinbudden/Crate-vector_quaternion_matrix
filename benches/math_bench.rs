@@ -11,12 +11,14 @@ use vqm::{cos_approx, sin_approx, sin_cos_approx};
 
 // See: target/criterion/Matrix%20Math/report/index.html for results
 
+#[allow(unused)]
 fn bench_math(c: &mut Criterion) {
     let mut group = c.benchmark_group("Math");
 
     _ = group.throughput(Throughput::Elements(1));
 
     _ = group.bench_function("sin", |b| {
+        #[cfg(feature = "libm")]
         b.iter_batched(|| rng().random_range(-PI / 2.0..PI / 2.0), |x| libm::sinf(black_box(x)), BatchSize::SmallInput);
     });
 
@@ -25,6 +27,7 @@ fn bench_math(c: &mut Criterion) {
     });
 
     _ = group.bench_function("cos", |b| {
+        #[cfg(feature = "libm")]
         b.iter_batched(|| rng().random_range(-PI / 2.0..PI / 2.0), |x| libm::cosf(black_box(x)), BatchSize::SmallInput);
     });
 
@@ -35,6 +38,9 @@ fn bench_math(c: &mut Criterion) {
     _ = group.bench_function("sin_cos", |b| {
         b.iter_batched(
             || rng().random_range(-PI / 2.0..PI / 2.0),
+            #[cfg(feature = "std")]
+            |x| (black_box(x)).sin_cos(),
+            #[cfg(feature = "libm")]
             |x| libm::sincosf(black_box(x)),
             BatchSize::SmallInput,
         );

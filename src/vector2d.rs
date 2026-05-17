@@ -1,5 +1,7 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::{MathConstants, SqrtMethods, Vector2dMath};
 
@@ -13,8 +15,9 @@ pub type Vector2df64 = Vector2d<f64>;
 /// `Vector2d<T>`: 2D vector of type `T`.<br>
 /// Aliases `Vector2df32` and `Vector2df64` are provided.<br><br>
 /// `Vector2df32` uses **SIMD** accelerations implemented in `Vector2dMath`.<br><br>
-#[repr(C, align(8))]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C, align(8))]
 pub struct Vector2d<T> {
     pub x: T,
     pub y: T,

@@ -1,6 +1,7 @@
-use cfg_if::cfg_if;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2d, Vector3dMath};
 
@@ -11,33 +12,16 @@ pub type Vector3df64 = Vector3d<f64>;
 
 // **** Define ****
 
-cfg_if! {
-if #[cfg(feature = "no_align")] {
-// Compact 12-byte version
-
-/// `Vector3d<T>`: 3D vector of type `T`.<br>
-/// Aliases `Vector3df32`, `Vector3df64`, `Vector3di16`, and `Vector3di32` are provided.<br><br>
-#[repr(C, align(4))]
 #[derive(Clone, Copy, Debug, PartialEq)]
+// Conditionally derive serde traits
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+// Conditionally apply alignment based on "no_align" feature
+#[cfg_attr(feature = "no_align", repr(C, align(4)))]
+#[cfg_attr(not(feature = "no_align"), repr(C, align(16)))]
 pub struct Vector3d<T> {
     pub x: T,
     pub y: T,
     pub z: T,
-}
-} else {
-// High-performance 16-byte aligned version, enables use of SIMD
-
-/// `Vector3d<T>`: 3D vector of type `T`.<br>
-/// Aliases `Vector3df32`, `Vector3df64`, `Vector3di16`, and `Vector3di32`  are provided.<br><br>
-/// `Vector3df32` uses **SIMD** accelerations implemented in `Vector3dMath`.<br><br>
-#[repr(C, align(16))]
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Vector3d<T> {
-    pub x: T,
-    pub y: T,
-    pub z: T,
-}
-}
 }
 
 impl<T> Default for Vector3d<T>

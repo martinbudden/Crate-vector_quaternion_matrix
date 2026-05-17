@@ -6,17 +6,28 @@ use vqm::{Matrix2x2, Matrix2x2f32, Vector2d};
 const _: () = assert!(core::mem::size_of::<Matrix2x2<f32>>() == 16);
 const _: () = assert!(core::mem::align_of::<Matrix2x2<f32>>() == 16);
 
+const _: () = assert!(core::mem::size_of::<Matrix2x2<f64>>() == 32);
+const _: () = assert!(core::mem::align_of::<Matrix2x2<f64>>() == 16);
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "serde")]
+    use serde::{Deserialize, Serialize};
 
     #[allow(unused)]
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
+    #[cfg(feature = "serde")]
+    fn is_config<
+        T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq + Serialize + for<'a> Deserialize<'a>,
+    >() {
+    }
 
     #[test]
     fn normal_types() {
         is_full::<Matrix2x2<f32>>();
+        #[cfg(feature = "serde")]
+        is_config::<Matrix2x2<f32>>();
     }
     #[test]
     fn default() {

@@ -6,13 +6,13 @@ cfg_if! {
         use core::simd::{f32x4,f32x8,num::SimdFloat};
         // must be aligned if using SIMD
         const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 64);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 32);
+        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 64);
     } else if #[cfg(feature = "no_align")] {
         const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 36);
         const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 4);
     } else {
         const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 64);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 32);
+        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 64);
     }
 }
 

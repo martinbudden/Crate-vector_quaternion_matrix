@@ -141,6 +141,7 @@ mod tests {
         assert_eq!(_sqrt_reciprocalf(4.0), 0.494_354_96);
         assert_eq!(4.0.sqrt_reciprocal(), 0.5);
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn sqrt() {
         assert_eq!(0.0_f32.sqrt(), libm::sqrtf(0.0));

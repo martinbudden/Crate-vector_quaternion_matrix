@@ -165,7 +165,6 @@ impl QuaternionMath for f32 {
     fn q_is_normalized(this: Quaternion<Self>) -> bool {
         let norm_squared = Self::q_norm_squared(this);
         (norm_squared - 1.0).abs() < 4e-6
-
     }
 
     #[inline(always)]

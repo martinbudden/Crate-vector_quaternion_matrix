@@ -37,61 +37,61 @@ cfg_if! {
         impl TrigonometricMethods for f32 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
-                sin_cos(self)
+                self.sin_cos()
             }
             #[inline(always)]
             fn sin(self) -> Self {
-                sin(self)
+                self.sin()
             }
             #[inline(always)]
             fn cos(self) -> Self {
-                cos(self)
+                self.cos()
             }
             #[inline(always)]
             fn tan(self) -> Self {
-                tan(self)
+                self.tan()
             }
             #[inline(always)]
             fn asin(self) -> Self {
-                asinf(self)
+                self.asin()
             }
             #[inline(always)]
             fn acos(self) -> Self {
-                acosf(self)
+                self.acos()
             }
             #[inline(always)]
             fn atan2(self, y: Self) -> Self {
-                atan2f(y, self)
+                self.atan2(y)
             }
         }
         impl TrigonometricMethods for f64 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
-                sin_cos(self)
+                self.sin_cos()
             }
             #[inline(always)]
             fn sin(self) -> Self {
-                sin(self)
+                self.sin()
             }
             #[inline(always)]
             fn cos(self) -> Self {
-                cos(self)
+                self.cos()
             }
             #[inline(always)]
             fn tan(self) -> Self {
-                tan(self)
+                self.tan()
             }
             #[inline(always)]
             fn asin(self) -> Self {
-                asinf(self)
+                self.asin()
             }
             #[inline(always)]
             fn acos(self) -> Self {
-                acosf(self)
+                self.acos()
             }
             #[inline(always)]
             fn atan2(self, y: Self) -> Self {
-                atan2f(y, self)
+                self.atan2(y)
             }
         }
     } else if #[cfg(all(not(feature = "std"), feature = "libm"))] {
@@ -317,6 +317,9 @@ where
 #[must_use]
 pub fn sin_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
+    #[cfg(feature = "std")]
+    let q = t.round(); // nearest quadrant
+    #[cfg(feature = "libm")]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q;
     #[allow(clippy::cast_possible_truncation)]
@@ -326,6 +329,9 @@ pub fn sin_approx(x: f32) -> f32 {
 #[must_use]
 pub fn cos_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
+    #[cfg(feature = "std")]
+    let q = t.round(); // nearest quadrant
+    #[cfg(feature = "libm")]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
     #[allow(clippy::cast_possible_truncation)]
@@ -335,6 +341,9 @@ pub fn cos_approx(x: f32) -> f32 {
 #[must_use]
 pub fn sin_cos_approx(x: f32) -> (f32, f32) {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
+    #[cfg(feature = "std")]
+    let q = t.round(); // nearest quadrant
+    #[cfg(feature = "libm")]
     let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
     #[allow(clippy::cast_possible_truncation)]
@@ -343,7 +352,7 @@ pub fn sin_cos_approx(x: f32) -> (f32, f32) {
 
 #[cfg(test)]
 mod tests {
-    #[allow(unused)]
+    #![allow(unused)]
     use super::*;
     use approx::assert_abs_diff_eq;
     macro_rules! assert_near {
@@ -352,10 +361,12 @@ mod tests {
         };
     }
 
+    #[cfg(feature = "libm")]
     #[test]
     fn asin() {
         assert_abs_diff_eq!(0.0_f32.asin(), libm::asinf(0.0));
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn sin() {
         assert_near!(sin_approx(10.0_f32.to_radians()), libm::sinf(10.0_f32.to_radians()));
@@ -397,6 +408,7 @@ mod tests {
         assert_near!(sin_approx(-180.0_f32.to_radians()), libm::sinf(-180.0_f32.to_radians()));
         assert_near!(sin_approx(-190.0_f32.to_radians()), libm::sinf(-190.0_f32.to_radians()));
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn cos() {
         assert_near!(cos_approx(10.0_f32.to_radians()), libm::cosf(10.0_f32.to_radians()));
@@ -438,6 +450,7 @@ mod tests {
         assert_near!(cos_approx(-180.0_f32.to_radians()), libm::cosf(-180.0_f32.to_radians()));
         assert_near!(cos_approx(-190.0_f32.to_radians()), libm::cosf(-190.0_f32.to_radians()));
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn sin_cos() {
         let (sin, cos) = 0.0_f32.sin_cos();
@@ -460,6 +473,7 @@ mod tests {
         assert_near!(sin, libm::sinf(-110.0_f32.to_radians()));
         assert_near!(cos, libm::cosf(-110.0_f32.to_radians()));
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn atan2() {
         assert_abs_diff_eq!(0.0_f32.atan2(1.0), libm::atan2f(0.0, 1.0));

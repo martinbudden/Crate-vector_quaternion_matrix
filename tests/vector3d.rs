@@ -26,15 +26,24 @@ mod tests {
     use crate::Vector3df32;
     use approx::assert_abs_diff_eq;
     use core::mem::{align_of, size_of};
+    #[cfg(feature = "serde")]
+    use serde::{Deserialize, Serialize};
     use vqm::Quaternionf32;
 
     #[allow(unused)]
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
+    #[cfg(feature = "serde")]
+    fn is_config<
+        T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq + Serialize + for<'a> Deserialize<'a>,
+    >() {
+    }
 
     #[test]
     fn normal_types() {
         is_full::<Vector3d<f32>>();
+        #[cfg(feature = "serde")]
+        is_config::<Vector3d<f32>>();
     }
     #[test]
     fn default() {
@@ -321,36 +330,5 @@ mod tests {
 
         assert_eq!(a, [2, 3, 5]);
         assert_eq!(b, [2, 3, 5]);
-    }
-    #[test]
-    fn filter_vector3di16_i32() {
-        use signal_filters::{Pt1Filter, SignalFilter};
-
-        let mut filter = Pt1Filter::<Vector3d<i16>, i32>::with_k(1);
-
-        // test that filter with default settings performs no filtering
-        let output = filter.update(Vector3di16 { x: 2, y: 3, z: 5 });
-        assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, output);
-    }
-    #[test]
-    fn pt1_filter_vector3di16_f32() {
-        use signal_filters::{Pt1Filter, SignalFilter};
-
-        let mut filter = Pt1Filter::<Vector3di16, f32>::with_k(1.0);
-
-        // test that filter with default settings performs no filtering
-        let output = filter.update(Vector3di16 { x: 2, y: 3, z: 5 });
-        assert_eq!(Vector3di16 { x: 2, y: 3, z: 5 }, output);
-    }
-    #[test]
-    fn filter_vector3di32_i32() {
-        use signal_filters::{Pt1Filter, SignalFilter};
-        type Vector3di32 = Vector3d<i32>;
-
-        let mut filter = Pt1Filter::<Vector3d<i32>, i32>::with_k(1);
-
-        // test that filter with default settings performs no filtering
-        let output = filter.update(Vector3di32 { x: 2, y: 3, z: 5 });
-        assert_eq!(Vector3di32 { x: 2, y: 3, z: 5 }, output);
     }
 }

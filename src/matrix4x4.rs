@@ -1,6 +1,8 @@
 #![allow(unused)]
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::{MathConstants, Matrix2x2, Matrix4x4Math, Quaternion, QuaternionMath, SqrtMethods, Vector3d, Vector4d};
 
@@ -15,8 +17,9 @@ pub type Matrix4x4f64 = Matrix4x4<f64>;
 /// Aliases `Matrix4x4f32` and `Matrix4x4f64` are provided.<br>
 /// Internal implementation is a flattened 4x4 matrix: an array of 9 elements stored in row-major order<br>
 /// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C, align(64))]
 pub struct Matrix4x4<T> {
     // Flattened 4x4 matrix: 16 elements in row-major order
     pub(crate) a: [T; 16],

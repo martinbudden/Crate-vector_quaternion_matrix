@@ -11,23 +11,32 @@ cfg_if! {
         const _: () = assert!(core::mem::align_of::<Matrix3x3<f64>>() == 8);
     } else {
         const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 64);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 32);
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f64>>() == 96);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f64>>() == 32);
+        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 64);
+        const _: () = assert!(core::mem::size_of::<Matrix3x3<f64>>() == 128);
+        const _: () = assert!(core::mem::align_of::<Matrix3x3<f64>>() == 64);
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "serde")]
+    use serde::{Deserialize, Serialize};
 
     #[allow(unused)]
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
+    #[cfg(feature = "serde")]
+    fn is_config<
+        T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq + Serialize + for<'a> Deserialize<'a>,
+    >() {
+    }
 
     #[test]
     fn normal_types() {
         is_full::<Matrix3x3<f32>>();
+        #[cfg(feature = "serde")]
+        is_config::<Matrix3x3<f32>>();
     }
     #[test]
     fn default() {
