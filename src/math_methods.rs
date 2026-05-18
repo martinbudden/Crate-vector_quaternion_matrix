@@ -171,36 +171,46 @@ cfg_if! {
                 sin / cos
             }
             fn asin(self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the asin function.");
+                0.0
             }
             fn acos(self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the acos function.");
+                0.0
             }
             fn atan2(self, y: Self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the atan2 function.");
+                0.0
             }
         }
         impl TrigonometricMethods for f64 {
             fn sin_cos(self) -> (Self, Self) {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the sin_cos function.");
+                (0.0, 0.0)
             }
             fn sin(self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the sin function.");
+                0.0
             }
             fn cos(self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the cos function.");
+                0.0
             }
             fn tan(self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the tan function.");
+                0.0
             }
             fn asin(self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the asin function.");
+                0.0
             }
             fn acos(self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the acos function.");
+                0.0
             }
             fn atan2(self, y: Self) -> Self {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the atan2 function.");
+                0.0
             }
         }
     }
@@ -317,10 +327,7 @@ where
 #[must_use]
 pub fn sin_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
-    #[cfg(feature = "std")]
     let q = t.round(); // nearest quadrant
-    #[cfg(feature = "libm")]
-    let q = libm::roundf(t); // nearest quadrant
     let r = t - q;
     #[allow(clippy::cast_possible_truncation)]
     sin_quadrant(r, q as i32)
@@ -329,10 +336,7 @@ pub fn sin_approx(x: f32) -> f32 {
 #[must_use]
 pub fn cos_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
-    #[cfg(feature = "std")]
     let q = t.round(); // nearest quadrant
-    #[cfg(feature = "libm")]
-    let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
     #[allow(clippy::cast_possible_truncation)]
     cos_quadrant(r, q as i32)
@@ -341,10 +345,7 @@ pub fn cos_approx(x: f32) -> f32 {
 #[must_use]
 pub fn sin_cos_approx(x: f32) -> (f32, f32) {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
-    #[cfg(feature = "std")]
     let q = t.round(); // nearest quadrant
-    #[cfg(feature = "libm")]
-    let q = libm::roundf(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
     #[allow(clippy::cast_possible_truncation)]
     sin_cos_quadrant(r, q as i32)

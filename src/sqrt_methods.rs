@@ -101,10 +101,12 @@ cfg_if! {
         }
         impl SqrtMethods for f64 {
             fn sqrt(self) -> f64 {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the sqrt function.");
+                0.0
             }
             fn sqrt_reciprocal(self) -> f64 {
-                compile_error!("Please enable the 'libm' or 'std' feature for math support.")
+                compile_error!("Please enable the 'libm' or 'std' feature for the sqrt_reciprocal function.");
+                0.0
             }
         }
     }
