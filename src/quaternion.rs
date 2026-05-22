@@ -14,33 +14,10 @@ pub type Quaternionf32 = Quaternion<f32>;
 /// Quaternion of `f64` values<br><br>
 pub type Quaternionf64 = Quaternion<f64>;
 
-/// `RollPitchYaw` `struct { roll: f32, pitch: f32, yaw: f32 }`<br>
-pub type RollPitchYawf32 = RollPitchYaw<f32>;
-/// `RollPitchYaw` `struct { roll: f64, pitch: f64, yaw: f64 }`<br>
-pub type RollPitchYawf64 = RollPitchYaw<f64>;
-
-/// `RollPitch` `struct { roll: f32, pitch: f32 }`<br>
-pub type RollPitchf32 = RollPitch<f32>;
-/// `RollPitch` `struct { roll: f64, pitch: f64 }`<br><br>
-pub type RollPitchf64 = RollPitch<f64>;
-
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct RollPitchYaw<T> {
-    pub roll: T,
-    pub pitch: T,
-    pub yaw: T,
-}
-
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct RollPitch<T> {
-    pub roll: T,
-    pub pitch: T,
-}
-
 // **** Define ****
 
 /// `Quaternion<T>`: quaternion type `T`.<br>
-/// Aliases `Quaternion32` and `Quaternionf64` are provided.<br><br>
+/// Aliases `Quaternion32` and `Quaternionf64` are provided.<br>
 /// `Quaternionf32` uses **SIMD** accelerations implemented in `QuaternionMath`.<br><br>
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -740,7 +717,16 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + One + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + SqrtMethods,
+    T: Copy
+        + Zero
+        + One
+        + PartialEq
+        + PartialOrd
+        + Add<Output = T>
+        + Sub<Output = T>
+        + Mul<Output = T>
+        + Div<Output = T>
+        + SqrtMethods,
 {
     pub fn rotate(self, v: &Vector3d<T>) -> Vector3d<T> {
         let two: T = T::one() + T::one();
@@ -779,12 +765,14 @@ where
 
     pub fn cos_pitch(self) -> T {
         let s: T = self.sin_pitch();
-        (T::one() - s * s).sqrt()
+        let sq = T::one() - s * s;
+        if sq < T::zero() { T::zero() } else { sq.sqrt() }
     }
 
     pub fn tan_pitch(self) -> T {
         let s: T = self.sin_pitch();
-        s * (T::one() - s * s).sqrt_reciprocal()
+        let sq = T::one() - s * s;
+        if sq < T::zero() { T::zero() } else { s * sq.sqrt_reciprocal() }
     }
 
     pub fn cos_yaw(self) -> T {
@@ -806,6 +794,18 @@ where
         let a: T = self.w * self.x + self.y * self.z;
         let b: T = half - self.x * self.x - self.y * self.y;
         a * (a * a + b * b).sqrt_reciprocal()
+    }
+
+    /// cos of the total tilt angle (direct Z-axis projection from the rotation matrix).
+    pub fn cos_tilt(self) -> T {
+        T::one() - (T::one() + T::one()) * (self.x * self.x + self.y * self.y)
+    }
+
+    /// sin of the total tilt angle (direct Z-axis projection from the rotation matrix).
+    pub fn sin_tilt(self) -> T {
+        let c: T = self.cos_tilt();
+        let sq = T::one() - c * c;
+        if sq < T::zero() { T::zero() } else { sq.sqrt() }
     }
 }
 
@@ -1125,24 +1125,5 @@ where
     #[inline]
     fn from((roll_radians, pitch_radians, yaw_radians): (T, T, T)) -> Self {
         Quaternion::from_roll_pitch_yaw_angles_radians(roll_radians, pitch_radians, yaw_radians)
-    }
-}
-
-impl<T> From<RollPitchYaw<T>> for Quaternion<T>
-where
-    T: Copy + TrigonometricMethods + FloatCore,
-{
-    fn from(angles: RollPitchYaw<T>) -> Self {
-        Quaternion::from_roll_pitch_yaw_angles_radians(angles.roll, angles.pitch, angles.yaw)
-    }
-}
-
-impl<T> From<RollPitch<T>> for Quaternion<T>
-where
-    T: Copy + TrigonometricMethods + FloatCore,
-{
-    #[inline]
-    fn from(angles: RollPitch<T>) -> Self {
-        Quaternion::from_roll_pitch_angles_radians(angles.roll, angles.pitch)
     }
 }

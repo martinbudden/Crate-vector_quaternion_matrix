@@ -13,7 +13,7 @@ pub type Vector4df64 = Vector4d<f64>;
 // **** Define ****
 
 /// `Vector4d<T>`: 3D vector of type `T`.<br>
-/// Aliases `Vector4df32` and `Vector4df64` are provided.<br><br>
+/// Aliases `Vector4df32` and `Vector4df64` are provided.<br>
 /// `Vector4df32` uses **SIMD** accelerations implemented in `Vector4dMath`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

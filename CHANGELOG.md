@@ -25,11 +25,34 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Deprecated
 
-At some point [0.1.0] will be [YANKED]
+At some point [0.1.0] to [0.1.7] will be [YANKED]
 
 ### Fixed
 
 ### Security
+
+## [0.1.8] - 2026-05-22
+
+### Added
+
+- `Mnn` constants to index matrix elements (eg `M11`, `M23` etc).
+- `identity` functions for matrices.
+- `Matrix9x9` - partial implementation to support Kalman filters.
+- `outer_product` function to matrices.
+- `KalmanStateVector9` to support Kalman filters.
+- `cos_tilt` and `sin_tilt` functions to `Quaternion`.
+- conversion functions to `RollPitch` and `RollPitchYaw`.
+
+### Changed
+
+- optimized `m3x3_mul_vector` to be more compiler-friendly for generating SIMD instructions.
+- renamed `try_invert` to `try_inverse`.
+- tidied `zero` and `one` functions.
+- improved documentation.
+
+### Removed
+
+- `katex-header.html`
 
 ## [0.1.7] - 2026-05-17
 

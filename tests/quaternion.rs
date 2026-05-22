@@ -196,4 +196,36 @@ mod tests {
         assert_abs_diff_eq!(q.w, 1.001, epsilon = 1e-6);
         assert_abs_diff_eq!(q.x, 0.002, epsilon = 1e-6);
     }
+    #[test]
+    fn cos_tilt() {
+        use approx::assert_abs_diff_eq;
+
+        let q = Quaternionf32 { w: 1.0, x: 0.0, y: 0.0, z: 0.0 };
+        assert_abs_diff_eq!(q.cos_tilt(), 1.0, epsilon = 1e-6);
+
+        // Quaternion for 30 deg rotation around Y axis: [cos(15), 0, sin(15), 0]
+        let angle = 30.0_f32.to_radians();
+        let q = Quaternionf32 { w: (angle / 2.0).cos(), x: 0.0, y: (angle / 2.0).sin(), z: 0.0 };
+        assert_abs_diff_eq!(q.cos_tilt(), angle.cos(), epsilon = 1e-6);
+
+        // Define asymmetric test orientation angles (in radians)
+        let roll = -18.3_f32.to_radians(); // Leaning left
+        let pitch = 12.5_f32.to_radians(); // Tilted forward
+        let yaw = 45.0_f32.to_radians(); // Swiveled diagonally
+
+        // Calculate the expected true mathematical Z-axis projection.
+        // This represents the geometric baseline our code must match.
+        let expected_cos_tilt = pitch.cos() * roll.cos();
+        let q = Quaternionf32::from_roll_pitch_yaw_angles_radians(roll, pitch, yaw);
+        assert_abs_diff_eq!(expected_cos_tilt, q.cos_tilt(), epsilon = 1e-6);
+        assert_abs_diff_eq!(roll.cos(), q.cos_roll(), epsilon = 1e-6);
+        assert_abs_diff_eq!(pitch.cos(), q.cos_pitch(), epsilon = 1e-6);
+
+        // check independent of yaw
+        let q = Quaternionf32::from_roll_pitch_yaw_angles_radians(roll, pitch, 0.0);
+        assert_abs_diff_eq!(expected_cos_tilt, q.cos_tilt(), epsilon = 1e-6);
+
+        let q = Quaternionf32::from_roll_pitch_yaw_angles_degrees(120.0, 0.0, 0.0);
+        assert_abs_diff_eq!(-0.5, q.cos_tilt(), epsilon = 1e-6);
+    }
 }

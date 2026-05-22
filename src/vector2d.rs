@@ -13,7 +13,7 @@ pub type Vector2df64 = Vector2d<f64>;
 // **** Define ****
 
 /// `Vector2d<T>`: 2D vector of type `T`.<br>
-/// Aliases `Vector2df32` and `Vector2df64` are provided.<br><br>
+/// Aliases `Vector2df32` and `Vector2df64` are provided.<br>
 /// `Vector2df32` uses **SIMD** accelerations implemented in `Vector2dMath`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

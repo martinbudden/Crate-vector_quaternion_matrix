@@ -20,7 +20,7 @@ use crate::{Matrix3x3, Vector3d};
 
 // **** Math ****
 
-/// Math functions for Matrix3x3, using **SIMD** accelerations for `f32`.<br><br>
+/// Math functions for Matrix3x3, using **SIMD** accelerations for `f32`.<br>
 pub trait Matrix3x3Math: Sized {
     fn m3x3_neg(this: Matrix3x3<Self>) -> Matrix3x3<Self>;
     fn m3x3_abs(this: Matrix3x3<Self>) -> Matrix3x3<Self>;
@@ -30,6 +30,7 @@ pub trait Matrix3x3Math: Sized {
     fn m3x3_mul_add(this: Matrix3x3<Self>, k: Self, other: Matrix3x3<Self>) -> Matrix3x3<Self>;
     fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
     fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self>;
+    fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self>;
     fn m3x3_mul(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self>;
     fn m3x3_trace(this: Matrix3x3<Self>) -> Self;
     fn m3x3_trace_sum_squares(this: Matrix3x3<Self>) -> Self;
@@ -88,28 +89,94 @@ impl Matrix3x3Math for f32 {
 
     #[inline]
     fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        // Column 0 * x
-        let mut rx = this.a[0] * other.x;
-        let mut ry = this.a[3] * other.x;
-        let mut rz = this.a[6] * other.x;
+        // Map the 16-byte aligned vector into a uniform 4-element array.
+        // The 4th element is zeroed out so it contributes nothing to the dot products.
+        let v = [other.x, other.y, other.z, 0.0];
 
-        // Accumulate Column 1 * y
-        rx += this.a[1] * other.y;
-        ry += this.a[4] * other.y;
-        rz += this.a[7] * other.y;
+        // Unpack the flat matrix into 4-element padded rows.
+        let r1 = [this.a[0], this.a[1], this.a[2], 0.0];
+        let r2 = [this.a[3], this.a[4], this.a[5], 0.0];
+        let r3 = [this.a[6], this.a[7], this.a[8], 0.0];
 
-        // Accumulate Column 2 * z
-        rx += this.a[2] * other.z;
-        ry += this.a[5] * other.z;
-        rz += this.a[8] * other.z;
+        // Compute row dot products using unrolled, 4-wide loops.
+        // LLVM easily vectorizes a simple element-wise multiply-and-accumulate loop
+        // spanning exactly 4 items, mapping it directly to hardware registers.
+        let mut x = 0.0;
+        let mut y = 0.0;
+        let mut z = 0.0;
 
-        Vector3d { x: rx, y: ry, z: rz }
+        for ii in 0..4 {
+            x += r1[ii] * v[ii];
+        }
+        for ii in 0..4 {
+            y += r2[ii] * v[ii];
+        }
+        for ii in 0..4 {
+            z += r3[ii] * v[ii];
+        }
+
+        // Return the new vector
+        Vector3d { x, y, z }
     }
+    #[rustfmt::skip]
+    #[inline]
     fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self> {
         Vector3d {
             x: this.x * other.a[0] + this.y * other.a[3] + this.z * other.a[6],
             y: this.x * other.a[1] + this.y * other.a[4] + this.z * other.a[7],
             z: this.x * other.a[2] + this.y * other.a[5] + this.z * other.a[8],
+        }
+    }
+
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self> {
+        #[cfg(feature = "simd")]
+        {
+            // By taking ownership of the value, Rust guarantees no other pointer
+            // can modify these values during our calculation loop.
+            // let row_simd = unsafe { *(&row as *const Vector3df32 as *const f32x4) };
+            let row_simd = f32x4::from_array([row.x, row.y, row.z, 0.0]);
+
+            let col_x = f32x4::splat(col.x);
+            let col_y = f32x4::splat(col.y);
+            let col_z = f32x4::splat(col.z);
+
+            let r1 = col_x * row_simd;
+            let r2 = col_y * row_simd;
+            let r3 = col_z * row_simd;
+
+            Matrix3x3::from([r1.to_array(), r2.to_array(), r3.to_array()])
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            // Structure data into local fixed-size arrays of 4 elements.
+            // Since row is align(16), we manually map the implicit 4th buffer element.
+            let r = [row.x, row.y, row.z, 0.0];
+
+            let mut m1 = [0.0; 4];
+            let mut m2 = [0.0; 4];
+            let mut m3 = [0.0; 4];
+
+            // Write uniform loops spanning exactly 4 elements.
+            // LLVM's auto-vectorizer recognizes 4-wide float operations
+            // and combines these into parallel execution blocks, if the processor supports it.
+            for ii in 0..4 {
+                m1[ii] = col.x * r[ii];
+            }
+            for ii in 0..4 {
+                m2[ii] = col.y * r[ii];
+            }
+            for ii in 0..4 {
+                m3[ii] = col.z * r[ii];
+            }
+
+            // Populate the matrix, discarding the 4th padding lane.
+            Matrix3x3::from([
+                m1[0], m1[1], m1[2],
+                m2[0], m2[1], m2[2],
+                m3[0], m3[1], m3[2],
+            ])
         }
     }
 
@@ -225,6 +292,7 @@ impl Matrix3x3Math for f32 {
         }
     }
 
+    #[rustfmt::skip]
     #[inline(always)]
     fn m3x3_determinant(this: Matrix3x3<Self>) -> Self {
         #[cfg(feature = "simd")]
@@ -243,9 +311,9 @@ impl Matrix3x3Math for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
-                - this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
-                + this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
+             this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
+            -this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
+            +this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
         }
     }
 
@@ -349,11 +417,34 @@ impl Matrix3x3Math for f64 {
 
     #[inline(always)]
     fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d {
-            x: this.a[0] * other.x + this.a[1] * other.y + this.a[2] * other.z,
-            y: this.a[3] * other.x + this.a[4] * other.y + this.a[5] * other.z,
-            z: this.a[6] * other.x + this.a[7] * other.y + this.a[8] * other.z,
+        // Map the 16-byte aligned vector into a uniform 4-element array.
+        // The 4th element is zeroed out so it contributes nothing to the dot products.
+        let v = [other.x, other.y, other.z, 0.0];
+
+        // Unpack the flat matrix into 4-element padded rows.
+        let r1 = [this.a[0], this.a[1], this.a[2], 0.0];
+        let r2 = [this.a[3], this.a[4], this.a[5], 0.0];
+        let r3 = [this.a[6], this.a[7], this.a[8], 0.0];
+
+        // Compute row dot products using unrolled, 4-wide loops.
+        // LLVM easily vectorizes a simple element-wise multiply-and-accumulate loop
+        // spanning exactly 4 items, mapping it directly to hardware registers.
+        let mut x = 0.0;
+        let mut y = 0.0;
+        let mut z = 0.0;
+
+        for ii in 0..4 {
+            x += r1[ii] * v[ii];
         }
+        for ii in 0..4 {
+            y += r2[ii] * v[ii];
+        }
+        for ii in 0..4 {
+            z += r3[ii] * v[ii];
+        }
+
+        // Return the new vector
+        Vector3d { x, y, z }
     }
 
     #[inline(always)]
@@ -363,6 +454,38 @@ impl Matrix3x3Math for f64 {
             y: this.x * other.a[1] + this.y * other.a[4] + this.z * other.a[7],
             z: this.x * other.a[2] + this.y * other.a[5] + this.z * other.a[8],
         }
+    }
+
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self> {
+        // Structure data into local fixed-size arrays of 4 elements.
+        // Since row is align(16), we manually map the implicit 4th buffer element.
+        let r = [row.x, row.y, row.z, 0.0];
+
+        let mut m1 = [0.0; 4];
+        let mut m2 = [0.0; 4];
+        let mut m3 = [0.0; 4];
+
+        // Write uniform loops spanning exactly 4 elements.
+        // LLVM's auto-vectorizer recognizes 4-wide float operations
+        // and combines these into parallel execution blocks, if the processor supports it.
+        for ii in 0..4 {
+            m1[ii] = col.x * r[ii];
+        }
+        for ii in 0..4 {
+            m2[ii] = col.y * r[ii];
+        }
+        for ii in 0..4 {
+            m3[ii] = col.z * r[ii];
+        }
+
+        // Populate the matrix, discarding the 4th padding lane.
+        Matrix3x3::from([
+            m1[0], m1[1], m1[2],
+            m2[0], m2[1], m2[2],
+            m3[0], m3[1], m3[2],
+        ])
     }
 
     #[inline(always)]

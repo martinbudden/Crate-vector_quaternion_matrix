@@ -12,6 +12,9 @@ pub type Vector3df64 = Vector3d<f64>;
 
 // **** Define ****
 
+/// `Vector3d<T>`: 3D vector of type `T`.<br>
+/// Aliases `Vector3df32` and `Vector2df64` are provided.<br>
+/// `Vector3df32` uses **SIMD** accelerations implemented in `Vector3dMath`.<br><br>
 #[derive(Clone, Copy, Debug, PartialEq)]
 // Conditionally derive serde traits
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

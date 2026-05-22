@@ -5,7 +5,7 @@ use crate::{Matrix3x3, Matrix3x3Math, Matrix4x4, Vector4d};
 
 // **** Math ****
 
-/// Math functions for Matrix4x4, using **SIMD** accelerations for `f32`.<br><br>
+/// Math functions for Matrix4x4, using **SIMD** accelerations for `f32`.<br>
 pub trait Matrix4x4Math: Sized {
     fn m4x4_neg(this: Matrix4x4<Self>) -> Matrix4x4<Self>;
     fn m4x4_abs(this: Matrix4x4<Self>) -> Matrix4x4<Self>;
@@ -15,6 +15,7 @@ pub trait Matrix4x4Math: Sized {
     fn m4x4_mul_add(this: Matrix4x4<Self>, k: Self, other: Matrix4x4<Self>) -> Matrix4x4<Self>;
     fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self>;
     fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self>;
+    fn m4x4_vector_outer_product(col: Vector4d<Self>, row: Vector4d<Self>) -> Matrix4x4<Self>;
     fn m4x4_mul(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self>;
     fn m4x4_determinant(this: Matrix4x4<Self>) -> Self;
     fn m4x4_top_right_determinant(this: Matrix4x4<Self>) -> Self;
@@ -62,17 +63,6 @@ impl Matrix4x4Math for f32 {
         Self::m4x4_add(Self::m4x4_mul_scalar(this, k), other)
     }
 
-    #[rustfmt::skip]
-    #[inline]
-    fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self> {
-        Vector4d {
-            x: this.x * other.a[0] + this.y * other.a[4] + this.z * other.a[8] + this.t * other.a[12],
-            y: this.x * other.a[1] + this.y * other.a[5] + this.z * other.a[9] + this.t * other.a[13],
-            z: this.x * other.a[2] + this.y * other.a[6] + this.z * other.a[10] + this.t * other.a[14],
-            t: this.x * other.a[3] + this.y * other.a[7] + this.z * other.a[11] + this.t * other.a[15],
-        }
-    }
-
     #[allow(clippy::needless_range_loop)]
     #[rustfmt::skip]
     #[inline]
@@ -88,6 +78,53 @@ impl Matrix4x4Math for f32 {
             }
         }
         Vector4d { x: res[0], y: res[1], z: res[2], t: res[3] }
+    }
+
+    #[rustfmt::skip]
+    #[inline]
+    fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self> {
+        Vector4d {
+            x: this.x * other.a[0] + this.y * other.a[4] + this.z * other.a[8] + this.t * other.a[12],
+            y: this.x * other.a[1] + this.y * other.a[5] + this.z * other.a[9] + this.t * other.a[13],
+            z: this.x * other.a[2] + this.y * other.a[6] + this.z * other.a[10] + this.t * other.a[14],
+            t: this.x * other.a[3] + this.y * other.a[7] + this.z * other.a[11] + this.t * other.a[15],
+        }
+    }
+
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m4x4_vector_outer_product(col: Vector4d<Self>, row: Vector4d<Self>) -> Matrix4x4<Self> {
+        // Structure data into local fixed-size arrays of 4 elements.
+        // Since row is align(16), we manually map the implicit 4th buffer element.
+        let r = [row.x, row.y, row.z, row.t];
+
+        let mut m1 = [0.0; 4];
+        let mut m2 = [0.0; 4];
+        let mut m3 = [0.0; 4];
+        let mut m4 = [0.0; 4];
+
+        // Write uniform loops spanning exactly 4 elements.
+        // LLVM's auto-vectorizer recognizes 4-wide float operations
+        // and combines these into parallel execution blocks, if the processor supports it.
+        for ii in 0..4 {
+            m1[ii] = col.x * r[ii];
+        }
+        for ii in 0..4 {
+            m2[ii] = col.y * r[ii];
+        }
+        for ii in 0..4 {
+            m3[ii] = col.z * r[ii];
+        }
+        for ii in 0..4 {
+            m4[ii] = col.t * r[ii];
+        }
+
+        Matrix4x4::from([
+            m1[0], m1[1], m1[2], m1[3],
+            m2[0], m2[1], m2[2], m2[3],
+            m3[0], m3[1], m3[2], m3[3],
+            m3[0], m3[1], m3[2], m4[3],
+        ])
     }
 
     #[inline]
@@ -114,7 +151,7 @@ impl Matrix4x4Math for f32 {
 
     #[inline(always)]
     fn m4x4_trace_sum_squares(this: Matrix4x4<Self>) -> Self {
-        { this.a[0] * this.a[0] + this.a[5] * this.a[5] + this.a[10] * this.a[10] + this.a[15] * this.a[15] }
+        this.a[0] * this.a[0] + this.a[5] * this.a[5] + this.a[10] * this.a[10] + this.a[15] * this.a[15]
     }
 
     #[inline(always)]
@@ -212,6 +249,8 @@ impl Matrix4x4Math for f32 {
     }
 }
 
+// **** f64 ****
+
 impl Matrix4x4Math for f64 {
     #[inline(always)]
     fn m4x4_neg(this: Matrix4x4<Self>) -> Matrix4x4<Self> {
@@ -267,6 +306,42 @@ impl Matrix4x4Math for f64 {
             z:  this.a[8] * other.x +  this.a[9] * other.y + this.a[10] * other.z + this.a[11] * other.t,
             t: this.a[12] * other.x + this.a[13] * other.y + this.a[14] * other.z + this.a[15] * other.t,
         }
+    }
+
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m4x4_vector_outer_product(col: Vector4d<Self>, row: Vector4d<Self>) -> Matrix4x4<Self> {
+        // Structure data into local fixed-size arrays of 4 elements.
+        // Since row is align(16), we manually map the implicit 4th buffer element.
+        let r = [row.x, row.y, row.z, row.t];
+
+        let mut m1 = [0.0; 4];
+        let mut m2 = [0.0; 4];
+        let mut m3 = [0.0; 4];
+        let mut m4 = [0.0; 4];
+
+        // Write uniform loops spanning exactly 4 elements.
+        // LLVM's auto-vectorizer recognizes 4-wide float operations
+        // and combines these into parallel execution blocks, if the processor supports it.
+        for ii in 0..4 {
+            m1[ii] = col.x * r[ii];
+        }
+        for ii in 0..4 {
+            m2[ii] = col.y * r[ii];
+        }
+        for ii in 0..4 {
+            m3[ii] = col.z * r[ii];
+        }
+        for ii in 0..4 {
+            m4[ii] = col.t * r[ii];
+        }
+
+        Matrix4x4::from([
+            m1[0], m1[1], m1[2], m1[3],
+            m2[0], m2[1], m2[2], m2[3],
+            m3[0], m3[1], m3[2], m3[3],
+            m3[0], m3[1], m3[2], m4[3],
+        ])
     }
 
     #[inline]

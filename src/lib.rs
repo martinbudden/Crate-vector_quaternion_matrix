@@ -30,17 +30,21 @@ mod matrix2x2_math;
 mod matrix3x3;
 mod matrix3x3_math;
 
+mod kalman_state_vector9;
 mod matrix4x4;
 mod matrix4x4_math;
+mod matrix9x9;
+mod matrix9x9_math;
 
 mod quaternion;
 mod quaternion_math;
+mod roll_pitch_yaw;
 
 pub use math_constants::MathConstants;
 pub use math_methods::TrigonometricMethods;
 
-#[doc(hidden)]
 // The trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use.
+#[doc(hidden)]
 pub use math_methods::{cos_approx, sin_approx, sin_cos_approx};
 pub use sqrt_methods::SqrtMethods;
 
@@ -54,8 +58,8 @@ pub use vector4d::{Vector4d, Vector4df32, Vector4df64};
 pub use vector4d_math::Vector4dMath;
 
 pub use quaternion::{Quaternion, Quaternionf32, Quaternionf64};
-pub use quaternion::{RollPitchYawf32, RollPitchYawf64, RollPitchf32, RollPitchf64};
 pub use quaternion_math::QuaternionMath;
+pub use roll_pitch_yaw::{RollPitch, RollPitchYaw, RollPitchYawf32, RollPitchYawf64, RollPitchf32, RollPitchf64};
 
 pub use matrix2x2::{Matrix2x2, Matrix2x2f32, Matrix2x2f64};
 pub use matrix2x2_math::Matrix2x2Math;
@@ -65,3 +69,8 @@ pub use matrix3x3_math::Matrix3x3Math;
 
 pub use matrix4x4::{Matrix4x4, Matrix4x4f32, Matrix4x4f64};
 pub use matrix4x4_math::Matrix4x4Math;
+
+pub use matrix9x9::{Matrix9x9, Matrix9x9f32, Matrix9x9f64};
+pub use matrix9x9_math::Matrix9x9Math;
+
+pub use kalman_state_vector9::{KalmanStateVector9, KalmanStateVector9f32, KalmanStateVector9f64};

@@ -10,7 +10,8 @@ and uses no allocation. This means it is suitable for embedded system.
 
 Vectors have 2D, 3D, and 4D versions.
 
-Matrices have 2x2, 3x3, and 4x4 versions.
+Matrices have 2x2, 3x3, 4x4, and 9x9 versions. The 9x9 matrix implementation has been added to support Kalman filters
+and is incomplete.
 
 Each type has versions for `f32` and `f64`. So we have:
 
@@ -21,6 +22,7 @@ Each type has versions for `f32` and `f64`. So we have:
 5. 2x2 matrices: `Matrix2x2f32`, `Matrix2x2f64`
 6. 3x3 matrices: `Matrix3x3f32`, `Matrix3x3f64`
 7. 4x4 matrices: `Matrix4x4f32`, `Matrix4x4f64`
+8. 9x9 matrices: `Matrix9x9f32`, `Matrix9x9f64` - partial implementation with special functions for Kalman filters.
 
 The 3D vector additionally has `i16` and `i32` versions: `Vector3di16` and `Vector3di32`.
 

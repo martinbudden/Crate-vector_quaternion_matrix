@@ -14,12 +14,10 @@ pub type Matrix3x3f64 = Matrix3x3<f64>;
 
 /// `Matrix3x3<T>`: 3x3 Matrix of type `T`.<br>
 /// Aliases `Matrix3x3f32` and `Matrix3x3f64` are provided.<br>
-/// Internal implementation is a flattened 3x3 matrix: an array of 9 elements stored in row-major order<br>
-/// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.
+/// Internal implementation is a flattened 3x3 matrix: an array of 9 elements stored in row-major order.
+/// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
-// Conditionally derive serde traits
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-// Conditionally apply alignment based on "no_align" feature
 #[cfg_attr(feature = "no_align", repr(C))]
 #[cfg_attr(not(feature = "no_align"), repr(C, align(64)))]
 pub struct Matrix3x3<T> {
@@ -27,23 +25,41 @@ pub struct Matrix3x3<T> {
     pub(crate) a: [T; 9],
 }
 
+/// Constants to index matrix elements.
+impl<T> Matrix3x3<T> {
+    pub const SIZE: usize = 9;
+    pub const ROW_COUNT: usize = 3;
+    pub const COL_COUNT: usize = 3;
+    // Row 1
+    pub const M11: usize = 0;
+    pub const M12: usize = 1;
+    pub const M13: usize = 2;
+    // Row 2
+    pub const M21: usize = 3;
+    pub const M22: usize = 4;
+    pub const M23: usize = 5;
+    // Row 3
+    pub const M31: usize = 6;
+    pub const M32: usize = 7;
+    pub const M33: usize = 8;
+}
+
 // **** New ****
 
-/// Create a matrix.
-/// ```
-/// # use vqm::Matrix3x3f32;
-/// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
-///                              5.0, 11.0, 47.0,
-///                             23.0, 31.0, 41.0]);
-/// assert_eq!(m, Matrix3x3f32::from([  2.0, 17.0, 59.0,
-///                                     5.0, 11.0, 47.0,
-///                                    23.0, 31.0, 41.0]));
-/// ```
 impl<T> Matrix3x3<T>
 where
     T: Copy,
 {
     /// Create a matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
+    /// assert_eq!(m, Matrix3x3f32::from([  2.0, 17.0, 59.0,
+    ///                                     5.0, 11.0, 47.0,
+    ///                                    23.0, 31.0, 41.0]));
+    /// ```
     #[inline]
     pub const fn new(input: [T; 9]) -> Self {
         Self { a: input }
@@ -52,76 +68,62 @@ where
 
 // **** Zero ****
 
-/// Zero matrix.
-/// ```
-/// # use vqm::Matrix3x3f32;
-/// # use num_traits::{Zero,zero};
-/// let z = Matrix3x3f32::zero();
-///
-/// assert_eq!(z, Matrix3x3f32::from([ 0.0, 0.0, 0.0,
-///                                    0.0, 0.0, 0.0,
-///                                    0.0, 0.0, 0.0]));
-/// assert!(z.is_zero());
-/// ```
 impl<T> Zero for Matrix3x3<T>
 where
     T: Copy + Zero + PartialEq + Matrix3x3Math,
 {
-    #[rustfmt::skip]
+    /// Zero matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use num_traits::{Zero,zero};
+    /// let z = Matrix3x3f32::zero();
+    ///
+    /// assert_eq!(z, Matrix3x3f32::from([ 0.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 0.0]));
+    /// assert!(z.is_zero());
+    /// ```
     #[inline]
     fn zero() -> Self {
-        Self {
-            a: [
-                T::zero(), T::zero(), T::zero(),
-                T::zero(), T::zero(), T::zero(),
-                T::zero(), T::zero(), T::zero(),
-            ],
-        }
+        Self { a: [T::zero(); 9] }
     }
 
     #[inline]
     fn is_zero(&self) -> bool {
-        self.a.iter().all(|&x| x == T::zero())
+        *self == Self::zero()
     }
 }
 
-/// Const zero matrix.
-/// ```
-/// # use vqm::Matrix3x3f32;
-/// # use num_traits::{zero,Zero,ConstZero};
-/// let m = Matrix3x3f32::ZERO;
-/// assert!(m.is_zero());
-/// ```
 impl<T> ConstZero for Matrix3x3<T>
 where
     T: Copy + ConstZero + PartialEq + Matrix3x3Math,
 {
-    #[rustfmt::skip]
-    const ZERO: Self = Self {
-        a: [
-            T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO,
-        ]
-    };
+    /// Const zero matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use num_traits::{zero,Zero,ConstZero};
+    /// let m = Matrix3x3f32::ZERO;
+    /// assert!(m.is_zero());
+    /// ```
+    const ZERO: Self = Self { a: [T::ZERO; 9] };
 }
 
 // **** One ****
 
-/// Identity matrix.
-/// ```
-/// # use vqm::Matrix3x3f32;
-/// # use num_traits::One;
-/// let i = Matrix3x3f32::one();
-///
-/// assert_eq!(i, Matrix3x3f32::from([ 1.0, 0.0, 0.0,
-///                                    0.0, 1.0, 0.0,
-///                                    0.0, 0.0, 1.0]));
-/// ```
 impl<T> One for Matrix3x3<T>
 where
     T: Copy + Zero + One + PartialEq + Matrix3x3Math,
 {
+    /// Identity matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use num_traits::One;
+    /// let i = Matrix3x3f32::one();
+    ///
+    /// assert_eq!(i, Matrix3x3f32::from([ 1.0, 0.0, 0.0,
+    ///                                    0.0, 1.0, 0.0,
+    ///                                    0.0, 0.0, 1.0]));
+    /// ```
     #[rustfmt::skip]
     #[inline]
     fn one() -> Self {
@@ -134,31 +136,26 @@ where
         }
     }
 
-    #[rustfmt::skip]
     #[inline]
     fn is_one(&self) -> bool {
-        self.a == [
-            T::one(),  T::zero(), T::zero(),
-            T::zero(), T::one(),  T::zero(),
-            T::zero(), T::zero(), T::one(),
-        ]
+        *self == Self::one()
     }
 }
 
-/// Const identity matrix.
-/// ```
-/// # use vqm::Matrix3x3f32;
-/// # use num_traits::ConstOne;
-/// let i = Matrix3x3f32::ONE;
-///
-/// assert_eq!(i, Matrix3x3f32::from([ 1.0, 0.0, 0.0,
-///                                    0.0, 1.0, 0.0,
-///                                    0.0, 0.0, 1.0]));
-/// ```
 impl<T> ConstOne for Matrix3x3<T>
 where
     T: Copy + ConstZero + ConstOne + PartialEq + Matrix3x3Math,
 {
+    /// Const identity matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use num_traits::ConstOne;
+    /// let i = Matrix3x3f32::ONE;
+    ///
+    /// assert_eq!(i, Matrix3x3f32::from([ 1.0, 0.0, 0.0,
+    ///                                    0.0, 1.0, 0.0,
+    ///                                    0.0, 0.0, 1.0]));
+    /// ```
     #[rustfmt::skip]
     const ONE: Self = Self {
         a: [
@@ -167,6 +164,33 @@ where
             T::ZERO, T::ZERO, T::ONE,
         ]
     };
+}
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + Zero + One,
+{
+    /// Identity matrix.
+    /// Alias for `one()` that does not require `num_traits::One`.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// let i = Matrix3x3f32::identity();
+    ///
+    /// assert_eq!(i, Matrix3x3f32::from([ 1.0, 0.0, 0.0,
+    ///                                    0.0, 1.0, 0.0,
+    ///                                    0.0, 0.0, 1.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub fn identity() -> Self {
+        Self {
+            a: [
+                T::one(),  T::zero(), T::zero(),
+                T::zero(), T::one(),  T::zero(),
+                T::zero(), T::zero(), T::one()
+            ],
+        }
+    }
 }
 
 // **** Neg ****
@@ -498,6 +522,27 @@ where
     #[inline]
     fn mul(self, other: Matrix3x3<T>) -> Self {
         T::m3x3_vector_mul(self, other)
+    }
+}
+
+/// Computes the outer product of a column vector and a row vector to give a matrix.
+/// ```
+/// # use vqm::Matrix3x3f32;
+/// # use vqm::Vector3df32;
+/// let row = Vector3df32{x:2.0, y:5.0, z:11.0};
+/// let col = Vector3df32{x:3.0, y:7.0, z:13.0};
+/// let m = Matrix3x3f32::outer_product(col, row);
+/// assert_eq!(m, Matrix3x3f32::from([ 6.0,  15.0,  33.0,
+///                                   14.0,  35.0,  77.0,
+///                                   26.0,  65.0, 143.0]));
+///```
+impl<T> Matrix3x3<T>
+where
+    T: Copy + Matrix3x3Math,
+{
+    #[inline]
+    pub fn outer_product(col: Vector3d<T>, row: Vector3d<T>) -> Self {
+        T::m3x3_vector_outer_product(col, row)
     }
 }
 
@@ -836,7 +881,7 @@ impl<T> Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
 {
-    /// Return a copy of the matrix with all components set to their absolute values.
+    /// Return a copy of the matrix with all elements set to their absolute values.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::from([  2.0, -17.0,  59.0,
@@ -853,7 +898,7 @@ where
         T::m3x3_abs(self)
     }
 
-    /// Set all components of the matrix to their absolute values.
+    /// Set all elements of the matrix to their absolute values.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let mut m = Matrix3x3f32::from([  2.0, -17.0, 59.0,
@@ -878,7 +923,7 @@ impl<T> Matrix3x3<T>
 where
     T: Copy + FloatCore,
 {
-    /// Return a copy of the matrix with all components clamped to the specified range.
+    /// Return a copy of the matrix with all elements clamped to the specified range.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::from([  2.0, 17.0, -59.0,
@@ -899,7 +944,7 @@ where
         Self { a }
     }
 
-    /// Clamp all components of the matrix to the specified range.
+    /// Clamp all elements of the matrix to the specified range.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let mut m = Matrix3x3f32::from([  2.0, 17.0, -59.0,
@@ -1092,13 +1137,13 @@ where
     /// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
     ///                               2.0, 17.0, 59.0,
     ///                              23.0, 31.0, 41.0]);
-    /// let n = m.try_invert();
+    /// let n = m.try_inverse();
     ///
     /// assert_eq!(0.0, m.determinant());
     /// assert_eq!(None, n);
     ///
     /// ```
-    pub fn try_invert(self) -> Option<Self> {
+    pub fn try_inverse(self) -> Option<Self> {
         let (adjugate, determinant) = self.adjugate();
         if determinant.abs() < T::EPSILON {
             return None;
@@ -1106,7 +1151,7 @@ where
         Some(adjugate / determinant)
     }
 
-    /// Return the sum of all components of the matrix.
+    /// Return the sum of all elements of the matrix.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
@@ -1121,7 +1166,7 @@ where
         T::m3x3_sum(self)
     }
 
-    /// Return the mean of all components of the matrix.
+    /// Return the mean of all elements of the matrix.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
@@ -1136,7 +1181,7 @@ where
         T::m3x3_mean(self)
     }
 
-    /// Return the product of all components of the matrix.
+    /// Return the product of all elements of the matrix.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
@@ -1283,9 +1328,14 @@ where
 ///                                   23.0, 31.0, 41.0]));
 /// ```
 impl<T> From<(Vector3d<T>, Vector3d<T>, Vector3d<T>)> for Matrix3x3<T> {
+    #[rustfmt::skip]
     #[inline]
     fn from(v: (Vector3d<T>, Vector3d<T>, Vector3d<T>)) -> Self {
-        Self { a: [v.0.x, v.0.y, v.0.z, v.1.x, v.1.y, v.1.z, v.2.x, v.2.y, v.2.z] }
+        Self { a: [
+            v.0.x, v.0.y, v.0.z,
+            v.1.x, v.1.y, v.1.z,
+            v.2.x, v.2.y, v.2.z
+        ] }
     }
 }
 
@@ -1309,9 +1359,14 @@ impl<T> From<Matrix2x2<T>> for Matrix3x3<T>
 where
     T: Copy + Zero,
 {
+    #[rustfmt::skip]
     #[inline]
     fn from(m: Matrix2x2<T>) -> Self {
-        Self { a: [m[0], m[1], T::zero(), m[2], m[3], T::zero(), T::zero(), T::zero(), T::zero()] }
+        Self { a: [
+            m[0],      m[1],      T::zero(),
+            m[2],      m[3],      T::zero(),
+            T::zero(), T::zero(), T::zero()
+        ] }
     }
 }
 
@@ -1329,9 +1384,13 @@ impl<T> From<Matrix3x3<T>> for Matrix2x2<T>
 where
     T: Copy,
 {
+    #[rustfmt::skip]
     #[inline]
     fn from(m: Matrix3x3<T>) -> Self {
-        Self { a: [m.a[0], m.a[1], m.a[3], m.a[4]] }
+        Self { a: [
+            m.a[0], m.a[1],
+            m.a[3], m.a[4]
+        ] }
     }
 }
 

@@ -49,6 +49,7 @@ pub trait Matrix2x2Math: Sized {
     fn m2x2_mul_add(this: Matrix2x2<Self>, k: Self, other: Matrix2x2<Self>) -> Matrix2x2<Self>;
     fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self>;
     fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self>;
+    fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self>;
     fn m2x2_mul(this: Matrix2x2<Self>, other: Matrix2x2<Self>) -> Matrix2x2<Self>;
     fn m2x2_trace(this: Matrix2x2<Self>) -> Self;
     fn m2x2_trace_sum_squares(this: Matrix2x2<Self>) -> Self;
@@ -140,9 +141,27 @@ impl Matrix2x2Math for f32 {
         Vector2d { x: this.a[0] * other.x + this.a[1] * other.y, y: this.a[2] * other.x + this.a[3] * other.y }
     }
 
+    #[rustfmt::skip]
     #[inline(always)]
     fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x * other.a[0] + this.y * other.a[2], y: this.x * other.a[1] + this.y * other.a[3] }
+        Vector2d {
+            x: this.x * other.a[0] + this.y * other.a[2],
+            y: this.x * other.a[1] + this.y * other.a[3]
+        }
+    }
+
+    #[inline(always)]
+    fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
+        Matrix2x2 {
+            a: [
+                // Row 1: col.x multiplied across the row vector
+                col.x * row.x,
+                col.x * row.y,
+                // Row 2: col.y multiplied across the row vector
+                col.y * row.x,
+                col.y * row.y,
+            ],
+        }
     }
 
     #[inline(always)]
@@ -278,6 +297,20 @@ impl Matrix2x2Math for f64 {
     #[inline(always)]
     fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self> {
         Vector2d { x: this.x * other.a[0] + this.y * other.a[2], y: this.x * other.a[1] + this.y * other.a[3] }
+    }
+
+    #[inline(always)]
+    fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
+        Matrix2x2 {
+            a: [
+                // Row 1: col.x multiplied across the row vector
+                col.x * row.x,
+                col.x * row.y,
+                // Row 2: col.y multiplied across the row vector
+                col.y * row.x,
+                col.y * row.y,
+            ],
+        }
     }
 
     #[inline(always)]

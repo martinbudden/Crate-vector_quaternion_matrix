@@ -1,10 +1,9 @@
-#![allow(unused)]
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{MathConstants, Matrix2x2, Matrix4x4Math, Quaternion, QuaternionMath, SqrtMethods, Vector3d, Vector4d};
+use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4Math, Vector4d};
 
 /// 4x4 matrix of `f32` values<br>
 pub type Matrix4x4f32 = Matrix4x4<f32>;
@@ -15,8 +14,8 @@ pub type Matrix4x4f64 = Matrix4x4<f64>;
 
 /// `Matrix4x4<T>`: 4x4 Matrix of type `T`.<br>
 /// Aliases `Matrix4x4f32` and `Matrix4x4f64` are provided.<br>
-/// Internal implementation is a flattened 4x4 matrix: an array of 9 elements stored in row-major order<br>
-/// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.
+/// Internal implementation is a flattened 4x4 matrix: an array of 9 elements stored in row-major order.
+/// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(64))]
@@ -25,25 +24,51 @@ pub struct Matrix4x4<T> {
     pub(crate) a: [T; 16],
 }
 
+/// Constants to index matrix elements.
+impl<T> Matrix4x4<T> {
+    pub const SIZE: usize = 16;
+    pub const ROW_COUNT: usize = 4;
+    pub const COL_COUNT: usize = 4;
+    // Row 1
+    pub const M11: usize = 0;
+    pub const M12: usize = 1;
+    pub const M13: usize = 2;
+    pub const M14: usize = 3;
+    // Row 2
+    pub const M21: usize = 4;
+    pub const M22: usize = 5;
+    pub const M23: usize = 6;
+    pub const M24: usize = 7;
+    // Row 3
+    pub const M31: usize = 8;
+    pub const M32: usize = 9;
+    pub const M33: usize = 10;
+    pub const M34: usize = 11;
+    // Row 4
+    pub const M41: usize = 12;
+    pub const M42: usize = 13;
+    pub const M43: usize = 14;
+    pub const M44: usize = 15;
+}
+
 // **** New ****
 
-/// Create a matrix.
-/// ```
-/// # use vqm::Matrix4x4f32;
-/// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
-///                              5.0, 11.0, 47.0, 109.0,
-///                             23.0, 31.0, 41.0, 103.0,
-///                             67.0, 73.0, 83.0,  97.0]);
-/// assert_eq!(m, Matrix4x4f32::from([  2.0, 17.0, 59.0, 127.0,
-///                                     5.0, 11.0, 47.0, 109.0,
-///                                    23.0, 31.0, 41.0, 103.0,
-///                                    67.0, 73.0, 83.0,  97.0]));
-/// ```
 impl<T> Matrix4x4<T>
 where
     T: Copy,
 {
     /// Create a matrix.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                              5.0, 11.0, 47.0, 109.0,
+    ///                             23.0, 31.0, 41.0, 103.0,
+    ///                             67.0, 73.0, 83.0,  97.0]);
+    /// assert_eq!(m, Matrix4x4f32::from([  2.0, 17.0, 59.0, 127.0,
+    ///                                     5.0, 11.0, 47.0, 109.0,
+    ///                                    23.0, 31.0, 41.0, 103.0,
+    ///                                    67.0, 73.0, 83.0,  97.0]));
+    /// ```
     #[inline]
     pub const fn new(input: [T; 16]) -> Self {
         Self { a: input }
@@ -52,78 +77,64 @@ where
 
 // **** Zero ****
 
-/// Zero matrix.
-/// ```
-/// # use vqm::Matrix4x4f32;
-/// # use num_traits::Zero;
-/// let z = Matrix4x4f32::zero();
-///
-/// assert_eq!(z, Matrix4x4f32::from([ 0.0, 0.0, 0.0, 0.0,
-///                                    0.0, 0.0, 0.0, 0.0,
-///                                    0.0, 0.0, 0.0, 0.0,
-///                                    0.0, 0.0, 0.0, 0.0]));
-/// ```
 impl<T> Zero for Matrix4x4<T>
 where
     T: Copy + Zero + PartialEq + Matrix4x4Math,
 {
-    #[rustfmt::skip]
+    /// Zero matrix.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// # use num_traits::Zero;
+    /// let z = Matrix4x4f32::zero();
+    ///
+    /// assert_eq!(z, Matrix4x4f32::from([ 0.0, 0.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 0.0, 0.0]));
+    /// ```
     #[inline]
     fn zero() -> Self {
-        Self {
-            a: [
-                T::zero(), T::zero(), T::zero(), T::zero(),
-                T::zero(), T::zero(), T::zero(), T::zero(),
-                T::zero(), T::zero(), T::zero(), T::zero(),
-                T::zero(), T::zero(), T::zero(), T::zero(),
-            ],
-        }
+        Self { a: [T::zero(); 16] }
     }
 
     #[inline]
     fn is_zero(&self) -> bool {
-        self.a.iter().all(|&x| x == T::zero())
+        *self == Self::zero()
     }
 }
 
-/// Const zero matrix.
-/// ```
-/// # use vqm::Matrix4x4f32;
-/// # use num_traits::{zero,Zero,ConstZero};
-/// let m = Matrix4x4f32::ZERO;
-/// assert!(m.is_zero());
-/// ```
 impl<T> ConstZero for Matrix4x4<T>
 where
     T: Copy + ConstZero + PartialEq + Matrix4x4Math,
 {
-    #[rustfmt::skip]
-    const ZERO: Self = Self {
-        a: [
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-        ]
-    };
+    /// Const zero matrix.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// # use num_traits::{zero,Zero,ConstZero};
+    /// let m = Matrix4x4f32::ZERO;
+    /// assert!(m.is_zero());
+    /// ```
+    const ZERO: Self = Self { a: [T::ZERO; 16] };
 }
+
 // **** One ****
 
-/// Identity matrix.
-/// ```
-/// # use vqm::Matrix4x4f32;
-/// # use num_traits::One;
-/// let i = Matrix4x4f32::one();
-///
-/// assert_eq!(i, Matrix4x4f32::from([ 1.0, 0.0, 0.0, 0.0,
-///                                    0.0, 1.0, 0.0, 0.0,
-///                                    0.0, 0.0, 1.0, 0.0,
-///                                    0.0, 0.0, 0.0, 1.0]));
-/// ```
 impl<T> One for Matrix4x4<T>
 where
     T: Copy + Zero + One + PartialEq + Matrix4x4Math,
 {
+    /// Identity matrix.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// # use num_traits::One;
+    /// let i = Matrix4x4f32::one();
+    ///
+    /// assert!(i.is_one());
+    /// assert_eq!(i, Matrix4x4f32::from([ 1.0, 0.0, 0.0, 0.0,
+    ///                                    0.0, 1.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 1.0, 0.0,
+    ///                                    0.0, 0.0, 0.0, 1.0]));
+    /// ```
     #[rustfmt::skip]
     #[inline]
     fn one() -> Self {
@@ -137,33 +148,27 @@ where
         }
     }
 
-    #[rustfmt::skip]
     #[inline]
     fn is_one(&self) -> bool {
-        self.a == [
-            T::one(),  T::zero(), T::zero(), T::zero(),
-            T::zero(), T::one(),  T::zero(), T::zero(),
-            T::zero(), T::zero(), T::one(),  T::zero(),
-            T::zero(), T::zero(), T::zero(), T::one()
-        ]
+        *self == Self::one()
     }
 }
 
-/// Const identity matrix.
-/// ```
-/// # use vqm::Matrix4x4f32;
-/// # use num_traits::ConstOne;
-/// let i = Matrix4x4f32::ONE;
-///
-/// assert_eq!(i, Matrix4x4f32::from([ 1.0, 0.0, 0.0, 0.0,
-///                                    0.0, 1.0, 0.0, 0.0,
-///                                    0.0, 0.0, 1.0, 0.0,
-///                                    0.0, 0.0, 0.0, 1.0]));
-/// ```
 impl<T> ConstOne for Matrix4x4<T>
 where
     T: Copy + ConstZero + ConstOne + PartialEq + Matrix4x4Math,
 {
+    /// Const identity matrix.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// # use num_traits::ConstOne;
+    /// let i = Matrix4x4f32::ONE;
+    ///
+    /// assert_eq!(i, Matrix4x4f32::from([ 1.0, 0.0, 0.0, 0.0,
+    ///                                    0.0, 1.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 1.0, 0.0,
+    ///                                    0.0, 0.0, 0.0, 1.0]));
+    /// ```
     #[rustfmt::skip]
     const ONE: Self = Self {
         a: [
@@ -173,6 +178,35 @@ where
             T::ZERO, T::ZERO, T::ZERO, T::ONE,
         ]
     };
+}
+
+impl<T> Matrix4x4<T>
+where
+    T: Copy + Zero + One,
+{
+    /// Identity matrix.
+    /// Alias for `one()` that does not require `num_traits::One`.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let i = Matrix4x4f32::identity();
+    ///
+    /// assert_eq!(i, Matrix4x4f32::from([ 1.0, 0.0, 0.0, 0.0,
+    ///                                    0.0, 1.0, 0.0, 0.0,
+    ///                                    0.0, 0.0, 1.0, 0.0,
+    ///                                    0.0, 0.0, 0.0, 1.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub fn identity() -> Self {
+        Self {
+            a: [
+                T::one(),  T::zero(), T::zero(), T::zero(),
+                T::zero(), T::one(),  T::zero(), T::zero(),
+                T::zero(), T::zero(), T::one(),  T::zero(),
+                T::zero(), T::zero(), T::zero(), T::one()
+            ],
+        }
+    }
 }
 
 // **** Neg ****
@@ -273,7 +307,7 @@ where
 
 // **** MulAdd ****
 
-/// Multiply vector by constant and add another vector.
+/// Multiply matrix by constant and add another matrix.
 /// ```
 /// # use vqm::Matrix4x4f32;
 /// # use num_traits::MulAdd;
@@ -305,7 +339,7 @@ where
 
 // **** MulAddAssign ****
 
-/// Multiply vector by constant and add another vector in place.
+/// Multiply matrix by constant and add another vector in matrix.
 /// ```
 /// # use vqm::Matrix4x4f32;
 /// # use num_traits::MulAddAssign;
@@ -425,6 +459,7 @@ impl Mul<Matrix4x4<f64>> for f64 {
         f64::m4x4_mul_scalar(other, self)
     }
 }
+
 // **** Mul ****
 
 /// Multiply a matrix by a constant.
@@ -520,6 +555,29 @@ where
         T::m4x4_vector_mul(self, other)
     }
 }
+
+/// Computes the outer product of a column vector and a row vector to give a matrix.
+/// ```
+/// # use vqm::Matrix4x4f32;
+/// # use vqm::Vector4df32;
+/// let row = Vector4df32{x:2.0, y:5.0, z:11.0, t:17.0};
+/// let col = Vector4df32{x:3.0, y:7.0, z:13.0, t:19.0};
+/// let m = Matrix4x4f32::outer_product(col, row);
+/// assert_eq!(m, Matrix4x4f32::from([ 6.0,  15.0,  33.0, 51.0,
+///                                   14.0,  35.0,  77.0, 119.0,
+///                                   26.0,  65.0, 143.0, 221.0,
+///                                   26.0,  65.0, 143.0, 323.0]));
+///```
+impl<T> Matrix4x4<T>
+where
+    T: Copy + Matrix4x4Math,
+{
+    #[inline]
+    pub fn outer_product(col: Vector4d<T>, row: Vector4d<T>) -> Self {
+        T::m4x4_vector_outer_product(col, row)
+    }
+}
+
 /// Multiply two matrices.
 /// ```
 /// # use vqm::Matrix4x4f32;
@@ -947,7 +1005,7 @@ impl<T> Matrix4x4<T>
 where
     T: Copy + Matrix4x4Math,
 {
-    /// Return a copy of the matrix with all components set to their absolute values.
+    /// Return a copy of the matrix with all elements set to their absolute values.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let m = Matrix4x4f32::from([  2.0, -17.0,  59.0,  127.0,
@@ -966,7 +1024,7 @@ where
         T::m4x4_abs(self)
     }
 
-    /// Set all components of the matrix to their absolute values.
+    /// Set all elements of the matrix to their absolute values.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let mut m = Matrix4x4f32::from([  2.0, -17.0,  59.0,  127.0,
@@ -993,7 +1051,7 @@ impl<T> Matrix4x4<T>
 where
     T: Copy + FloatCore,
 {
-    /// Return a copy of the matrix with all components clamped to the specified range.
+    /// Return a copy of the matrix with all elements clamped to the specified range.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let m = Matrix4x4f32::from([  2.0, 17.0, -59.0, 127.0,
@@ -1016,7 +1074,7 @@ where
         Self { a }
     }
 
-    /// Clamp all components of the matrix to the specified range.
+    /// Clamp all elements of the matrix to the specified range.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let mut m = Matrix4x4f32::from([  2.0, 17.0, -59.0, 127.0,
@@ -1143,7 +1201,7 @@ where
     #[inline]
     pub fn inverse(self) -> Self {
         let (adjugate, determinant) = T::m4x4_adjugate(self);
-        adjugate
+        adjugate / determinant
     }
 
     /// Invert this matrix, in-place. Does not check if the determinant is non-zero before inverting.
@@ -1229,13 +1287,13 @@ where
     ///                               2.0, 17.0, 59.0, 127.0,
     ///                              23.0, 31.0, 41.0, 103.0,
     ///                              67.0, 73.0, 83.0,  97.0]);
-    /// let n = m.try_invert();
+    /// let n = m.try_inverse();
     ///
     /// assert_eq!(0.0, m.determinant());
     /// assert_eq!(None, n);
     ///
     /// ```
-    pub fn try_invert(self) -> Option<Self> {
+    pub fn try_inverse(self) -> Option<Self> {
         let (adjugate, determinant) = self.adjugate();
         if determinant.abs() < T::EPSILON {
             return None;
@@ -1243,7 +1301,7 @@ where
         Some(adjugate / determinant)
     }
 
-    /// Return the sum of all components of the matrix.
+    /// Return the sum of all elements of the matrix.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let m = Matrix4x4f32::from([  2.0, 17.0, 59.0, 127.0,
@@ -1259,7 +1317,7 @@ where
         T::m4x4_sum(self)
     }
 
-    /// Return the mean of all components of the matrix.
+    /// Return the mean of all elements of the matrix.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let m = Matrix4x4f32::from([  2.0, 17.0, 59.0, 127.0,
@@ -1275,7 +1333,7 @@ where
         T::m4x4_mean(self)
     }
 
-    /// Return the product of all components of the matrix.
+    /// Return the product of all elements of the matrix.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let m = Matrix4x4f32::from([  2.0, 17.0, 59.0, 127.0,
@@ -1455,17 +1513,15 @@ where
 ///                                   67.0, 73.0, 83.0,  97.0]));
 /// ```
 impl<T> From<(Vector4d<T>, Vector4d<T>, Vector4d<T>, Vector4d<T>)> for Matrix4x4<T> {
+    #[rustfmt::skip]
     #[inline]
     fn from(v: (Vector4d<T>, Vector4d<T>, Vector4d<T>, Vector4d<T>)) -> Self {
-        Self {
-            a: [
-                //
-                v.0.x, v.0.y, v.0.z, v.0.t, //
-                v.1.x, v.1.y, v.1.z, v.1.t, //
-                v.2.x, v.2.y, v.2.z, v.2.t, //
-                v.3.x, v.3.y, v.3.z, v.3.t, //
-            ],
-        }
+        Self { a: [
+            v.0.x, v.0.y, v.0.z, v.0.t,
+            v.1.x, v.1.y, v.1.z, v.1.t,
+            v.2.x, v.2.y, v.2.z, v.2.t,
+            v.3.x, v.3.y, v.3.z, v.3.t,
+        ] }
     }
 }
 
@@ -1490,28 +1546,15 @@ impl<T> From<Matrix2x2<T>> for Matrix4x4<T>
 where
     T: Copy + Zero,
 {
+    #[rustfmt::skip]
     #[inline]
     fn from(m: Matrix2x2<T>) -> Self {
-        Self {
-            a: [
-                m[0],
-                m[1],
-                T::zero(),
-                T::zero(), //
-                m[2],
-                m[3],
-                T::zero(),
-                T::zero(), //
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(), //
-                T::zero(),
-                T::zero(),
-                T::zero(),
-                T::zero(), //
-            ],
-        }
+        Self { a: [
+            m[0],      m[1],      T::zero(), T::zero(),
+            m[2],      m[3],      T::zero(), T::zero(),
+            T::zero(), T::zero(), T::zero(), T::zero(),
+            T::zero(), T::zero(), T::zero(), T::zero(),
+        ] }
     }
 }
 
@@ -1530,8 +1573,39 @@ impl<T> From<Matrix4x4<T>> for Matrix2x2<T>
 where
     T: Copy,
 {
+    #[rustfmt::skip]
     #[inline]
     fn from(m: Matrix4x4<T>) -> Self {
-        Self { a: [m.a[0], m.a[1], m.a[4], m.a[5]] }
+        Self { a: [
+            m.a[0], m.a[1],
+            m.a[4], m.a[5]
+        ] }
+    }
+}
+
+/// Matrix3x3 from Matrix4x4. Takes top left of m4x4, discarding other values.
+/// ```
+/// # use vqm::{Matrix3x3f32,Matrix4x4f32};
+/// let m3x3 = Matrix3x3f32::from([ 2.0, 17.0, 59.0,
+///                                 5.0, 11.0, 47.0,
+///                                 23.0, 31.0, 41.0]);
+/// let m4x4 = Matrix4x4f32::from([ 2.0, 17.0, 59.0, 127.0,
+///                                 5.0, 11.0, 47.0, 109.0,
+///                                23.0, 31.0, 41.0, 103.0,
+///                                67.0, 73.0, 83.0,  97.0]);
+/// assert_eq!(m3x3, Matrix3x3f32::from(m4x4));
+/// ```
+impl<T> From<Matrix4x4<T>> for Matrix3x3<T>
+where
+    T: Copy,
+{
+    #[rustfmt::skip]
+    #[inline]
+    fn from(m: Matrix4x4<T>) -> Self {
+        Self { a: [
+            m.a[0], m.a[1], m.a[2],
+            m.a[4], m.a[5], m.a[6],
+            m.a[8], m.a[9], m.a[10]
+        ] }
     }
 }
