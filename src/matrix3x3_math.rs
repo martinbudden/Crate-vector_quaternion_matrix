@@ -98,7 +98,7 @@ impl Matrix3x3Math for f32 {
         let r2 = [this.a[3], this.a[4], this.a[5], 0.0];
         let r3 = [this.a[6], this.a[7], this.a[8], 0.0];
 
-        // Compute row dot products using unrolled, 4-wide loops.
+        // Calculates row dot products using unrolled, 4-wide loops.
         // LLVM easily vectorizes a simple element-wise multiply-and-accumulate loop
         // spanning exactly 4 items, mapping it directly to hardware registers.
         let mut x = 0.0;
@@ -426,7 +426,7 @@ impl Matrix3x3Math for f64 {
         let r2 = [this.a[3], this.a[4], this.a[5], 0.0];
         let r3 = [this.a[6], this.a[7], this.a[8], 0.0];
 
-        // Compute row dot products using unrolled, 4-wide loops.
+        // Calculates row dot products using unrolled, 4-wide loops.
         // LLVM easily vectorizes a simple element-wise multiply-and-accumulate loop
         // spanning exactly 4 items, mapping it directly to hardware registers.
         let mut x = 0.0;

@@ -39,7 +39,7 @@ impl<T> Matrix9x9<T>
 where
     T: Copy + Zero + Matrix9x9Math + Mul<T, Output = T>,
 {
-    /// Computes the outer product of two 9-element states in a compiler-friendly manner.
+    /// Calculates the outer product of two 9-element states in a compiler-friendly manner.
     #[inline]
     pub fn outer_product(col: KalmanStateVector9<T>, row: KalmanStateVector9<T>) -> Self {
         // Convert the 9 elements into three 4-lane logically padded chunks.
@@ -48,10 +48,10 @@ where
         let r2 = [row.vel.x, row.vel.y, row.vel.z, T::zero()];
         let r3 = [row.bias.x, row.bias.y, row.bias.z, T::zero()];
 
-        // We can flatten 'col' into an easily indexable array via registers
+        // We can flatten `col` into an easily indexable array via registers
         let c = [col.pos.x, col.pos.y, col.pos.z, col.vel.x, col.vel.y, col.vel.z, col.bias.x, col.bias.y, col.bias.z];
 
-        let mut out = Self { a: [T::zero(); 81] };
+        let mut ret = Self { a: [T::zero(); 81] };
 
         // Process each row. LLVM sees fixed loops of 4 elements and easily emits
         // optimized parallel hardware vector instructions.
@@ -63,15 +63,15 @@ where
             let chunk3 = r3.map(|val| scalar * val);
 
             // Get a mutable reference to the row (9 elements)
-            let out_row = &mut out[r_idx * 9..(r_idx + 1) * 9];
+            let ret_row = &mut ret[r_idx * 9..(r_idx + 1) * 9];
 
             // Write back to the matrix, dropping the 4th padding lane of each chunk
             // since the sizes are matched the compiler can generate raw, grouped memory stream instructions.
-            out_row[0..3].copy_from_slice(&chunk1[0..3]);
-            out_row[3..6].copy_from_slice(&chunk2[0..3]);
-            out_row[6..9].copy_from_slice(&chunk3[0..3]);
+            ret_row[0..3].copy_from_slice(&chunk1[0..3]);
+            ret_row[3..6].copy_from_slice(&chunk2[0..3]);
+            ret_row[6..9].copy_from_slice(&chunk3[0..3]);
         }
 
-        out
+        ret
     }
 }

@@ -1,8 +1,10 @@
+use core::fmt;
 use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
-use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use core::slice::{ChunksExact, ChunksExactMut};
+use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3d};
 
@@ -20,7 +22,7 @@ pub type Matrix9x9f64 = Matrix9x9<f64>;
 /// Aliases `Matrix9x9f32` and `Matrix9x9f64` are provided.<br>
 /// Internal implementation is a flattened 9x9 matrix: an array of 9 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 #[repr(C)]
 pub struct Matrix9x9<T> {
     // Flattened 9x9 matrix: 16 elements in row-major order
@@ -33,6 +35,29 @@ where
 {
     fn default() -> Self {
         Self { a: [T::zero(); 81] }
+    }
+}
+
+impl<T> fmt::Debug for Matrix9x9<T>
+where
+    T: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Start the struct block wrapper
+        writeln!(f, "Matrix9x9 [")?;
+
+        // Loop over rows using the Deref slice chunking behavior we added earlier
+        for row in self.chunks_exact(9) {
+            // Print 4 spaces of indentation for clean alignment
+            write!(f, "    ")?;
+
+            // Format the row elements neatly as a standard array slice
+            fmt::Debug::fmt(row, f)?;
+            writeln!(f, ",")?;
+        }
+
+        // Close the struct block wrapper
+        write!(f, "]")
     }
 }
 
@@ -179,46 +204,6 @@ where
 }
 
 // **** One ****
-
-impl<T> One for Matrix9x9<T>
-where
-    T: Copy + Zero + One + PartialEq + Matrix9x9Math,
-{
-    /// Identity matrix.
-    #[inline]
-    fn one() -> Self {
-        let mut z = [T::zero(); 81];
-        for ii in 0..=8 {
-            z[ii * 9 + ii] = T::one();
-        }
-        Self { a: z }
-    }
-    #[inline]
-    fn is_one(&self) -> bool {
-        *self == Self::one()
-    }
-}
-
-impl<T> ConstOne for Matrix9x9<T>
-where
-    T: Copy + ConstZero + ConstOne + PartialEq + Matrix9x9Math,
-{
-    /// Const identity matrix.
-    #[rustfmt::skip]
-    const ONE: Self = Self {
-        a: [
-            T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO,
-            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,
-        ]
-    };
-}
 
 impl<T> Matrix9x9<T>
 where
@@ -386,66 +371,50 @@ impl<T> Matrix9x9<T>
 where
     T: Copy + Zero + Matrix9x9Math + Mul<T, Output = T>,
 {
-    // Extract the first 3 columns of the 9x9 matrix as and array of 27 elements.
-    pub fn extract_9x3_array(&mut self) -> [T; 27] {
-        let mut a27 = [T::zero(); 27];
+    // Extract the first 3 columns of the 9x9 matrix as an array of 27 elements.
+    pub fn extract_9x3_array(&self) -> [T; 27] {
+        let mut ret = [T::zero(); 27];
         for r in 0..9 {
             let offset9 = r * 9;
             let offset3 = r * 3;
-            a27[offset3] = self.a[offset9]; // Column 1
-            a27[offset3 + 1] = self.a[offset9 + 1]; // Column 2
-            a27[offset3 + 2] = self.a[offset9 + 2]; // Column 3
+            ret[offset3] = self.a[offset9]; // Column 1
+            ret[offset3 + 1] = self.a[offset9 + 1]; // Column 2
+            ret[offset3 + 2] = self.a[offset9 + 2]; // Column 3
         }
-        a27
+        ret
     }
 
-    /// Multiplies the first 3 columns of P (9x3 block) by the inverted 3x3 S matrix.
-    /// Returns a tuple of three 3x3 sub-matrices mapping directly to the physical state domains.
+    /// Multiplies the first 3 columns of lhs (a 9x3 sub-matrix) by rhs.
+    /// Returns a tuple of three 3x3 matrices.
     #[inline]
-    pub fn multiply_9x3_by_3x3(
-        p_cols_1to3: [f32; 27],
-        s_inv: Matrix3x3<f32>,
-    ) -> (Matrix3x3<f32>, Matrix3x3<f32>, Matrix3x3<f32>) {
-        // Helper closure to compute a single 3x3 block from a specific row slice of p_cols_1to3
-        let multiply_block = |start_row: usize| -> Matrix3x3<f32> {
-            let mut out_data = [0.0; 9];
+    pub fn multiply_9x3_array_by_3x3(lhs: [T; 27], rhs: Matrix3x3<T>) -> (Matrix3x3<T>, Matrix3x3<T>, Matrix3x3<T>) {
+        // Helper closure to calculate a single 3x3 block from a specific row slice.
+        #[rustfmt::skip]
+        let multiply_block = |start_row: usize| -> Matrix3x3<T> {
+            let mut ret = [T::zero(); 9];
             for r in 0..3 {
-                let p_offset = (start_row + r) * 3;
-                let out_offset = r * 3;
+                let l_offset = (start_row + r) * 3;
+                let l1 = lhs[l_offset];
+                let l2 = lhs[l_offset + 1];
+                let l3 = lhs[l_offset + 2];
 
-                let p1 = p_cols_1to3[p_offset];
-                let p2 = p_cols_1to3[p_offset + 1];
-                let p3 = p_cols_1to3[p_offset + 2];
-
-                // Compute row dot products with the 3 columns of s_inv
-                out_data[out_offset] = p1 * s_inv.a[0] + p2 * s_inv.a[3] + p3 * s_inv.a[6];
-                out_data[out_offset + 1] = p1 * s_inv.a[1] + p2 * s_inv.a[4] + p3 * s_inv.a[7];
-                out_data[out_offset + 2] = p1 * s_inv.a[2] + p2 * s_inv.a[5] + p3 * s_inv.a[8];
+                // Calculates row dot products with the 3 columns of `rhs`
+                let ret_offset = r * 3;
+                ret[ret_offset] =     l1 * rhs.a[0] + l2 * rhs.a[3] + l3 * rhs.a[6];
+                ret[ret_offset + 1] = l1 * rhs.a[1] + l2 * rhs.a[4] + l3 * rhs.a[7];
+                ret[ret_offset + 2] = l1 * rhs.a[2] + l2 * rhs.a[5] + l3 * rhs.a[8];
             }
-            Matrix3x3 { a: out_data }
+            Matrix3x3 { a: ret }
         };
 
-        // Separate and calculate the three physical state blocks (Pos rows 0-2, Vel rows 3-5, Bias rows 6-8)
-        (
-            multiply_block(0), // K_block_pos
-            multiply_block(3), // K_block_vel
-            multiply_block(6), // K_block_acc_bias
-        )
+        // Separate and calculate the three blocks (rows 0-2, rows 3-5, rows 6-8)
+        (multiply_block(0), multiply_block(3), multiply_block(6))
     }
-}
 
-impl<T> Mul<Matrix9x9<T>> for Matrix9x9<T>
-where
-    T: Copy + Matrix9x9Math,
-{
-    type Output = Self;
-
-    /// Multiply two matrices.
-    /// Not implemented just returns self, but required for the One trait.
     #[inline]
-    fn mul(self, _other: Self) -> Self {
-        debug_assert!(false);
-        self
+    pub fn multiply_9x3_by_3x3(&self, rhs: Matrix3x3<T>) -> (Matrix3x3<T>, Matrix3x3<T>, Matrix3x3<T>) {
+        let lhs = Self::extract_9x3_array(self);
+        Self::multiply_9x3_array_by_3x3(lhs, rhs)
     }
 }
 
@@ -750,6 +719,98 @@ where
             }
         }
         true
+    }
+}
+
+// **** Iterators ****
+
+impl<T> Matrix9x9<T> {
+    /// Returns an iterator over the rows of the matrix as slices of 9 elements.
+    #[inline]
+    pub fn rows(&self) -> ChunksExact<'_, T> {
+        self.chunks_exact(9)
+    }
+}
+
+impl<T> Matrix9x9<T> {
+    /// Returns an iterator over the rows of the matrix as mutable slices of 9 elements.
+    #[inline]
+    pub fn rows_mut(&mut self) -> ChunksExactMut<'_, T> {
+        self.chunks_exact_mut(9)
+    }
+}
+
+impl<T> Matrix9x9<T>
+where
+    T: Copy,
+{
+    /// Consumes the matrix and returns an array of its 9 rows.
+    #[inline]
+    pub fn into_rows(self) -> [[T; 9]; 9] {
+        // Build the nested 2D array matrix safely in a single unrolled pass
+        core::array::from_fn(|r| core::array::from_fn(|c| self.a[r * 9 + c]))
+    }
+}
+
+impl<T> Matrix9x9<T>
+where
+    T: Copy,
+{
+    /// Returns an iterator over the columns of the matrix as owned 4-element arrays.
+    #[inline]
+    pub fn cols(&self) -> impl Iterator<Item = [T; 9]> {
+        // Create an iterator over the column indices (0, 1, 2, ..)
+        (0..9).map(|c| {
+            // Collect the strided elements for the current column
+            [
+                self.a[c],
+                self.a[c + 4],
+                self.a[c + 8],
+                self.a[c + 12],
+                self.a[c + 16],
+                self.a[c + 20],
+                self.a[c + 24],
+                self.a[c + 28],
+                self.a[c + 32],
+            ]
+        })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Matrix9x9<T> {
+    type Item = &'a [T];
+    type IntoIter = ChunksExact<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your Deref trait automatically to get 9-element rows
+        self.chunks_exact(9)
+    }
+}
+
+impl<'a, T> IntoIterator for &'a mut Matrix9x9<T> {
+    type Item = &'a mut [T];
+    type IntoIter = ChunksExactMut<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your DerefMut trait automatically
+        self.chunks_exact_mut(9)
+    }
+}
+
+impl<T> IntoIterator for Matrix9x9<T>
+where
+    T: Copy, // Mathematical matrices require elements to be Copy
+{
+    type Item = [T; 9];
+    type IntoIter = core::array::IntoIter<[T; 9], 9>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Construct the 9 rows of 9 elements safely in one direct pass
+        let rows = core::array::from_fn(|r| core::array::from_fn(|c| self.a[r * 9 + c]));
+        rows.into_iter()
     }
 }
 

@@ -2,6 +2,7 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
+use core::slice::{ChunksExact, ChunksExactMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -487,7 +488,7 @@ where
     }
 }
 
-/// Computes the outer product of a column vector and a row vector to give a matrix.
+/// Calculates the outer product of a column vector and a row vector to give a matrix.
 /// ```
 /// # use vqm::Matrix2x2f32;
 /// # use vqm::Vector2df32;
@@ -1198,6 +1199,84 @@ where
             return false;
         }
         true
+    }
+}
+
+// **** Iterators ****
+
+impl<T> Matrix2x2<T> {
+    /// Returns an iterator over the rows of the matrix as slices of 2 elements.
+    #[inline]
+    pub fn rows(&self) -> ChunksExact<'_, T> {
+        self.chunks_exact(2)
+    }
+}
+
+impl<T> Matrix2x2<T> {
+    /// Returns an iterator over the rows of the matrix as mutable slices of 2 elements.
+    #[inline]
+    pub fn rows_mut(&mut self) -> ChunksExactMut<'_, T> {
+        self.chunks_exact_mut(2)
+    }
+}
+
+impl<T> Matrix2x2<T> {
+    /// Consumes the matrix and returns an array of its 2 rows.
+    #[allow(clippy::many_single_char_names)]
+    #[inline]
+    pub fn into_rows(self) -> [[T; 2]; 2] {
+        let [a, b, c, d] = self.a;
+        [[a, b], [c, d]]
+    }
+}
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy,
+{
+    /// Returns an iterator over the columns of the matrix as owned 2-element arrays.
+    #[inline]
+    pub fn cols(&self) -> impl Iterator<Item = [T; 2]> {
+        // Create an iterator over the column indices (0, 1)
+        (0..2).map(|c| {
+            // Collect the strided elements for the current column
+            [self.a[c], self.a[c + 2]]
+        })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Matrix2x2<T> {
+    type Item = &'a [T];
+    type IntoIter = ChunksExact<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your Deref trait automatically to get slice chunks
+        self.chunks_exact(2)
+    }
+}
+
+impl<'a, T> IntoIterator for &'a mut Matrix2x2<T> {
+    type Item = &'a mut [T];
+    type IntoIter = ChunksExactMut<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your DerefMut trait automatically
+        self.chunks_exact_mut(2)
+    }
+}
+
+impl<T> IntoIterator for Matrix2x2<T> {
+    type Item = [T; 2];
+    type IntoIter = core::array::IntoIter<[T; 2], 2>;
+
+    #[allow(clippy::many_single_char_names)]
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        let [a, b, c, d] = self.a;
+        // Construct an array of rows, then convert that array into an iterator
+        [[a, b], [c, d]].into_iter()
     }
 }
 

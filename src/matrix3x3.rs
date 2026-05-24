@@ -2,6 +2,8 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
+use core::slice::{ChunksExact, ChunksExactMut};
+
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -528,7 +530,7 @@ where
     }
 }
 
-/// Computes the outer product of a column vector and a row vector to give a matrix.
+/// Calculates the outer product of a column vector and a row vector to give a matrix.
 /// ```
 /// # use vqm::Matrix3x3f32;
 /// # use vqm::Vector3df32;
@@ -1318,6 +1320,84 @@ where
             return false;
         }
         true
+    }
+}
+
+// **** Iterators ****
+
+impl<T> Matrix3x3<T> {
+    /// Returns an iterator over the rows of the matrix as slices of 3 elements.
+    #[inline]
+    pub fn rows(&self) -> ChunksExact<'_, T> {
+        self.chunks_exact(3)
+    }
+}
+
+impl<T> Matrix3x3<T> {
+    /// Returns an iterator over the rows of the matrix as mutable slices of 3 elements.
+    #[inline]
+    pub fn rows_mut(&mut self) -> ChunksExactMut<'_, T> {
+        self.chunks_exact_mut(3)
+    }
+}
+
+impl<T> Matrix3x3<T> {
+    /// Consumes the matrix and returns an array of its 3 rows.
+    #[allow(clippy::many_single_char_names)]
+    #[inline]
+    pub fn into_rows(self) -> [[T; 3]; 3] {
+        let [a, b, c, d, e, f, g, h, i] = self.a;
+        [[a, b, c], [d, e, f], [g, h, i]]
+    }
+}
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy,
+{
+    /// Returns an iterator over the columns of the matrix as owned 3-element arrays.
+    #[inline]
+    pub fn cols(&self) -> impl Iterator<Item = [T; 3]> {
+        // Create an iterator over the column indices (0, 1, 2)
+        (0..3).map(|c| {
+            // Collect the strided elements for the current column
+            [self.a[c], self.a[c + 3], self.a[c + 6]]
+        })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Matrix3x3<T> {
+    type Item = &'a [T];
+    type IntoIter = ChunksExact<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your Deref trait automatically to get slice chunks
+        self.chunks_exact(3)
+    }
+}
+
+impl<'a, T> IntoIterator for &'a mut Matrix3x3<T> {
+    type Item = &'a mut [T];
+    type IntoIter = ChunksExactMut<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your DerefMut trait automatically
+        self.chunks_exact_mut(3)
+    }
+}
+
+impl<T> IntoIterator for Matrix3x3<T> {
+    type Item = [T; 3];
+    type IntoIter = core::array::IntoIter<[T; 3], 3>;
+
+    #[allow(clippy::many_single_char_names)]
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        let [a, b, c, d, e, f, g, h, i] = self.a;
+        // Construct an array of rows, then convert that array into an iterator
+        [[a, b, c], [d, e, f], [g, h, i]].into_iter()
     }
 }
 

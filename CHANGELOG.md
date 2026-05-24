@@ -25,11 +25,31 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Deprecated
 
-At some point [0.1.0] to [0.1.7] will be [YANKED]
+At some point [0.1.0] to [0.1.8] will be [YANKED]
 
 ### Fixed
 
 ### Security
+
+## [0.1.9] - 2026-05-24
+
+### Added
+
+- `Deref` and `DerefMut` traits to matrices.
+- `AsRef` and `AsMut` traits to matrices.
+- range traits to matrices.
+- iterator traits to matrices.
+- custom `Debug` trait to `Matrix4x4` and `Matrix9x9`.
+- improved `multiply_9x3_by_3x3` for `Matrix9x9`.
+
+### Changed
+
+- Changed Apache license to standard unabridged text.
+
+### Removed
+
+- multiplication from `Matrix9x9`.
+- `One` and `ConstOne` traits from `Matrix9x9` (necessitated by removal of multiplication).
 
 ## [0.1.8] - 2026-05-23
 

@@ -1,7 +1,9 @@
+use core::fmt;
 use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
+use core::slice::{ChunksExact, ChunksExactMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -19,12 +21,35 @@ pub type Matrix4x4f64 = Matrix4x4<f64>;
 /// Aliases `Matrix4x4f32` and `Matrix4x4f64` are provided.<br>
 /// Internal implementation is a flattened 4x4 matrix: an array of 9 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Default, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(64))]
 pub struct Matrix4x4<T> {
     // Flattened 4x4 matrix: 16 elements in row-major order
     pub(crate) a: [T; 16],
+}
+
+impl<T> fmt::Debug for Matrix4x4<T>
+where
+    T: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Start the struct block wrapper
+        writeln!(f, "Matrix4x4 [")?;
+
+        // Loop over rows using the Deref slice chunking behavior we added earlier
+        for row in self.chunks_exact(4) {
+            // Print 4 spaces of indentation for clean alignment
+            write!(f, "    ")?;
+
+            // Format the row elements neatly as a standard array slice
+            fmt::Debug::fmt(row, f)?;
+            writeln!(f, ",")?;
+        }
+
+        // Close the struct block wrapper
+        write!(f, "]")
+    }
 }
 
 /// Constants to index matrix elements.
@@ -559,7 +584,7 @@ where
     }
 }
 
-/// Computes the outer product of a column vector and a row vector to give a matrix.
+/// Calculates the outer product of a column vector and a row vector to give a matrix.
 /// ```
 /// # use vqm::Matrix4x4f32;
 /// # use vqm::Vector4df32;
@@ -1470,6 +1495,87 @@ where
             return false;
         }
         true
+    }
+}
+
+// **** Iterators ****
+
+impl<T> Matrix4x4<T> {
+    /// Returns an iterator over the rows of the matrix as slices of 4 elements.
+    #[inline]
+    pub fn rows(&self) -> ChunksExact<'_, T> {
+        self.chunks_exact(4)
+    }
+}
+
+impl<T> Matrix4x4<T> {
+    /// Returns an iterator over the rows of the matrix as mutable slices of 4 elements.
+    #[inline]
+    pub fn rows_mut(&mut self) -> ChunksExactMut<'_, T> {
+        self.chunks_exact_mut(4)
+    }
+}
+
+impl<T> Matrix4x4<T>
+where
+    T: Copy,
+{
+    /// Consumes the matrix and returns an array of its 4 rows.
+    #[inline]
+    pub fn into_rows(self) -> [[T; 4]; 4] {
+        // Build the nested 2D array matrix safely in a single unrolled pass
+        core::array::from_fn(|r| core::array::from_fn(|c| self.a[r * 4 + c]))
+    }
+}
+impl<T> Matrix4x4<T>
+where
+    T: Copy,
+{
+    /// Returns an iterator over the columns of the matrix as owned 4-element arrays.
+    #[inline]
+    pub fn cols(&self) -> impl Iterator<Item = [T; 4]> {
+        // Create an iterator over the column indices (0, 1, 2, 3)
+        (0..4).map(|c| {
+            // Collect the strided elements for the current column
+            [self.a[c], self.a[c + 4], self.a[c + 8], self.a[c + 12]]
+        })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Matrix4x4<T> {
+    type Item = &'a [T];
+    type IntoIter = ChunksExact<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your Deref trait automatically to get 4-element rows
+        self.chunks_exact(4)
+    }
+}
+
+impl<'a, T> IntoIterator for &'a mut Matrix4x4<T> {
+    type Item = &'a mut [T];
+    type IntoIter = ChunksExactMut<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Leverages your DerefMut trait automatically
+        self.chunks_exact_mut(4)
+    }
+}
+
+impl<T> IntoIterator for Matrix4x4<T>
+where
+    T: Copy,
+{
+    type Item = [T; 4];
+    type IntoIter = core::array::IntoIter<[T; 4], 4>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        // Construct the 4 rows of 4 elements safely in one direct pass
+        let rows = core::array::from_fn(|r| core::array::from_fn(|c| self.a[r * 4 + c]));
+        rows.into_iter()
     }
 }
 
