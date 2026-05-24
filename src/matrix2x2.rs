@@ -1,4 +1,7 @@
-use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
+use core::ops::{
+    Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
+    RangeInclusive, Sub, SubAssign,
+};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -607,6 +610,42 @@ where
     }
 }
 
+// **** AsRef ****
+
+// Immutable reference to the raw array: let array_ref: &[T; 4] = matrix.as_ref();
+impl<T> AsRef<[T; 4]> for Matrix2x2<T> {
+    #[inline]
+    fn as_ref(&self) -> &[T; 4] {
+        &self.a
+    }
+}
+
+// Mutable reference to the raw array: let array_mut: &mut [T; 4] = matrix.as_mut();
+impl<T> AsMut<[T; 4]> for Matrix2x2<T> {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [T; 4] {
+        &mut self.a
+    }
+}
+
+// **** Deref ****
+
+impl<T> Deref for Matrix2x2<T> {
+    type Target = [T];
+
+    #[inline]
+    fn deref(&self) -> &[T] {
+        &self.a
+    }
+}
+
+impl<T> DerefMut for Matrix2x2<T> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut [T] {
+        &mut self.a
+    }
+}
+
 // **** Index ****
 
 /// Access matrix element by index.
@@ -629,27 +668,30 @@ impl<T> Index<usize> for Matrix2x2<T> {
     }
 }
 
-// **** IndexMut ****
+impl<T> Index<Range<usize>> for Matrix2x2<T> {
+    type Output = [T];
 
-/// Set matrix element by index.
-/// ```
-/// # use vqm::Matrix2x2f32;
-///
-/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
-///                                   5.0, 11.0]);
-///
-/// m[0] = 3.0;
-/// m[1] = 7.0;
-/// m[2] = 13.0;
-/// m[3] = 19.0;
-///
-/// assert_eq!(m, Matrix2x2f32::from([  3.0,  7.0,
-///                                    13.0, 19.0]));
-/// ```
-impl<T> IndexMut<usize> for Matrix2x2<T> {
     #[inline]
-    fn index_mut(&mut self, index: usize) -> &mut T {
-        &mut self.a[index]
+    fn index(&self, index: Range<usize>) -> &[T] {
+        &self.a[index]
+    }
+}
+
+impl<T> Index<RangeFull> for Matrix2x2<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, _index: RangeFull) -> &[T] {
+        &self.a
+    }
+}
+
+impl<T> Index<RangeInclusive<usize>> for Matrix2x2<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, index: RangeInclusive<usize>) -> &[T] {
+        &self.a[index]
     }
 }
 
@@ -670,7 +712,53 @@ impl<T> Index<(usize, usize)> for Matrix2x2<T> {
 
     #[inline]
     fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
+        assert!(row < 2 && col < 2, "Matrix index out of bounds: row={row}, col={col}");
         &self.a[row * 2 + col]
+    }
+}
+
+// **** IndexMut ****
+
+/// Set matrix element by index.
+/// ```
+/// # use vqm::Matrix2x2f32;
+///
+/// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+///                                   5.0, 11.0]);
+///
+/// m[0] = 3.0;
+/// m[1] = 19.0;
+/// m[2] = 7.0;
+/// m[3] = 13.0;
+///
+/// assert_eq!(m, Matrix2x2f32::from([  3.0, 19.0,
+///                                     7.0, 13.0]));
+/// ```
+impl<T> IndexMut<usize> for Matrix2x2<T> {
+    #[inline]
+    fn index_mut(&mut self, index: usize) -> &mut T {
+        &mut self.a[index]
+    }
+}
+
+impl<T> IndexMut<Range<usize>> for Matrix2x2<T> {
+    #[inline]
+    fn index_mut(&mut self, index: Range<usize>) -> &mut [T] {
+        &mut self.a[index]
+    }
+}
+
+impl<T> IndexMut<RangeFull> for Matrix2x2<T> {
+    #[inline]
+    fn index_mut(&mut self, _index: RangeFull) -> &mut [T] {
+        &mut self.a
+    }
+}
+
+impl<T> IndexMut<RangeInclusive<usize>> for Matrix2x2<T> {
+    #[inline]
+    fn index_mut(&mut self, index: RangeInclusive<usize>) -> &mut [T] {
+        &mut self.a[index]
     }
 }
 
@@ -682,16 +770,17 @@ impl<T> Index<(usize, usize)> for Matrix2x2<T> {
 ///                                   5.0, 11.0]);
 ///
 /// m[(0,0)] = 3.0;
-/// m[(0,1)] = 7.0;
-/// m[(1,0)] = 11.0;
+/// m[(0,1)] = 19.0;
+/// m[(1,0)] = 7.0;
 /// m[(1,1)] = 13.0;
 ///
-/// assert_eq!(m, Matrix2x2f32::from([  3.0, 7.0,
-///                                    11.0, 13.0]));
+/// assert_eq!(m, Matrix2x2f32::from([  3.0, 19.0,
+///                                     7.0, 13.0]));
 /// ```
 impl<T> IndexMut<(usize, usize)> for Matrix2x2<T> {
     #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
+        assert!(row < 2 && col < 2, "Matrix index out of bounds: row={row}, col={col}");
         &mut self.a[row * 2 + col]
     }
 }
@@ -701,13 +790,10 @@ where
     T: Copy,
 {
     pub fn set_row(&mut self, row: usize, value: Vector2d<T>) {
-        if row == 0 {
-            self.a[0] = value.x;
-            self.a[1] = value.y;
-        } else {
-            self.a[2] = value.x;
-            self.a[3] = value.y;
-        }
+        // Get a mutable slice of exactly the requested row.
+        // This will naturally panic with a clean message if 'row >= 2'.
+        let row_slice = &mut self.a[row * 2..(row + 1) * 2];
+        row_slice.copy_from_slice(&[value.x, value.y]);
     }
 
     /// Return matrix row as a vector.

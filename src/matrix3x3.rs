@@ -1,4 +1,7 @@
-use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
+use core::ops::{
+    Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
+    RangeInclusive, Sub, SubAssign,
+};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -658,6 +661,42 @@ where
     }
 }
 
+// **** AsRef ****
+
+// Immutable reference to the raw array: let array_ref: &[T; 9] = matrix.as_ref();
+impl<T> AsRef<[T; 9]> for Matrix3x3<T> {
+    #[inline]
+    fn as_ref(&self) -> &[T; 9] {
+        &self.a
+    }
+}
+
+// Mutable reference to the raw array: let array_mut: &mut [T; 9] = matrix.as_mut();
+impl<T> AsMut<[T; 9]> for Matrix3x3<T> {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [T; 9] {
+        &mut self.a
+    }
+}
+
+// **** Deref ****
+
+impl<T> Deref for Matrix3x3<T> {
+    type Target = [T];
+
+    #[inline]
+    fn deref(&self) -> &[T] {
+        &self.a
+    }
+}
+
+impl<T> DerefMut for Matrix3x3<T> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut [T] {
+        &mut self.a
+    }
+}
+
 // **** Index ****
 
 /// Access matrix element by index.
@@ -683,6 +722,61 @@ impl<T> Index<usize> for Matrix3x3<T> {
     #[inline]
     fn index(&self, index: usize) -> &T {
         &self.a[index]
+    }
+}
+
+impl<T> Index<Range<usize>> for Matrix3x3<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, index: Range<usize>) -> &[T] {
+        &self.a[index]
+    }
+}
+
+impl<T> Index<RangeFull> for Matrix3x3<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, _index: RangeFull) -> &[T] {
+        &self.a
+    }
+}
+
+impl<T> Index<RangeInclusive<usize>> for Matrix3x3<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, index: RangeInclusive<usize>) -> &[T] {
+        &self.a[index]
+    }
+}
+
+/// Access matrix element by ordered pair (row, column).
+/// ```
+/// # use vqm::Matrix3x3f32;
+///
+/// let mut m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
+///                                   5.0, 11.0, 47.0,
+///                                  23.0, 31.0, 41.0]);
+///
+/// assert_eq!(m[(0,0)], 2.0);
+/// assert_eq!(m[(0,1)], 17.0);
+/// assert_eq!(m[(0,2)], 59.0);
+/// assert_eq!(m[(1,0)], 5.0);
+/// assert_eq!(m[(1,1)], 11.0);
+/// assert_eq!(m[(1,2)], 47.0);
+/// assert_eq!(m[(2,0)], 23.0);
+/// assert_eq!(m[(2,1)], 31.0);
+/// assert_eq!(m[(2,2)], 41.0);
+/// ```
+impl<T> Index<(usize, usize)> for Matrix3x3<T> {
+    type Output = T;
+
+    #[inline]
+    fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
+        assert!(row < 3 && col < 3, "Matrix index out of bounds: row={row}, col={col}");
+        &self.a[row * 3 + col]
     }
 }
 
@@ -717,30 +811,24 @@ impl<T> IndexMut<usize> for Matrix3x3<T> {
     }
 }
 
-/// Access matrix element by ordered pair (row, column).
-/// ```
-/// # use vqm::Matrix3x3f32;
-///
-/// let mut m = Matrix3x3f32::from([  2.0, 17.0, 59.0,
-///                                   5.0, 11.0, 47.0,
-///                                  23.0, 31.0, 41.0]);
-///
-/// assert_eq!(m[(0,0)], 2.0);
-/// assert_eq!(m[(0,1)], 17.0);
-/// assert_eq!(m[(0,2)], 59.0);
-/// assert_eq!(m[(1,0)], 5.0);
-/// assert_eq!(m[(1,1)], 11.0);
-/// assert_eq!(m[(1,2)], 47.0);
-/// assert_eq!(m[(2,0)], 23.0);
-/// assert_eq!(m[(2,1)], 31.0);
-/// assert_eq!(m[(2,2)], 41.0);
-/// ```
-impl<T> Index<(usize, usize)> for Matrix3x3<T> {
-    type Output = T;
-
+impl<T> IndexMut<Range<usize>> for Matrix3x3<T> {
     #[inline]
-    fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
-        &self.a[row * 3 + col]
+    fn index_mut(&mut self, index: Range<usize>) -> &mut [T] {
+        &mut self.a[index]
+    }
+}
+
+impl<T> IndexMut<RangeFull> for Matrix3x3<T> {
+    #[inline]
+    fn index_mut(&mut self, _index: RangeFull) -> &mut [T] {
+        &mut self.a
+    }
+}
+
+impl<T> IndexMut<RangeInclusive<usize>> for Matrix3x3<T> {
+    #[inline]
+    fn index_mut(&mut self, index: RangeInclusive<usize>) -> &mut [T] {
+        &mut self.a[index]
     }
 }
 
@@ -769,6 +857,7 @@ impl<T> Index<(usize, usize)> for Matrix3x3<T> {
 impl<T> IndexMut<(usize, usize)> for Matrix3x3<T> {
     #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
+        assert!(row < 3 && col < 3, "Matrix index out of bounds: row={row}, col={col}");
         &mut self.a[row * 3 + col]
     }
 }
@@ -778,25 +867,11 @@ where
     T: Copy,
 {
     pub fn set_row(&mut self, row: usize, value: Vector3d<T>) {
-        match row {
-            0 => {
-                self.a[0] = value.x;
-                self.a[1] = value.y;
-                self.a[2] = value.z;
-            }
-            1 => {
-                self.a[3] = value.x;
-                self.a[4] = value.y;
-                self.a[5] = value.z;
-            }
-            _ => {
-                self.a[6] = value.x;
-                self.a[7] = value.y;
-                self.a[8] = value.z;
-            }
-        }
+        // Get a mutable slice of exactly the requested row.
+        // This will naturally panic with a clean message if 'row >= 3'.
+        let row_slice = &mut self.a[row * 3..(row + 1) * 3];
+        row_slice.copy_from_slice(&[value.x, value.y, value.z]);
     }
-
     /// Return matrix row as a vector.
     /// ```
     /// # use vqm::{Matrix3x3f32,Vector3df32};
@@ -819,22 +894,15 @@ where
     }
 
     pub fn set_column(&mut self, column: usize, value: Vector3d<T>) {
-        match column {
-            0 => {
-                self.a[0] = value.x;
-                self.a[3] = value.y;
-                self.a[6] = value.z;
-            }
-            1 => {
-                self.a[1] = value.x;
-                self.a[4] = value.y;
-                self.a[7] = value.z;
-            }
-            _ => {
-                self.a[2] = value.x;
-                self.a[5] = value.y;
-                self.a[8] = value.z;
-            }
+        if column >= 3 {
+            return;
+        }
+
+        let values = [value.x, value.y, value.z];
+
+        // Step through the flat matrix rows at the target column offset
+        for (i, &val) in values.iter().enumerate() {
+            self.a[i * 3 + column] = val;
         }
     }
 

@@ -37,23 +37,6 @@ impl Mul<f32> for KalmanStateVector9<f32> {
 
 impl<T> Matrix9x9<T>
 where
-    T: Copy,
-{
-    /// Helper to map 0-based Row and Column indices to array positions.
-    #[inline]
-    pub const fn index0(row: usize, col: usize) -> usize {
-        row * 9 + col
-    }
-
-    /// Helper to map 1-based Row and Column indices to array positions.
-    #[inline]
-    pub const fn index1(row: usize, col: usize) -> usize {
-        (row - 1) * 9 + (col - 1)
-    }
-}
-
-impl<T> Matrix9x9<T>
-where
     T: Copy + Zero + Matrix9x9Math + Mul<T, Output = T>,
 {
     /// Computes the outer product of two 9-element states in a compiler-friendly manner.
@@ -72,35 +55,21 @@ where
 
         // Process each row. LLVM sees fixed loops of 4 elements and easily emits
         // optimized parallel hardware vector instructions.
-        #[allow(clippy::needless_range_loop)]
-        for r_idx in 0..9 {
-            let offset = r_idx * 9;
-            let scalar = c[r_idx];
+        for (r_idx, &scalar) in c.iter().enumerate().take(9) {
+            // array::map creates a clean, fixed-size loop that LLVM easily unrolls
+            // and vectorizes since the size (4) and operation are perfectly predictable.
+            let chunk1 = r1.map(|val| scalar * val);
+            let chunk2 = r2.map(|val| scalar * val);
+            let chunk3 = r3.map(|val| scalar * val);
 
-            let mut chunk1 = [T::zero(); 4];
-            let mut chunk2 = [T::zero(); 4];
-            let mut chunk3 = [T::zero(); 4];
-
-            for ii in 0..4 {
-                chunk1[ii] = scalar * r1[ii];
-            }
-            for ii in 0..4 {
-                chunk2[ii] = scalar * r2[ii];
-            }
-            for ii in 0..4 {
-                chunk3[ii] = scalar * r3[ii];
-            }
+            // Get a mutable reference to the row (9 elements)
+            let out_row = &mut out[r_idx * 9..(r_idx + 1) * 9];
 
             // Write back to the matrix, dropping the 4th padding lane of each chunk
-            out.a[offset] = chunk1[0];
-            out.a[offset + 1] = chunk1[1];
-            out.a[offset + 2] = chunk1[2];
-            out.a[offset + 3] = chunk2[0];
-            out.a[offset + 4] = chunk2[1];
-            out.a[offset + 5] = chunk2[2];
-            out.a[offset + 6] = chunk3[0];
-            out.a[offset + 7] = chunk3[1];
-            out.a[offset + 8] = chunk3[2];
+            // since the sizes are matched the compiler can generate raw, grouped memory stream instructions.
+            out_row[0..3].copy_from_slice(&chunk1[0..3]);
+            out_row[3..6].copy_from_slice(&chunk2[0..3]);
+            out_row[6..9].copy_from_slice(&chunk3[0..3]);
         }
 
         out

@@ -1,4 +1,7 @@
-use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
+use core::ops::{
+    Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
+    RangeInclusive, Sub, SubAssign,
+};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3d};
@@ -474,6 +477,42 @@ where
     }
 }
 
+// **** Deref ****
+
+impl<T> Deref for Matrix9x9<T> {
+    type Target = [T];
+
+    #[inline]
+    fn deref(&self) -> &[T] {
+        &self.a
+    }
+}
+
+impl<T> DerefMut for Matrix9x9<T> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut [T] {
+        &mut self.a
+    }
+}
+
+// **** AsRef ****
+
+// Immutable reference to the raw array: let array_ref: &[T; 81] = matrix.as_ref();
+impl<T> AsRef<[T; 81]> for Matrix9x9<T> {
+    #[inline]
+    fn as_ref(&self) -> &[T; 81] {
+        &self.a
+    }
+}
+
+// Mutable reference to the raw array: let array_mut: &mut [T; 81] = matrix.as_mut();
+impl<T> AsMut<[T; 81]> for Matrix9x9<T> {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [T; 81] {
+        &mut self.a
+    }
+}
+
 // **** Index ****
 
 impl<T> Index<usize> for Matrix9x9<T> {
@@ -483,6 +522,84 @@ impl<T> Index<usize> for Matrix9x9<T> {
     #[inline]
     fn index(&self, index: usize) -> &T {
         &self.a[index]
+    }
+}
+
+impl<T> Index<Range<usize>> for Matrix9x9<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, index: Range<usize>) -> &[T] {
+        &self.a[index]
+    }
+}
+
+impl<T> Index<RangeFull> for Matrix9x9<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, _index: RangeFull) -> &[T] {
+        &self.a
+    }
+}
+
+impl<T> Index<RangeInclusive<usize>> for Matrix9x9<T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, index: RangeInclusive<usize>) -> &[T] {
+        &self.a[index]
+    }
+}
+
+impl<T> Index<(usize, usize)> for Matrix9x9<T> {
+    type Output = T;
+
+    /// Access matrix element by ordered pair (row, column).
+    #[inline]
+    fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
+        assert!(row < 9 && col < 9, "Matrix index out of bounds: row={row}, col={col}");
+        &self.a[row * 9 + col]
+    }
+}
+
+// **** IndexMut ****
+
+impl<T> IndexMut<usize> for Matrix9x9<T> {
+    #[inline]
+    /// Set matrix element by index.
+    fn index_mut(&mut self, index: usize) -> &mut T {
+        &mut self.a[index]
+    }
+}
+
+impl<T> IndexMut<Range<usize>> for Matrix9x9<T> {
+    #[inline]
+    fn index_mut(&mut self, index: Range<usize>) -> &mut [T] {
+        &mut self.a[index]
+    }
+}
+
+impl<T> IndexMut<RangeFull> for Matrix9x9<T> {
+    #[inline]
+    fn index_mut(&mut self, _index: RangeFull) -> &mut [T] {
+        &mut self.a
+    }
+}
+
+impl<T> IndexMut<RangeInclusive<usize>> for Matrix9x9<T> {
+    #[inline]
+    fn index_mut(&mut self, index: RangeInclusive<usize>) -> &mut [T] {
+        &mut self.a[index]
+    }
+}
+
+impl<T> IndexMut<(usize, usize)> for Matrix9x9<T> {
+    #[inline]
+    /// Set matrix element by ordered pair (row, column).
+    fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
+        assert!(row < 9 && col < 9, "Matrix index out of bounds: row={row}, col={col}");
+        &mut self.a[row * 9 + col]
     }
 }
 
@@ -510,34 +627,6 @@ where
             Vector3d { x: self.a[c + 27], y: self.a[c + 36], z: self.a[c + 45] },
             Vector3d { x: self.a[c + 54], y: self.a[c + 63], z: self.a[c + 72] },
         )
-    }
-}
-
-// **** IndexMut ****
-
-impl<T> IndexMut<usize> for Matrix9x9<T> {
-    #[inline]
-    /// Set matrix element by index.
-    fn index_mut(&mut self, index: usize) -> &mut T {
-        &mut self.a[index]
-    }
-}
-
-impl<T> Index<(usize, usize)> for Matrix9x9<T> {
-    type Output = T;
-
-    /// Access matrix element by ordered pair (row, column).
-    #[inline]
-    fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
-        &self.a[row * 9 + col]
-    }
-}
-
-impl<T> IndexMut<(usize, usize)> for Matrix9x9<T> {
-    #[inline]
-    /// Set matrix element by ordered pair (row, column).
-    fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
-        &mut self.a[row * 9 + col]
     }
 }
 
