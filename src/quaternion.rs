@@ -19,7 +19,8 @@ pub type Quaternionf64 = Quaternion<f64>;
 /// `Quaternion<T>`: quaternion type `T`.<br>
 /// Aliases `Quaternion32` and `Quaternionf64` are provided.<br>
 /// `Quaternionf32` uses **SIMD** accelerations implemented in `QuaternionMath`.<br><br>
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, derive_more::Display, PartialEq)]
+#[display("Q{{w:{w}, x:{x}, y:{y}, z:{z}}}")]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(16))]
 pub struct Quaternion<T> {
@@ -565,6 +566,28 @@ where
     }
 }
 
+// **** dot ****
+
+impl<T> Quaternion<T>
+where
+    T: Copy + QuaternionMath,
+{
+    /// Quaternion dot product.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let v = Quaternionf32::new(2.0, 5.0, 11.0, 17.0);
+    /// let w = Quaternionf32::new(3.0, 7.0, 13.0, 19.0);
+    ///
+    /// let x = v.dot(w);
+    ///
+    /// assert_eq!(x, 507.0);
+    /// ```
+    #[inline]
+    pub fn dot(self, other: Self) -> T {
+        T::q_dot(self, other)
+    }
+}
+
 // **** norm_squared ****
 
 impl<T> Quaternion<T>
@@ -717,16 +740,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy
-        + Zero
-        + One
-        + PartialEq
-        + PartialOrd
-        + Add<Output = T>
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>
-        + SqrtMethods,
+    T: Copy + FloatCore + SqrtMethods,
 {
     pub fn rotate(self, v: &Vector3d<T>) -> Vector3d<T> {
         let two: T = T::one() + T::one();
@@ -811,7 +825,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + One + PartialOrd + Neg<Output = T> + Sub<Output = T> + Div<Output = T> + SqrtMethods,
+    T: Copy + FloatCore + SqrtMethods,
 {
     /// clip `sin(roll_angle)` to +/-1.0 when roll angle outside range [-90 degrees, 90 degrees].
     pub fn sin_roll_clipped(self) -> T {
@@ -845,7 +859,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + One + Neg<Output = T> + Sub<Output = T> + Div<Output = T> + TrigonometricMethods,
+    T: Copy + FloatCore + TrigonometricMethods,
 {
     /// Rotate about the x-axis,
     /// equivalent to *= Quaternion(cos(theta/2), sin(theta/2), 0, 0).
@@ -901,8 +915,9 @@ where
 
     #[inline]
     pub fn calculate_yaw_radians(self) -> T {
-        let half = T::one() / (T::one() + T::one());
-        (self.w * self.z + self.x * self.y).atan2(half - self.y * self.y - self.z * self.z)
+        //let half = T::one() / (T::one() + T::one());
+        //(self.w * self.z + self.x * self.y).atan2(half - self.y * self.y - self.z * self.z)
+        self.z.atan2(self.w)
     }
 
     /// Calculate a quaternion's Euler angles in radians.
@@ -918,7 +933,7 @@ where
 
     /// Create a Quaternion from roll, pitch, and yaw Euler angles (in radians).
     /// See: <https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_angles_(in_3-2-1_sequence)_to_quaternion_conversion>.
-    pub fn from_roll_pitch_yaw_angles_radians(roll_radians: T, pitch_radians: T, yaw_radians: T) -> Self {
+    pub fn from_roll_pitch_yaw_radians(roll_radians: T, pitch_radians: T, yaw_radians: T) -> Self {
         let half: T = T::one() / (T::one() + T::one());
         let (sin_half_roll, cos_half_roll) = (roll_radians * half).sin_cos();
         let (sin_half_pitch, cos_half_pitch) = (pitch_radians * half).sin_cos();
@@ -932,7 +947,7 @@ where
     }
 
     /// Create a Quaternion from roll and pitch Euler angles (in radians), assumes yaw angle is zero.
-    pub fn from_roll_pitch_angles_radians(roll_radians: T, pitch_radians: T) -> Self {
+    pub fn from_roll_pitch_radians(roll_radians: T, pitch_radians: T) -> Self {
         let half: T = T::one() / (T::one() + T::one());
         let (sin_half_roll, cos_half_roll) = (roll_radians * half).sin_cos();
         let (sin_half_pitch, cos_half_pitch) = (pitch_radians * half).sin_cos();
@@ -943,6 +958,42 @@ where
             y: cos_half_roll * sin_half_pitch,
             z: -sin_half_roll * sin_half_pitch,
         }
+    }
+
+    /// Create a Quaternion from roll Euler angle (in radians), assumes pitch and roll angles are zero.
+    pub fn from_roll_radians(roll_radians: T) -> Self {
+        let half: T = T::one() / (T::one() + T::one());
+        let (sin_half_roll, cos_half_roll) = (roll_radians * half).sin_cos();
+
+        Self { w: cos_half_roll, x: sin_half_roll, y: T::zero(), z: T::zero() }
+    }
+    /// Create a Quaternion from roll Euler angle (in degrees), assumes pitch and roll angles are zero.
+    pub fn from_roll_degrees(roll_degrees: T) -> Self {
+        Self::from_roll_radians(roll_degrees.to_radians())
+    }
+
+    /// Create a Quaternion from pitch Euler angle (in radians), assumes roll and yaw angles are zero.
+    pub fn from_pitch_radians(pitch_radians: T) -> Self {
+        let half: T = T::one() / (T::one() + T::one());
+        let (sin_half_pitch, cos_half_pitch) = (pitch_radians * half).sin_cos();
+
+        Self { w: cos_half_pitch, x: T::zero(), y: sin_half_pitch, z: T::zero() }
+    }
+    /// Create a Quaternion from pitch Euler angle (in degrees), assumes roll and yaw angles are zero.
+    pub fn from_pitch_degrees(pitch_degrees: T) -> Self {
+        Self::from_pitch_radians(pitch_degrees.to_radians())
+    }
+
+    /// Create a Quaternion from yaw Euler angle (in radians), assumes roll and pitch angles are zero.
+    pub fn from_yaw_radians(yaw_radians: T) -> Self {
+        let half: T = T::one() / (T::one() + T::one());
+        let (sin_half_yaw, cos_half_yaw) = (yaw_radians * half).sin_cos();
+
+        Self { w: cos_half_yaw, x: T::zero(), y: T::zero(), z: sin_half_yaw }
+    }
+    /// Create a Quaternion from yaw Euler angle (in degrees), assumes roll and pitch angles are zero.
+    pub fn from_yaw_degrees(yaw_degrees: T) -> Self {
+        Self::from_yaw_radians(yaw_degrees.to_radians())
     }
 }
 
@@ -1031,7 +1082,7 @@ where
     /// Create a quaternion from roll, pitch, and yaw Euler angles (in degrees).
     #[inline]
     pub fn from_roll_pitch_yaw_angles_degrees(roll_degrees: T, pitch_degrees: T, yaw_degrees: T) -> Self {
-        Self::from_roll_pitch_yaw_angles_radians(
+        Self::from_roll_pitch_yaw_radians(
             roll_degrees.to_radians(),
             pitch_degrees.to_radians(),
             yaw_degrees.to_radians(),
@@ -1041,7 +1092,7 @@ where
     /// Create a Quaternion from roll and pitch Euler angles (in degrees), assumes yaw angle is zero.
     #[inline]
     pub fn from_roll_pitch_angles_degrees(roll_degrees: T, pitch_degrees: T) -> Self {
-        Self::from_roll_pitch_angles_radians(roll_degrees.to_radians(), pitch_degrees.to_radians())
+        Self::from_roll_pitch_radians(roll_degrees.to_radians(), pitch_degrees.to_radians())
     }
 }
 
@@ -1114,7 +1165,7 @@ where
 {
     #[inline]
     fn from((roll_radians, pitch_radians): (T, T)) -> Self {
-        Quaternion::from_roll_pitch_angles_radians(roll_radians, pitch_radians)
+        Quaternion::from_roll_pitch_radians(roll_radians, pitch_radians)
     }
 }
 
@@ -1124,6 +1175,6 @@ where
 {
     #[inline]
     fn from((roll_radians, pitch_radians, yaw_radians): (T, T, T)) -> Self {
-        Quaternion::from_roll_pitch_yaw_angles_radians(roll_radians, pitch_radians, yaw_radians)
+        Quaternion::from_roll_pitch_yaw_radians(roll_radians, pitch_radians, yaw_radians)
     }
 }

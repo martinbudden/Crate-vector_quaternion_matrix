@@ -15,7 +15,8 @@ pub type Vector4df64 = Vector4d<f64>;
 /// `Vector4d<T>`: 3D vector of type `T`.<br>
 /// Aliases `Vector4df32` and `Vector4df64` are provided.<br>
 /// `Vector4df32` uses **SIMD** accelerations implemented in `Vector4dMath`.<br><br>
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, derive_more::Display, PartialEq)]
+#[display("V{{x:{x}, y:{y}, z:{z}}}")]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(16))]
 pub struct Vector4d<T> {
@@ -534,12 +535,12 @@ where
     /// Vector dot product.
     /// ```
     /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-    /// let w = Vector4df32::new(11.0, 13.0, 17.0, 19.0);
+    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
     ///
     /// let x = v.dot(w);
     ///
-    /// assert_eq!(x, 279.0);
+    /// assert_eq!(x, 507.0);
     /// ```
     #[inline]
     pub fn dot(self, other: Self) -> T {

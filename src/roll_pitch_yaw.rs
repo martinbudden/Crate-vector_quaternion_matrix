@@ -14,7 +14,8 @@ pub type RollPitchf32 = RollPitch<f32>;
 pub type RollPitchf64 = RollPitch<f64>;
 
 /// Roll and Pitch bundled for convenience.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, derive_more::Display, PartialEq)]
+#[display("RP{{roll:{roll}, pitch:{pitch}}}")]
 pub struct RollPitch<T> {
     pub roll: T,
     pub pitch: T,
@@ -71,12 +72,13 @@ where
 {
     #[inline]
     fn from(angles: RollPitch<T>) -> Self {
-        Quaternion::from_roll_pitch_angles_radians(angles.roll, angles.pitch)
+        Quaternion::from_roll_pitch_radians(angles.roll, angles.pitch)
     }
 }
 
 /// Roll, Pitch, and Yaw bundled for convenience.<br><br>
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, derive_more::Display, PartialEq)]
+#[display("RP{{roll:{roll}, pitch:{pitch}, yaw:{yaw}}}")]
 pub struct RollPitchYaw<T> {
     pub roll: T,
     pub pitch: T,
@@ -142,7 +144,7 @@ where
 {
     #[inline]
     fn from(angles: RollPitchYaw<T>) -> Self {
-        Quaternion::from_roll_pitch_yaw_angles_radians(angles.roll, angles.pitch, angles.yaw)
+        Quaternion::from_roll_pitch_yaw_radians(angles.roll, angles.pitch, angles.yaw)
     }
 }
 

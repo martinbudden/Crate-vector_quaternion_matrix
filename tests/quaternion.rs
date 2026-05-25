@@ -41,10 +41,10 @@ mod tests {
     #[test]
     fn from() {
         let a = Quaternionf32::from((0.0, 0.0, 0.0));
-        let b = Quaternionf32::from_roll_pitch_yaw_angles_radians(0.0, 0.0, 0.0);
+        let b = Quaternionf32::from_roll_pitch_yaw_radians(0.0, 0.0, 0.0);
         assert_eq!(a, b);
         let c = Quaternionf32::from((0.0, 0.0));
-        let d = Quaternionf32::from_roll_pitch_angles_radians(0.0, 0.0);
+        let d = Quaternionf32::from_roll_pitch_radians(0.0, 0.0);
         assert_eq!(c, d);
     }
     #[test]
@@ -216,13 +216,13 @@ mod tests {
         // Calculate the expected true mathematical Z-axis projection.
         // This represents the geometric baseline our code must match.
         let expected_cos_tilt = pitch.cos() * roll.cos();
-        let q = Quaternionf32::from_roll_pitch_yaw_angles_radians(roll, pitch, yaw);
+        let q = Quaternionf32::from_roll_pitch_yaw_radians(roll, pitch, yaw);
         assert_abs_diff_eq!(expected_cos_tilt, q.cos_tilt(), epsilon = 1e-6);
         assert_abs_diff_eq!(roll.cos(), q.cos_roll(), epsilon = 1e-6);
         assert_abs_diff_eq!(pitch.cos(), q.cos_pitch(), epsilon = 1e-6);
 
         // check independent of yaw
-        let q = Quaternionf32::from_roll_pitch_yaw_angles_radians(roll, pitch, 0.0);
+        let q = Quaternionf32::from_roll_pitch_yaw_radians(roll, pitch, 0.0);
         assert_abs_diff_eq!(expected_cos_tilt, q.cos_tilt(), epsilon = 1e-6);
 
         let q = Quaternionf32::from_roll_pitch_yaw_angles_degrees(120.0, 0.0, 0.0);

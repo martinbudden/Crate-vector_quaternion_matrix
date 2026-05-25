@@ -225,16 +225,14 @@ impl Vector4dMath for f32 {
         }
     }
 
-    // **** dot ****
     #[inline(always)]
     fn v4_dot(this: Vector4d<Self>, other: Vector4d<Self>) -> Self {
-        //this.x * other.x + this.y * other.y + this.z * other.z
+        //this.x * other.x + this.y * other.y + this.z * other.z + this.t * other.t
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
             let other_simd = f32x4::from(other);
 
-            // Multiply the vectors, masking 4 lane to 0.0
             (this_simd * other_simd).reduce_sum()
         }
         #[cfg(not(feature = "simd"))]

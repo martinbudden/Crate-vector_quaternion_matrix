@@ -50,6 +50,7 @@ pub trait QuaternionMath: Sized {
     fn q_is_normalized(this: Quaternion<Self>) -> bool;
     fn q_mul(other: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self>;
     fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self>;
+    fn q_dot(this: Quaternion<Self>, other: Quaternion<Self>) -> Self;
 }
 
 // **** SIMD-accelerated implementation for f32 ****
@@ -182,6 +183,21 @@ impl QuaternionMath for f32 {
             Quaternion { w: this.w, x: -this.x, y: -this.y, z: -this.z }
         }
     }
+
+    #[inline(always)]
+    fn q_dot(this: Quaternion<Self>, other: Quaternion<Self>) -> Self {
+        #[cfg(feature = "simd")]
+        {
+            let this_simd = f32x4::from(this);
+            let other_simd = f32x4::from(other);
+
+            (this_simd * other_simd).reduce_sum()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            this.w * other.w + this.x * other.x + this.y * other.y + this.z * other.z
+        }
+    }
 }
 
 // **** f64 ****
@@ -241,5 +257,10 @@ impl QuaternionMath for f64 {
     #[inline(always)]
     fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self> {
         Quaternion { w: this.w, x: -this.x, y: -this.y, z: -this.z }
+    }
+
+    #[inline(always)]
+    fn q_dot(this: Quaternion<Self>, other: Quaternion<Self>) -> Self {
+        this.w * other.w + this.x * other.x + this.y * other.y + this.z * other.z
     }
 }
