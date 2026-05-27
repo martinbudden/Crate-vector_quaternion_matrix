@@ -1,7 +1,10 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::{MathConstants, SqrtMethods, Vector2d, Vector3d, Vector4dMath};
 
@@ -25,6 +28,9 @@ pub struct Vector4d<T> {
     pub z: T,
     pub t: T,
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for Vector4d<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 // **** New ****
 

@@ -1,5 +1,10 @@
 use core::ops::{Mul, Neg};
 use num_traits::float::FloatCore;
+#[cfg(feature = "serde")]
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::{MathConstants, Quaternion, TrigonometricMethods, Vector2d, Vector3d};
 
@@ -15,11 +20,15 @@ pub type RollPitchf64 = RollPitch<f64>;
 
 /// Roll and Pitch bundled for convenience.
 #[derive(Clone, Copy, Debug, Default, derive_more::Display, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[display("RP{{roll:{roll}, pitch:{pitch}}}")]
 pub struct RollPitch<T> {
     pub roll: T,
     pub pitch: T,
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for RollPitch<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 impl<T> RollPitch<T>
 where
@@ -78,12 +87,16 @@ where
 
 /// Roll, Pitch, and Yaw bundled for convenience.<br><br>
 #[derive(Clone, Copy, Debug, Default, derive_more::Display, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[display("RP{{roll:{roll}, pitch:{pitch}, yaw:{yaw}}}")]
 pub struct RollPitchYaw<T> {
     pub roll: T,
     pub pitch: T,
     pub yaw: T,
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for RollPitchYaw<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 impl<T> RollPitchYaw<T>
 where
@@ -157,10 +170,16 @@ mod tests {
 
     fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
+    #[cfg(feature = "serde")]
+    fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}
 
     #[test]
     fn normal_types() {
         is_full::<RollPitchf32>();
         is_full::<RollPitchYawf32>();
+        #[cfg(feature = "serde")]
+        is_config::<RollPitchf32>();
+        #[cfg(feature = "serde")]
+        is_config::<RollPitchYawf32>();
     }
 }

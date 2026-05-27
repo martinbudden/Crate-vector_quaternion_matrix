@@ -6,7 +6,10 @@ use core::ops::{
 use core::slice::{ChunksExact, ChunksExactMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4Math, Vector4d};
 
@@ -28,6 +31,9 @@ pub struct Matrix4x4<T> {
     // Flattened 4x4 matrix: 16 elements in row-major order
     pub(crate) a: [T; 16],
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for Matrix4x4<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 impl<T> fmt::Debug for Matrix4x4<T>
 where
@@ -621,7 +627,7 @@ where
 /// let r = m * n;
 ///
 /// assert_eq!(r, Matrix4x4f32::from([
-///    2.0*  3.0 + 17.0*  7.0 + 59.0* 29.0 + 127.0* 71.0,   
+///    2.0*  3.0 + 17.0*  7.0 + 59.0* 29.0 + 127.0* 71.0,
 ///    2.0* 19.0 + 17.0* 13.0 + 59.0* 37.0 + 127.0* 79.0,
 ///    2.0* 61.0 + 17.0* 53.0 + 59.0* 43.0 + 127.0* 89.0,
 ///    2.0*131.0 + 17.0*113.0 + 59.0*107.0 + 127.0*101.0,
@@ -675,7 +681,7 @@ where
 /// m *= n;
 ///
 /// assert_eq!(m, Matrix4x4f32::from([
-///    2.0*  3.0 + 17.0*  7.0 + 59.0* 29.0 + 127.0* 71.0,   
+///    2.0*  3.0 + 17.0*  7.0 + 59.0* 29.0 + 127.0* 71.0,
 ///    2.0* 19.0 + 17.0* 13.0 + 59.0* 37.0 + 127.0* 79.0,
 ///    2.0* 61.0 + 17.0* 53.0 + 59.0* 43.0 + 127.0* 89.0,
 ///    2.0*131.0 + 17.0*113.0 + 59.0*107.0 + 127.0*101.0,

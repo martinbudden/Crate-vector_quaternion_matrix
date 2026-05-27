@@ -3,7 +3,10 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign,
 use num_traits::{ConstOne, ConstZero};
 use num_traits::{MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::math_methods::TrigonometricMethods;
 use crate::sqrt_methods::SqrtMethods;
@@ -29,6 +32,9 @@ pub struct Quaternion<T> {
     pub y: T,
     pub z: T,
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for Quaternion<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 // **** Default ****
 
@@ -910,14 +916,14 @@ where
 
     #[inline]
     pub fn calculate_pitch_radians(self) -> T {
-        (self.w * self.y - self.x * self.z).asin()
+        let two = T::one() + T::one();
+        (two * (self.w * self.y - self.x * self.z)).asin()
     }
 
     #[inline]
     pub fn calculate_yaw_radians(self) -> T {
-        //let half = T::one() / (T::one() + T::one());
-        //(self.w * self.z + self.x * self.y).atan2(half - self.y * self.y - self.z * self.z)
-        self.z.atan2(self.w)
+        let half = T::one() / (T::one() + T::one());
+        (self.w * self.z + self.x * self.y).atan2(half - self.y * self.y - self.z * self.z)
     }
 
     /// Calculate a quaternion's Euler angles in radians.
@@ -944,6 +950,15 @@ where
             y: cos_half_roll * sin_half_pitch * cos_half_yaw + sin_half_roll * cos_half_pitch * sin_half_yaw,
             z: cos_half_roll * cos_half_pitch * sin_half_yaw - sin_half_roll * sin_half_pitch * cos_half_yaw,
         }
+    }
+    /// Create a Quaternion from roll, pitch, and yaw Euler angles (in radians).
+    /// See: <https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_angles_(in_3-2-1_sequence)_to_quaternion_conversion>.
+    pub fn from_roll_pitch_yaw_degrees(roll_degrees: T, pitch_degrees: T, yaw_degrees: T) -> Self {
+        Self::from_roll_pitch_yaw_radians(
+            roll_degrees.to_radians(),
+            pitch_degrees.to_radians(),
+            yaw_degrees.to_radians(),
+        )
     }
 
     /// Create a Quaternion from roll and pitch Euler angles (in radians), assumes yaw angle is zero.

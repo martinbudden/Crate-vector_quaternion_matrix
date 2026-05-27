@@ -5,7 +5,10 @@ use core::ops::{
 use core::slice::{ChunksExact, ChunksExactMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::{MathConstants, Matrix2x2Math, Vector2d};
 
@@ -28,6 +31,9 @@ pub struct Matrix2x2<T> {
     // Flattened 2x2 matrix: 4 elements in row-major order
     pub(crate) a: [T; 4],
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for Matrix2x2<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 /// Constants to index matrix elements.
 impl<T> Matrix2x2<T> {

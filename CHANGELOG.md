@@ -31,6 +31,19 @@ At some point [0.1.0] to [0.1.8] will be [YANKED]
 
 ### Security
 
+## [0.1.10] - 2026-05-27
+
+### Added
+
+- dot product to quaternion.
+- `sequential-storage` support to `serde`.
+- examples to `README.md`.
+- `Display` trait to vectors.
+
+### Changed
+
+- fixed `atan2` parameter order error..
+
 ## [0.1.9] - 2026-05-24
 
 ### Added

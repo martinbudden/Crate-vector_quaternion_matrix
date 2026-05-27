@@ -26,18 +26,18 @@ mod tests {
     use crate::Vector3df32;
     use approx::assert_abs_diff_eq;
     use core::mem::{align_of, size_of};
-    #[cfg(feature = "serde")]
-    use serde::{Deserialize, Serialize};
     use vqm::Quaternionf32;
+    #[cfg(feature = "serde")]
+    use {
+        sequential_storage::map::PostcardValue,
+        serde::{Deserialize, Serialize},
+    };
 
     #[allow(unused)]
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
-    fn is_config<
-        T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq + Serialize + for<'a> Deserialize<'a>,
-    >() {
-    }
+    fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}
 
     #[test]
     fn normal_types() {

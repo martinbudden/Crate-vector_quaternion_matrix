@@ -114,8 +114,6 @@ const _: () = {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[cfg(feature = "serde")]
-    use serde::{Deserialize, Serialize};
 
     fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}

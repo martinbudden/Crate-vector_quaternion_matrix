@@ -29,6 +29,61 @@ The 3D vector additionally has `i16` and `i32` versions: `Vector3di16` and `Vect
 (Under the hood, types are implemented using generics, so `Vector3df32` is actually `Vector3d<f32>`,
 but that is transparent to the user.)
 
+## Examples
+
+A small selection from what is available:
+
+```rust
+    use vqm::{Matrix3x3f32, Quaternionf32, Vector3df32};
+
+    // vectors
+    let a = Vector3df32 { x: 1.0, y: 2.0, z: 3.0 };
+    let b = Vector3df32::new(5.0, 7.0, 11.0);
+
+    // vector arithmetic
+    let c = a + b;
+    let mut d = (a - b) * 2.0;
+    d += a;
+    d = c - d;
+
+    // vector dot and cross product
+    let dot_product = a.dot(b);
+    let cross_product = a.cross(b);
+
+    // matrices
+    let m = Matrix3x3f32::new([ 2.0,  3.0,  5.0,
+                                7.0, 11.0, 13.0,
+                               17.0, 19.0, 23.0]);
+    let n = Matrix3x3f32::from([29.0, 31.0, 37.0,
+                                41.0, 43.0, 47.0,
+                                53.0, 59.0, 61.0]);
+
+    // matrix arithmetic
+    let mut p = m * n;
+    p += m;
+    p *= 2.0;
+    let h = p + n * m;
+    let j = h.try_inverse();
+
+    // multiplication of a vector by a matrix
+    let v = p * a;
+
+    let q = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
+    let r = Quaternionf32::new(11.0, 13.0, 17.0, 23.0);
+
+    // quaternion arithmetic
+    let s = q + r;
+    let mut t = (s - q) * 2.0;
+    t += s;
+    t = s - t;
+    let q = s * t;
+    let c = q.conjugate();
+
+    // Euler angles
+    let orientation = Quaternionf32::from_roll_pitch_yaw_degrees(15.0, 60.0, 120.0);
+    let pitch = orientation.calculate_pitch_degrees();
+```
+
 ## Mathematical methods and constants
 
 This crate also provides implementations of the trigonometric methods normally provided by the standard library, namely:

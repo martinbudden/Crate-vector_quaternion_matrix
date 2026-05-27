@@ -121,8 +121,9 @@ cfg_if! {
                 libm::acosf(self)
             }
             #[inline(always)]
+            // note: atan2(x, y) = x.atan2(y)
             fn atan2(self, y: Self) -> Self {
-                libm::atan2f(y, self)
+                libm::atan2f(self, y)
             }
         }
         impl TrigonometricMethods for f64 {
@@ -151,8 +152,9 @@ cfg_if! {
                 libm::acos(self)
             }
             #[inline(always)]
+            // note: atan2(x, y) = x.atan2(y)
             fn atan2(self, y: Self) -> Self {
-                libm::atan2(y, self)
+                libm::atan2(self, y)
             }
         }
     } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {

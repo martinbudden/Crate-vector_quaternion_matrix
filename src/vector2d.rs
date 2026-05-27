@@ -1,7 +1,10 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::{MathConstants, SqrtMethods, Vector2dMath};
 
@@ -23,6 +26,9 @@ pub struct Vector2d<T> {
     pub x: T,
     pub y: T,
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for Vector2d<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 // **** New ****
 

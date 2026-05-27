@@ -10,16 +10,16 @@ const _: () = assert!(core::mem::align_of::<Quaternion<f64>>() == 16);
 mod tests {
     use super::*;
     #[cfg(feature = "serde")]
-    use serde::{Deserialize, Serialize};
+    use {
+        sequential_storage::map::PostcardValue,
+        serde::{Deserialize, Serialize},
+    };
 
     #[allow(unused)]
     fn is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
-    fn is_config<
-        T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq + Serialize + for<'a> Deserialize<'a>,
-    >() {
-    }
+    fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}
 
     #[test]
     fn normal_types() {
@@ -227,5 +227,43 @@ mod tests {
 
         let q = Quaternionf32::from_roll_pitch_yaw_angles_degrees(120.0, 0.0, 0.0);
         assert_abs_diff_eq!(-0.5, q.cos_tilt(), epsilon = 1e-6);
+    }
+    #[test]
+    fn conversions() {
+        use approx::assert_abs_diff_eq;
+        let angle_degrees = 65.0f32;
+
+        let q = Quaternionf32::from_roll_degrees(angle_degrees);
+        let q1 = Quaternionf32::from_roll_pitch_yaw_degrees(angle_degrees, 0.0, 0.0);
+        assert_abs_diff_eq!(q1.w, q.w, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.x, q.x, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.y, q.y, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.z, q.z, epsilon = 4e-4);
+        assert_eq!(0.0, q.y);
+        assert_eq!(0.0, q.z);
+        let a = q.calculate_roll_degrees();
+        assert_abs_diff_eq!(angle_degrees, a, epsilon = 6e-4);
+
+        let q = Quaternionf32::from_pitch_degrees(angle_degrees);
+        let q1 = Quaternionf32::from_roll_pitch_yaw_degrees(0.0, angle_degrees, 0.0);
+        assert_abs_diff_eq!(q1.w, q.w, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.x, q.x, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.y, q.y, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.z, q.z, epsilon = 4e-4);
+        assert_eq!(0.0, q.x);
+        assert_eq!(0.0, q.z);
+        let a = q.calculate_pitch_degrees();
+        assert_abs_diff_eq!(angle_degrees, a, epsilon = 9e-4);
+
+        let q = Quaternionf32::from_yaw_degrees(angle_degrees);
+        let q1 = Quaternionf32::from_roll_pitch_yaw_degrees(0.0, 0.0, angle_degrees);
+        assert_abs_diff_eq!(q1.w, q.w, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.x, q.x, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.y, q.y, epsilon = 4e-4);
+        assert_abs_diff_eq!(q1.z, q.z, epsilon = 4e-4);
+        assert_eq!(0.0, q.x);
+        assert_eq!(0.0, q.y);
+        let y = q.calculate_yaw_degrees();
+        assert_abs_diff_eq!(angle_degrees, y, epsilon = 6e-4);
     }
 }

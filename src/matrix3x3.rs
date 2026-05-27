@@ -6,7 +6,10 @@ use core::slice::{ChunksExact, ChunksExactMut};
 
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3Math, Quaternion, QuaternionMath, SqrtMethods, Vector3d};
 
@@ -29,6 +32,9 @@ pub struct Matrix3x3<T> {
     // Flattened 3x3 matrix: 9 elements in row-major order
     pub(crate) a: [T; 9],
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for Matrix3x3<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 /// Constants to index matrix elements.
 impl<T> Matrix3x3<T> {
