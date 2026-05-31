@@ -2,7 +2,8 @@
 #![allow(clippy::excessive_precision)]
 
 use cfg_if::cfg_if;
-use num_traits::Float;
+use core::ops::Neg;
+use num_traits::Num;
 
 // The form x.fn() is called method call syntax.
 // The form fn(x) is called function call syntax.
@@ -268,7 +269,7 @@ impl Cos6Coefficients for f64 {
 #[inline(always)]
 fn sin_poly5<T>(r: T) -> T
 where
-    T: Float + Sin5Coefficients,
+    T: Copy + Num + Sin5Coefficients,
 {
     let r2 = r * r;
     r * (T::SIN_C1 + r2 * (T::SIN_C3 + r2 * T::SIN_C5))
@@ -277,7 +278,7 @@ where
 #[inline(always)]
 fn cos_poly6<T>(r: T) -> T
 where
-    T: Float + Cos6Coefficients,
+    T: Copy + Num + Cos6Coefficients,
 {
     let r2 = r * r;
     T::COS_C0 + r2 * (T::COS_C2 + r2 * (T::COS_C4 + r2 * T::COS_C6))
@@ -287,7 +288,7 @@ where
 // 2 least significant bits of q are quadrant index, ie [0, 1, 2, 3].
 fn sin_quadrant<T>(r: T, q: i32) -> T
 where
-    T: Float + Sin5Coefficients + Cos6Coefficients,
+    T: Copy + Num + Neg<Output = T> + Sin5Coefficients + Cos6Coefficients,
 {
     if q & 1 == 0 {
         // even quadrant: use sin
@@ -301,7 +302,7 @@ where
 
 fn cos_quadrant<T>(r: T, q: i32) -> T
 where
-    T: Float + Sin5Coefficients + Cos6Coefficients,
+    T: Copy + Num + Neg<Output = T> + Sin5Coefficients + Cos6Coefficients,
 {
     if q & 1 == 0 {
         // even quadrant: use cos
@@ -315,7 +316,7 @@ where
 
 fn sin_cos_quadrant<T>(r: T, q: i32) -> (T, T)
 where
-    T: Float + Sin5Coefficients + Cos6Coefficients,
+    T: Copy + Num + Neg<Output = T> + Sin5Coefficients + Cos6Coefficients,
 {
     let sin = sin_poly5::<T>(r);
     let cos = cos_poly6::<T>(r);
