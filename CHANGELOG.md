@@ -31,6 +31,13 @@ At some point [0.1.0] to [0.1.8] will be [YANKED]
 
 ### Security
 
+## [0.1.11] - 2026-05-31
+
+### Changed
+
+- Changed `TrigonometricMethods` trait to use `Num` trait rather than `Float` trait.
+- Improved sqrt_reciprocal methods.
+
 ## [0.1.10] - 2026-05-27
 
 ### Added
