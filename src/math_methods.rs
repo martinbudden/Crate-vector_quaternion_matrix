@@ -3,7 +3,7 @@
 
 use cfg_if::cfg_if;
 use core::ops::Neg;
-use num_traits::Num;
+use num_traits::{Num, float::FloatCore};
 
 // The form x.fn() is called method call syntax.
 // The form fn(x) is called function call syntax.
@@ -181,7 +181,7 @@ cfg_if! {
                 compile_error!("Please enable the 'libm' or 'std' feature for the acos function.");
                 0.0
             }
-            fn atan2(self, y: Self) -> Self {
+            fn atan2(self, _y: Self) -> Self {
                 compile_error!("Please enable the 'libm' or 'std' feature for the atan2 function.");
                 0.0
             }
@@ -211,7 +211,7 @@ cfg_if! {
                 compile_error!("Please enable the 'libm' or 'std' feature for the acos function.");
                 0.0
             }
-            fn atan2(self, y: Self) -> Self {
+            fn atan2(self, _y: Self) -> Self {
                 compile_error!("Please enable the 'libm' or 'std' feature for the atan2 function.");
                 0.0
             }
@@ -330,7 +330,7 @@ where
 #[must_use]
 pub fn sin_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
-    let q = t.round(); // nearest quadrant
+    let q = FloatCore::round(t); // nearest quadrant
     let r = t - q;
     #[allow(clippy::cast_possible_truncation)]
     sin_quadrant(r, q as i32)
@@ -339,7 +339,7 @@ pub fn sin_approx(x: f32) -> f32 {
 #[must_use]
 pub fn cos_approx(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
-    let q = t.round(); // nearest quadrant
+    let q = FloatCore::round(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
     #[allow(clippy::cast_possible_truncation)]
     cos_quadrant(r, q as i32)
@@ -348,7 +348,7 @@ pub fn cos_approx(x: f32) -> f32 {
 #[must_use]
 pub fn sin_cos_approx(x: f32) -> (f32, f32) {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
-    let q = t.round(); // nearest quadrant
+    let q = FloatCore::round(t); // nearest quadrant
     let r = t - q; // remainder in range [-0.5, 0.5]
     #[allow(clippy::cast_possible_truncation)]
     sin_cos_quadrant(r, q as i32)

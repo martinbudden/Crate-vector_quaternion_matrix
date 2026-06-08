@@ -19,9 +19,10 @@ pub type RollPitchf32 = RollPitch<f32>;
 pub type RollPitchf64 = RollPitch<f64>;
 
 /// Roll and Pitch bundled for convenience.
-#[derive(Clone, Copy, Debug, Default, derive_more::Display, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "std", derive(derive_more::Display))]
+#[cfg_attr(feature = "std", display("RP{{roll:{roll}, pitch:{pitch}}}"))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[display("RP{{roll:{roll}, pitch:{pitch}}}")]
 pub struct RollPitch<T> {
     pub roll: T,
     pub pitch: T,
@@ -86,9 +87,10 @@ where
 }
 
 /// Roll, Pitch, and Yaw bundled for convenience.<br><br>
-#[derive(Clone, Copy, Debug, Default, derive_more::Display, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "std", derive(derive_more::Display))]
+#[cfg_attr(feature = "std", display("RPY{{roll:{roll}, pitch:{pitch}, yaw:{yaw}}}"))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[display("RP{{roll:{roll}, pitch:{pitch}, yaw:{yaw}}}")]
 pub struct RollPitchYaw<T> {
     pub roll: T,
     pub pitch: T,

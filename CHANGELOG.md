@@ -25,11 +25,17 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Deprecated
 
-At some point [0.1.0] to [0.1.8] will be [YANKED]
+At some point [0.1.0] to [0.1.10] will be [YANKED]
 
 ### Fixed
 
 ### Security
+
+## [0.1.12] - 2026-06-08
+
+### Changed
+
+- Changed `Display` trait to be `std` only.
 
 ## [0.1.11] - 2026-05-31
 

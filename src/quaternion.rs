@@ -22,8 +22,9 @@ pub type Quaternionf64 = Quaternion<f64>;
 /// `Quaternion<T>`: quaternion type `T`.<br>
 /// Aliases `Quaternion32` and `Quaternionf64` are provided.<br>
 /// `Quaternionf32` uses **SIMD** accelerations implemented in `QuaternionMath`.<br><br>
-#[derive(Clone, Copy, Debug, derive_more::Display, PartialEq)]
-#[display("Q{{w:{w}, x:{x}, y:{y}, z:{z}}}")]
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "std", derive(derive_more::Display))]
+#[cfg_attr(feature = "std", display("Q{{w:{w}, x:{x}, y:{y}, z:{z}}}"))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(16))]
 pub struct Quaternion<T> {

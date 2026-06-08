@@ -93,10 +93,10 @@ cfg_if! {
     } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
         impl SqrtMethods for f32 {
             fn sqrt(self) -> f32 {
-                1.0 / _sqrt_reciprocalf(self)
+                1.0 / sqrt_reciprocalf(self)
             }
             fn sqrt_reciprocal(self) -> f32 {
-                _sqrt_reciprocalf(self)
+                sqrt_reciprocalf(self)
             }
         }
         impl SqrtMethods for f64 {
