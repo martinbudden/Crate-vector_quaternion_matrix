@@ -763,17 +763,20 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Mul<Output = T> + MathConstants,
+    T: Copy + FloatCore,
 {
     /// Convert the vector to degrees, assuming it is in radians.
     /// ```
     /// # use vqm::{Vector3df32, MathConstants};
     /// let v = Vector3df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6);
-    /// assert_eq!(Vector3df32::new(90.0, 45.0, 30.0), v.to_degrees());
+    /// let w = v.to_degrees();
+    /// assert!((w.x - 90.0).abs() < 2e-6);
+    /// assert!((w.y - 45.0).abs() < 2e-6);
+    /// assert!((w.z - 30.0).abs() < 2e-6);
     /// ```
     #[inline]
     pub fn to_degrees(self) -> Self {
-        Self { x: self.x * T::RADIANS_TO_DEGREES, y: self.y * T::RADIANS_TO_DEGREES, z: self.z * T::RADIANS_TO_DEGREES }
+        Self { x: self.x.to_degrees(), y: self.y.to_degrees(), z: self.z.to_degrees() }
     }
 
     /// Convert the vector to radians, assuming it is in degrees.
@@ -784,7 +787,34 @@ where
     /// ```
     #[inline]
     pub fn to_radians(self) -> Self {
-        Self { x: self.x * T::DEGREES_TO_RADIANS, y: self.y * T::DEGREES_TO_RADIANS, z: self.z * T::DEGREES_TO_RADIANS }
+        Self { x: self.x.to_radians(), y: self.y.to_radians(), z: self.z.to_radians() }
+    }
+}
+
+impl<T> Vector3d<T>
+where
+    T: Copy + Mul<Output = T> + MathConstants,
+{
+    /// Convert the vector to meters per second squared, assuming it is in earth gravity units.
+    /// ```
+    /// # use vqm::{Vector3df32, MathConstants};
+    /// let v = Vector3df32::new(1.0, 2.0, 3.0);
+    /// assert_eq!(Vector3df32::new(9.806_65, 19.613_3, 29.419_95), v.g_to_mps2());
+    /// ```
+    #[inline]
+    pub fn g_to_mps2(self) -> Self {
+        Self { x: self.x * T::G0, y: self.y * T::G0, z: self.z * T::G0 }
+    }
+
+    /// Convert the vector to earth gravity units, assuming it is in meters per second squared.
+    /// ```
+    /// # use vqm::{Vector3df32, MathConstants};
+    /// let v = Vector3df32::new(9.806_65, 19.613_3, 29.419_95);
+    /// assert_eq!(Vector3df32::new(1.0, 2.0, 3.0), v.mps2_to_g());
+    /// ```
+    #[inline]
+    pub fn mps2_to_g(self) -> Self {
+        Self { x: self.x * T::G0_RECIPROCAL, y: self.y * T::G0_RECIPROCAL, z: self.z * T::G0_RECIPROCAL }
     }
 }
 
@@ -995,6 +1025,7 @@ where
         Vector2d::<T> { x: v.x, y: v.y }
     }
 }
+
 /// 3-dimensional `{x, y, z}` vector of `i16` values<br>
 pub type Vector3di16 = Vector3d<i16>;
 
@@ -1012,7 +1043,7 @@ impl Mul<f32> for Vector3d<i16> {
 
 /// `Vector3d<f32>` from `Vector3d<i16>`.
 /// ```
-/// # use vqm::{Vector3df32,Vector3di16};
+/// # use vqm::{Vector3df32, Vector3di16};
 /// let v_i16 = Vector3di16{x: 2, y: 3, z: 5};
 /// let v_f32 = Vector3df32::from(v_i16);
 ///
@@ -1052,6 +1083,95 @@ impl From<Vector3d<f32>> for [i16; 3] {
     }
 }
 
+impl Vector3di16 {
+    /// Creates a Vector3di16 from a 6-byte little-endian array reference.
+    /// ```
+    /// # use vqm::Vector3di16;
+    /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
+    /// let v = Vector3di16::from_le_bytes(bytes);
+    /// assert_eq!(Vector3di16 { x: 1, y: 256, z: 42 }, v);
+    /// ```
+    #[inline]
+    pub const fn from_le_bytes(buf: [u8; 6]) -> Self {
+        Self {
+            x: i16::from_le_bytes([buf[0], buf[1]]),
+            y: i16::from_le_bytes([buf[2], buf[3]]),
+            z: i16::from_le_bytes([buf[4], buf[5]]),
+        }
+    }
+
+    /// Creates a 6-byte little-endian array reference from a Vector3di16.
+    /// ```
+    /// # use vqm::Vector3di16;
+    /// let v = Vector3di16 { x: 1, y: 256, z: 42 };
+    /// let bytes = v.to_le_bytes();
+    /// assert_eq!([0x01, 0x00, 0x00, 0x01, 0x2A, 0x00], bytes);
+    /// ```
+    #[inline]
+    pub fn to_le_bytes(&self) -> [u8; 6] {
+        let x = self.x.to_le_bytes();
+        let y = self.y.to_le_bytes();
+        let z = self.z.to_le_bytes();
+        [x[0], x[1], y[0], y[1], z[0], z[1]]
+    }
+
+    /// Creates a Vector3di16 from a 6-byte big-endian array reference.
+    /// ```
+    /// # use vqm::Vector3di16;
+    /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
+    /// let v = Vector3di16::from_be_bytes(bytes);
+    /// assert_eq!(Vector3di16 { x: 1, y: 256, z: 42 }, v);
+    /// ```
+    #[inline]
+    pub const fn from_be_bytes(buf: [u8; 6]) -> Self {
+        Self {
+            x: i16::from_be_bytes([buf[0], buf[1]]),
+            y: i16::from_be_bytes([buf[2], buf[3]]),
+            z: i16::from_be_bytes([buf[4], buf[5]]),
+        }
+    }
+
+    /// Creates a 6-byte little-endian array reference from a Vector3di16.
+    /// ```
+    /// # use vqm::Vector3di16;
+    /// let v = Vector3di16 { x: 1, y: 256, z: 42 };
+    /// let bytes = v.to_be_bytes();
+    /// assert_eq!([0x00, 0x01, 0x01, 0x00, 0x00, 0x2A], bytes);
+    /// ```
+    pub fn to_be_bytes(&self) -> [u8; 6] {
+        let x = self.x.to_be_bytes();
+        let y = self.y.to_be_bytes();
+        let z = self.z.to_be_bytes();
+        [x[0], x[1], y[0], y[1], z[0], z[1]]
+    }
+}
+
+impl Vector3df32 {
+    /// Creates a Vector3df32 from a 6-byte little-endian array reference.
+    /// ```
+    /// # use vqm::Vector3df32;
+    /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
+    /// let v = Vector3df32::from_le_bytes_6(bytes);
+    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
+    /// ```
+    #[inline]
+    pub const fn from_le_bytes_6(buf: [u8; 6]) -> Self {
+        let v = Vector3di16::from_le_bytes(buf);
+        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
+    }
+    /// Creates a Vector3df32 from a 6-byte big-endian array reference.
+    /// ```
+    /// # use vqm::Vector3df32;
+    /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
+    /// let v = Vector3df32::from_be_bytes_6(bytes);
+    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
+    /// ```
+    #[inline]
+    pub const fn from_be_bytes_6(buf: [u8; 6]) -> Self {
+        let v = Vector3di16::from_be_bytes(buf);
+        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
+    }
+}
 // **** Vector3di32 ****
 
 /// 3-dimensional `{x, y, z}` vector of `i32` values<br><br>

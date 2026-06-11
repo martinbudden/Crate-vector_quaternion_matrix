@@ -213,10 +213,14 @@ mod tests {
     }
     #[test]
     fn degrees_radians() {
+        use approx::assert_abs_diff_eq;
         use vqm::MathConstants;
         let a = Vector3df32 { x: f32::FRAC_PI_2, y: f32::FRAC_PI_4, z: f32::FRAC_PI_6 };
         let b = a.to_degrees();
-        assert_eq!(b, Vector3df32::new(90.0, 45.0, 30.0));
+        assert!((b.z - 30.0).abs() < 2e-6);
+        assert_abs_diff_eq!(90.0, b.x, epsilon = 1e-7);
+        assert_abs_diff_eq!(45.0, b.y, epsilon = 1e-7);
+        assert_abs_diff_eq!(30.0, b.z, epsilon = 2e-6);
     }
     #[test]
     fn sum() {

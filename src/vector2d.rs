@@ -698,7 +698,7 @@ where
 
 impl<T> Vector2d<T>
 where
-    T: Copy + Mul<Output = T> + MathConstants,
+    T: Copy + FloatCore,
 {
     /// Convert the vector to degrees, assuming it is in radians.
     /// ```
@@ -708,7 +708,7 @@ where
     /// ```
     #[inline]
     pub fn to_degrees(self) -> Self {
-        Self { x: self.x * T::RADIANS_TO_DEGREES, y: self.y * T::RADIANS_TO_DEGREES }
+        Self { x: self.x.to_degrees(), y: self.y.to_degrees() }
     }
 
     /// Convert the vector to radians, assuming it is in degrees.
@@ -719,9 +719,37 @@ where
     /// ```
     #[inline]
     pub fn to_radians(self) -> Self {
-        Self { x: self.x * T::DEGREES_TO_RADIANS, y: self.y * T::DEGREES_TO_RADIANS }
+        Self { x: self.x.to_radians(), y: self.y.to_radians() }
     }
 }
+
+impl<T> Vector2d<T>
+where
+    T: Copy + Mul<Output = T> + MathConstants,
+{
+    /// Convert the vector to meters per second squared, assuming it is in earth gravity units.
+    /// ```
+    /// # use vqm::{Vector2df32, MathConstants};
+    /// let v = Vector2df32::new(1.0, 2.0);
+    /// assert_eq!(Vector2df32::new(9.806_65, 19.6133), v.g_to_mps2());
+    /// ```
+    #[inline]
+    pub fn g_to_mps2(self) -> Self {
+        Self { x: self.x * T::G0, y: self.y * T::G0 }
+    }
+
+    /// Convert the vector to earth gravity units, assuming it is in meters per second squared.
+    /// ```
+    /// # use vqm::{Vector2df32, MathConstants};
+    /// let v = Vector2df32::new(9.806_65, 19.6133);
+    /// assert_eq!(Vector2df32::new(1.0, 2.0), v.mps2_to_g());
+    /// ```
+    #[inline]
+    pub fn mps2_to_g(self) -> Self {
+        Self { x: self.x * T::G0_RECIPROCAL, y: self.y * T::G0_RECIPROCAL }
+    }
+}
+
 // **** sum ****
 
 impl<T> Vector2d<T>

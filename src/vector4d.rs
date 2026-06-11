@@ -693,22 +693,21 @@ where
 
 impl<T> Vector4d<T>
 where
-    T: Copy + Mul<Output = T> + MathConstants,
+    T: Copy + FloatCore,
 {
     /// Convert the vector to degrees, assuming it is in radians.
     /// ```
     /// # use vqm::{Vector4df32, MathConstants};
     /// let v = Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8);
-    /// assert_eq!(Vector4df32::new(90.0, 45.0, 30.0, 22.5), v.to_degrees());
+    /// let w = v.to_degrees();
+    /// assert!((w.x - 90.0).abs() < 2e-6);
+    /// assert!((w.y - 45.0).abs() < 2e-6);
+    /// assert!((w.z - 30.0).abs() < 2e-6);
+    /// assert!((w.t - 22.5).abs() < 2e-6);
     /// ```
     #[inline]
     pub fn to_degrees(self) -> Self {
-        Self {
-            x: self.x * T::RADIANS_TO_DEGREES,
-            y: self.y * T::RADIANS_TO_DEGREES,
-            z: self.z * T::RADIANS_TO_DEGREES,
-            t: self.t * T::RADIANS_TO_DEGREES,
-        }
+        Self { x: self.x.to_degrees(), y: self.y.to_degrees(), z: self.z.to_degrees(), t: self.t.to_degrees() }
     }
 
     /// Convert the vector to radians, assuming it is in degrees.
@@ -719,11 +718,38 @@ where
     /// ```
     #[inline]
     pub fn to_radians(self) -> Self {
+        Self { x: self.x.to_radians(), y: self.y.to_radians(), z: self.z.to_radians(), t: self.t.to_radians() }
+    }
+}
+
+impl<T> Vector4d<T>
+where
+    T: Copy + Mul<Output = T> + MathConstants,
+{
+    /// Convert the vector to meters per second squared, assuming it is in earth gravity units.
+    /// ```
+    /// # use vqm::{Vector4df32, MathConstants};
+    /// let v = Vector4df32::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_eq!(Vector4df32::new(9.806_65, 19.613_3, 29.419_95, 39.226_6), v.g_to_mps2());
+    /// ```
+    #[inline]
+    pub fn g_to_mps2(self) -> Self {
+        Self { x: self.x * T::G0, y: self.y * T::G0, z: self.z * T::G0, t: self.t * T::G0 }
+    }
+
+    /// Convert the vector to earth gravity units, assuming it is in meters per second squared.
+    /// ```
+    /// # use vqm::{Vector4df32, MathConstants};
+    /// let v = Vector4df32::new(9.806_65, 19.613_3, 29.419_95, 39.226_6);
+    /// assert_eq!(Vector4df32::new(1.0, 2.0, 3.0, 4.0), v.mps2_to_g());
+    /// ```
+    #[inline]
+    pub fn mps2_to_g(self) -> Self {
         Self {
-            x: self.x * T::DEGREES_TO_RADIANS,
-            y: self.y * T::DEGREES_TO_RADIANS,
-            z: self.z * T::DEGREES_TO_RADIANS,
-            t: self.t * T::DEGREES_TO_RADIANS,
+            x: self.x * T::G0_RECIPROCAL,
+            y: self.y * T::G0_RECIPROCAL,
+            z: self.z * T::G0_RECIPROCAL,
+            t: self.t * T::G0_RECIPROCAL,
         }
     }
 }

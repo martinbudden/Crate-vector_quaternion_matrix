@@ -45,6 +45,11 @@ pub trait MathConstants {
     const RADIANS_TO_DEGREES: Self;
     const DEGREES_TO_RADIANS: Self;
 
+    /// Standard acceleration of earth gravity.
+    const G0: Self;
+    /// Reciprocal of standard acceleration of earth gravity.
+    const G0_RECIPROCAL: Self;
+
     const FILTER_PT2_CUTOFF_CORRECTION: Self;
     const FILTER_PT3_CUTOFF_CORRECTION: Self;
 
@@ -92,6 +97,9 @@ impl MathConstants for f32 {
     const RADIANS_TO_DEGREES: f32 = 180.0 / Self::PI;
     const DEGREES_TO_RADIANS: f32 = Self::PI / 180.0;
 
+    const G0: Self = 9.806_65;
+    const G0_RECIPROCAL: Self = 1.0 / 9.806_65;
+
     // FilterPt<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
     const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;
     const FILTER_PT3_CUTOFF_CORRECTION: Self = 1.961_459_177;
@@ -138,6 +146,9 @@ impl MathConstants for f64 {
 
     const RADIANS_TO_DEGREES: f64 = 180.0 / Self::PI;
     const DEGREES_TO_RADIANS: f64 = Self::PI / 180.0;
+
+    const G0: Self = 9.806_65;
+    const G0_RECIPROCAL: Self = 1.0 / 9.806_65;
 
     // FilterPt<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
     const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;
