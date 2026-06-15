@@ -35,17 +35,16 @@ impl<T> PostcardValue<'_> for Vector4d<T> where T: serde::Serialize + for<'de> s
 
 // **** New ****
 
-/// Create a vector.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(2.0,  3.0, 7.0, 11.0);
-/// assert_eq!(v, Vector4df32 { x:2.0, y:3.0, z: 7.0, t: 11.0 });
-/// ```
 impl<T> Vector4d<T>
 where
     T: Copy,
 {
     /// Create a vector.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(2.0,  3.0, 7.0, 11.0);
+    /// assert_eq!(v, Vector4df32 { x:2.0, y:3.0, z: 7.0, t: 11.0 });
+    /// ```
     #[inline]
     pub const fn new(x: T, y: T, z: T, t: T) -> Self {
         Self { x, y, z, t }
@@ -54,18 +53,18 @@ where
 
 // **** Zero ****
 
-/// Zero vector.
-/// ```
-/// # use vqm::Vector4df32;
-/// # use num_traits::{zero,Zero};
-/// let z: Vector4df32 = zero();
-/// assert!(z.is_zero());
-/// assert_eq!(z, Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
-/// ```
 impl<T> Zero for Vector4d<T>
 where
     T: Copy + Zero + PartialEq + Vector4dMath,
 {
+    /// Zero vector.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// # use num_traits::{zero,Zero};
+    /// let z: Vector4df32 = zero();
+    /// assert!(z.is_zero());
+    /// assert_eq!(z, Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
+    /// ```
     #[inline]
     fn zero() -> Self {
         Self { x: T::zero(), y: T::zero(), z: T::zero(), t: T::zero() }
@@ -94,20 +93,20 @@ where
 
 // **** Neg ****
 
-/// Negate vector.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 };
-/// let r = -v;
-///
-/// assert_eq!(r, Vector4df32 { x: -2.0, y: -3.0, z: -5.0, t: -7.0 });
-/// ```
 impl<T> Neg for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Negate vector.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 };
+    /// let r = -v;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: -2.0, y: -3.0, z: -5.0, t: -7.0 });
+    /// ```
     #[inline]
     fn neg(self) -> Self {
         T::v4_neg(self)
@@ -116,21 +115,21 @@ where
 
 // **** Add ****
 
-/// Add two vectors.
-/// ```
-/// # use vqm::Vector4df32;
-/// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-/// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
-/// let r = u + v;
-///
-/// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
-/// ```
 impl<T> Add for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Add two vectors.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// let r = u + v;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
+    /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
         T::v4_add(self, other)
@@ -139,24 +138,24 @@ where
 
 // **** AddAssign ****
 
-/// Add one vector to another.
-/// ```
-/// # use vqm::Vector4df32;
-/// let mut r = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-/// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
-/// r += u;
-///
-/// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
-///
-/// # use num_traits::zero;
-/// let z: Vector4df32 = zero();
-/// let r = u + z;
-/// assert_eq!(r, u);
-/// ```
 impl<T> AddAssign for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
+    /// Add one vector to another.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let mut r = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// r += u;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
+    ///
+    /// # use num_traits::zero;
+    /// let z: Vector4df32 = zero();
+    /// let r = u + z;
+    /// assert_eq!(r, u);
+    /// ```
     #[inline]
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
@@ -165,23 +164,23 @@ where
 
 // **** MulAdd ****
 
-/// Multiply vector by constant and add another vector.
-/// ```
-/// # use vqm::Vector4df32;
-/// # use num_traits::MulAdd;
-/// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-/// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
-/// let k = 23.0;
-/// let r = v.mul_add(k, w);
-///
-/// assert_eq!(r, Vector4df32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
-/// ```
 impl<T> MulAdd<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Multiply vector by constant and add another vector.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// # use num_traits::MulAdd;
+    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// let k = 23.0;
+    /// let r = v.mul_add(k, w);
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
+    /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
         T::v4_mul_add(self, k, other)
@@ -190,21 +189,21 @@ where
 
 // **** MulAddAssign ****
 
-/// Multiply vector by constant and add another vector in place.
-/// ```
-/// # use vqm::Vector4df32;
-/// # use num_traits::MulAddAssign;
-/// let mut v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-/// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
-/// let k = 23.0;
-/// v.mul_add_assign(k, w);
-///
-/// assert_eq!(v, Vector4df32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
-/// ```
 impl<T> MulAddAssign<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
+    /// Multiply vector by constant and add another vector in place.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// # use num_traits::MulAddAssign;
+    /// let mut v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// let k = 23.0;
+    /// v.mul_add_assign(k, w);
+    ///
+    /// assert_eq!(v, Vector4df32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
+    /// ```
     #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
         *self = self.mul_add(k, other);
@@ -213,21 +212,21 @@ where
 
 // **** Sub ****
 
-/// Subtract two vectors.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(2.0, 5.0, 13.0, 17.0);
-/// let w = Vector4df32::new(3.0, 7.0, 11.0, 23.0);
-/// let r = v - w;
-///
-/// assert_eq!(r, Vector4df32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
-/// ```
 impl<T> Sub for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Subtract two vectors.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 5.0, 13.0, 17.0);
+    /// let w = Vector4df32::new(3.0, 7.0, 11.0, 23.0);
+    /// let r = v - w;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
+    /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
         // Reuse our existing SIMD-optimized Add and Neg implementations
@@ -237,19 +236,19 @@ where
 
 // **** SubAssign ****
 
-/// Subtract one vector from another.
-/// ```
-/// # use vqm::Vector4df32;
-/// let mut r = Vector4df32::new(2.0, 5.0, 13.0, 17.0);
-/// let     v = Vector4df32::new(3.0, 7.0, 11.0, 23.0);
-/// r -= v;
-///
-/// assert_eq!(r, Vector4df32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
-/// ```
 impl<T> SubAssign for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
+    /// Subtract one vector from another.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let mut r = Vector4df32::new(2.0, 5.0, 13.0, 17.0);
+    /// let     v = Vector4df32::new(3.0, 7.0, 11.0, 23.0);
+    /// r -= v;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
+    /// ```
     #[inline]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
@@ -258,16 +257,17 @@ where
 
 // **** Scalar Mul ****
 
-/// Pre-multiply vector by a constant.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// let r = 2.0 * v;
-///
-/// assert_eq!(r, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
-/// ```
 impl Mul<Vector4d<f32>> for f32 {
     type Output = Vector4d<f32>;
+
+    /// Pre-multiply vector by a constant.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// let r = 2.0 * v;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
+    /// ```
     #[inline]
     fn mul(self, other: Vector4d<f32>) -> Vector4d<f32> {
         f32::v4_mul_scalar(other, self)
@@ -284,20 +284,20 @@ impl Mul<Vector4d<f64>> for f64 {
 
 // **** Mul Scalar ****
 
-/// Multiply vector by a constant.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// let r = v * 2.0;
-///
-/// assert_eq!(r, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
-/// ```
 impl<T> Mul<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Multiply vector by a constant.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// let r = v * 2.0;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
+    /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
         T::v4_mul_scalar(self, k)
@@ -306,18 +306,18 @@ where
 
 // **** MulAssign ****
 
-/// In-place multiply a vector by a constant.
-/// ```
-/// # use vqm::Vector4df32;
-/// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// v *= 2.0;
-///
-/// assert_eq!(v, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
-/// ```
 impl<T> MulAssign<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
+    /// In-place multiply a vector by a constant.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// v *= 2.0;
+    ///
+    /// assert_eq!(v, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
+    /// ```
     #[inline]
     fn mul_assign(&mut self, k: T) {
         *self = *self * k;
@@ -326,21 +326,21 @@ where
 
 // **** Mul Elementwise ****
 
-/// Elementwise multiply a vector by another vector.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-/// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
-/// let r = v * u;
-///
-/// assert_eq!(r, Vector4df32 { x: 6.0, y: 35.0, z: 143.0, t: 323.0 });
-/// ```
 impl<T> Mul<Vector4d<T>> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Elementwise multiply a vector by another vector.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// let r = v * u;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 6.0, y: 35.0, z: 143.0, t: 323.0 });
+    /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
         T::v4_mul_elementwise(self, other)
@@ -349,38 +349,38 @@ where
 
 // **** Div by scalar ****
 
-/// Divide a vector by a constant.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// let r = v / 2.0;
-///
-/// assert_eq!(r, Vector4df32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
-/// ```
 impl<T> Div<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Divide a vector by a constant.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// let r = v / 2.0;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
+    /// ```
     #[inline]
     fn div(self, k: T) -> Self {
         T::v4_div_scalar(self, k)
     }
 }
 
-/// In-place divide a vector by a constant.
-/// ```
-/// # use vqm::Vector4df32;
-/// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// v /= 2.0;
-///
-/// assert_eq!(v, Vector4df32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
-/// ```
 impl<T> DivAssign<T> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
+    /// In-place divide a vector by a constant.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// v /= 2.0;
+    ///
+    /// assert_eq!(v, Vector4df32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
+    /// ```
     #[inline]
     fn div_assign(&mut self, k: T) {
         *self = self.div(k);
@@ -389,21 +389,21 @@ where
 
 // **** Div Elementwise ****
 
-/// Elementwise divide a vector by another vector.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
-/// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-/// let r = v / u;
-///
-/// assert_eq!(r, Vector4df32 { x: 1.5, y: 1.4, z: 13.0 / 11.0, t: 19.0 / 17.0 });
-/// ```
 impl<T> Div<Vector4d<T>> for Vector4d<T>
 where
     T: Copy + Vector4dMath,
 {
     type Output = Self;
 
+    /// Elementwise divide a vector by another vector.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// let r = v / u;
+    ///
+    /// assert_eq!(r, Vector4df32 { x: 1.5, y: 1.4, z: 13.0 / 11.0, t: 19.0 / 17.0 });
+    /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
         T::v4_div_elementwise(self, other)
@@ -412,18 +412,19 @@ where
 
 // **** Index ****
 
-/// Access vector component by index.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-///
-/// assert_eq!(v[0], 2.0);
-/// assert_eq!(v[1], 3.0);
-/// assert_eq!(v[2], 5.0);
-/// assert_eq!(v[3], 7.0);
-/// ```
 impl<T> Index<usize> for Vector4d<T> {
     type Output = T;
+
+    /// Access vector component by index.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    ///
+    /// assert_eq!(v[0], 2.0);
+    /// assert_eq!(v[1], 3.0);
+    /// assert_eq!(v[2], 5.0);
+    /// assert_eq!(v[3], 7.0);
+    /// ```
     #[inline]
     fn index(&self, index: usize) -> &T {
         // make safe by using index = 0 if index out of range
@@ -437,18 +438,18 @@ impl<T> Index<usize> for Vector4d<T> {
 
 // **** IndexMut ****
 
-// Set vector component by index.
-/// ```
-/// # use vqm::Vector4df32;
-/// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-/// v[0] = 7.0;
-/// v[1] = 11.0;
-/// v[2] = 13.0;
-/// v[3] = 17.0;
-///
-/// assert_eq!(v, Vector4df32 { x:7.0, y:11.0, z:13.0, t: 17.0 });
-/// ```
 impl<T> IndexMut<usize> for Vector4d<T> {
+    // Set vector component by index.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// v[0] = 7.0;
+    /// v[1] = 11.0;
+    /// v[2] = 13.0;
+    /// v[3] = 17.0;
+    ///
+    /// assert_eq!(v, Vector4df32 { x:7.0, y:11.0, z:13.0, t: 17.0 });
+    /// ```
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
         // make safe by using index = 0 if index out of range
@@ -864,37 +865,37 @@ where
 
 // **** From Array ****
 
-/// Vector from array.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::from([2.0, 3.0, 5.0, 7.0]);
-/// let w: Vector4df32 = [11.0, 13.0, 17.0, 19.0].into();
-///
-/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 });
-/// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 17.0, t: 19.0 });
-/// ```
 impl<T> From<[T; 4]> for Vector4d<T>
 where
     T: Copy,
 {
+    /// Vector from array.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::from([2.0, 3.0, 5.0, 7.0]);
+    /// let w: Vector4df32 = [11.0, 13.0, 17.0, 19.0].into();
+    ///
+    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 });
+    /// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 17.0, t: 19.0 });
+    /// ```
     #[inline]
     fn from(v: [T; 4]) -> Self {
         Self { x: v[0], y: v[1], z: v[2], t: v[3] }
     }
 }
 
-/// Array from vector.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 };
-///
-/// let a = <[f32; 4]>::from(v);
-/// let b: [f32; 4] = v.into();
-///
-/// assert_eq!(a, [2.0, 3.0, 5.0, 7.0]);
-/// assert_eq!(b, [2.0, 3.0, 5.0, 7.0]);
-/// ```
 impl<T> From<Vector4d<T>> for [T; 4] {
+    /// Array from vector.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 };
+    ///
+    /// let a = <[f32; 4]>::from(v);
+    /// let b: [f32; 4] = v.into();
+    ///
+    /// assert_eq!(a, [2.0, 3.0, 5.0, 7.0]);
+    /// assert_eq!(b, [2.0, 3.0, 5.0, 7.0]);
+    /// ```
     #[inline]
     fn from(v: Vector4d<T>) -> Self {
         [v.x, v.y, v.z, v.t]
@@ -903,19 +904,19 @@ impl<T> From<Vector4d<T>> for [T; 4] {
 
 // **** From Vector ****
 
-/// Vector4d from Vector3d.
-/// ```
-/// # use vqm::{Vector3df32,Vector4df32};
-/// let v = Vector4df32::from(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
-/// let w: Vector4df32 = Vector3df32 { x: 7.0, y: 11.0, z: 13.0 }.into();
-///
-/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 0.0 });
-/// assert_eq!(w, Vector4df32 { x: 7.0, y: 11.0, z: 13.0, t: 0.0 });
-/// ```
 impl<T> From<Vector3d<T>> for Vector4d<T>
 where
     T: Copy + Zero,
 {
+    /// Vector4d from Vector3d.
+    /// ```
+    /// # use vqm::{Vector3df32,Vector4df32};
+    /// let v = Vector4df32::from(Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
+    /// let w: Vector4df32 = Vector3df32 { x: 7.0, y: 11.0, z: 13.0 }.into();
+    ///
+    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 0.0 });
+    /// assert_eq!(w, Vector4df32 { x: 7.0, y: 11.0, z: 13.0, t: 0.0 });
+    /// ```
     #[inline]
     fn from(other: Vector3d<T>) -> Self {
         Self { x: other.x, y: other.y, z: other.z, t: T::zero() }
@@ -924,19 +925,19 @@ where
 
 // **** From Vector ****
 
-/// Vector4d from Vector2d.
-/// ```
-/// # use vqm::{Vector2df32,Vector4df32};
-/// let v = Vector4df32::from(Vector2df32 { x: 2.0, y: 3.0 });
-/// let w: Vector4df32 = Vector2df32 { x: 11.0, y: 13.0 }.into();
-///
-/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 0.0, t: 0.0 });
-/// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 0.0, t: 0.0 });
-/// ```
 impl<T> From<Vector2d<T>> for Vector4d<T>
 where
     T: Copy + Zero,
 {
+    /// Vector4d from Vector2d.
+    /// ```
+    /// # use vqm::{Vector2df32,Vector4df32};
+    /// let v = Vector4df32::from(Vector2df32 { x: 2.0, y: 3.0 });
+    /// let w: Vector4df32 = Vector2df32 { x: 11.0, y: 13.0 }.into();
+    ///
+    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 0.0, t: 0.0 });
+    /// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 0.0, t: 0.0 });
+    /// ```
     #[inline]
     fn from(other: Vector2d<T>) -> Self {
         Self { x: other.x, y: other.y, z: T::zero(), t: T::zero() }
