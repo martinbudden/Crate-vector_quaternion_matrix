@@ -68,6 +68,44 @@ where
     }
 }
 
+impl<T> Matrix2x2<T>
+where
+    T: Copy,
+{
+    /// Create a matrix filled with a single value.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// let m = Matrix2x2f32::fill(2.0);
+    /// assert_eq!(m, Matrix2x2f32::from([  2.0,  2.0,
+    ///                                     2.0,  2.0]));
+    /// ```
+    pub fn fill(value: T) -> Self {
+        Self { a: [value; 4] }
+    }
+
+    /// Try to create a matrix from a slice.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// let valid_data = [1.0; 4];
+    /// let invalid_data = [1.0; 3];
+    /// let Some(m) = Matrix2x2f32::try_from_slice(&valid_data) else {
+    ///     panic!("Expected Some(Matrix2x2), but got None");
+    /// };
+    /// assert_eq!(1.0, m[0]);
+    /// let None = Matrix2x2f32::try_from_slice(&invalid_data) else {
+    ///     panic!("Expected None for invalid data, but got Some");
+    /// };
+    /// ```
+    pub fn try_from_slice(slice: &[T]) -> Option<Self> {
+        if slice.len() != 4 {
+            return None;
+        }
+        let mut a = [slice[0]; 4];
+        a.copy_from_slice(&slice[0..4]);
+        Some(Self { a })
+    }
+}
+
 // **** Zero ****
 
 impl<T> Zero for Matrix2x2<T>

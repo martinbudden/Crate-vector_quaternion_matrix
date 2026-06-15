@@ -109,6 +109,45 @@ where
     }
 }
 
+impl<T> Matrix4x4<T>
+where
+    T: Copy,
+{
+    /// Create a matrix filled with a single value.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let m = Matrix4x4f32::fill(2.0);
+    /// assert_eq!(m, Matrix4x4f32::from([  2.0, 2.0, 2.0, 2.0,
+    ///                                     2.0, 2.0, 2.0, 2.0,
+    ///                                     2.0, 2.0, 2.0, 2.0,
+    ///                                     2.0, 2.0, 2.0, 2.0]));
+    /// ```
+    pub fn fill(value: T) -> Self {
+        Self { a: [value; 16] }
+    }
+    /// Try to create a matrix from a slice.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let valid_data = [2.0; 16];
+    /// let invalid_data = [2.0; 3];
+    /// let Some(m) = Matrix4x4f32::try_from_slice(&valid_data) else {
+    ///     panic!("Expected Some(Matrix3x3), but got None");
+    /// };
+    /// assert_eq!(2.0, m[0]);
+    /// let None = Matrix4x4f32::try_from_slice(&invalid_data) else {
+    ///     panic!("Expected None for invalid data, but got Some");
+    /// };
+    /// ```
+    pub fn try_from_slice(slice: &[T]) -> Option<Self> {
+        if slice.len() != 16 {
+            return None;
+        }
+        let mut a = [slice[0]; 16];
+        a.copy_from_slice(&slice[0..16]);
+        Some(Self { a })
+    }
+}
+
 // **** Zero ****
 
 impl<T> Zero for Matrix4x4<T>

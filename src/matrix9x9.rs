@@ -180,6 +180,43 @@ where
     }
 }
 
+impl<T> Matrix9x9<T>
+where
+    T: Copy,
+{
+   /// Create a matrix filled with a single value.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::fill(2.0);
+    /// assert_eq!(2.0, m[9]);
+    /// ```
+    pub fn fill(value: T) -> Self {
+        Self { a: [value; 81] }
+    }
+
+    /// Try to create a matrix from a slice.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let valid_data = [2.0; 81];
+    /// let invalid_data = [2.0; 3];
+    /// let Some(m) = Matrix9x9f32::try_from_slice(&valid_data) else {
+    ///     panic!("Expected Some(Matrix9x9), but got None");
+    /// };
+    /// assert_eq!(2.0, m[0]);
+    /// let None = Matrix9x9f32::try_from_slice(&invalid_data) else {
+    ///     panic!("Expected None for invalid data, but got Some");
+    /// };
+    /// ```
+    pub fn try_from_slice(slice: &[T]) -> Option<Self> {
+        if slice.len() != 81 {
+            return None;
+        }
+        let mut a = [slice[0]; 81];
+        a.copy_from_slice(&slice[0..81]);
+        Some(Self { a })
+    }
+}
+
 // **** Zero ****
 
 impl<T> Zero for Matrix9x9<T>
