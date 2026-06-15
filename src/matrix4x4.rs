@@ -194,7 +194,7 @@ where
 
 impl<T> One for Matrix4x4<T>
 where
-    T: Copy + Zero + One + PartialEq + Matrix4x4Math,
+    T: Copy + ConstZero + ConstOne + PartialEq + Matrix4x4Math,
 {
     /// Identity matrix.
     /// ```
@@ -208,17 +208,9 @@ where
     ///                                    0.0, 0.0, 1.0, 0.0,
     ///                                    0.0, 0.0, 0.0, 1.0]));
     /// ```
-    #[rustfmt::skip]
     #[inline]
     fn one() -> Self {
-        Self {
-            a: [
-                T::one(),  T::zero(), T::zero(), T::zero(),
-                T::zero(), T::one(),  T::zero(), T::zero(),
-                T::zero(), T::zero(), T::one(),  T::zero(),
-                T::zero(), T::zero(), T::zero(), T::one()
-            ]
-        }
+        Self::ONE
     }
 
     #[inline]
@@ -1093,11 +1085,28 @@ impl<T> Matrix4x4<T>
 where
     T: Copy,
 {
+    /// Set matrix row from a vector.
+    /// ```
+    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// let mut m = Matrix4x4f32::from([  2.0, 17.0, 59.0, 127.0,
+    ///                                   5.0, 11.0, 47.0, 109.0,
+    ///                                  23.0, 31.0, 41.0, 103.0,
+    ///                                  67.0, 73.0, 83.0,  97.0]);
+    /// m.set_row(1, Vector4df32::new(7.0, 13.0, 19.0, 29.0));
+    /// assert_eq!(Vector4df32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.row(1));
+    /// ```
     pub fn set_row(&mut self, row: usize, value: Vector4d<T>) {
-        // Get a mutable slice of exactly the requested row.
-        // This will naturally panic with a clean message if 'row >= 4'.
-        let row_slice = &mut self.a[row * 4..(row + 1) * 4];
-        row_slice.copy_from_slice(&[value.x, value.y, value.z, value.t]);
+        if row >= 4 {
+            return;
+        }
+        let start = row * 4;
+        // Extract a 4-element slice.
+        // Because row < 4, start + 4 will never exceed 16.
+        let row_slice = &mut self.a[start..start + 4];
+        row_slice[0] = value.x;
+        row_slice[1] = value.y;
+        row_slice[2] = value.z;
+        row_slice[3] = value.t;
     }
 
     /// Return matrix row as a vector.
@@ -1115,25 +1124,30 @@ where
     /// assert_eq!(m.row(3), Vector4df32{ x: 67.0, y: 73.0, z: 83.0, t:97.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector4d<T> {
-        match row {
-            0 => Vector4d { x: self.a[0], y: self.a[1], z: self.a[2], t: self.a[3] },
-            1 => Vector4d { x: self.a[4], y: self.a[5], z: self.a[6], t: self.a[7] },
-            2 => Vector4d { x: self.a[8], y: self.a[9], z: self.a[10], t: self.a[11] },
-            // default to last row if row out of range
-            _ => Vector4d { x: self.a[12], y: self.a[13], z: self.a[14], t: self.a[15] },
-        }
+        // Branchless clamp: restricts r to 0..=3
+        let base = row.min(3) * 4;
+        let chunk = &self.a[base..];
+        Vector4d { x: chunk[0], y: chunk[1], z: chunk[2], t: chunk[3] }
     }
 
+    /// Set matrix column from a vector.
+    /// ```
+    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// let mut m = Matrix4x4f32::from([  2.0, 17.0, 59.0, 127.0,
+    ///                                   5.0, 11.0, 47.0, 109.0,
+    ///                                  23.0, 31.0, 41.0, 103.0,
+    ///                                  67.0, 73.0, 83.0,  97.0]);
+    /// m.set_column(1, Vector4df32::new(7.0, 13.0, 19.0, 29.0));
+    /// assert_eq!(Vector4df32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.column(1));
+    /// ```
     pub fn set_column(&mut self, column: usize, value: Vector4d<T>) {
         if column >= 4 {
             return;
         }
-        let values = [value.x, value.y, value.z, value.t];
-
-        // Step through the flat matrix rows at the target column offset
-        for (i, &val) in values.iter().enumerate() {
-            self.a[i * 4 + column] = val;
-        }
+        self.a[column] = value.x;
+        self.a[column + 4] = value.y;
+        self.a[column + 8] = value.z;
+        self.a[column + 12] = value.t;
     }
 
     /// Return matrix column as a vector.
@@ -1151,12 +1165,15 @@ where
     /// assert_eq!(m.column(3), Vector4df32{ x: 127.0, y: 109.0, z: 103.0, t: 97.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector4d<T> {
-        match column {
-            0 => Vector4d { x: self.a[0], y: self.a[4], z: self.a[8], t: self.a[12] },
-            1 => Vector4d { x: self.a[1], y: self.a[5], z: self.a[9], t: self.a[13] },
-            2 => Vector4d { x: self.a[2], y: self.a[6], z: self.a[10], t: self.a[14] },
-            // default to last column if column out of range
-            _ => Vector4d { x: self.a[3], y: self.a[7], z: self.a[11], t: self.a[15] },
+        let c = column.min(3);
+        // Made safe because c is clamped to 0..=3, so c + 12 <= 15
+        unsafe {
+            Vector4d {
+                x: *self.a.get_unchecked(c),
+                y: *self.a.get_unchecked(c + 4),
+                z: *self.a.get_unchecked(c + 8),
+                t: *self.a.get_unchecked(c + 12),
+            }
         }
     }
 

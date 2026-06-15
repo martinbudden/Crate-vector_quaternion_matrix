@@ -151,7 +151,7 @@ where
 
 impl<T> One for Matrix2x2<T>
 where
-    T: Copy + Zero + One + PartialEq + Matrix2x2Math,
+    T: Copy + ConstZero + ConstOne + PartialEq + Matrix2x2Math,
 {
     /// Identity matrix.
     /// ```
@@ -162,15 +162,9 @@ where
     /// assert_eq!(i, Matrix2x2f32::from([ 1.0, 0.0,
     ///                                    0.0, 1.0]));
     /// ```
-    #[rustfmt::skip]
     #[inline]
     fn one() -> Self {
-        Self {
-            a: [
-                T::one(),  T::zero(),
-                T::zero(), T::one(),
-            ],
-        }
+        Self::ONE
     }
 
     #[inline]
@@ -874,11 +868,24 @@ impl<T> Matrix2x2<T>
 where
     T: Copy,
 {
+    /// Set matrix row from a vector.
+    /// ```
+    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                                   5.0, 11.0]);
+    /// m.set_row(1, Vector2df32::new(7.0, 13.0));
+    /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.row(1));
+    /// ```
     pub fn set_row(&mut self, row: usize, value: Vector2d<T>) {
-        // Get a mutable slice of exactly the requested row.
-        // This will naturally panic with a clean message if 'row >= 2'.
-        let row_slice = &mut self.a[row * 2..(row + 1) * 2];
-        row_slice.copy_from_slice(&[value.x, value.y]);
+        if row >= 2 {
+            return;
+        }
+        let start = row * 2;
+        // Extract a 4-element slice.
+        // Because row < 4, start + 4 will never exceed 16.
+        let row_slice = &mut self.a[start..start + 2];
+        row_slice[0] = value.x;
+        row_slice[1] = value.y;
     }
 
     /// Return matrix row as a vector.
@@ -892,20 +899,27 @@ where
     /// assert_eq!(m.row(1), Vector2df32{ x: 5.0, y: 11.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector2d<T> {
-        match row {
-            0 => Vector2d { x: self.a[0], y: self.a[1] },
-            // default to row 1 if row out of range
-            _ => Vector2d { x: self.a[2], y: self.a[3] },
-        }
+        // Branchless clamp: restricts r to 0..=1
+        let base = row.min(1) * 2;
+        let chunk = &self.a[base..];
+        Vector2d { x: chunk[0], y: chunk[1] }
     }
 
+    /// Set matrix column from a vector.
+    /// ```
+    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// let mut m = Matrix2x2f32::from([  2.0, 17.0,
+    ///                                   5.0, 11.0]);
+    /// m.set_column(1, Vector2df32::new(7.0, 13.0));
+    /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.column(1));
+    /// ```
     pub fn set_column(&mut self, column: usize, value: Vector2d<T>) {
         if column == 0 {
             self.a[0] = value.x;
-            self.a[3] = value.y;
+            self.a[2] = value.y;
         } else {
             self.a[1] = value.x;
-            self.a[2] = value.y;
+            self.a[3] = value.y;
         }
     }
 
@@ -920,11 +934,9 @@ where
     /// assert_eq!(m.column(1), Vector2df32{ x: 17.0, y: 11.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector2d<T> {
-        match column {
-            0 => Vector2d { x: self.a[0], y: self.a[2] },
-            // default to column 1 if column out of range
-            _ => Vector2d { x: self.a[1], y: self.a[3] },
-        }
+        let c = column.min(1);
+        // Made safe because c is clamped to 0..=1, so c + 2 <= 3
+        unsafe { Vector2d { x: *self.a.get_unchecked(c), y: *self.a.get_unchecked(c + 2) } }
     }
 
     /// Return matrix diagonal as a vector.

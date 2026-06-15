@@ -57,7 +57,7 @@ where
 
 impl<T> Zero for Vector3d<T>
 where
-    T: Copy + Zero + PartialEq + Vector3dMath,
+    T: Copy + ConstZero + PartialEq + Vector3dMath,
 {
     /// Zero vector.
     /// ```
@@ -69,12 +69,12 @@ where
     /// ```
     #[inline]
     fn zero() -> Self {
-        Self { x: T::zero(), y: T::zero(), z: T::zero() }
+        Self::ZERO
     }
 
     #[inline]
     fn is_zero(&self) -> bool {
-        self.x == T::zero() && self.y == T::zero() && self.z == T::zero()
+        *self == Self::zero()
     }
 }
 

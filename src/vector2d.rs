@@ -54,7 +54,7 @@ where
 
 impl<T> Zero for Vector2d<T>
 where
-    T: Copy + Zero + PartialEq + Vector2dMath,
+    T: Copy + ConstZero + PartialEq + Vector2dMath,
 {
     /// Zero vector.
     /// ```
@@ -66,12 +66,12 @@ where
     /// ```
     #[inline]
     fn zero() -> Self {
-        Self { x: T::zero(), y: T::zero() }
+        Self::ZERO
     }
 
     #[inline]
     fn is_zero(&self) -> bool {
-        self.x == T::zero() && self.y == T::zero()
+        *self == Self::zero()
     }
 }
 

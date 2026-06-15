@@ -4,7 +4,7 @@ use core::ops::{
     RangeInclusive, Sub, SubAssign,
 };
 use core::slice::{ChunksExact, ChunksExactMut};
-use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
     sequential_storage::map::PostcardValue,
@@ -251,6 +251,42 @@ where
 
 // **** One ****
 
+impl<T> One for Matrix9x9<T>
+where
+    T: Copy + ConstZero + ConstOne + PartialEq + Matrix9x9Math,
+{
+    /// Identity matrix.
+    #[inline]
+    fn one() -> Self {
+        Self::ONE
+    }
+
+    #[inline]
+    fn is_one(&self) -> bool {
+        *self == Self::one()
+    }
+}
+
+impl<T> ConstOne for Matrix9x9<T>
+where
+    T: Copy + ConstZero + ConstOne + PartialEq + Matrix9x9Math,
+{
+    /// Const identity matrix.
+    #[rustfmt::skip]
+    const ONE: Self = Self {
+        a: [
+            T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,  T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ONE,
+        ],
+    };
+}
 impl<T> Matrix9x9<T>
 where
     T: Copy + Zero + One,
@@ -412,6 +448,19 @@ where
     #[inline]
     fn mul_assign(&mut self, other: T) {
         *self = *self * other;
+    }
+}
+
+impl<T> Mul<Matrix9x9<T>> for Matrix9x9<T>
+where
+    T: Copy + Matrix9x9Math,
+{
+    type Output = Self;
+
+    /// Multiply two matrices.
+    #[inline]
+    fn mul(self, other: Self) -> Self {
+        T::m9x9_mul(self, other)
     }
 }
 

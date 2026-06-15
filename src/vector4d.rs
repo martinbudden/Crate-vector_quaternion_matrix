@@ -55,7 +55,7 @@ where
 
 impl<T> Zero for Vector4d<T>
 where
-    T: Copy + Zero + PartialEq + Vector4dMath,
+    T: Copy + ConstZero + PartialEq + Vector4dMath,
 {
     /// Zero vector.
     /// ```
@@ -67,12 +67,12 @@ where
     /// ```
     #[inline]
     fn zero() -> Self {
-        Self { x: T::zero(), y: T::zero(), z: T::zero(), t: T::zero() }
+        Self::ZERO
     }
 
     #[inline]
     fn is_zero(&self) -> bool {
-        self.x == T::zero() && self.y == T::zero() && self.z == T::zero() && self.z == T::zero()
+        *self == Self::zero()
     }
 }
 
