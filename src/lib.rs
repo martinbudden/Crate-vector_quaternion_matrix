@@ -30,7 +30,6 @@ mod matrix2x2_math;
 mod matrix3x3;
 mod matrix3x3_math;
 
-mod kalman_state_vector9;
 mod matrix4x4;
 mod matrix4x4_math;
 mod matrix9x9;
@@ -72,5 +71,3 @@ pub use matrix4x4_math::Matrix4x4Math;
 
 pub use matrix9x9::{Matrix9x9, Matrix9x9f32, Matrix9x9f64};
 pub use matrix9x9_math::Matrix9x9Math;
-
-pub use kalman_state_vector9::{KalmanStateVector9, KalmanStateVector9f32, KalmanStateVector9f64};
