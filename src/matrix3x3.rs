@@ -978,10 +978,10 @@ where
     /// ```
     pub fn row(self, row: usize) -> Vector3d<T> {
         match row {
-            0 => Vector3d::<T> { x: self.a[0], y: self.a[1], z: self.a[2] },
-            1 => Vector3d::<T> { x: self.a[3], y: self.a[4], z: self.a[5] },
+            0 => Vector3d { x: self.a[0], y: self.a[1], z: self.a[2] },
+            1 => Vector3d { x: self.a[3], y: self.a[4], z: self.a[5] },
             // default to row 2 if row out of range
-            _ => Vector3d::<T> { x: self.a[6], y: self.a[7], z: self.a[8] },
+            _ => Vector3d { x: self.a[6], y: self.a[7], z: self.a[8] },
         }
     }
 
@@ -1012,10 +1012,10 @@ where
     /// ```
     pub fn column(self, column: usize) -> Vector3d<T> {
         match column {
-            0 => Vector3d::<T> { x: self.a[0], y: self.a[3], z: self.a[6] },
-            1 => Vector3d::<T> { x: self.a[1], y: self.a[4], z: self.a[7] },
+            0 => Vector3d { x: self.a[0], y: self.a[3], z: self.a[6] },
+            1 => Vector3d { x: self.a[1], y: self.a[4], z: self.a[7] },
             // default to column 2 if column out of range
-            _ => Vector3d::<T> { x: self.a[2], y: self.a[5], z: self.a[8] },
+            _ => Vector3d { x: self.a[2], y: self.a[5], z: self.a[8] },
         }
     }
 
@@ -1031,7 +1031,7 @@ where
     /// assert_eq!(v, Vector3df32{ x: 2.0, y: 11.0, z: 41.0 });
     /// ```
     pub fn diagonal(self) -> Vector3d<T> {
-        Vector3d::<T> { x: self.a[0], y: self.a[4], z: self.a[8] }
+        Vector3d { x: self.a[0], y: self.a[4], z: self.a[8] }
     }
 }
 

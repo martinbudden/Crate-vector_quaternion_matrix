@@ -893,9 +893,9 @@ where
     /// ```
     pub fn row(self, row: usize) -> Vector2d<T> {
         match row {
-            0 => Vector2d::<T> { x: self.a[0], y: self.a[1] },
+            0 => Vector2d { x: self.a[0], y: self.a[1] },
             // default to row 1 if row out of range
-            _ => Vector2d::<T> { x: self.a[2], y: self.a[3] },
+            _ => Vector2d { x: self.a[2], y: self.a[3] },
         }
     }
 
@@ -921,9 +921,9 @@ where
     /// ```
     pub fn column(self, column: usize) -> Vector2d<T> {
         match column {
-            0 => Vector2d::<T> { x: self.a[0], y: self.a[2] },
+            0 => Vector2d { x: self.a[0], y: self.a[2] },
             // default to column 1 if column out of range
-            _ => Vector2d::<T> { x: self.a[1], y: self.a[3] },
+            _ => Vector2d { x: self.a[1], y: self.a[3] },
         }
     }
 
@@ -937,7 +937,7 @@ where
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 11.0 });
     /// ```
     pub fn diagonal(self) -> Vector2d<T> {
-        Vector2d::<T> { x: self.a[0], y: self.a[3] }
+        Vector2d { x: self.a[0], y: self.a[3] }
     }
 }
 

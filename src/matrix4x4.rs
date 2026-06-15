@@ -1114,11 +1114,11 @@ where
     /// ```
     pub fn row(self, row: usize) -> Vector4d<T> {
         match row {
-            0 => Vector4d::<T> { x: self.a[0], y: self.a[1], z: self.a[2], t: self.a[3] },
-            1 => Vector4d::<T> { x: self.a[4], y: self.a[5], z: self.a[6], t: self.a[7] },
-            2 => Vector4d::<T> { x: self.a[8], y: self.a[9], z: self.a[10], t: self.a[11] },
+            0 => Vector4d { x: self.a[0], y: self.a[1], z: self.a[2], t: self.a[3] },
+            1 => Vector4d { x: self.a[4], y: self.a[5], z: self.a[6], t: self.a[7] },
+            2 => Vector4d { x: self.a[8], y: self.a[9], z: self.a[10], t: self.a[11] },
             // default to last row if row out of range
-            _ => Vector4d::<T> { x: self.a[12], y: self.a[13], z: self.a[14], t: self.a[15] },
+            _ => Vector4d { x: self.a[12], y: self.a[13], z: self.a[14], t: self.a[15] },
         }
     }
 
@@ -1150,11 +1150,11 @@ where
     /// ```
     pub fn column(self, column: usize) -> Vector4d<T> {
         match column {
-            0 => Vector4d::<T> { x: self.a[0], y: self.a[4], z: self.a[8], t: self.a[12] },
-            1 => Vector4d::<T> { x: self.a[1], y: self.a[5], z: self.a[9], t: self.a[13] },
-            2 => Vector4d::<T> { x: self.a[2], y: self.a[6], z: self.a[10], t: self.a[14] },
+            0 => Vector4d { x: self.a[0], y: self.a[4], z: self.a[8], t: self.a[12] },
+            1 => Vector4d { x: self.a[1], y: self.a[5], z: self.a[9], t: self.a[13] },
+            2 => Vector4d { x: self.a[2], y: self.a[6], z: self.a[10], t: self.a[14] },
             // default to last column if column out of range
-            _ => Vector4d::<T> { x: self.a[3], y: self.a[7], z: self.a[11], t: self.a[15] },
+            _ => Vector4d { x: self.a[3], y: self.a[7], z: self.a[11], t: self.a[15] },
         }
     }
 
@@ -1171,7 +1171,7 @@ where
     /// assert_eq!(v, Vector4df32{ x: 2.0, y: 11.0, z: 41.0, t: 97.0 });
     /// ```
     pub fn diagonal(self) -> Vector4d<T> {
-        Vector4d::<T> { x: self.a[0], y: self.a[5], z: self.a[10], t: self.a[15] }
+        Vector4d { x: self.a[0], y: self.a[5], z: self.a[10], t: self.a[15] }
     }
 }
 

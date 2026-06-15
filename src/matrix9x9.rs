@@ -184,7 +184,7 @@ impl<T> Matrix9x9<T>
 where
     T: Copy,
 {
-   /// Create a matrix filled with a single value.
+    /// Create a matrix filled with a single value.
     /// ```
     /// # use vqm::Matrix9x9f32;
     /// let m = Matrix9x9f32::fill(2.0);
