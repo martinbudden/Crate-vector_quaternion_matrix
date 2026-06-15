@@ -84,6 +84,16 @@ A small selection from what is available:
     let pitch = orientation.calculate_pitch_degrees();
 ```
 
+## Robotics support
+
+`vqm` has additional functionality specifically to support robotics applications. This includes:
+
+1. `Vector3di16` to support reading from IMU sensors. (IMU raw readings are typically an `i16` value for each axis.)
+2. `Vector3di16` functions `from_le_bytes`, `to_le_bytes` and big-endian equivalents.
+3. `Vector3df32` functions to load from a `[u8; 6]`.
+4. `RollPitch` and `RollPitchYaw` structs.
+5. Quaternion utility functions such as `cos_tilt` and `gravity`.
+
 ## Mathematical methods and constants
 
 This crate also provides implementations of the trigonometric methods normally provided by the standard library, namely:
