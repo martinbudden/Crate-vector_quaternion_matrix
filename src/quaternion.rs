@@ -464,17 +464,17 @@ where
 /// ```
 impl<T> Index<usize> for Quaternion<T> {
     type Output = T;
+
     #[inline]
     fn index(&self, index: usize) -> &T {
-        match index {
-            0 => &self.w,
-            1 => &self.x,
-            2 => &self.y,
-            _ => &self.z, // default to z component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 4 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_ref::<Self>(self).cast::<T>();
+            &*ptr.add(safe_index)
         }
     }
 }
-
 // **** IndexMut ****
 
 // Set quaternion component by index.
@@ -491,11 +491,11 @@ impl<T> Index<usize> for Quaternion<T> {
 impl<T> IndexMut<usize> for Quaternion<T> {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
-        match index {
-            0 => &mut self.w,
-            1 => &mut self.x,
-            2 => &mut self.y,
-            _ => &mut self.z, // default to z component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 4 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_mut::<Self>(self).cast::<T>();
+            &mut *ptr.add(safe_index)
         }
     }
 }

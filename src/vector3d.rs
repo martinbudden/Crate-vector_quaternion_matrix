@@ -484,10 +484,11 @@ impl<T> Index<usize> for Vector3d<T> {
     type Output = T;
     #[inline]
     fn index(&self, index: usize) -> &T {
-        match index {
-            0 => &self.x,
-            1 => &self.y,
-            _ => &self.z, // default to z component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 3 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_ref::<Self>(self).cast::<T>();
+            &*ptr.add(safe_index)
         }
     }
 }
@@ -507,10 +508,11 @@ impl<T> Index<usize> for Vector3d<T> {
 impl<T> IndexMut<usize> for Vector3d<T> {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
-        match index {
-            0 => &mut self.x,
-            1 => &mut self.y,
-            _ => &mut self.z, // default to z component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 3 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_mut::<Self>(self).cast::<T>();
+            &mut *ptr.add(safe_index)
         }
     }
 }

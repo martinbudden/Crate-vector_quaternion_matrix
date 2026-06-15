@@ -422,9 +422,11 @@ impl<T> Index<usize> for Vector2d<T> {
     type Output = T;
     #[inline]
     fn index(&self, index: usize) -> &T {
-        match index {
-            0 => &self.x,
-            _ => &self.y, // default to y component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 2 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_ref::<Self>(self).cast::<T>();
+            &*ptr.add(safe_index)
         }
     }
 }
@@ -443,9 +445,11 @@ impl<T> Index<usize> for Vector2d<T> {
 impl<T> IndexMut<usize> for Vector2d<T> {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
-        match index {
-            0 => &mut self.x,
-            _ => &mut self.y, // default to y component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 2 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_mut::<Self>(self).cast::<T>();
+            &mut *ptr.add(safe_index)
         }
     }
 }

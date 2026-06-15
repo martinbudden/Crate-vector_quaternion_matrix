@@ -5,6 +5,11 @@ use core::ops::{
 };
 use core::slice::{ChunksExact, ChunksExactMut};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+#[cfg(feature = "serde")]
+use {
+    sequential_storage::map::PostcardValue,
+    serde::{Deserialize, Serialize},
+};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3d};
 
@@ -23,11 +28,15 @@ pub type Matrix9x9f64 = Matrix9x9<f64>;
 /// Internal implementation is a flattened 9x9 matrix: an array of 9 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
 #[derive(Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C)]
 pub struct Matrix9x9<T> {
-    // Flattened 9x9 matrix: 16 elements in row-major order
+    // Flattened 9x9 matrix: 81 elements in row-major order
     pub(crate) a: [T; 81],
 }
+
+#[cfg(feature = "serde")]
+impl<T> PostcardValue<'_> for Matrix4x4<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 impl<T> Default for Matrix9x9<T>
 where
@@ -303,7 +312,7 @@ where
     /// Subtract two matrices.
     #[inline]
     fn sub(self, other: Self) -> Self {
-        // Reuse existing SIMD-optimized Add and Neg implementations
+        // Reuse SIMD-optimized Add and Neg implementations
         self + (-other)
     }
 }
@@ -314,6 +323,7 @@ impl<T> SubAssign for Matrix9x9<T>
 where
     T: Copy + Matrix9x9Math,
 {
+    /// Subtract one matrix from another.
     #[inline]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
@@ -339,6 +349,7 @@ impl Mul<Matrix9x9<f64>> for f64 {
         f64::m9x9_mul_scalar(other, self)
     }
 }
+
 // **** Mul ****
 
 impl<T> Mul<T> for Matrix9x9<T>
@@ -446,6 +457,24 @@ where
     }
 }
 
+// **** AsRef ****
+
+impl<T> AsRef<[T; 81]> for Matrix9x9<T> {
+    /// Immutable reference to the raw array.
+    #[inline]
+    fn as_ref(&self) -> &[T; 81] {
+        &self.a
+    }
+}
+
+impl<T> AsMut<[T; 81]> for Matrix9x9<T> {
+    /// Mutable reference to the raw array.
+    #[inline]
+    fn as_mut(&mut self) -> &mut [T; 81] {
+        &mut self.a
+    }
+}
+
 // **** Deref ****
 
 impl<T> Deref for Matrix9x9<T> {
@@ -460,24 +489,6 @@ impl<T> Deref for Matrix9x9<T> {
 impl<T> DerefMut for Matrix9x9<T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut [T] {
-        &mut self.a
-    }
-}
-
-// **** AsRef ****
-
-// Immutable reference to the raw array: let array_ref: &[T; 81] = matrix.as_ref();
-impl<T> AsRef<[T; 81]> for Matrix9x9<T> {
-    #[inline]
-    fn as_ref(&self) -> &[T; 81] {
-        &self.a
-    }
-}
-
-// Mutable reference to the raw array: let array_mut: &mut [T; 81] = matrix.as_mut();
-impl<T> AsMut<[T; 81]> for Matrix9x9<T> {
-    #[inline]
-    fn as_mut(&mut self) -> &mut [T; 81] {
         &mut self.a
     }
 }
@@ -564,8 +575,8 @@ impl<T> IndexMut<RangeInclusive<usize>> for Matrix9x9<T> {
 }
 
 impl<T> IndexMut<(usize, usize)> for Matrix9x9<T> {
-    #[inline]
     /// Set matrix element by ordered pair (row, column).
+    #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         assert!(row < 9 && col < 9, "Matrix index out of bounds: row={row}, col={col}");
         &mut self.a[row * 9 + col]
@@ -783,7 +794,7 @@ impl<'a, T> IntoIterator for &'a Matrix9x9<T> {
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        // Leverages your Deref trait automatically to get 9-element rows
+        // Leverages the Deref trait automatically to get 9-element rows
         self.chunks_exact(9)
     }
 }
@@ -794,14 +805,14 @@ impl<'a, T> IntoIterator for &'a mut Matrix9x9<T> {
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        // Leverages your DerefMut trait automatically
+        // Leverages the DerefMut trait automatically.
         self.chunks_exact_mut(9)
     }
 }
 
 impl<T> IntoIterator for Matrix9x9<T>
 where
-    T: Copy, // Mathematical matrices require elements to be Copy
+    T: Copy,
 {
     type Item = [T; 9];
     type IntoIter = core::array::IntoIter<[T; 9], 9>;

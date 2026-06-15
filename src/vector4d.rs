@@ -426,11 +426,11 @@ impl<T> Index<usize> for Vector4d<T> {
     type Output = T;
     #[inline]
     fn index(&self, index: usize) -> &T {
-        match index {
-            0 => &self.x,
-            1 => &self.y,
-            2 => &self.z,
-            _ => &self.t, // default to t component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 4 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_ref::<Self>(self).cast::<T>();
+            &*ptr.add(safe_index)
         }
     }
 }
@@ -451,11 +451,11 @@ impl<T> Index<usize> for Vector4d<T> {
 impl<T> IndexMut<usize> for Vector4d<T> {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
-        match index {
-            0 => &mut self.x,
-            1 => &mut self.y,
-            2 => &mut self.z,
-            _ => &mut self.t, // default to t component if index out of range
+        // make safe by using index = 0 if index out of range
+        let safe_index = if index < 4 { index } else { 0 };
+        unsafe {
+            let ptr = core::ptr::from_mut::<Self>(self).cast::<T>();
+            &mut *ptr.add(safe_index)
         }
     }
 }
