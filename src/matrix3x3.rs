@@ -538,27 +538,6 @@ where
     }
 }
 
-impl<T> Matrix3x3<T>
-where
-    T: Copy + Matrix3x3Math,
-{
-    /// Calculates the outer product of a column vector and a row vector to give a matrix.
-    /// ```
-    /// # use vqm::Matrix3x3f32;
-    /// # use vqm::Vector3df32;
-    /// let row = Vector3df32{x:2.0, y:5.0, z:11.0};
-    /// let col = Vector3df32{x:3.0, y:7.0, z:13.0};
-    /// let m = Matrix3x3f32::outer_product(col, row);
-    /// assert_eq!(m, Matrix3x3f32::from([ 6.0,  15.0,  33.0,
-    ///                                   14.0,  35.0,  77.0,
-    ///                                   26.0,  65.0, 143.0]));
-    ///```
-    #[inline]
-    pub fn outer_product(col: Vector3d<T>, row: Vector3d<T>) -> Self {
-        T::m3x3_vector_outer_product(col, row)
-    }
-}
-
 impl<T> Mul<Matrix3x3<T>> for Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
@@ -619,6 +598,50 @@ where
     #[inline]
     fn mul_assign(&mut self, other: Matrix3x3<T>) {
         *self = *self * other;
+    }
+}
+
+// **** Outer Product ****
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + Matrix3x3Math,
+{
+    /// Calculates the outer product of a column vector and a row vector to give a matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use vqm::Vector3df32;
+    /// let row = Vector3df32{x:2.0, y:5.0, z:11.0};
+    /// let col = Vector3df32{x:3.0, y:7.0, z:13.0};
+    /// let m = Matrix3x3f32::outer_product(col, row);
+    /// assert_eq!(m, Matrix3x3f32::from([ 6.0,  15.0,  33.0,
+    ///                                   14.0,  35.0,  77.0,
+    ///                                   26.0,  65.0, 143.0]));
+    ///```
+    #[inline]
+    pub fn outer_product(col: Vector3d<T>, row: Vector3d<T>) -> Self {
+        T::m3x3_vector_outer_product(col, row)
+    }
+}
+
+impl<T> Vector3d<T>
+where
+    T: Copy + Matrix3x3Math,
+{
+    /// Calculates the outer product with another vector to give a matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use vqm::Vector3df32;
+    /// let row = Vector3df32{x:2.0, y:5.0, z:11.0};
+    /// let col = Vector3df32{x:3.0, y:7.0, z:13.0};
+    /// let m = col.outer_product(row);
+    /// assert_eq!(m, Matrix3x3f32::from([ 6.0,  15.0,  33.0,
+    ///                                   14.0,  35.0,  77.0,
+    ///                                   26.0,  65.0, 143.0]));
+    ///```
+    #[inline]
+    pub fn outer_product(&self, row: Vector3d<T>) -> Matrix3x3<T> {
+        T::m3x3_vector_outer_product(*self, row)
     }
 }
 

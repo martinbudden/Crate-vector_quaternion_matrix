@@ -495,26 +495,6 @@ where
     }
 }
 
-impl<T> Matrix2x2<T>
-where
-    T: Copy + Matrix2x2Math,
-{
-    /// Calculates the outer product of a column vector and a row vector to give a matrix.
-    /// ```
-    /// # use vqm::Matrix2x2f32;
-    /// # use vqm::Vector2df32;
-    /// let row = Vector2df32{x:2.0, y:5.0};
-    /// let col = Vector2df32{x:3.0, y:7.0};
-    /// let m = Matrix2x2f32::outer_product(col, row);
-    /// assert_eq!(m, Matrix2x2f32::from([ 6.0,  15.0,
-    ///                                   14.0,  35.0]));
-    ///```
-    #[inline]
-    pub fn outer_product(col: Vector2d<T>, row: Vector2d<T>) -> Self {
-        T::m2x2_vector_outer_product(col, row)
-    }
-}
-
 impl<T> Mul<Matrix2x2<T>> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
@@ -570,6 +550,48 @@ where
     #[inline]
     fn mul_assign(&mut self, other: Matrix2x2<T>) {
         *self = *self * other;
+    }
+}
+
+// **** Outer Product ****
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + Matrix2x2Math,
+{
+    /// Calculates the outer product of a column vector and a row vector to give a matrix.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// # use vqm::Vector2df32;
+    /// let row = Vector2df32{x:2.0, y:5.0};
+    /// let col = Vector2df32{x:3.0, y:7.0};
+    /// let m = Matrix2x2f32::outer_product(col, row);
+    /// assert_eq!(m, Matrix2x2f32::from([ 6.0,  15.0,
+    ///                                   14.0,  35.0]));
+    ///```
+    #[inline]
+    pub fn outer_product(col: Vector2d<T>, row: Vector2d<T>) -> Self {
+        T::m2x2_vector_outer_product(col, row)
+    }
+}
+
+impl<T> Vector2d<T>
+where
+    T: Copy + Matrix2x2Math,
+{
+    /// Calculates the outer product with another vector to give a matrix.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// # use vqm::Vector2df32;
+    /// let row = Vector2df32{x:2.0, y:5.0};
+    /// let col = Vector2df32{x:3.0, y:7.0};
+    /// let m = col.outer_product(row);
+    /// assert_eq!(m, Matrix2x2f32::from([ 6.0,  15.0,
+    ///                                   14.0,  35.0]));
+    ///```
+    #[inline]
+    pub fn outer_product(&self, row: Vector2d<T>) -> Matrix2x2<T> {
+        T::m2x2_vector_outer_product(*self, row)
     }
 }
 
