@@ -844,19 +844,19 @@ where
 
 // **** From Tuple ****
 
-/// Vector from tuple.
-/// ```
-/// # use vqm::Vector4df32;
-/// let v = Vector4df32::from((2.0, 3.0, 5.0, 7.0));
-/// let w: Vector4df32 = (11.0, 13.0, 17.0, 19.0).into();
-///
-/// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 });
-/// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 17.0, t: 19.0 });
-/// ```
 impl<T> From<(T, T, T, T)> for Vector4d<T>
 where
     T: Copy,
 {
+    /// Vector from tuple.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let v = Vector4df32::from((2.0, 3.0, 5.0, 7.0));
+    /// let w: Vector4df32 = (11.0, 13.0, 17.0, 19.0).into();
+    ///
+    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 });
+    /// assert_eq!(w, Vector4df32 { x: 11.0, y: 13.0, z: 17.0, t: 19.0 });
+    /// ```
     #[inline]
     fn from((x, y, z, t): (T, T, T, T)) -> Self {
         Self { x, y, z, t }

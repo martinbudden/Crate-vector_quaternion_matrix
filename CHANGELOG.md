@@ -31,6 +31,23 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
 
 ### Security
 
+## [0.1.13] - 2026-06-xx
+
+### Added
+
+- `outer_product` functions for vectors.
+- `fill` and `try_from_slice` constructors for matrices.
+- multiply for `Matrix9x9`.
+
+### Changed
+
+- Moved documentation from `impl` blocks to directly before functions.
+- Improved matrix row and column functions.
+
+### Removed
+
+- `KalmanStateVector9`.
+
 ## [0.1.12] - 2026-06-08
 
 ### Changed

@@ -1347,7 +1347,7 @@ impl<'a, T> IntoIterator for &'a Matrix2x2<T> {
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        // Leverages your Deref trait automatically to get slice chunks
+        // Leverages the Deref trait automatically to get slice chunks
         self.chunks_exact(2)
     }
 }
@@ -1358,7 +1358,7 @@ impl<'a, T> IntoIterator for &'a mut Matrix2x2<T> {
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        // Leverages your DerefMut trait automatically
+        // Leverages the DerefMut trait automatically
         self.chunks_exact_mut(2)
     }
 }
