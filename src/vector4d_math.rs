@@ -112,7 +112,7 @@ impl Vector4dMath for f32 {
         {
             let this_simd = f32x4::from(this);
             let other_simd = f32x4::from(other);
-            this_simd * other.simd
+            (this_simd * other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -126,7 +126,7 @@ impl Vector4dMath for f32 {
         {
             let this_simd = f32x4::from(this);
             let other_simd = f32x4::from(other);
-            this_simd / other.simd
+            (this_simd / other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {

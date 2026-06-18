@@ -3,7 +3,7 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "simd")] {
-        use core::simd::{f32x4,f32x8,num::SimdFloat};
+        use core::simd::{f32x4,num::SimdFloat};
         // must be aligned if using SIMD
         const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 64);
         const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 64);

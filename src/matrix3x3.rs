@@ -1550,6 +1550,32 @@ where
     }
 }
 
+impl<T> From<[[T; 4]; 3]> for Matrix3x3<T>
+where
+    T: Copy,
+{
+    /// Matrix from padded 2D array.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// let m = Matrix3x3f32::from([[  2.0, 17.0, 59.0, 1.0],
+    ///                             [  5.0, 11.0, 47.0, 2.0],
+    ///                             [ 23.0, 31.0, 41.0, 3.0]]);
+    /// assert_eq!(m, Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                                    5.0, 11.0, 47.0,
+    ///                                   23.0, 31.0, 41.0]));
+    /// ```
+    #[inline]
+    fn from(a: [[T; 4]; 3]) -> Self {
+        Self {
+            a: [
+                a[0][0], a[0][1], a[0][2], //
+                a[1][0], a[1][1], a[1][2], //
+                a[2][0], a[2][1], a[2][2], //
+            ],
+        }
+    }
+}
+
 impl<T> From<[Vector3d<T>; 3]> for Matrix3x3<T>
 where
     T: Copy,
