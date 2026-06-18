@@ -84,6 +84,31 @@ A small selection from what is available:
     let pitch = orientation.calculate_pitch_degrees();
 ```
 
+## Units of Measurement (uom) support
+
+Units of measurement support can be enabled with the `uom` feature.
+By default the `autoconvert` feature is off, so `uom` will check that incorrect units are not inadvertently used,
+but it will not automatically convert between different units.
+
+```rust
+    use vqm::Vector3d;
+    use uom::si::f32::{Area, Length, Ratio, Time, Velocity};
+    use uom::si::{area::square_meter, length::meter, ratio::ratio, time::second, velocity::meter_per_second};
+
+    let a = Vector3d { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
+    let b = Vector3d { x: Length::new::<meter>(3.0), y: Length::new::<meter>(7.0), z: Length::new::<meter>(13.0) };
+    let c = a + b;
+    assert_eq!(c, Vector3d { x: Length::new::<meter>(5.0), y: Length::new::<meter>(12.0), z: Length::new::<meter>(24.0) });
+
+    let k = Length::new::<meter>(3.0);
+    let d = a * k;
+    assert_eq!(d,Vector3d { x: Area::new::<square_meter>(6.0), y: Area::new::<square_meter>(15.0), z: Area::new::<square_meter>(33.0)});
+
+    let t = Time::new::<second>(4.0);
+    let e = a / t;
+    assert_eq!(e, Vector3d { x: Velocity::new::<meter_per_second>(0.5), y: Velocity::new::<meter_per_second>(1.25), z: Velocity::new::<meter_per_second>(2.75)})
+```
+
 ## Robotics support
 
 `vqm` has additional functionality specifically to support robotics applications. This includes:
@@ -114,6 +139,8 @@ that you are indeed getting a performance improvement.
 
 This uses [portable simd](https://doc.rust-lang.org/core/simd/index.html), which requires the nightly compiler, since it is still
 unstable in rust.
+
+**SIMD** does not work with Units of Measurement `uom`.
 
 This can be invoked using `rustup`, eg:
 

@@ -4,10 +4,7 @@
 mod tests {
     //use super::*;
     use uom::si::f32::{Area, Length, Ratio, Time, Velocity};
-    use uom::si::ratio::ratio;
-    use uom::si::time::second;
-    use uom::si::velocity::meter_per_second;
-    use uom::si::{area::square_meter, length::meter};
+    use uom::si::{area::square_meter, length::meter, ratio::ratio, time::second,velocity::meter_per_second};
     use vqm::Vector3d;
 
     /*#[test]
