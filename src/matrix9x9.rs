@@ -5,11 +5,6 @@ use core::ops::{
 };
 use core::slice::{ChunksExact, ChunksExactMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
-#[cfg(feature = "serde")]
-use {
-    sequential_storage::map::PostcardValue,
-    serde::{Deserialize, Serialize},
-};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3d};
 
@@ -28,15 +23,11 @@ pub type Matrix9x9f64 = Matrix9x9<f64>;
 /// Internal implementation is a flattened 9x9 matrix: an array of 9 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
 #[derive(Clone, Copy, PartialEq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C)]
 pub struct Matrix9x9<T> {
     // Flattened 9x9 matrix: 81 elements in row-major order
     pub(crate) a: [T; 81],
 }
-
-#[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Matrix4x4<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
 
 impl<T> Default for Matrix9x9<T>
 where
