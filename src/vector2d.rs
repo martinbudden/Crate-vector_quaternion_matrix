@@ -6,7 +6,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, SqrtMethods, Vector2dMath};
+use crate::{MathConstants, SqrtMethods, vector2d_math::Vector2dMath};
 
 /// 2-dimensional `{x, y}` vector of `f32` values<br>
 pub type Vector2df32 = Vector2d<f32>;
@@ -33,17 +33,16 @@ impl<T> PostcardValue<'_> for Vector2d<T> where T: serde::Serialize + for<'de> s
 
 // **** New ****
 
-/// Create a vector.
-/// ```
-/// # use vqm::Vector2df32;
-/// let v = Vector2df32::new(2.0,  3.0);
-/// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
-/// ```
 impl<T> Vector2d<T>
 where
     T: Copy,
 {
     /// Create a vector.
+    /// ```
+    /// # use vqm::Vector2df32;
+    /// let v = Vector2df32::new(2.0,  3.0);
+    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
+    /// ```
     #[inline]
     pub const fn new(x: T, y: T) -> Self {
         Self { x, y }

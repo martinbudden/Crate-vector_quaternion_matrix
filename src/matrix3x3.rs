@@ -547,6 +547,7 @@ where
     }
 }
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<Matrix3x3<T>> for Vector3d<T>
 where
     T: Copy + Matrix3x3Math,

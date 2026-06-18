@@ -1,4 +1,4 @@
-#![cfg_attr(feature = "simd", feature(portable_simd))]
+#![cfg_attr(feature = "simd", feature(portable_simd, min_specialization))]
 #![doc = include_str!("../README.md")]
 #![no_std]
 #![deny(clippy::unwrap_used)]
@@ -48,13 +48,10 @@ pub use math_methods::{cos_approx, sin_approx, sin_cos_approx};
 pub use sqrt_methods::SqrtMethods;
 
 pub use vector2d::{Vector2d, Vector2df32, Vector2df64};
-pub use vector2d_math::Vector2dMath;
 
 pub use vector3d::{Vector3d, Vector3df32, Vector3df64, Vector3di16, Vector3di32};
-pub use vector3d_math::Vector3dMath;
 
 pub use vector4d::{Vector4d, Vector4df32, Vector4df64};
-pub use vector4d_math::Vector4dMath;
 
 pub use quaternion::{Quaternion, Quaternionf32, Quaternionf64};
 pub use quaternion_math::QuaternionMath;

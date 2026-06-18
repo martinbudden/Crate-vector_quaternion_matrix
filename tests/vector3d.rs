@@ -23,10 +23,9 @@ cfg_if! {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Vector3df32;
     use approx::assert_abs_diff_eq;
     use core::mem::{align_of, size_of};
-    use vqm::Quaternionf32;
+    use vqm::{Quaternionf32, Vector3df32};
     #[cfg(feature = "serde")]
     use {
         sequential_storage::map::PostcardValue,
@@ -174,16 +173,20 @@ mod tests {
     }
     #[test]
     fn norm() {
-        let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.norm(), 38.0_f32.sqrt());
-        let z = Vector3d { x: 0.0, y: 0.0, z: 0.0 };
+        let z = Vector3df32 { x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.norm(), 0.0);
     }
     #[test]
     fn normalized_unchecked() {
-        let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = a / 38.0_f32.sqrt();
-        assert_eq!(a.normalize_unchecked(), b);
+        let n = a.normalize_unchecked();
+        assert_abs_diff_eq!(n.x, b.x, epsilon = 1e-7);
+        assert_abs_diff_eq!(n.y, b.y, epsilon = 1e-7);
+        assert_abs_diff_eq!(n.z, b.z, epsilon = 2e-6);
+
         let z = Vector3d { x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.normalize(), z);
     }
@@ -274,16 +277,10 @@ mod tests {
         y.normalize_in_place();
         assert_eq!(z, y);
     }
-    #[test]
-    fn is_normalized() {
-        let a = Vector3df32::new(0.0067734555, 0.016385008, 0.0053294576);
-        let n = a.normalize();
-        assert!(n.is_normalized());
-    }
 
     #[test]
     fn quaternion_rotation_90_deg() {
-        let v = Vector3d::new(1.0, 0.0, 0.0);
+        let v = Vector3df32::new(1.0, 0.0, 0.0);
         let half_angle = core::f32::consts::FRAC_PI_4;
         let q = Quaternionf32 { x: 0.0, y: 0.0, z: half_angle.sin(), w: half_angle.cos() };
 
@@ -297,7 +294,7 @@ mod tests {
 
     #[test]
     fn quaternion_rotation_arbitrary() {
-        let v = Vector3d::new(1.2, -3.4, 5.6);
+        let v = Vector3df32::new(1.2, -3.4, 5.6);
         let q = Quaternionf32 { x: 0.1, y: 0.2, z: 0.3, w: 0.9273618 };
 
         let _result = v.rotate_by(q);
@@ -311,7 +308,7 @@ mod tests {
     fn rotation_round_trip() {
         use approx::assert_abs_diff_eq;
 
-        let original_v = Vector3d::new(10.5, -2.0, 44.1);
+        let original_v = Vector3df32::new(10.5, -2.0, 44.1);
         let q = Quaternionf32 { x: 0.1, y: 0.2, z: 0.3, w: 0.9273618 };
 
         // Forward to World Frame

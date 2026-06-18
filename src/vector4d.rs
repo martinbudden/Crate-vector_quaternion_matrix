@@ -6,7 +6,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, SqrtMethods, Vector2d, Vector3d, Vector4dMath};
+use crate::{MathConstants, SqrtMethods, Vector2d, Vector3d, vector4d_math::Vector4dMath};
 
 /// 4-dimensional `{x, y, z, t}` vector of `f32` values<br>
 pub type Vector4df32 = Vector4d<f32>;

@@ -1,3 +1,5 @@
+#[cfg(feature = "uom")]
+use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
@@ -6,7 +8,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2d, Vector3dMath};
+use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2d, vector3d_math::Vector3dMath};
 
 /// 3-dimensional `{x, y, z}` vector of `f32` values<br>
 pub type Vector3df32 = Vector3d<f32>;
@@ -17,7 +19,7 @@ pub type Vector3df64 = Vector3d<f64>;
 
 /// `Vector3d<T>`: 3D vector of type `T`.<br>
 /// Aliases `Vector3df32` and `Vector2df64` are provided.<br>
-/// `Vector3df32` uses **SIMD** accelerations implemented in `Vector3dMath`.<br><br>
+/// `Vector3df32` uses **SIMD** accelerations implemented in `vector3d_math`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}}}"))]
@@ -57,7 +59,7 @@ where
 
 impl<T> Zero for Vector3d<T>
 where
-    T: Copy + ConstZero + PartialEq + Vector3dMath,
+    T: Copy + ConstZero + PartialEq,
 {
     /// Zero vector.
     /// ```
@@ -88,7 +90,7 @@ where
 /// ```
 impl<T> ConstZero for Vector3d<T>
 where
-    T: Copy + ConstZero + PartialEq + Vector3dMath,
+    T: Copy + Zero + ConstZero + PartialEq,
 {
     const ZERO: Self = Self { x: T::ZERO, y: T::ZERO, z: T::ZERO };
 }
@@ -97,7 +99,7 @@ where
 
 impl<T> Neg for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Neg<Output = T>,
 {
     type Output = Self;
 
@@ -111,7 +113,7 @@ where
     /// ```
     #[inline]
     fn neg(self) -> Self {
-        T::v3_neg(self)
+        Self { x: -self.x, y: -self.y, z: -self.z }
     }
 }
 
@@ -119,7 +121,7 @@ where
 
 impl<T> Add for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T>,
 {
     type Output = Self;
 
@@ -134,7 +136,7 @@ where
     /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
-        T::v3_add(self, other)
+        Vector3d { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
     }
 }
 
@@ -142,7 +144,7 @@ where
 
 impl<T> AddAssign for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T>,
 {
     /// Add one vector to another.
     /// ```
@@ -168,7 +170,7 @@ where
 
 impl<T> MulAdd<T> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Mul<T, Output = T> + Add<T, Output = T>,
 {
     type Output = Self;
 
@@ -185,7 +187,7 @@ where
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
-        T::v3_mul_add(self, k, other)
+       Vector3d { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z }
     }
 }
 
@@ -221,7 +223,7 @@ impl MulAdd<f32> for Vector3d<i16> {
 
 impl<T> MulAddAssign<T> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     /// Multiply vector by constant and add another vector in place.
     /// ```
@@ -244,7 +246,7 @@ where
 
 impl<T> Sub for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T> + Neg<Output = T>,
 {
     type Output = Self;
 
@@ -259,7 +261,7 @@ where
     /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
-        // Reuse our existing SIMD-optimized Add and Neg implementations
+        // Reuse our existing Add and Neg implementations
         self + (-other)
     }
 }
@@ -268,7 +270,7 @@ where
 
 impl<T> SubAssign for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T>,
 {
     /// Subtract one vector from another.
     /// ```
@@ -308,19 +310,21 @@ impl Mul<Vector3d<f64>> for f64 {
     type Output = Vector3d<f64>;
     #[inline]
     fn mul(self, other: Vector3d<f64>) -> Vector3d<f64> {
-        f64::v3_mul_scalar(other, self)
+        Vector3d { x: other.x * self, y: other.y * self, z: other.z * self }
     }
 }
 
 // **** Mul Scalar ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<T> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
+    // #[cfg(feature = "simd")] T: crate::Vector3dMath, placeholder code for when this feature becomes stable
 {
     type Output = Self;
 
-    /// Multiply vector by a constant.
+    /// Multiply vector by a scalar.
     /// ```
     /// # use vqm::Vector3df32;
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
@@ -330,36 +334,28 @@ where
     /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
-        T::v3_mul_scalar(self, k)
+        /* placeholder code for when attributes in where clause becomes stable
+        #[cfg(feature = "simd")]
+        {
+            T::v3_mul_scalar(self, k)
+        }
+        #[cfg(not(feature = "simd"))]*/
+        Self { x: self.x * k, y: self.y * k, z: self.z * k }
     }
 }
 
-impl Mul<i32> for Vector3d<i16> {
-    type Output = Self;
+#[cfg(feature = "uom")]
+impl<T, Rhs, Out> Mul<Rhs> for Vector3d<T>
+where
+    T: Copy + Mul<Rhs, Output = Out>,
+    Rhs: Copy,
+{
+    type Output = Vector3d<Out>;
 
+    /// Multiply a vector by a scalar.
     #[inline]
-    fn mul(self, k: i32) -> Self {
-        #[allow(clippy::cast_possible_truncation)]
-        Vector3d { x: self.x * (k as i16), y: self.y * (k as i16), z: self.z * (k as i16) }
-    }
-}
-
-impl Mul<i16> for Vector3d<f32> {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, k: i16) -> Self {
-        Vector3d { x: self.x * f32::from(k), y: self.y * f32::from(k), z: self.z * f32::from(k) }
-    }
-}
-
-impl Mul<i32> for Vector3d<f32> {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, k: i32) -> Self {
-        #[allow(clippy::cast_precision_loss)]
-        Vector3d { x: self.x * (k as f32), y: self.y * (k as f32), z: self.z * (k as f32) }
+    fn mul(self, rhs: Rhs) -> Self::Output {
+        Vector3d { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs }
     }
 }
 
@@ -367,9 +363,9 @@ impl Mul<i32> for Vector3d<f32> {
 
 impl<T> MulAssign<T> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
-    /// In-place multiply a vector by a constant.
+    /// In-place multiply a vector by a scalar.
     /// ```
     /// # use vqm::Vector3df32;
     /// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
@@ -385,9 +381,10 @@ where
 
 // **** Mul Elementwise ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<Vector3d<T>> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
@@ -402,19 +399,20 @@ where
     /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
-        T::v3_mul_elementwise(self, other)
+        Vector3d { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z }
     }
 }
 
 // **** Div by scalar ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Div<T> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
-    /// Divide a vector by a constant.
+    /// Divide a vector by a scalar.
     /// ```
     /// # use vqm::Vector3df32;
     /// let v = Vector3df32::new(2.0, 3.0, 5.0);
@@ -424,13 +422,28 @@ where
     /// ```
     #[inline]
     fn div(self, k: T) -> Self {
-        T::v3_div_scalar(self, k)
+        self.mul(T::one() / k)
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T, Rhs, Out> Div<Rhs> for Vector3d<T>
+where
+    T: Copy + Div<Rhs, Output = Out>,
+    Rhs: Copy,
+{
+    type Output = Vector3d<Out>;
+
+    /// Divide a vector by a scalar.
+    #[inline]
+    fn div(self, rhs: Rhs) -> Vector3d<Out> {
+        Vector3d::<Out> { x: self.x / rhs, y: self.y / rhs, z: self.z / rhs }
     }
 }
 
 impl<T> DivAssign<T> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
     /// In-place divide a vector by a constant.
     /// ```
@@ -442,15 +455,17 @@ where
     /// ```
     #[inline]
     fn div_assign(&mut self, k: T) {
-        *self = self.div(k);
+        let k_reciprocal = T::one() / k;
+        *self = self.mul(k_reciprocal);
     }
 }
 
 // **** Div Elementwise ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Div<Vector3d<T>> for Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Div<T, Output = T>,
 {
     type Output = Self;
 
@@ -465,7 +480,7 @@ where
     /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
-        T::v3_div_elementwise(self, other)
+        Vector3d { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z }
     }
 }
 
@@ -590,7 +605,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     /// Vector dot product.
     /// ```
@@ -604,7 +619,49 @@ where
     /// ```
     #[inline]
     pub fn dot(self, other: Self) -> T {
-        T::v3_dot(self, other)
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T> Vector3d<T> {
+    /// Calculates the dot product of two vectors.
+    ///
+    /// When using `uom`, the output quantity automatically scales its dimensions
+    /// dynamically based on the input quantities (e.g., Length * Force = Energy).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use uom::si::f32::{Length, Force, Energy};
+    /// # use uom::si::{length::meter,force::newton,energy::joule};
+    /// # use vqm::Vector3d;
+    ///
+    /// // Create a displacement vector (Length)
+    /// let displacement = Vector3d {
+    ///     x: Length::new::<meter>(2.0),
+    ///     y: Length::new::<meter>(3.0),
+    ///     z: Length::new::<meter>(4.0),
+    /// };
+    ///
+    /// // Create a constant pushing force vector (Force)
+    /// let force = Vector3d {
+    ///     x: Force::new::<newton>(10.0),
+    ///     y: Force::new::<newton>(5.0),
+    ///     z: Force::new::<newton>(0.0),
+    /// };
+    ///
+    /// // Calculate mechanical work done: (2*10) + (3*5) + (4*0) = 35 Joules
+    /// let work_done: Energy = displacement.dot_uom(force);
+    ///
+    /// assert_eq!(work_done, Energy::new::<joule>(35.0));
+    /// ```
+    pub fn dot_uom<Rhs, Out>(self, rhs: Vector3d<Rhs>) -> Out
+    where
+        T: Mul<Rhs, Output = Out>,
+        Out: Add<Output = Out>,
+    {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 }
 
@@ -612,7 +669,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
 {
     /// Vector cross product.
     /// ```
@@ -626,7 +683,56 @@ where
     /// ```
     #[inline]
     pub fn cross(self, other: Self) -> Vector3d<T> {
-        T::v3_cross(self, other)
+        Vector3d {
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
+        }
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T> Vector3d<T> {
+    /// Calculates the cross product of two 3D vectors.
+    ///
+    /// When using `uom`, the dimensions of the output vector adapt dynamically
+    /// based on the input quantities (e.g., Length × Force = Torque).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use uom::si::f32::{Length, Area};
+    /// # use uom::si::{length::meter,area::square_meter};
+    /// # use vqm::Vector3d;
+    ///
+    /// let a = Vector3d {
+    ///     x: Length::new::<meter>(2.0),
+    ///     y: Length::new::<meter>(5.0),
+    ///     z: Length::new::<meter>(11.0),
+    /// };
+    /// let b = Vector3d {
+    ///     x: Length::new::<meter>(3.0),
+    ///     y: Length::new::<meter>(7.0),
+    ///     z: Length::new::<meter>(13.0),
+    /// };
+    /// // Length * Length results in Area
+    /// let area_vector: Vector3d<Area> = a.cross_uom(b);
+    /// assert_eq!(area_vector.x, Area::new::<square_meter>(-12.0));
+    /// assert_eq!(area_vector.y, Area::new::<square_meter>(7.0));
+    /// assert_eq!(area_vector.z, Area::new::<square_meter>(-1.0));
+    /// ```
+    #[inline]
+    pub fn cross_uom<Rhs, Out>(self, rhs: Vector3d<Rhs>) -> Vector3d<Out>
+    where
+        T: Copy + Mul<Rhs, Output = Out>,
+        Rhs: Copy,
+        Out: Sub<Output = Out>,
+    {
+        Vector3d {
+            x: (self.y * rhs.z) - (self.z * rhs.y),
+            y: (self.z * rhs.x) - (self.x * rhs.z),
+            z: (self.x * rhs.y) - (self.y * rhs.x),
+        }
     }
 }
 
@@ -634,7 +740,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T>,
 {
     /// Return square of Euclidean norm.
     /// ```
@@ -644,7 +750,7 @@ where
     /// ```
     #[inline]
     pub fn norm_squared(self) -> T {
-        T::v3_norm_squared(self)
+        self.x * self.x + self.y * self.y + self.z * self.z
     }
 
     /// Return distance between two points, squared.
@@ -660,11 +766,104 @@ where
     }
 }
 
-// **** norm ****
+#[cfg(feature = "uom")]
+impl<D, U, V> Vector3d<uom::si::Quantity<D, U, V>>
+where
+    D: uom::si::Dimension + ?Sized,
+    U: uom::si::Units<V> + ?Sized,
+    V: Copy + uom::num_traits::Float + uom::Conversion<V>,
+    uom::si::Quantity<D, U, V>: Copy,
+{
+    /// Calculates the squared magnitude of the vector.
+    #[inline]
+    pub fn norm_squared_uom<Out>(self) -> Out
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Out>,
+        Out: Add<Output = Out>,
+    {
+        let x2 = self.x * self.x;
+        let y2 = self.y * self.y;
+        let z2 = self.z * self.z;
+        x2 + y2 + z2
+    }
+
+    /// Calculates the Euclidean norm (length) of the vector.
+    ///
+    /// # Example
+    /// ```
+    /// # use uom::si::f32::{Length, Area};
+    /// # use uom::si::{length::meter,area::square_meter};
+    /// # use vqm::Vector3d;
+    ///
+    /// let v = Vector3d {
+    ///     x: Length::new::<meter>(3.0),
+    ///     y: Length::new::<meter>(4.0),
+    ///     z: Length::new::<meter>(12.0),
+    /// };
+    ///
+    /// let norm: Length = v.norm_uom();
+    /// assert_eq!(norm, Length::new::<meter>(13.0));
+    /// ```
+    #[inline]
+    pub fn norm_uom<Intermediate>(self) -> uom::si::Quantity<D, U, V>
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
+        Intermediate: Add<Output = Intermediate>,
+    {
+        // Extract raw scalar primitive values
+        let x = self.x.value;
+        let y = self.y.value;
+        let z = self.z.value;
+
+        let mag = (x * x + y * y + z * z).sqrt();
+
+        uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: mag }
+    }
+
+    #[inline]
+    /// Normalizes the vector, returning a unit vector pointing in the same direction.
+    ///
+    /// # Example
+    /// ```
+    /// # use uom::si::f32::{Length, Ratio};
+    /// # use uom::si::{length::meter,ratio::ratio};
+    /// # use vqm::Vector3d;
+    ///
+    /// let v = Vector3d {
+    ///     x: Length::new::<meter>(3.0),
+    ///     y: Length::new::<meter>(4.0),
+    ///     z: Length::new::<meter>(12.0),
+    /// };
+    ///
+    /// let unit_vector: Vector3d<Ratio> = v.normalize_uom();
+    ///
+    /// assert!((unit_vector.x - Ratio::new::<ratio>(3.0 / 13.0)).value.abs() < 1e-7);
+    /// assert!((unit_vector.y - Ratio::new::<ratio>(4.0 / 13.0)).value.abs() < 1e-7);
+    /// assert!((unit_vector.z - Ratio::new::<ratio>(12.0 / 13.0)).value.abs() < 1e-7);
+    /// ```
+    pub fn normalize_uom<Intermediate>(self) -> Vector3d<uom::si::ratio::Ratio<U, V>>
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
+        Intermediate: Add<Output = Intermediate>,
+    {
+        let x = self.x.value;
+        let y = self.y.value;
+        let z = self.z.value;
+        let norm = (x * x + y * y + z * z).sqrt();
+
+        let norm_reciprocal = V::one() / norm;
+
+        Vector3d {
+            x: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: x * norm_reciprocal },
+            y: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: y * norm_reciprocal },
+            z: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: z * norm_reciprocal },
+        }
+    }
+}
 
 impl<T> Vector3d<T>
 where
-    T: Copy + SqrtMethods + Vector3dMath,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
     /// Return Euclidean norm.
     #[inline]
@@ -675,7 +874,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Zero + PartialEq + SqrtMethods + Vector3dMath,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
@@ -736,24 +935,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Vector3dMath,
-{
-    // Return true if the vector is normalized.
-    /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// let n = v.normalize();
-    /// assert!(n.is_normalized());
-    /// ```
-    #[inline]
-    pub fn is_normalized(self) -> bool {
-        T::v3_is_normalized(self)
-    }
-}
-
-impl<T> Vector3d<T>
-where
-    T: Copy + Zero + SqrtMethods + Vector3dMath,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
     // Return distance between two points
     #[inline]
@@ -873,7 +1055,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + PartialOrd,
 {
     /// Return the max element in the vector.
     /// ```
@@ -887,7 +1069,11 @@ where
     /// ```
     #[inline]
     pub fn max(self) -> T {
-        T::v3_max(self)
+        if self.x > self.y {
+            if self.x > self.z { self.x } else { self.z }
+        } else {
+            if self.y > self.z { self.y } else { self.z }
+        }
     }
 
     /// Return the min element in the vector.
@@ -902,13 +1088,17 @@ where
     /// ```
     #[inline]
     pub fn min(self) -> T {
-        T::v3_min(self)
+        if self.x < self.y {
+            if self.x < self.z { self.x } else { self.z }
+        } else {
+            if self.y < self.z { self.y } else { self.z }
+        }
     }
 }
 
 impl<T> Vector3d<T>
 where
-    T: Copy + Zero + One + SqrtMethods + Vector3dMath + QuaternionMath,
+    T: Copy + Zero + One + Sub<Output = T> + Vector3dMath + SqrtMethods + QuaternionMath,
 {
     #[inline]
     pub fn rotate_by(self, q: Quaternion<T>) -> Self {
@@ -1034,6 +1224,7 @@ pub type Vector3di16 = Vector3d<i16>;
 
 // **** Vector3di16 ****
 
+#[cfg(not(feature = "uom"))]
 impl Mul<f32> for Vector3d<i16> {
     type Output = Self;
 
@@ -1175,11 +1366,13 @@ impl Vector3df32 {
         Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
     }
 }
+
 // **** Vector3di32 ****
 
 /// 3-dimensional `{x, y, z}` vector of `i32` values<br><br>
 pub type Vector3di32 = Vector3d<i32>;
 
+#[cfg(not(feature = "uom"))]
 impl Mul<f32> for Vector3d<i32> {
     type Output = Self;
 
