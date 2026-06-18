@@ -1,3 +1,5 @@
+#[cfg(feature = "uom")]
+use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
@@ -55,7 +57,7 @@ where
 
 impl<T> Zero for Vector4d<T>
 where
-    T: Copy + ConstZero + PartialEq + Vector4dMath,
+    T: Copy + ConstZero + PartialEq,
 {
     /// Zero vector.
     /// ```
@@ -86,7 +88,7 @@ where
 /// ```
 impl<T> ConstZero for Vector4d<T>
 where
-    T: Copy + ConstZero + PartialEq + Vector4dMath,
+    T: Copy + Zero + ConstZero + PartialEq,
 {
     const ZERO: Self = Self { x: T::ZERO, y: T::ZERO, z: T::ZERO, t: T::ZERO };
 }
@@ -95,7 +97,7 @@ where
 
 impl<T> Neg for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Neg<Output = T>,
 {
     type Output = Self;
 
@@ -109,7 +111,7 @@ where
     /// ```
     #[inline]
     fn neg(self) -> Self {
-        T::v4_neg(self)
+        Self { x: -self.x, y: -self.y, z: -self.z, t: -self.t }
     }
 }
 
@@ -117,7 +119,7 @@ where
 
 impl<T> Add for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T>,
 {
     type Output = Self;
 
@@ -132,7 +134,7 @@ where
     /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
-        T::v4_add(self, other)
+        Vector4d { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z, t: self.t + other.t }
     }
 }
 
@@ -140,7 +142,7 @@ where
 
 impl<T> AddAssign for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T>,
 {
     /// Add one vector to another.
     /// ```
@@ -166,7 +168,7 @@ where
 
 impl<T> MulAdd<T> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Mul<T, Output = T> + Add<T, Output = T>,
 {
     type Output = Self;
 
@@ -183,7 +185,7 @@ where
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
-        T::v4_mul_add(self, k, other)
+        Vector4d { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z, t: self.t * k + other.t }
     }
 }
 
@@ -191,7 +193,7 @@ where
 
 impl<T> MulAddAssign<T> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     /// Multiply vector by constant and add another vector in place.
     /// ```
@@ -214,7 +216,7 @@ where
 
 impl<T> Sub for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T> + Neg<Output = T>,
 {
     type Output = Self;
 
@@ -229,7 +231,7 @@ where
     /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
-        // Reuse our existing SIMD-optimized Add and Neg implementations
+        // Reuse our existing Add and Neg implementations
         self + (-other)
     }
 }
@@ -238,7 +240,7 @@ where
 
 impl<T> SubAssign for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T>,
 {
     /// Subtract one vector from another.
     /// ```
@@ -278,15 +280,16 @@ impl Mul<Vector4d<f64>> for f64 {
     type Output = Vector4d<f64>;
     #[inline]
     fn mul(self, other: Vector4d<f64>) -> Vector4d<f64> {
-        f64::v4_mul_scalar(other, self)
+        Vector4d { x: other.x * self, y: other.y * self, z: other.z * self, t: other.t * self }
     }
 }
 
 // **** Mul Scalar ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<T> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
@@ -300,7 +303,22 @@ where
     /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
-        T::v4_mul_scalar(self, k)
+        Self { x: self.x * k, y: self.y * k, z: self.z * k, t: self.t * k }
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T, Rhs, Out> Mul<Rhs> for Vector4d<T>
+where
+    T: Copy + Mul<Rhs, Output = Out>,
+    Rhs: Copy,
+{
+    type Output = Vector4d<Out>;
+
+    /// Multiply a vector by a scalar.
+    #[inline]
+    fn mul(self, rhs: Rhs) -> Self::Output {
+        Vector4d { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, t: self.t * rhs }
     }
 }
 
@@ -308,7 +326,7 @@ where
 
 impl<T> MulAssign<T> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     /// In-place multiply a vector by a constant.
     /// ```
@@ -326,9 +344,10 @@ where
 
 // **** Mul Elementwise ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<Vector4d<T>> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
@@ -343,15 +362,16 @@ where
     /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
-        T::v4_mul_elementwise(self, other)
+        Self { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z, t: self.t * other.t }
     }
 }
 
 // **** Div by scalar ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Div<T> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
@@ -365,13 +385,28 @@ where
     /// ```
     #[inline]
     fn div(self, k: T) -> Self {
-        T::v4_div_scalar(self, k)
+        self.mul(T::one() / k)
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T, Rhs, Out> Div<Rhs> for Vector4d<T>
+where
+    T: Copy + Div<Rhs, Output = Out>,
+    Rhs: Copy,
+{
+    type Output = Vector4d<Out>;
+
+    /// Divide a vector by a scalar.
+    #[inline]
+    fn div(self, rhs: Rhs) -> Vector4d<Out> {
+        Vector4d::<Out> { x: self.x / rhs, y: self.y / rhs, z: self.z / rhs, t: self.t / rhs }
     }
 }
 
 impl<T> DivAssign<T> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
     /// In-place divide a vector by a constant.
     /// ```
@@ -383,15 +418,17 @@ where
     /// ```
     #[inline]
     fn div_assign(&mut self, k: T) {
-        *self = self.div(k);
+        let k_reciprocal = T::one() / k;
+        *self = self.mul(k_reciprocal);
     }
 }
 
 // **** Div Elementwise ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Div<Vector4d<T>> for Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Div<T, Output = T>,
 {
     type Output = Self;
 
@@ -406,7 +443,7 @@ where
     /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
-        T::v4_div_elementwise(self, other)
+        Vector4d { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z, t: self.t / other.t }
     }
 }
 
@@ -538,7 +575,7 @@ where
 
 impl<T> Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     /// Vector dot product.
     /// ```
@@ -552,7 +589,19 @@ where
     /// ```
     #[inline]
     pub fn dot(self, other: Self) -> T {
-        T::v4_dot(self, other)
+        self.x * other.x + self.y * other.y + self.z * other.z + self.t * other.t
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T> Vector4d<T> {
+    /// Calculates the dot product of two vectors.
+    pub fn dot_uom<Rhs, Out>(self, rhs: Vector4d<Rhs>) -> Out
+    where
+        T: Mul<Rhs, Output = Out>,
+        Out: Add<Output = Out>,
+    {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.t * rhs.t
     }
 }
 
@@ -560,7 +609,7 @@ where
 
 impl<T> Vector4d<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T>,
 {
     /// Return square of Euclidean norm.
     /// ```
@@ -570,7 +619,7 @@ where
     /// ```
     #[inline]
     pub fn norm_squared(self) -> T {
-        T::v4_norm_squared(self)
+        self.x * self.x + self.y * self.y + self.z * self.z + self.t * self.t
     }
 
     /// Return distance between two points, squared.
@@ -586,11 +635,68 @@ where
     }
 }
 
+#[cfg(feature = "uom")]
+impl<D, U, V> Vector4d<uom::si::Quantity<D, U, V>>
+where
+    D: uom::si::Dimension + ?Sized,
+    U: uom::si::Units<V> + ?Sized,
+    V: Copy + uom::num_traits::Float + uom::Conversion<V>,
+    uom::si::Quantity<D, U, V>: Copy,
+{
+    /// Calculates the squared norm of the vector.
+    #[inline]
+    pub fn norm_squared_uom<Out>(self) -> Out
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Out>,
+        Out: Add<Output = Out>,
+    {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    /// Calculates the Euclidean norm (length) of the vector.
+    #[inline]
+    pub fn norm_uom<Intermediate>(self) -> uom::si::Quantity<D, U, V>
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
+        Intermediate: Add<Output = Intermediate>,
+    {
+        // Extract raw scalar primitive values
+        let x = self.x.value;
+        let y = self.y.value;
+        let z = self.z.value;
+        let norm = (x * x + y * y + z * z).sqrt();
+
+        uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: norm }
+    }
+
+    #[inline]
+    /// Normalizes the vector, returning a unit vector pointing in the same direction.
+    pub fn normalize_uom<Intermediate>(self) -> Vector4d<uom::si::ratio::Ratio<U, V>>
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
+        Intermediate: Add<Output = Intermediate>,
+    {
+        let x = self.x.value;
+        let y = self.y.value;
+        let z = self.z.value;
+        let t = self.t.value;
+        let norm = (x * x + y * y + z * z + t * t).sqrt();
+        let norm_reciprocal = V::one() / norm;
+
+        Vector4d {
+            x: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: x * norm_reciprocal },
+            y: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: y * norm_reciprocal },
+            z: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: z * norm_reciprocal },
+            t: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: t * norm_reciprocal },
+        }
+    }
+}
+
 // **** norm ****
 
 impl<T> Vector4d<T>
 where
-    T: Copy + SqrtMethods + Vector4dMath,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
     /// Return Euclidean norm.
     #[inline]
@@ -601,7 +707,7 @@ where
 
 impl<T> Vector4d<T>
 where
-    T: Copy + Zero + PartialEq + SqrtMethods + Vector4dMath,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
@@ -662,26 +768,7 @@ where
 
 impl<T> Vector4d<T>
 where
-    T: Copy + Vector4dMath,
-{
-    // Return true if the vector is normalized.
-    /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-    /// let n = v.normalize();
-    /// let s = n.norm_squared();
-    /// assert_eq!(1.0, s);
-    /// assert!(n.is_normalized());
-    /// ```
-    #[inline]
-    pub fn is_normalized(self) -> bool {
-        T::v4_is_normalized(self)
-    }
-}
-
-impl<T> Vector4d<T>
-where
-    T: Copy + Zero + SqrtMethods + Vector4dMath,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
     // Return distance between two points
     #[inline]

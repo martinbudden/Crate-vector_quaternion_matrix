@@ -400,7 +400,7 @@ where
     /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
-        Vector3d { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z }
+        Self { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z }
     }
 }
 
@@ -775,7 +775,7 @@ where
     V: Copy + uom::num_traits::Float + uom::Conversion<V>,
     uom::si::Quantity<D, U, V>: Copy,
 {
-    /// Calculates the squared magnitude of the vector.
+    /// Calculates the squared norm of the vector.
     #[inline]
     pub fn norm_squared_uom<Out>(self) -> Out
     where

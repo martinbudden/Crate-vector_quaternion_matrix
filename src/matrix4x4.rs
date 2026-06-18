@@ -599,6 +599,7 @@ where
     }
 }
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<Matrix4x4<T>> for Vector4d<T>
 where
     T: Copy + Matrix4x4Math,
