@@ -1,3 +1,5 @@
+#[cfg(feature = "uom")]
+use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
@@ -53,7 +55,7 @@ where
 
 impl<T> Zero for Vector2d<T>
 where
-    T: Copy + ConstZero + PartialEq + Vector2dMath,
+    T: Copy + ConstZero + PartialEq,
 {
     /// Zero vector.
     /// ```
@@ -84,7 +86,7 @@ where
 /// ```
 impl<T> ConstZero for Vector2d<T>
 where
-    T: Copy + ConstZero + PartialEq + Vector2dMath,
+    T: Copy + Zero + ConstZero + PartialEq,
 {
     const ZERO: Self = Self { x: T::ZERO, y: T::ZERO };
 }
@@ -93,7 +95,7 @@ where
 
 impl<T> Neg for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Neg<Output = T>,
 {
     type Output = Self;
 
@@ -107,7 +109,7 @@ where
     /// ```
     #[inline]
     fn neg(self) -> Self {
-        T::v2_neg(self)
+        Self { x: -self.x, y: -self.y }
     }
 }
 
@@ -115,7 +117,7 @@ where
 
 impl<T> Add for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T>,
 {
     type Output = Self;
 
@@ -130,7 +132,7 @@ where
     /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
-        T::v2_add(self, other)
+        Vector2d { x: self.x + other.x, y: self.y + other.y }
     }
 }
 
@@ -138,7 +140,7 @@ where
 
 impl<T> AddAssign for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T>,
 {
     /// Add one vector to another.
     /// ```
@@ -164,7 +166,7 @@ where
 
 impl<T> MulAdd<T> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Mul<T, Output = T> + Add<T, Output = T>,
 {
     type Output = Self;
 
@@ -181,7 +183,7 @@ where
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
-        T::v2_mul_add(self, k, other)
+        Vector2d { x: self.x * k + other.x, y: self.y * k + other.y }
     }
 }
 
@@ -189,7 +191,7 @@ where
 
 impl<T> MulAddAssign<T> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     /// Multiply vector by constant and add another vector in place.
     /// ```
@@ -212,7 +214,7 @@ where
 
 impl<T> Sub for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T> + Neg<Output = T>,
 {
     type Output = Self;
 
@@ -236,7 +238,7 @@ where
 
 impl<T> SubAssign for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T>,
 {
     /// Subtract one vector from another.
     /// ```
@@ -277,19 +279,20 @@ impl Mul<Vector2d<f64>> for f64 {
 
     #[inline]
     fn mul(self, other: Vector2d<f64>) -> Vector2d<f64> {
-        f64::v2_mul_scalar(other, self)
+        Vector2d { x: other.x * self, y: other.y * self }
     }
 }
 
 // **** Mul Scalar ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<T> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
-    /// Multiply vector by a constant.
+    /// Multiply vector by a scalar.
     /// ```
     /// # use vqm::Vector2df32;
     /// let v = Vector2df32::new(2.0, 3.0);
@@ -299,7 +302,22 @@ where
     /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
-        T::v2_mul_scalar(self, k)
+        Self { x: self.x * k, y: self.y * k }
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T, Rhs, Out> Mul<Rhs> for Vector2d<T>
+where
+    T: Copy + Mul<Rhs, Output = Out>,
+    Rhs: Copy,
+{
+    type Output = Vector2d<Out>;
+
+    /// Multiply a vector by a scalar.
+    #[inline]
+    fn mul(self, rhs: Rhs) -> Self::Output {
+        Vector2d { x: self.x * rhs, y: self.y * rhs }
     }
 }
 
@@ -307,7 +325,7 @@ where
 
 impl<T> MulAssign<T> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     /// In-place multiply a vector by a constant.
     /// ```
@@ -325,9 +343,10 @@ where
 
 // **** Mul Elementwise ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<Vector2d<T>> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
@@ -342,15 +361,16 @@ where
     /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
-        T::v2_mul_elementwise(self, other)
+        Vector2d { x: self.x * other.x, y: self.y * other.y }
     }
 }
 
-// **** Div scalar ****
+// **** Div by scalar ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Div<T> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
     type Output = Self;
 
@@ -364,13 +384,28 @@ where
     /// ```
     #[inline]
     fn div(self, k: T) -> Self {
-        T::v2_div_scalar(self, k)
+        self.mul(T::one() / k)
+    }
+}
+
+#[cfg(feature = "uom")]
+impl<T, Rhs, Out> Div<Rhs> for Vector2d<T>
+where
+    T: Copy + Div<Rhs, Output = Out>,
+    Rhs: Copy,
+{
+    type Output = Vector2d<Out>;
+
+    /// Divide a vector by a scalar.
+    #[inline]
+    fn div(self, rhs: Rhs) -> Vector2d<Out> {
+        Vector2d::<Out> { x: self.x / rhs, y: self.y / rhs }
     }
 }
 
 impl<T> DivAssign<T> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
     /// In-place divide a vector by a constant.
     /// ```
@@ -382,15 +417,17 @@ where
     /// ```
     #[inline]
     fn div_assign(&mut self, k: T) {
-        *self = self.div(k);
+        let k_reciprocal = T::one() / k;
+        *self = self.mul(k_reciprocal);
     }
 }
 
 // **** Div Elementwise ****
 
+#[cfg(not(feature = "uom"))]
 impl<T> Div<Vector2d<T>> for Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Div<T, Output = T>,
 {
     type Output = Self;
 
@@ -405,7 +442,7 @@ where
     /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
-        T::v2_div_elementwise(self, other)
+        Vector2d { x: self.x / other.x, y: self.y / other.y }
     }
 }
 
@@ -546,11 +583,50 @@ where
     }
 }
 
+#[cfg(feature = "uom")]
+impl<T> Vector2d<T> {
+    /// Calculates the dot product of two vectors.
+    ///
+    /// When using `uom`, the output quantity automatically scales its dimensions
+    /// dynamically based on the input quantities (e.g., Length * Force = Energy).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use uom::si::f32::{Length, Force, Energy};
+    /// # use uom::si::{length::meter,force::newton,energy::joule};
+    /// # use vqm::Vector2d;
+    ///
+    /// // Create a displacement vector (Length)
+    /// let displacement = Vector2d {
+    ///     x: Length::new::<meter>(2.0),
+    ///     y: Length::new::<meter>(3.0),
+    /// };
+    ///
+    /// // Create a constant pushing force vector (Force)
+    /// let force = Vector2d {
+    ///     x: Force::new::<newton>(10.0),
+    ///     y: Force::new::<newton>(5.0),
+    /// };
+    ///
+    /// // Calculate mechanical work done: (2*10) + (3*5) = 35 Joules
+    /// let work_done: Energy = displacement.dot_uom(force);
+    ///
+    /// assert_eq!(work_done, Energy::new::<joule>(35.0));
+    /// ```
+    pub fn dot_uom<Rhs, Out>(self, rhs: Vector2d<Rhs>) -> Out
+    where
+        T: Mul<Rhs, Output = Out>,
+        Out: Add<Output = Out>,
+    {
+        self.x * rhs.x + self.y * rhs.y
+    }
+}
 // **** cross ****
 
 impl<T> Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
 {
     /// Z component of vector cross product of self and other extended to 3D.
     /// ```
@@ -564,15 +640,28 @@ where
     /// ```
     #[inline]
     pub fn cross(self, other: Self) -> T {
-        T::v2_cross(self, other)
+        self.x * other.y - self.y * other.x
     }
 }
 
+#[cfg(feature = "uom")]
+impl<T> Vector2d<T> {
+    /// Calculates the cross product of two 2D vectors.
+    #[inline]
+    pub fn cross_uom<Rhs, Out>(self, rhs: Vector2d<Rhs>) -> Out
+    where
+        T: Copy + Mul<Rhs, Output = Out>,
+        Rhs: Copy,
+        Out: Sub<Output = Out>,
+    {
+        self.x * rhs.y - self.y * rhs.x
+    }
+}
 // **** norm_squared ****
 
 impl<T> Vector2d<T>
 where
-    T: Copy + Vector2dMath,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T>,
 {
     /// Return square of Euclidean norm.
     /// ```
@@ -582,7 +671,7 @@ where
     /// ```
     #[inline]
     pub fn norm_squared(self) -> T {
-        T::v2_norm_squared(self)
+        self.x * self.x + self.y * self.y
     }
 
     /// Return distance between two points, squared.
@@ -598,11 +687,95 @@ where
     }
 }
 
+#[cfg(feature = "uom")]
+impl<D, U, V> Vector2d<uom::si::Quantity<D, U, V>>
+where
+    D: uom::si::Dimension + ?Sized,
+    U: uom::si::Units<V> + ?Sized,
+    V: Copy + uom::num_traits::Float + uom::Conversion<V>,
+    uom::si::Quantity<D, U, V>: Copy,
+{
+    /// Calculates the squared magnitude of the vector.
+    #[inline]
+    pub fn norm_squared_uom<Out>(self) -> Out
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Out>,
+        Out: Add<Output = Out>,
+    {
+        self.x * self.x + self.y * self.y
+    }
+
+    /// Calculates the Euclidean norm (length) of the vector.
+    ///
+    /// # Example
+    /// ```
+    /// # use uom::si::f32::{Length, Area};
+    /// # use uom::si::{length::meter,area::square_meter};
+    /// # use vqm::Vector2d;
+    ///
+    /// let v = Vector2d {
+    ///     x: Length::new::<meter>(3.0),
+    ///     y: Length::new::<meter>(4.0),
+    /// };
+    ///
+    /// let norm: Length = v.norm_uom();
+    /// assert_eq!(norm, Length::new::<meter>(5.0));
+    /// ```
+    #[inline]
+    pub fn norm_uom<Intermediate>(self) -> uom::si::Quantity<D, U, V>
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
+        Intermediate: Add<Output = Intermediate>,
+    {
+        // Extract raw scalar primitive values
+        let x = self.x.value;
+        let y = self.y.value;
+        let norm = (x * x + y * y).sqrt();
+
+        uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: norm }
+    }
+
+    #[inline]
+    /// Normalizes the vector, returning a unit vector pointing in the same direction.
+    ///
+    /// # Example
+    /// ```
+    /// # use uom::si::f32::{Length, Ratio};
+    /// # use uom::si::{length::meter,ratio::ratio};
+    /// # use vqm::Vector2d;
+    ///
+    /// let v = Vector2d {
+    ///     x: Length::new::<meter>(3.0),
+    ///     y: Length::new::<meter>(4.0),
+    /// };
+    ///
+    /// let unit_vector: Vector2d<Ratio> = v.normalize_uom();
+    ///
+    /// assert!((unit_vector.x - Ratio::new::<ratio>(3.0 / 5.0)).value.abs() < 1e-7);
+    /// assert!((unit_vector.y - Ratio::new::<ratio>(4.0 / 5.0)).value.abs() < 1e-7);
+    /// ```
+    pub fn normalize_uom<Intermediate>(self) -> Vector2d<uom::si::ratio::Ratio<U, V>>
+    where
+        uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
+        Intermediate: Add<Output = Intermediate>,
+    {
+        let x = self.x.value;
+        let y = self.y.value;
+        let norm = (x * x + y * y).sqrt();
+        let norm_reciprocal = V::one() / norm;
+
+        Vector2d {
+            x: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: x * norm_reciprocal },
+            y: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: y * norm_reciprocal },
+        }
+    }
+}
+
 // **** norm ****
 
 impl<T> Vector2d<T>
 where
-    T: Copy + SqrtMethods + Vector2dMath,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
     /// Return Euclidean norm.
     #[inline]
@@ -613,7 +786,7 @@ where
 
 impl<T> Vector2d<T>
 where
-    T: Copy + Zero + PartialEq + SqrtMethods + Vector2dMath,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
@@ -674,24 +847,7 @@ where
 
 impl<T> Vector2d<T>
 where
-    T: Copy + Vector2dMath,
-{
-    // Return true if the vector is normalized.
-    /// ```
-    /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(3.0, 4.0);
-    /// let n = v.normalize();
-    /// assert!(n.is_normalized());
-    /// ```
-    #[inline]
-    pub fn is_normalized(self) -> bool {
-        T::v2_is_normalized(self)
-    }
-}
-
-impl<T> Vector2d<T>
-where
-    T: Copy + Zero + SqrtMethods + Vector2dMath,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
     // Return distance between two points
     #[inline]

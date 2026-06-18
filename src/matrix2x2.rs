@@ -504,6 +504,7 @@ where
     }
 }
 
+#[cfg(not(feature = "uom"))]
 impl<T> Mul<Matrix2x2<T>> for Vector2d<T>
 where
     T: Copy + Matrix2x2Math,

@@ -187,7 +187,7 @@ where
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
-       Vector3d { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z }
+        Vector3d { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z }
     }
 }
 
@@ -308,6 +308,7 @@ impl Mul<Vector3d<f32>> for f32 {
 
 impl Mul<Vector3d<f64>> for f64 {
     type Output = Vector3d<f64>;
+
     #[inline]
     fn mul(self, other: Vector3d<f64>) -> Vector3d<f64> {
         Vector3d { x: other.x * self, y: other.y * self, z: other.z * self }
@@ -781,10 +782,7 @@ where
         uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Out>,
         Out: Add<Output = Out>,
     {
-        let x2 = self.x * self.x;
-        let y2 = self.y * self.y;
-        let z2 = self.z * self.z;
-        x2 + y2 + z2
+        self.x * self.x + self.y * self.y + self.z * self.z
     }
 
     /// Calculates the Euclidean norm (length) of the vector.
@@ -814,10 +812,9 @@ where
         let x = self.x.value;
         let y = self.y.value;
         let z = self.z.value;
+        let norm = (x * x + y * y + z * z).sqrt();
 
-        let mag = (x * x + y * y + z * z).sqrt();
-
-        uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: mag }
+        uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: norm }
     }
 
     #[inline]
@@ -850,7 +847,6 @@ where
         let y = self.y.value;
         let z = self.z.value;
         let norm = (x * x + y * y + z * z).sqrt();
-
         let norm_reciprocal = V::one() / norm;
 
         Vector3d {
@@ -860,6 +856,8 @@ where
         }
     }
 }
+
+// **** norm ****
 
 impl<T> Vector3d<T>
 where
