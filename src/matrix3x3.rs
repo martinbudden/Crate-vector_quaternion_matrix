@@ -224,6 +224,7 @@ where
     /// ```
     #[rustfmt::skip]
     #[inline]
+    #[must_use]
     pub fn identity() -> Self {
         Self {
             a: [
@@ -1065,6 +1066,7 @@ where
     ///                                    23.0, 31.0, 41.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         T::m3x3_abs(self)
     }
@@ -1107,6 +1109,7 @@ where
     ///                                   17.0, 17.0,  7.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for it in &mut a {
@@ -1151,6 +1154,7 @@ where
     ///                                    59.0, 47.0, 41.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn transpose(self) -> Self {
         Self { a: [self.a[0], self.a[3], self.a[6], self.a[1], self.a[4], self.a[7], self.a[2], self.a[5], self.a[8]] }
     }
@@ -1224,6 +1228,7 @@ where
     ///
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse(self) -> Self {
         let (adjugate, determinant) = T::m3x3_adjugate(self);
         adjugate / determinant
@@ -1293,6 +1298,7 @@ where
     /// assert_eq!(Matrix3x3f32::zero(), n);
     ///
     /// ```
+    #[must_use]
     pub fn inverse_or_zero(self) -> Self {
         let (adjugate, determinant) = self.adjugate();
         if determinant.abs() < T::EPSILON {
@@ -1558,9 +1564,9 @@ where
     /// Matrix from padded 2D array.
     /// ```
     /// # use vqm::Matrix3x3f32;
-    /// let m = Matrix3x3f32::from([[  2.0, 17.0, 59.0, 1.0],
-    ///                             [  5.0, 11.0, 47.0, 2.0],
-    ///                             [ 23.0, 31.0, 41.0, 3.0]]);
+    /// let m = Matrix3x3f32::from([[  2.0, 17.0, 59.0, 127.0],
+    ///                             [  5.0, 11.0, 47.0, 109.0],
+    ///                             [ 23.0, 31.0, 41.0, 103.0]]);
     /// assert_eq!(m, Matrix3x3f32::new([  2.0, 17.0, 59.0,
     ///                                    5.0, 11.0, 47.0,
     ///                                   23.0, 31.0, 41.0]));

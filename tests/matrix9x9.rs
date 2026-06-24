@@ -2,11 +2,11 @@ use vqm::{Matrix9x9, Matrix9x9f32};
 
 // **** Align
 
-const _: () = assert!(core::mem::size_of::<Matrix9x9<f32>>() == 324); // 384 if align 64
-const _: () = assert!(core::mem::align_of::<Matrix9x9<f32>>() == 4);
+const _: () = assert!(size_of::<Matrix9x9<f32>>() == 324); // 384 if align 64
+const _: () = assert!(align_of::<Matrix9x9<f32>>() == 4);
 
-const _: () = assert!(core::mem::size_of::<Matrix9x9<f64>>() == 648); // 704 if align 64
-const _: () = assert!(core::mem::align_of::<Matrix9x9<f64>>() == 8);
+const _: () = assert!(size_of::<Matrix9x9<f64>>() == 648); // 704 if align 64
+const _: () = assert!(align_of::<Matrix9x9<f64>>() == 8);
 
 const _: () = {
     const SIZE: usize = 81;

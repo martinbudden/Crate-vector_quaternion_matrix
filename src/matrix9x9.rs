@@ -62,6 +62,7 @@ where
 }
 
 /// Constants to index matrix elements.
+#[allow(missing_docs)]
 impl<T> Matrix9x9<T> {
     pub const SIZE: usize = 81;
     pub const ROW_COUNT: usize = 9;
@@ -285,6 +286,7 @@ where
     /// Identity matrix.
     /// Alias for `one()` that does not require `num_traits::One`.
     #[inline]
+    #[must_use]
     pub fn identity() -> Self {
         let mut m = Self { a: [T::zero(); 81] };
         for ii in 0..=8 {
@@ -459,7 +461,7 @@ impl<T> Matrix9x9<T>
 where
     T: Copy + Zero + Matrix9x9Math + Mul<T, Output = T>,
 {
-    // Extract the first 3 columns of the 9x9 matrix as an array of 27 elements.
+    /// Extract the first 3 columns of the 9x9 matrix as an array of 27 elements.
     pub fn extract_9x3_array(&self) -> [T; 27] {
         let mut ret = [T::zero(); 27];
         for r in 0..9 {
@@ -695,6 +697,7 @@ where
 {
     /// Return a copy of the matrix with all elements set to their absolute values.
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         T::m9x9_abs(self)
     }
@@ -715,6 +718,7 @@ where
 {
     /// Return a copy of the matrix with all elements clamped to the specified range.
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for it in &mut a {
@@ -737,6 +741,7 @@ where
 {
     /// Return the transpose of this matrix.
     #[inline]
+    #[must_use]
     pub fn transpose(&mut self) -> Self {
         // In-place transpose of the 8x8 submatrix
         // LLVM easily vectorizes this because the bounds and strides are power-of-two friendly

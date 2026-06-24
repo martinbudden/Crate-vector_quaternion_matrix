@@ -8,8 +8,8 @@ cfg_if! {
     }
 }
 
-const _: () = assert!(core::mem::size_of::<Matrix2x2<f32>>() == 16);
-const _: () = assert!(core::mem::align_of::<Matrix2x2<f32>>() == 16);
+const _: () = assert!(size_of::<Matrix2x2<f32>>() == 16);
+const _: () = assert!(align_of::<Matrix2x2<f32>>() == 16);
 
 use crate::{Matrix2x2, Vector2d};
 
@@ -20,8 +20,8 @@ impl From<Matrix2x2<f32>> for f32x4 {
     #[inline(always)]
     fn from(v: Matrix2x2<f32>) -> Self {
         // SAFETY: assert f32x4 and Matrix2x2<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Matrix2x2<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Matrix2x2<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Matrix2x2<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Matrix2x2<f32>>());
         unsafe { transmute(v) }
     }
 }
@@ -31,8 +31,8 @@ impl From<f32x4> for Matrix2x2<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
         // SAFETY: assert f32x4 and Matrix2x2<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Matrix2x2<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Matrix2x2<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Matrix2x2<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Matrix2x2<f32>>());
         unsafe { transmute(simd) }
     }
 }

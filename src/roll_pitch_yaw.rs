@@ -23,6 +23,7 @@ pub type RollPitchf64 = RollPitch<f64>;
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("RP{{roll:{roll}, pitch:{pitch}}}"))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[allow(missing_docs)]
 pub struct RollPitch<T> {
     pub roll: T,
     pub pitch: T,
@@ -53,10 +54,12 @@ where
     T: Copy + Mul<Output = T> + MathConstants,
 {
     #[inline]
+    #[must_use]
     pub fn to_degrees(self) -> Self {
         Self { roll: self.roll * T::RADIANS_TO_DEGREES, pitch: self.pitch * T::RADIANS_TO_DEGREES }
     }
     #[inline]
+    #[must_use]
     pub fn to_radians(self) -> Self {
         Self { roll: self.roll * T::DEGREES_TO_RADIANS, pitch: self.pitch * T::DEGREES_TO_RADIANS }
     }
@@ -67,10 +70,12 @@ where
     T: Copy + FloatCore,
 {
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         Self { roll: self.roll.abs(), pitch: self.pitch.abs() }
     }
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self { roll: self.roll.clamp(min, max), pitch: self.pitch.clamp(min, max) }
     }
@@ -91,6 +96,7 @@ where
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("RPY{{roll:{roll}, pitch:{pitch}, yaw:{yaw}}}"))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[allow(missing_docs)]
 pub struct RollPitchYaw<T> {
     pub roll: T,
     pub pitch: T,
@@ -122,6 +128,7 @@ where
     T: Copy + Mul<Output = T> + MathConstants,
 {
     #[inline]
+    #[must_use]
     pub fn to_degrees(self) -> Self {
         Self {
             roll: self.roll * T::RADIANS_TO_DEGREES,
@@ -130,6 +137,7 @@ where
         }
     }
     #[inline]
+    #[must_use]
     pub fn to_radians(self) -> Self {
         Self {
             roll: self.roll * T::DEGREES_TO_RADIANS,
@@ -144,10 +152,12 @@ where
     T: Copy + FloatCore,
 {
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         Self { roll: self.roll.abs(), pitch: self.pitch.abs(), yaw: self.yaw.abs() }
     }
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self { roll: self.roll.clamp(min, max), pitch: self.pitch.clamp(min, max), yaw: self.yaw.clamp(min, max) }
     }
@@ -165,7 +175,6 @@ where
 
 #[cfg(test)]
 mod tests {
-    #[allow(unused)]
     use super::*;
     #[cfg(feature = "serde")]
     use serde::{Deserialize, Serialize};

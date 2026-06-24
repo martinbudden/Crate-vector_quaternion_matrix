@@ -5,14 +5,14 @@ cfg_if! {
     if #[cfg(feature = "simd")] {
         use core::simd::{f32x4,num::SimdFloat};
         // must be aligned if using SIMD
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 64);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 64);
+        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 64);
+        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 64);
     } else if #[cfg(feature = "no_align")] {
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 36);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 4);
+        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 36);
+        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 4);
     } else {
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 64);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 64);
+        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 64);
+        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 64);
     }
 }
 
@@ -118,6 +118,7 @@ impl Matrix3x3Math for f32 {
         // Return the new vector
         Vector3d { x, y, z }
     }
+
     #[rustfmt::skip]
     #[inline]
     fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self> {

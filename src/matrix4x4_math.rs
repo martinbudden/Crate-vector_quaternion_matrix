@@ -63,21 +63,23 @@ impl Matrix4x4Math for f32 {
         Self::m4x4_add(Self::m4x4_mul_scalar(this, k), other)
     }
 
-    #[allow(clippy::needless_range_loop)]
-    #[rustfmt::skip]
     #[inline]
+    #[must_use]
     fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
-        let mut res = [0.0; 4];
+        let mut ret = [0.0; 4];
         let v = [other.x, other.y, other.z, other.t];
 
-        for i in 0..4 {
-            let col_scalar = v[i];
-            for j in 0..4 {
-                // Accessing the matrix columns
-                res[j] += this.a[i + j * 4] * col_scalar;
+        for (row, ret_element) in ret.iter_mut().enumerate() {
+            let row_offset = row * 4;
+            let mut sum = 0.0;
+            let matrix_row = &this.a[row_offset..row_offset + 4];
+            for (matrix_val, vector_val) in matrix_row.iter().zip(&v) {
+                sum += matrix_val * vector_val;
             }
+            *ret_element = sum;
         }
-        Vector4d { x: res[0], y: res[1], z: res[2], t: res[3] }
+
+        Vector4d { x: ret[0], y: ret[1], z: ret[2], t: ret[3] }
     }
 
     #[rustfmt::skip]

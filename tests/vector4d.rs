@@ -1,10 +1,10 @@
 use vqm::{Vector4d, Vector4df32, Vector4df64};
 
-const _: () = assert!(core::mem::size_of::<Vector4df32>() == 16);
-const _: () = assert!(core::mem::align_of::<Vector4df32>() == 16);
+const _: () = assert!(size_of::<Vector4df32>() == 16);
+const _: () = assert!(align_of::<Vector4df32>() == 16);
 
-const _: () = assert!(core::mem::size_of::<Vector4df64>() == 32);
-const _: () = assert!(core::mem::align_of::<Vector4df64>() == 16);
+const _: () = assert!(size_of::<Vector4df64>() == 32);
+const _: () = assert!(align_of::<Vector4df64>() == 16);
 
 #[cfg(test)]
 mod tests {
@@ -16,8 +16,7 @@ mod tests {
         serde::{Deserialize, Serialize},
     };
 
-    #[allow(unused)]
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}

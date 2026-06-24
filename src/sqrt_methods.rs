@@ -5,8 +5,11 @@ use cfg_if::cfg_if;
 
 /// `no_std` implementations of `sqrt` and `sqrt_reciprocal` in  method call syntax<br>
 /// ie `x.sqrt()`, `x.sqrt_reciprocal()`.
+#[allow(missing_docs)]
 pub trait SqrtMethods: Sized {
+    #[must_use]
     fn sqrt(self) -> Self;
+    #[must_use]
     fn sqrt_reciprocal(self) -> Self;
 }
 
@@ -136,8 +139,6 @@ fn quake_sqrt_reciprocal(x: f32) -> f32 {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::float_cmp)]
-    #![allow(clippy::used_underscore_items)]
-    #[allow(unused)]
     use super::*;
 
     #[test]

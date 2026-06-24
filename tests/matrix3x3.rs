@@ -5,15 +5,15 @@ use vqm::{Matrix3x3, Matrix3x3f32, Vector3d};
 // **** Align ****
 cfg_if! {
     if #[cfg(feature = "no_align")] {
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 36);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 4);
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f64>>() == 72);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f64>>() == 8);
+        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 36);
+        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 4);
+        const _: () = assert!(size_of::<Matrix3x3<f64>>() == 72);
+        const _: () = assert!(align_of::<Matrix3x3<f64>>() == 8);
     } else {
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f32>>() == 64);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f32>>() == 64);
-        const _: () = assert!(core::mem::size_of::<Matrix3x3<f64>>() == 128);
-        const _: () = assert!(core::mem::align_of::<Matrix3x3<f64>>() == 64);
+        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 64);
+        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 64);
+        const _: () = assert!(size_of::<Matrix3x3<f64>>() == 128);
+        const _: () = assert!(align_of::<Matrix3x3<f64>>() == 64);
     }
 }
 
@@ -26,8 +26,7 @@ mod tests {
         serde::{Deserialize, Serialize},
     };
 
-    #[allow(unused)]
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}

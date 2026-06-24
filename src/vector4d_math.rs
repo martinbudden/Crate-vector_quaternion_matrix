@@ -8,8 +8,8 @@ cfg_if! {
     }
 }
 
-const _: () = assert!(core::mem::size_of::<Vector4d<f32>>() == 16);
-const _: () = assert!(core::mem::align_of::<Vector4d<f32>>() == 16);
+const _: () = assert!(size_of::<Vector4d<f32>>() == 16);
+const _: () = assert!(align_of::<Vector4d<f32>>() == 16);
 
 use crate::Vector4d;
 
@@ -20,8 +20,8 @@ impl From<Vector4d<f32>> for f32x4 {
     #[inline(always)]
     fn from(this: Vector4d<f32>) -> Self {
         // SAFETY: assert f32x4 and Vector4d<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Vector4d<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Vector4d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector4d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector4d<f32>>());
         // The 'filler' 4th float in the SIMD lane will be whatever was in the padding (usually 0.0 if set by Default).
         unsafe { transmute(this) }
     }
@@ -32,8 +32,8 @@ impl From<f32x4> for Vector4d<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
         // SAFETY: assert f32x4 and Vector4d<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Vector4d<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Vector4d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector4d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector4d<f32>>());
         unsafe { transmute(simd) }
     }
 }

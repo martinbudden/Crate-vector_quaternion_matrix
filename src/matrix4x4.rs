@@ -262,6 +262,7 @@ where
     /// ```
     #[rustfmt::skip]
     #[inline]
+    #[must_use]
     pub fn identity() -> Self {
         Self {
             a: [
@@ -1216,6 +1217,7 @@ where
     ///                                    67.0, 73.0, 83.0,  97.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         T::m4x4_abs(self)
     }
@@ -1262,6 +1264,7 @@ where
     ///                                   17.0, 17.0, 17.0, 17.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for it in &mut a {
@@ -1310,6 +1313,7 @@ where
     ///                                   127.0,109.0,103.0, 97.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn transpose(self) -> Self {
         Self {
             a: [
@@ -1395,6 +1399,7 @@ where
     ///
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse(self) -> Self {
         let (adjugate, determinant) = T::m4x4_adjugate(self);
         adjugate / determinant
@@ -1468,6 +1473,7 @@ where
     /// assert_eq!(Matrix4x4f32::zero(), n);
     ///
     /// ```
+    #[must_use]
     pub fn inverse_or_zero(self) -> Self {
         let (adjugate, determinant) = self.adjugate();
         if determinant.abs() < T::EPSILON {
@@ -1841,13 +1847,13 @@ where
     /// Matrix2x2 from Matrix4x4. Takes top left of m4x4, discarding other values.
     /// ```
     /// # use vqm::{Matrix2x2f32,Matrix4x4f32};
-    /// let m2x2 = Matrix2x2f32::from([ 2.0, 17.0,
-    ///                                 5.0, 11.0]);
-    /// let m4x4 = Matrix4x4f32::from([ 2.0, 17.0, 59.0, 127.0,
-    ///                                 5.0, 11.0, 47.0, 109.0,
-    ///                                23.0, 31.0, 41.0, 103.0,
-    ///                                67.0, 73.0, 83.0,  97.0]);
-    /// assert_eq!(m2x2, Matrix2x2f32::from(m4x4));
+    /// let m2 = Matrix2x2f32::from([ 2.0, 17.0,
+    ///                               5.0, 11.0]);
+    /// let m4 = Matrix4x4f32::from([ 2.0, 17.0, 59.0, 127.0,
+    ///                               5.0, 11.0, 47.0, 109.0,
+    ///                              23.0, 31.0, 41.0, 103.0,
+    ///                              67.0, 73.0, 83.0,  97.0]);
+    /// assert_eq!(m2, Matrix2x2f32::from(m4));
     /// ```
     #[rustfmt::skip]
     #[inline]

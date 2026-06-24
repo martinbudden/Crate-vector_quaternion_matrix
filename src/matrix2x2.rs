@@ -210,6 +210,7 @@ where
     /// ```
     #[rustfmt::skip]
     #[inline]
+    #[must_use]
     pub fn identity() -> Self {
         Self {
             a: [
@@ -971,6 +972,7 @@ where
     ///                                     5.0, 11.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         T::m2x2_abs(self)
     }
@@ -1009,6 +1011,7 @@ where
     ///                                    5.0, 7.5]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         let mut a = self.a;
         for it in &mut a {
@@ -1049,6 +1052,7 @@ where
     ///                                    17.0, 11.0]));
     /// ```
     #[inline]
+    #[must_use]
     pub fn transpose(self) -> Self {
         Self { a: [self.a[0], self.a[2], self.a[1], self.a[3]] }
     }
@@ -1085,6 +1089,7 @@ where
     /// assert!((n*m/m.determinant()).is_near_identity());
     /// ```
     #[inline]
+    #[must_use]
     pub fn adjugate(self) -> Self {
         T::m2x2_adjugate(self)
     }
@@ -1113,6 +1118,7 @@ where
     ///
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse(self) -> Self {
         let adjugate = self.adjugate();
         let determinant = self.determinant();
@@ -1180,6 +1186,7 @@ where
     /// assert_eq!(Matrix2x2f32::zero(), n);
     ///
     /// ```
+    #[must_use]
     pub fn inverse_or_zero(self) -> Self {
         let determinant = self.determinant();
         if determinant.abs() < T::EPSILON {

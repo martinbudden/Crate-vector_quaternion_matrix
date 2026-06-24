@@ -1,10 +1,10 @@
 use vqm::{Quaternion, Quaternionf32};
 
-const _: () = assert!(core::mem::size_of::<Quaternion<f32>>() == 16);
-const _: () = assert!(core::mem::align_of::<Quaternion<f32>>() == 16);
+const _: () = assert!(size_of::<Quaternion<f32>>() == 16);
+const _: () = assert!(align_of::<Quaternion<f32>>() == 16);
 
-const _: () = assert!(core::mem::size_of::<Quaternion<f64>>() == 32);
-const _: () = assert!(core::mem::align_of::<Quaternion<f64>>() == 16);
+const _: () = assert!(size_of::<Quaternion<f64>>() == 32);
+const _: () = assert!(align_of::<Quaternion<f64>>() == 16);
 
 #[cfg(test)]
 mod tests {
@@ -15,8 +15,7 @@ mod tests {
         serde::{Deserialize, Serialize},
     };
 
-    #[allow(unused)]
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}

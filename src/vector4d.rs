@@ -25,6 +25,7 @@ pub type Vector4df64 = Vector4d<f64>;
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}, t:{t}}}"))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(16))]
+#[allow(missing_docs)]
 pub struct Vector4d<T> {
     pub x: T,
     pub y: T,
@@ -513,6 +514,7 @@ where
     /// assert_eq!(u, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs(), t: self.t.abs() }
     }
@@ -547,6 +549,7 @@ where
     /// assert_eq!(u, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
     /// ```
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self {
             x: self.x.clamp(min, max),
@@ -717,6 +720,7 @@ where
     /// assert_eq!(Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 }, n);
     /// ```
     #[inline]
+    #[must_use]
     pub fn normalize(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the vector is already normalized
@@ -747,6 +751,7 @@ where
     /// assert_eq!(Vector4df32 { x: 0.21442251, y: 0.32163376, z: 0.5360563, t: 0.7504788 }, n);
     /// ```
     #[inline]
+    #[must_use]
     pub fn normalize_unchecked(self) -> Self {
         let norm_squared = self.norm_squared();
         self * norm_squared.sqrt_reciprocal()
@@ -770,7 +775,7 @@ impl<T> Vector4d<T>
 where
     T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
-    // Return distance between two points
+    /// Return distance between two points.
     #[inline]
     pub fn distance(self, other: Self) -> T {
         self.distance_squared(other).sqrt()
@@ -794,6 +799,7 @@ where
     /// assert!((w.t - 22.5).abs() < 2e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_degrees(self) -> Self {
         Self { x: self.x.to_degrees(), y: self.y.to_degrees(), z: self.z.to_degrees(), t: self.t.to_degrees() }
     }
@@ -805,6 +811,7 @@ where
     /// assert_eq!(Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8), v.to_radians());
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_radians(self) -> Self {
         Self { x: self.x.to_radians(), y: self.y.to_radians(), z: self.z.to_radians(), t: self.t.to_radians() }
     }
@@ -821,6 +828,7 @@ where
     /// assert_eq!(Vector4df32::new(9.806_65, 19.613_3, 29.419_95, 39.226_6), v.g_to_mps2());
     /// ```
     #[inline]
+    #[must_use]
     pub fn g_to_mps2(self) -> Self {
         Self { x: self.x * T::G0, y: self.y * T::G0, z: self.z * T::G0, t: self.t * T::G0 }
     }
@@ -832,6 +840,7 @@ where
     /// assert_eq!(Vector4df32::new(1.0, 2.0, 3.0, 4.0), v.mps2_to_g());
     /// ```
     #[inline]
+    #[must_use]
     pub fn mps2_to_g(self) -> Self {
         Self {
             x: self.x * T::G0_RECIPROCAL,

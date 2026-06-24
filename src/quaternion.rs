@@ -26,6 +26,7 @@ pub type Quaternionf64 = Quaternion<f64>;
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("Q{{w:{w}, x:{x}, y:{y}, z:{z}}}"))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[allow(missing_docs)]
 #[repr(C, align(16))]
 pub struct Quaternion<T> {
     pub w: T,
@@ -521,6 +522,7 @@ where
     /// assert_eq!(r, Quaternionf32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         Self { w: self.w.abs(), x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
@@ -555,6 +557,7 @@ where
     /// assert_eq!(r, Quaternionf32::new(2.5, 3.0, 7.0, 7.5));
     /// ```
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self {
             w: self.w.clamp(min, max),
@@ -639,6 +642,7 @@ where
     /// assert_eq!(Quaternionf32 { w: 0.0, x: 0.0, y: 0.0, z: 0.0 }, r);
     /// ```
     #[inline]
+    #[must_use]
     pub fn normalize(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the quaternion is already normalized
@@ -669,6 +673,7 @@ where
     /// assert_eq!(Quaternionf32 { w: 0.21442251, x: 0.32163376, y: 0.5360563, z: 0.7504788 }, r);
     /// ```
     #[inline]
+    #[must_use]
     pub fn normalized_unchecked(self) -> Self {
         let norm_squared = self.norm_squared();
         self * norm_squared.sqrt_reciprocal()
@@ -1032,6 +1037,7 @@ where
 {
     // Return the conjugate of the quaternion.
     #[inline]
+    #[must_use]
     pub fn conjugate(self) -> Self {
         T::q_conjugate(self)
     }

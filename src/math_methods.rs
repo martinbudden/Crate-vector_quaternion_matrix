@@ -24,11 +24,17 @@ use num_traits::{Num, float::FloatCore};
 /// eg `x.sin()`, `x.cos()` etc.<br><br>
 pub trait TrigonometricMethods: Sized {
     fn sin_cos(self) -> (Self, Self);
+    #[must_use]
     fn sin(self) -> Self;
+    #[must_use]
     fn cos(self) -> Self;
+    #[must_use]
     fn tan(self) -> Self;
+    #[must_use]
     fn asin(self) -> Self;
+    #[must_use]
     fn acos(self) -> Self;
+    #[must_use]
     fn atan2(self, y: Self) -> Self;
 }
 

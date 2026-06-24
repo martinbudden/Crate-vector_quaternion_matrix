@@ -171,7 +171,6 @@ impl MathConstants for f64 {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::float_cmp)]
-    #[allow(unused)]
     use super::*;
 
     #[allow(unused)]

@@ -28,6 +28,7 @@ pub type Vector3df64 = Vector3d<f64>;
 // Conditionally apply alignment based on "no_align" feature
 #[cfg_attr(feature = "no_align", repr(C, align(4)))]
 #[cfg_attr(not(feature = "no_align"), repr(C, align(16)))]
+#[allow(missing_docs)]
 pub struct Vector3d<T> {
     pub x: T,
     pub y: T,
@@ -549,6 +550,7 @@ where
     /// assert_eq!(u, Vector3df32::new(2.0, 3.0, 5.0));
     /// ```
     #[inline]
+    #[must_use]
     pub fn abs(self) -> Self {
         Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
     }
@@ -583,6 +585,7 @@ where
     /// assert_eq!(u, Vector3df32::new(2.5, 3.0, 7.5));
     /// ```
     #[inline]
+    #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
         Self { x: self.x.clamp(min, max), y: self.y.clamp(min, max), z: self.z.clamp(min, max) }
     }
@@ -683,6 +686,7 @@ where
     /// assert_eq!(x, Vector3df32::new(-12.0, 7.0, -1.0));
     /// ```
     #[inline]
+    #[must_use]
     pub fn cross(self, other: Self) -> Vector3d<T> {
         Vector3d {
             x: self.y * other.z - self.z * other.y,
@@ -882,6 +886,7 @@ where
     /// assert_eq!(Vector3df32 { x: 0.0, y: 0.0, z: 0.0 }, n);
     /// ```
     #[inline]
+    #[must_use]
     pub fn normalize(self) -> Self {
         let norm_squared = self.norm_squared();
         // If norm == 0.0 then the vector is already normalized
@@ -912,6 +917,7 @@ where
     /// assert_eq!(Vector3df32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, n);
     /// ```
     #[inline]
+    #[must_use]
     pub fn normalize_unchecked(self) -> Self {
         let norm_squared = self.norm_squared();
         self * norm_squared.sqrt_reciprocal()
@@ -935,7 +941,7 @@ impl<T> Vector3d<T>
 where
     T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
-    // Return distance between two points
+    /// Return distance between two points.
     #[inline]
     pub fn distance(self, other: Self) -> T {
         self.distance_squared(other).sqrt()
@@ -958,6 +964,7 @@ where
     /// assert!((w.z - 30.0).abs() < 2e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_degrees(self) -> Self {
         Self { x: self.x.to_degrees(), y: self.y.to_degrees(), z: self.z.to_degrees() }
     }
@@ -969,6 +976,7 @@ where
     /// assert_eq!(Vector3df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6), v.to_radians());
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_radians(self) -> Self {
         Self { x: self.x.to_radians(), y: self.y.to_radians(), z: self.z.to_radians() }
     }
@@ -985,6 +993,7 @@ where
     /// assert_eq!(Vector3df32::new(9.806_65, 19.613_3, 29.419_95), v.g_to_mps2());
     /// ```
     #[inline]
+    #[must_use]
     pub fn g_to_mps2(self) -> Self {
         Self { x: self.x * T::G0, y: self.y * T::G0, z: self.z * T::G0 }
     }
@@ -996,6 +1005,7 @@ where
     /// assert_eq!(Vector3df32::new(1.0, 2.0, 3.0), v.mps2_to_g());
     /// ```
     #[inline]
+    #[must_use]
     pub fn mps2_to_g(self) -> Self {
         Self { x: self.x * T::G0_RECIPROCAL, y: self.y * T::G0_RECIPROCAL, z: self.z * T::G0_RECIPROCAL }
     }
@@ -1099,6 +1109,8 @@ where
     T: Copy + Zero + One + Sub<Output = T> + Vector3dMath + SqrtMethods + QuaternionMath,
 {
     #[inline]
+    #[must_use]
+    /// Rotate vector using quaternion.
     pub fn rotate_by(self, q: Quaternion<T>) -> Self {
         // Extract the vector part of the quaternion (x, y, z)
         let q_xyz = Vector3d { x: q.x, y: q.y, z: q.z };
@@ -1111,6 +1123,8 @@ where
         self + (uv * q.w) + q_xyz.cross(uv)
     }
     #[inline]
+    #[must_use]
+    /// Rotate vector using quaternion conjugate.
     pub fn rotate_back_by(self, q: Quaternion<T>) -> Self {
         // Rotating 'back' is just rotating by the inverse (conjugate)
         self.rotate_by(q.conjugate())
@@ -1284,6 +1298,7 @@ impl Vector3di16 {
     /// assert_eq!(Vector3di16 { x: 1, y: 256, z: 42 }, v);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn from_le_bytes(buf: [u8; 6]) -> Self {
         Self {
             x: i16::from_le_bytes([buf[0], buf[1]]),
@@ -1300,6 +1315,7 @@ impl Vector3di16 {
     /// assert_eq!([0x01, 0x00, 0x00, 0x01, 0x2A, 0x00], bytes);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_le_bytes(&self) -> [u8; 6] {
         let x = self.x.to_le_bytes();
         let y = self.y.to_le_bytes();
@@ -1315,6 +1331,7 @@ impl Vector3di16 {
     /// assert_eq!(Vector3di16 { x: 1, y: 256, z: 42 }, v);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn from_be_bytes(buf: [u8; 6]) -> Self {
         Self {
             x: i16::from_be_bytes([buf[0], buf[1]]),
@@ -1330,6 +1347,8 @@ impl Vector3di16 {
     /// let bytes = v.to_be_bytes();
     /// assert_eq!([0x00, 0x01, 0x01, 0x00, 0x00, 0x2A], bytes);
     /// ```
+    #[inline]
+    #[must_use]
     pub fn to_be_bytes(&self) -> [u8; 6] {
         let x = self.x.to_be_bytes();
         let y = self.y.to_be_bytes();
@@ -1347,6 +1366,7 @@ impl Vector3df32 {
     /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn from_le_bytes_6(buf: [u8; 6]) -> Self {
         let v = Vector3di16::from_le_bytes(buf);
         Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
@@ -1359,6 +1379,7 @@ impl Vector3df32 {
     /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn from_be_bytes_6(buf: [u8; 6]) -> Self {
         let v = Vector3di16::from_be_bytes(buf);
         Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
@@ -1376,8 +1397,7 @@ impl Mul<f32> for Vector3d<i32> {
 
     #[inline]
     fn mul(self, k: f32) -> Self {
-        #[allow(clippy::cast_precision_loss)]
-        #[allow(clippy::cast_possible_truncation)]
+        #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
         Self { x: ((self.x as f32) * k) as i32, y: ((self.y as f32) * k) as i32, z: ((self.z as f32) * k) as i32 }
     }
 }
@@ -1396,8 +1416,8 @@ impl From<Vector3d<i32>> for Vector3d<f32> {
     /// assert_eq!(w_i32, Vector3di32 { x: 7, y: 11, z: 13 });
     /// ```
     #[inline]
-    #[allow(clippy::cast_precision_loss)]
     fn from(v: Vector3d<i32>) -> Self {
+        #[allow(clippy::cast_precision_loss)]
         Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
     }
 }

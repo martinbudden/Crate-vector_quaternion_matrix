@@ -8,8 +8,8 @@ cfg_if! {
     }
 }
 
-const _: () = assert!(core::mem::size_of::<Quaternion<f32>>() == 16);
-const _: () = assert!(core::mem::align_of::<Quaternion<f32>>() == 16);
+const _: () = assert!(size_of::<Quaternion<f32>>() == 16);
+const _: () = assert!(align_of::<Quaternion<f32>>() == 16);
 
 use crate::Quaternion;
 
@@ -20,8 +20,8 @@ impl From<Quaternion<f32>> for f32x4 {
     #[inline(always)]
     fn from(v: Quaternion<f32>) -> Self {
         // SAFETY: assert f32x4 and Quaternion<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Quaternion<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Quaternion<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Quaternion<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Quaternion<f32>>());
         unsafe { transmute(v) }
     }
 }
@@ -31,8 +31,8 @@ impl From<f32x4> for Quaternion<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
         // SAFETY: assert f32x4 and Quaternion<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Quaternion<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Quaternion<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Quaternion<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Quaternion<f32>>());
         unsafe { transmute(simd) }
     }
 }
@@ -40,6 +40,7 @@ impl From<f32x4> for Quaternion<f32> {
 // **** Math ****
 
 /// Math functions for Quaternion, using **SIMD** accelerations for `f32`.<br><br>
+#[allow(missing_docs)]
 pub trait QuaternionMath: Sized {
     fn q_neg(this: Quaternion<Self>) -> Quaternion<Self>;
     fn q_add(this: Quaternion<Self>, this: Quaternion<Self>) -> Quaternion<Self>;

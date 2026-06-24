@@ -6,14 +6,14 @@ cfg_if! {
         use core::{mem::transmute};
         use core::simd::{f32x4,num::SimdFloat,simd_swizzle};
         // must be aligned if using SIMD
-        const _: () = assert!(core::mem::size_of::<Vector3d<f32>>() == 16);
-        const _: () = assert!(core::mem::align_of::<Vector3d<f32>>() == 16);
+        const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
+        const _: () = assert!(align_of::<Vector3d<f32>>() == 16);
     } else if #[cfg(feature = "no_align")] {
-        const _: () = assert!(core::mem::size_of::<Vector3d<f32>>() == 12);
-        const _: () = assert!(core::mem::align_of::<Vector3d<f32>>() == 4);
+        const _: () = assert!(size_of::<Vector3d<f32>>() == 12);
+        const _: () = assert!(align_of::<Vector3d<f32>>() == 4);
     } else {
-        const _: () = assert!(core::mem::size_of::<Vector3d<f32>>() == 16);
-        const _: () = assert!(core::mem::align_of::<Vector3d<f32>>() == 16);
+        const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
+        const _: () = assert!(align_of::<Vector3d<f32>>() == 16);
     }
 }
 
@@ -26,8 +26,8 @@ impl From<Vector3d<f32>> for f32x4 {
     #[inline(always)]
     fn from(this: Vector3d<f32>) -> Self {
         // SAFETY: assert f32x4 and Vector3d<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Vector3d<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Vector3d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector3d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector3d<f32>>());
         // The 'filler' 4th float in the SIMD lane will be whatever was in the padding (usually 0.0 if set by Default).
         unsafe { transmute(this) }
     }
@@ -38,8 +38,8 @@ impl From<f32x4> for Vector3d<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
         // SAFETY: assert f32x4 and Vector3d<f32> have same size and alignment
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::size_of::<Vector3d<f32>>());
-        const _: () = assert!(core::mem::size_of::<f32x4>() == core::mem::align_of::<Vector3d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector3d<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector3d<f32>>());
         unsafe { transmute(simd) }
     }
 }

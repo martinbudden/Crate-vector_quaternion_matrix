@@ -4,19 +4,19 @@ use vqm::{Vector3d, Vector3df32, Vector3df64, Vector3di16};
 // **** Align ****
 cfg_if! {
     if #[cfg(feature = "no_align")] {
-        const _: () = assert!(core::mem::size_of::<Vector3di16>() == 8); // would be 6 bytes if aligned on 2 instead of 4
-        const _: () = assert!(core::mem::align_of::<Vector3di16>() == 4);
-        const _: () = assert!(core::mem::size_of::<Vector3df32>() == 12);
-        const _: () = assert!(core::mem::align_of::<Vector3df32>() == 4);
-        const _: () = assert!(core::mem::size_of::<Vector3df64>() == 24);
-        const _: () = assert!(core::mem::align_of::<Vector3df64>() == 8);
+        const _: () = assert!(size_of::<Vector3di16>() == 8); // would be 6 bytes if aligned on 2 instead of 4
+        const _: () = assert!(align_of::<Vector3di16>() == 4);
+        const _: () = assert!(size_of::<Vector3df32>() == 12);
+        const _: () = assert!(align_of::<Vector3df32>() == 4);
+        const _: () = assert!(size_of::<Vector3df64>() == 24);
+        const _: () = assert!(align_of::<Vector3df64>() == 8);
     } else {
-        const _: () = assert!(core::mem::size_of::<Vector3di16>() == 16);
-        const _: () = assert!(core::mem::align_of::<Vector3di16>() == 16);
-        const _: () = assert!(core::mem::size_of::<Vector3df32>() == 16);
-        const _: () = assert!(core::mem::align_of::<Vector3df32>() == 16);
-        const _: () = assert!(core::mem::size_of::<Vector3df64>() == 32);
-        const _: () = assert!(core::mem::align_of::<Vector3df64>() == 16);
+        const _: () = assert!(size_of::<Vector3di16>() == 16);
+        const _: () = assert!(align_of::<Vector3di16>() == 16);
+        const _: () = assert!(size_of::<Vector3df32>() == 16);
+        const _: () = assert!(align_of::<Vector3df32>() == 16);
+        const _: () = assert!(size_of::<Vector3df64>() == 32);
+        const _: () = assert!(align_of::<Vector3df64>() == 16);
     }
 }
 
@@ -32,8 +32,7 @@ mod tests {
         serde::{Deserialize, Serialize},
     };
 
-    #[allow(unused)]
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}

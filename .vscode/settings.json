@@ -29,6 +29,7 @@
         "debuginfo",
         "defmt",
         "deque",
+        "doctest",
         "eabi",
         "eabihf",
         "EGAMMA",

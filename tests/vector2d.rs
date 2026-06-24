@@ -1,10 +1,10 @@
 use vqm::{Vector2d, Vector2df32, Vector2df64};
 
-const _: () = assert!(core::mem::size_of::<Vector2df32>() == 8);
-const _: () = assert!(core::mem::align_of::<Vector2df32>() == 8);
+const _: () = assert!(size_of::<Vector2df32>() == 8);
+const _: () = assert!(align_of::<Vector2df32>() == 8);
 
-const _: () = assert!(core::mem::size_of::<Vector2df64>() == 16);
-const _: () = assert!(core::mem::align_of::<Vector2df64>() == 8);
+const _: () = assert!(size_of::<Vector2df64>() == 16);
+const _: () = assert!(align_of::<Vector2df64>() == 8);
 
 #[cfg(test)]
 mod tests {
@@ -15,8 +15,7 @@ mod tests {
         serde::{Deserialize, Serialize},
     };
 
-    #[allow(unused)]
-    fn is_normal<T: Sized + Send + Sync + Unpin>() {}
+    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}
@@ -164,7 +163,7 @@ mod tests {
     fn normalize_unchecked() {
         let a = Vector2df32 { x: 2.0, y: 3.0 };
         let a_normalized = a.normalize_unchecked();
-        let mut b = a;
+        let mut b: Vector2d<f32> = a;
         b.normalize_unchecked_in_place();
         assert_eq!(b, a_normalized);
         let z = Vector2df32 { x: 0.0, y: 0.0 };
