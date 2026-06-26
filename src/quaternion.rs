@@ -325,7 +325,7 @@ where
 impl Mul<Quaternion<f32>> for f32 {
     type Output = Quaternion<f32>;
 
-    /// Pre-multiply quaternion by a constant.
+    /// Pre-multiply quaternion by a scalar.
     /// ```
     /// # use vqm::Quaternionf32;
     /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
@@ -355,7 +355,7 @@ where
 {
     type Output = Self;
 
-    /// Multiply quaternion by a constant.
+    /// Multiply quaternion by a scalar.
     /// ```
     /// # use vqm::Quaternionf32;
     /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
@@ -375,7 +375,7 @@ impl<T> MulAssign<T> for Quaternion<T>
 where
     T: Copy + QuaternionMath,
 {
-    /// In-place multiply a quaternion by a constant.
+    /// In-place multiply a quaternion by a scalar.
     /// ```
     /// # use vqm::Quaternionf32;
     /// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
@@ -397,7 +397,7 @@ where
 {
     type Output = Self;
 
-    /// Divide a quaternion by a constant.
+    /// Divide a quaternion by a scalar.
     /// ```
     /// # use vqm::Quaternionf32;
     /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
@@ -415,7 +415,7 @@ impl<T> DivAssign<T> for Quaternion<T>
 where
     T: Copy + QuaternionMath,
 {
-    /// In-place divide a quaternion by a constant.
+    /// In-place divide a quaternion by a scalar.
     /// ```
     /// # use vqm::Quaternionf32;
     /// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);

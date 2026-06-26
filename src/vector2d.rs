@@ -230,7 +230,7 @@ where
     /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
-        // Reuse our existing SIMD-optimized Add and Neg implementations
+        // Reuse our existing Add and Neg implementations
         self + (-other)
     }
 }
@@ -261,13 +261,13 @@ where
 impl Mul<Vector2d<f32>> for f32 {
     type Output = Vector2d<f32>;
 
-    /// Pre-multiply vector by a constant.
+    /// Pre-multiply vector by a scalar.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let v = Vector2df32::new(2.0, 5.0);
     /// let r = 2.0 * v;
     ///
-    /// assert_eq!(r, Vector2df32 { x: 4.0, y: 6.0 });
+    /// assert_eq!(r, Vector2df32 { x: 4.0, y: 10.0 });
     /// ```
     #[inline]
     fn mul(self, other: Vector2d<f32>) -> Vector2d<f32> {
@@ -296,10 +296,10 @@ where
     /// Multiply vector by a scalar.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let v = Vector2df32::new(2.0, 5.0);
     /// let r = v * 2.0;
     ///
-    /// assert_eq!(r, Vector2df32 { x: 4.0, y: 6.0 });
+    /// assert_eq!(r, Vector2df32 { x: 4.0, y: 10.0 });
     /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
@@ -328,13 +328,13 @@ impl<T> MulAssign<T> for Vector2d<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
-    /// In-place multiply a vector by a constant.
+    /// In-place multiply a vector by a scalar.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let mut v = Vector2df32::new(2.0, 3.0);
+    /// let mut v = Vector2df32::new(2.0, 5.0);
     /// v *= 2.0;
     ///
-    /// assert_eq!(v, Vector2df32 { x: 4.0, y: 6.0 });
+    /// assert_eq!(v, Vector2df32 { x: 4.0, y: 10.0 });
     /// ```
     #[inline]
     fn mul_assign(&mut self, k: T) {
@@ -375,7 +375,7 @@ where
 {
     type Output = Self;
 
-    /// Divide a vector by a constant.
+    /// Divide a vector by a scalar.
     /// ```
     /// # use vqm::Vector2df32;
     /// let v = Vector2df32::new(2.0, 3.0);
@@ -408,7 +408,7 @@ impl<T> DivAssign<T> for Vector2d<T>
 where
     T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
-    /// In-place divide a vector by a constant.
+    /// In-place divide a vector by a scalar.
     /// ```
     /// # use vqm::Vector2df32;
     /// let mut v = Vector2df32::new(2.0, 3.0);
@@ -455,10 +455,10 @@ impl<T> Index<usize> for Vector2d<T> {
     /// Access vector component by index.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let v = Vector2df32::new(2.0, 5.0);
     ///
     /// assert_eq!(v[0], 2.0);
-    /// assert_eq!(v[1], 3.0);
+    /// assert_eq!(v[1], 5.0);
     /// ```
     #[inline]
     fn index(&self, index: usize) -> &T {
@@ -503,10 +503,10 @@ where
     /// Return a copy of the vector with all components set to their absolute values.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, -3.0);
+    /// let v = Vector2df32::new(2.0, -5.0);
     /// let u = v.abs();
     ///
-    /// assert_eq!(u, Vector2df32::new(2.0, 3.0));
+    /// assert_eq!(u, Vector2df32::new(2.0, 5.0));
     /// ```
     #[inline]
     #[must_use]
@@ -517,10 +517,10 @@ where
     /// Set all components of the vector to their absolute values.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let mut v = Vector2df32::new(2.0, -3.0);
+    /// let mut v = Vector2df32::new(2.0, -5.0);
     /// v.abs_in_place();
     ///
-    /// assert_eq!(v, Vector2df32::new(2.0, 3.0));
+    /// assert_eq!(v, Vector2df32::new(2.0, 5.0));
     /// ```
     #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
@@ -538,10 +538,10 @@ where
     /// Return a copy of the vector with all components clamped to the specified range.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, 3.0);
+    /// let v = Vector2df32::new(2.0, 5.0);
     /// let u = v.clamp(2.5, 7.5);
     ///
-    /// assert_eq!(u, Vector2df32::new(2.5, 3.0));
+    /// assert_eq!(u, Vector2df32::new(2.5, 5.0));
     /// ```
     #[inline]
     #[must_use]
@@ -552,10 +552,10 @@ where
     /// Clamp all components of the vector to the specified range.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let mut v = Vector2df32::new(2.0, 3.0);
+    /// let mut v = Vector2df32::new(2.0, 5.0);
     /// v.clamp_in_place(2.5, 7.5);
     ///
-    /// assert_eq!(v, Vector2df32::new(2.5, 3.0));
+    /// assert_eq!(v, Vector2df32::new(2.5, 5.0));
     /// ```
     #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
@@ -625,6 +625,7 @@ impl<T> Vector2d<T> {
         self.x * rhs.x + self.y * rhs.y
     }
 }
+
 // **** cross ****
 
 impl<T> Vector2d<T>
@@ -660,6 +661,7 @@ impl<T> Vector2d<T> {
         self.x * rhs.y - self.y * rhs.x
     }
 }
+
 // **** norm_squared ****
 
 impl<T> Vector2d<T>
@@ -698,7 +700,7 @@ where
     V: Copy + uom::num_traits::Float + uom::Conversion<V>,
     uom::si::Quantity<D, U, V>: Copy,
 {
-    /// Calculates the squared magnitude of the vector.
+    /// Calculates the squared norm of the vector.
     #[inline]
     pub fn norm_squared_uom<Out>(self) -> Out
     where
@@ -930,8 +932,8 @@ where
     /// Return the sum of all components of the vector.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, 3.0);
-    /// assert_eq!(5.0, v.sum());
+    /// let v = Vector2df32::new(2.0, 5.0);
+    /// assert_eq!(7.0, v.sum());
     /// ```
     #[inline]
     pub fn sum(self) -> T {
@@ -941,8 +943,8 @@ where
     /// Return the product of all components of the vector.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, 3.0);
-    /// assert_eq!(6.0, v.product());
+    /// let v = Vector2df32::new(2.0, 5.0);
+    /// assert_eq!(10.0, v.product());
     /// ```
     #[inline]
     pub fn product(self) -> T {
@@ -959,8 +961,8 @@ where
     /// Return the mean of all components of the vector.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::new(2.0, 3.0);
-    /// assert_eq!(2.5, v.mean());
+    /// let v = Vector2df32::new(2.0, 5.0);
+    /// assert_eq!(3.5, v.mean());
     /// ```
     #[inline]
     pub fn mean(self) -> T {
@@ -1009,11 +1011,11 @@ impl<T> From<(T, T)> for Vector2d<T> {
     /// Vector from tuple.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::from((2.0, 3.0));
-    /// let w: Vector2df32 = (7.0, 11.0).into();
+    /// let v = Vector2df32::from((2.0, 5.0));
+    /// let w: Vector2df32 = (3.0, 7.0).into();
     ///
-    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
-    /// assert_eq!(w, Vector2df32 { x: 7.0, y: 11.0 });
+    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 5.0 });
+    /// assert_eq!(w, Vector2df32 { x: 3.0, y: 7.0 });
     /// ```
     #[inline]
     fn from((x, y): (T, T)) -> Self {
@@ -1030,11 +1032,11 @@ where
     /// Vector from array.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32::from([2.0, 3.0]);
-    /// let w: Vector2df32 = [7.0, 11.0].into();
+    /// let v = Vector2df32::from([2.0, 5.0]);
+    /// let w: Vector2df32 = [3.0, 7.0].into();
     ///
-    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 3.0 });
-    /// assert_eq!(w, Vector2df32 { x: 7.0, y: 11.0 });
+    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 5.0 });
+    /// assert_eq!(w, Vector2df32 { x: 3.0, y: 7.0 });
     /// ```
     #[inline]
     fn from(v: [T; 2]) -> Self {
@@ -1043,19 +1045,50 @@ where
 }
 
 impl<T> From<Vector2d<T>> for [T; 2] {
-    #[inline]
     /// Array from vector.
     /// ```
     /// # use vqm::Vector2df32;
-    /// let v = Vector2df32 { x: 2.0, y: 3.0 };
+    /// let v = Vector2df32 { x: 2.0, y: 5.0 };
     ///
     /// let a = <[f32; 2]>::from(v);
     /// let b: [f32; 2] = v.into();
     ///
-    /// assert_eq!(a, [2.0, 3.0]);
-    /// assert_eq!(b, [2.0, 3.0]);
+    /// assert_eq!(a, [2.0, 5.0]);
+    /// assert_eq!(b, [2.0, 5.0]);
     /// ```
+    #[inline]
     fn from(v: Vector2d<T>) -> Self {
         [v.x, v.y]
+    }
+}
+
+impl From<[i16; 2]> for Vector2d<f32> {
+    #[inline]
+    fn from(v: [i16; 2]) -> Self {
+        Self { x: f32::from(v[0]), y: f32::from(v[1]) }
+    }
+}
+
+impl From<Vector2d<f32>> for [i16; 2] {
+    #[inline]
+    fn from(v: Vector2d<f32>) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        [v.x as i16, v.y as i16]
+    }
+}
+
+impl From<[i32; 2]> for Vector2d<f32> {
+    #[inline]
+    fn from(v: [i32; 2]) -> Self {
+        #[allow(clippy::cast_precision_loss)]
+        Self { x: v[0] as f32, y: v[1] as f32 }
+    }
+}
+
+impl From<Vector2d<f32>> for [i32; 2] {
+    #[inline]
+    fn from(v: Vector2d<f32>) -> Self {
+        #[allow(clippy::cast_possible_truncation)]
+        [v.x as i32, v.y as i32]
     }
 }

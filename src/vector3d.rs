@@ -192,34 +192,6 @@ where
     }
 }
 
-impl MulAdd<i32> for Vector3d<i16> {
-    type Output = Self;
-
-    #[inline]
-    fn mul_add(self, k: i32, other: Self) -> Self {
-        #[allow(clippy::cast_possible_truncation)]
-        Vector3d {
-            x: self.x * (k as i16) + other.x,
-            y: self.y * (k as i16) + other.y,
-            z: self.z * (k as i16) + other.z,
-        }
-    }
-}
-
-impl MulAdd<f32> for Vector3d<i16> {
-    type Output = Self;
-
-    #[inline]
-    fn mul_add(self, k: f32, other: Self) -> Self {
-        #[allow(clippy::cast_possible_truncation)]
-        Vector3d {
-            x: self.x * (k as i16) + other.x,
-            y: self.y * (k as i16) + other.y,
-            z: self.z * (k as i16) + other.z,
-        }
-    }
-}
-
 // **** MulAddAssign ****
 
 impl<T> MulAddAssign<T> for Vector3d<T>
@@ -293,13 +265,13 @@ where
 impl Mul<Vector3d<f32>> for f32 {
     type Output = Vector3d<f32>;
 
-    /// Pre-multiply vector by a constant.
+    /// Pre-multiply vector by a scalar.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
     /// let r = 2.0 * v;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 4.0, y: 6.0, z: 10.0 });
+    /// assert_eq!(r, Vector3df32 { x: 4.0, y: 10.0, z: 22.0 });
     /// ```
     #[inline]
     fn mul(self, other: Vector3d<f32>) -> Vector3d<f32> {
@@ -329,10 +301,10 @@ where
     /// Multiply vector by a scalar.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
     /// let r = v * 2.0;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 4.0, y: 6.0, z: 10.0 });
+    /// assert_eq!(r, Vector3df32 { x: 4.0, y: 10.0, z: 22.0 });
     /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
@@ -370,10 +342,10 @@ where
     /// In-place multiply a vector by a scalar.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let mut v = Vector3df32::new(2.0, 5.0, 11.0);
     /// v *= 2.0;
     ///
-    /// assert_eq!(v, Vector3df32 { x: 4.0, y: 6.0, z: 10.0 });
+    /// assert_eq!(v, Vector3df32 { x: 4.0, y: 10.0, z: 22.0 });
     /// ```
     #[inline]
     fn mul_assign(&mut self, k: T) {
@@ -447,7 +419,7 @@ impl<T> DivAssign<T> for Vector3d<T>
 where
     T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
-    /// In-place divide a vector by a constant.
+    /// In-place divide a vector by a scalar.
     /// ```
     /// # use vqm::Vector3df32;
     /// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
@@ -494,11 +466,11 @@ impl<T> Index<usize> for Vector3d<T> {
     /// Access vector component by index.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
     ///
     /// assert_eq!(v[0], 2.0);
-    /// assert_eq!(v[1], 3.0);
-    /// assert_eq!(v[2], 5.0);
+    /// assert_eq!(v[1], 5.0);
+    /// assert_eq!(v[2], 11.0);
     /// ```
     #[inline]
     fn index(&self, index: usize) -> &T {
@@ -544,10 +516,10 @@ where
     /// Return a copy of the vector with all components set to their absolute values.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, -3.0, -5.0);
+    /// let v = Vector3df32::new(2.0, -5.0, -11.0);
     /// let u = v.abs();
     ///
-    /// assert_eq!(u, Vector3df32::new(2.0, 3.0, 5.0));
+    /// assert_eq!(u, Vector3df32::new(2.0, 5.0, 11.0));
     /// ```
     #[inline]
     #[must_use]
@@ -558,10 +530,10 @@ where
     /// Set all components of the vector to their absolute values.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, -3.0, -5.0);
+    /// let mut v = Vector3df32::new(2.0, -5.0, -11.0);
     /// v.abs_in_place();
     ///
-    /// assert_eq!(v, Vector3df32::new(2.0, 3.0, 5.0));
+    /// assert_eq!(v, Vector3df32::new(2.0, 5.0, 11.0));
     /// ```
     #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
@@ -579,10 +551,10 @@ where
     /// Return a copy of the vector with all components clamped to the specified range.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 11.0);
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
     /// let u = v.clamp(2.5, 7.5);
     ///
-    /// assert_eq!(u, Vector3df32::new(2.5, 3.0, 7.5));
+    /// assert_eq!(u, Vector3df32::new(2.5, 5.0, 7.5));
     /// ```
     #[inline]
     #[must_use]
@@ -593,10 +565,10 @@ where
     /// Clamp all components of the vector to the specified range.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, 3.0, 11.0);
+    /// let mut v = Vector3df32::new(2.0, 5.0, 11.0);
     /// v.clamp_in_place(2.5, 7.5);
     ///
-    /// assert_eq!(v, Vector3df32::new(2.5, 3.0, 7.5));
+    /// assert_eq!(v, Vector3df32::new(2.5, 5.0, 7.5));
     /// ```
     #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
@@ -750,8 +722,8 @@ where
     /// Return square of Euclidean norm.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// assert_eq!(38.0, v.norm_squared());
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// assert_eq!(150.0, v.norm_squared());
     /// ```
     #[inline]
     pub fn norm_squared(self) -> T {
@@ -1020,8 +992,8 @@ where
     /// Return the sum of all components of the vector.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// assert_eq!(10.0, v.sum());
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// assert_eq!(18.0, v.sum());
     /// ```
     #[inline]
     pub fn sum(self) -> T {
@@ -1031,8 +1003,8 @@ where
     /// Return the product of all components of the vector.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// assert_eq!(30.0, v.product());
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// assert_eq!(110.0, v.product());
     /// ```
     #[inline]
     pub fn product(self) -> T {
@@ -1049,8 +1021,8 @@ where
     /// Return the mean of all components of the vector.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 7.0);
-    /// assert_eq!(4.0, v.mean());
+    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// assert_eq!(6.0, v.mean());
     /// ```
     #[inline]
     pub fn mean(self) -> T {
@@ -1063,7 +1035,7 @@ where
 
 impl<T> Vector3d<T>
 where
-    T: Copy + PartialOrd,
+    T: Copy + Vector3dMath,
 {
     /// Return the max element in the vector.
     /// ```
@@ -1077,11 +1049,7 @@ where
     /// ```
     #[inline]
     pub fn max(self) -> T {
-        if self.x > self.y {
-            if self.x > self.z { self.x } else { self.z }
-        } else {
-            if self.y > self.z { self.y } else { self.z }
-        }
+        T::v3_max(self)
     }
 
     /// Return the min element in the vector.
@@ -1096,11 +1064,7 @@ where
     /// ```
     #[inline]
     pub fn min(self) -> T {
-        if self.x < self.y {
-            if self.x < self.z { self.x } else { self.z }
-        } else {
-            if self.y < self.z { self.y } else { self.z }
-        }
+        T::v3_min(self)
     }
 }
 
@@ -1139,11 +1103,11 @@ impl<T> From<(T, T, T)> for Vector3d<T> {
     /// Vector from tuple.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::from((2.0, 3.0, 5.0));
-    /// let w: Vector3df32 = (7.0, 11.0, 13.0).into();
+    /// let v = Vector3df32::from((2.0, 5.0, 11.0));
+    /// let w: Vector3df32 = (3.0, 7.0, 13.0).into();
     ///
-    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
-    /// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 13.0 });
+    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 5.0, z: 11.0 });
+    /// assert_eq!(w, Vector3df32 { x: 3.0, y: 7.0, z: 13.0 });
     /// ```
     #[inline]
     fn from((x, y, z): (T, T, T)) -> Self {
@@ -1160,11 +1124,11 @@ where
     /// Vector from array.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::from([2.0, 3.0, 5.0]);
-    /// let w: Vector3df32 = [7.0, 11.0, 13.0].into();
+    /// let v = Vector3df32::from([2.0, 5.0, 11.0]);
+    /// let w: Vector3df32 = [3.0, 7.0, 13.0].into();
     ///
-    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
-    /// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 13.0 });
+    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 5.0, z: 11.0 });
+    /// assert_eq!(w, Vector3df32 { x: 3.0, y: 7.0, z: 13.0 });
     /// ```
     #[inline]
     fn from(v: [T; 3]) -> Self {
@@ -1176,101 +1140,17 @@ impl<T> From<Vector3d<T>> for [T; 3] {
     /// Array from vector.
     /// ```
     /// # use vqm::Vector3df32;
-    /// let v = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+    /// let v = Vector3df32 { x: 2.0, y: 5.0, z: 11.0 };
     ///
     /// let a = <[f32; 3]>::from(v);
     /// let b: [f32; 3] = v.into();
     ///
-    /// assert_eq!(a, [2.0, 3.0, 5.0]);
-    /// assert_eq!(b, [2.0, 3.0, 5.0]);
+    /// assert_eq!(a, [2.0, 5.0, 11.0]);
+    /// assert_eq!(b, [2.0, 5.0, 11.0]);
     /// ```
     #[inline]
     fn from(v: Vector3d<T>) -> Self {
         [v.x, v.y, v.z]
-    }
-}
-
-// **** From Vector ****
-
-impl<T> From<Vector2d<T>> for Vector3d<T>
-where
-    T: Copy + Zero,
-{
-    /// Vector3d from Vector2d.
-    /// ```
-    /// # use vqm::{Vector2df32,Vector3df32};
-    /// let v = Vector3df32::from(Vector2df32 { x: 2.0, y: 3.0 });
-    /// let w: Vector3df32 = Vector2df32 { x: 7.0, y: 11.0 }.into();
-    ///
-    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 3.0, z: 0.0 });
-    /// assert_eq!(w, Vector3df32 { x: 7.0, y: 11.0, z: 0.0 });
-    /// ```
-    #[inline]
-    fn from(other: Vector2d<T>) -> Self {
-        Self { x: other.x, y: other.y, z: T::zero() }
-    }
-}
-
-// **** From Vector ****
-
-impl<T> From<Vector3d<T>> for Vector2d<T>
-where
-    T: Copy + Zero,
-{
-    /// Vector2d from Vector3d, discarding z value.
-    /// ```
-    /// # use vqm::{Vector2df32,Vector3df32};
-    /// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 5.0, z: 11.0 }.into();
-    /// let u = Vector2df32::from(Vector3df32{ x: 3.0, y: 7.0, z: 13.0 });
-    ///
-    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 5.0 });
-    /// assert_eq!(u, Vector2df32 { x: 3.0, y: 7.0 });
-    #[inline]
-    fn from(v: Vector3d<T>) -> Self {
-        Vector2d::<T> { x: v.x, y: v.y }
-    }
-}
-
-/// 3-dimensional `{x, y, z}` vector of `i16` values<br>
-pub type Vector3di16 = Vector3d<i16>;
-
-// **** Vector3di16 ****
-
-#[cfg(not(feature = "uom"))]
-impl Mul<f32> for Vector3d<i16> {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, k: f32) -> Self {
-        #[allow(clippy::cast_possible_truncation)]
-        Self { x: (f32::from(self.x) * k) as i16, y: (f32::from(self.y) * k) as i16, z: (f32::from(self.z) * k) as i16 }
-    }
-}
-
-impl From<Vector3d<i16>> for Vector3d<f32> {
-    /// `Vector3d<f32>` from `Vector3d<i16>`.
-    /// ```
-    /// # use vqm::{Vector3df32, Vector3di16};
-    /// let v_i16 = Vector3di16{x: 2, y: 3, z: 5};
-    /// let v_f32 = Vector3df32::from(v_i16);
-    ///
-    /// let w_f32 = Vector3df32{x: 7.0, y: 11.0, z: 13.0};
-    /// let w_i16 : Vector3di16 = w_f32.into();
-    ///
-    /// assert_eq!(v_f32, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
-    /// assert_eq!(w_i16, Vector3di16 { x: 7, y: 11, z: 13 });
-    /// ```
-    #[inline]
-    fn from(v: Vector3d<i16>) -> Self {
-        Self { x: f32::from(v.x), y: f32::from(v.y), z: f32::from(v.z) }
-    }
-}
-
-impl From<Vector3d<f32>> for Vector3d<i16> {
-    #[inline]
-    fn from(v: Vector3d<f32>) -> Self {
-        #[allow(clippy::cast_possible_truncation)]
-        Self { x: v.x as i16, y: v.y as i16, z: v.z as i16 }
     }
 }
 
@@ -1289,147 +1169,6 @@ impl From<Vector3d<f32>> for [i16; 3] {
     }
 }
 
-impl Vector3di16 {
-    /// Creates a Vector3di16 from a 6-byte little-endian array reference.
-    /// ```
-    /// # use vqm::Vector3di16;
-    /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
-    /// let v = Vector3di16::from_le_bytes(bytes);
-    /// assert_eq!(Vector3di16 { x: 1, y: 256, z: 42 }, v);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub const fn from_le_bytes(buf: [u8; 6]) -> Self {
-        Self {
-            x: i16::from_le_bytes([buf[0], buf[1]]),
-            y: i16::from_le_bytes([buf[2], buf[3]]),
-            z: i16::from_le_bytes([buf[4], buf[5]]),
-        }
-    }
-
-    /// Creates a 6-byte little-endian array reference from a Vector3di16.
-    /// ```
-    /// # use vqm::Vector3di16;
-    /// let v = Vector3di16 { x: 1, y: 256, z: 42 };
-    /// let bytes = v.to_le_bytes();
-    /// assert_eq!([0x01, 0x00, 0x00, 0x01, 0x2A, 0x00], bytes);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub fn to_le_bytes(&self) -> [u8; 6] {
-        let x = self.x.to_le_bytes();
-        let y = self.y.to_le_bytes();
-        let z = self.z.to_le_bytes();
-        [x[0], x[1], y[0], y[1], z[0], z[1]]
-    }
-
-    /// Creates a Vector3di16 from a 6-byte big-endian array reference.
-    /// ```
-    /// # use vqm::Vector3di16;
-    /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
-    /// let v = Vector3di16::from_be_bytes(bytes);
-    /// assert_eq!(Vector3di16 { x: 1, y: 256, z: 42 }, v);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub const fn from_be_bytes(buf: [u8; 6]) -> Self {
-        Self {
-            x: i16::from_be_bytes([buf[0], buf[1]]),
-            y: i16::from_be_bytes([buf[2], buf[3]]),
-            z: i16::from_be_bytes([buf[4], buf[5]]),
-        }
-    }
-
-    /// Creates a 6-byte little-endian array reference from a Vector3di16.
-    /// ```
-    /// # use vqm::Vector3di16;
-    /// let v = Vector3di16 { x: 1, y: 256, z: 42 };
-    /// let bytes = v.to_be_bytes();
-    /// assert_eq!([0x00, 0x01, 0x01, 0x00, 0x00, 0x2A], bytes);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub fn to_be_bytes(&self) -> [u8; 6] {
-        let x = self.x.to_be_bytes();
-        let y = self.y.to_be_bytes();
-        let z = self.z.to_be_bytes();
-        [x[0], x[1], y[0], y[1], z[0], z[1]]
-    }
-}
-
-impl Vector3df32 {
-    /// Creates a Vector3df32 from a 6-byte little-endian array reference.
-    /// ```
-    /// # use vqm::Vector3df32;
-    /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
-    /// let v = Vector3df32::from_le_bytes_6(bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub const fn from_le_bytes_6(buf: [u8; 6]) -> Self {
-        let v = Vector3di16::from_le_bytes(buf);
-        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
-    }
-    /// Creates a Vector3df32 from a 6-byte big-endian array reference.
-    /// ```
-    /// # use vqm::Vector3df32;
-    /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
-    /// let v = Vector3df32::from_be_bytes_6(bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
-    /// ```
-    #[inline]
-    #[must_use]
-    pub const fn from_be_bytes_6(buf: [u8; 6]) -> Self {
-        let v = Vector3di16::from_be_bytes(buf);
-        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
-    }
-}
-
-// **** Vector3di32 ****
-
-/// 3-dimensional `{x, y, z}` vector of `i32` values<br><br>
-pub type Vector3di32 = Vector3d<i32>;
-
-#[cfg(not(feature = "uom"))]
-impl Mul<f32> for Vector3d<i32> {
-    type Output = Self;
-
-    #[inline]
-    fn mul(self, k: f32) -> Self {
-        #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
-        Self { x: ((self.x as f32) * k) as i32, y: ((self.y as f32) * k) as i32, z: ((self.z as f32) * k) as i32 }
-    }
-}
-
-impl From<Vector3d<i32>> for Vector3d<f32> {
-    /// `Vector3d<f32>` from `Vector3d<i32>`.
-    /// ```
-    /// # use vqm::{Vector3df32,Vector3di32};
-    /// let v_i32 = Vector3di32{x: 2, y: 3, z: 5};
-    /// let v_f32 = Vector3df32::from(v_i32);
-    ///
-    /// let w_f32 = Vector3df32{x: 7.0, y: 11.0, z: 13.0};
-    /// let w_i32 : Vector3di32 = w_f32.into();
-    ///
-    /// assert_eq!(v_f32, Vector3df32 { x: 2.0, y: 3.0, z: 5.0 });
-    /// assert_eq!(w_i32, Vector3di32 { x: 7, y: 11, z: 13 });
-    /// ```
-    #[inline]
-    fn from(v: Vector3d<i32>) -> Self {
-        #[allow(clippy::cast_precision_loss)]
-        Self { x: v.x as f32, y: v.y as f32, z: v.z as f32 }
-    }
-}
-
-impl From<Vector3d<f32>> for Vector3d<i32> {
-    #[inline]
-    fn from(v: Vector3d<f32>) -> Self {
-        #[allow(clippy::cast_possible_truncation)]
-        Self { x: v.x as i32, y: v.y as i32, z: v.z as i32 }
-    }
-}
-
 impl From<[i32; 3]> for Vector3d<f32> {
     #[inline]
     fn from(v: [i32; 3]) -> Self {
@@ -1443,5 +1182,45 @@ impl From<Vector3d<f32>> for [i32; 3] {
     fn from(v: Vector3d<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         [v.x as i32, v.y as i32, v.z as i32]
+    }
+}
+
+// **** From Vector ****
+
+impl<T> From<Vector2d<T>> for Vector3d<T>
+where
+    T: Copy + Zero,
+{
+    /// Vector3d from Vector2d.
+    /// ```
+    /// # use vqm::{Vector2df32,Vector3df32};
+    /// let v = Vector3df32::from(Vector2df32 { x: 2.0, y: 5.0 });
+    /// let w: Vector3df32 = Vector2df32 { x: 3.0, y: 7.0 }.into();
+    ///
+    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 5.0, z: 0.0 });
+    /// assert_eq!(w, Vector3df32 { x: 3.0, y: 7.0, z: 0.0 });
+    /// ```
+    #[inline]
+    fn from(other: Vector2d<T>) -> Self {
+        Self { x: other.x, y: other.y, z: T::zero() }
+    }
+}
+
+impl<T> From<Vector3d<T>> for Vector2d<T>
+where
+    T: Copy + Zero,
+{
+    /// Vector2d from Vector3d, discarding z value.
+    /// ```
+    /// # use vqm::{Vector2df32,Vector3df32};
+    /// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 5.0, z: 11.0 }.into();
+    /// let u = Vector2df32::from(Vector3df32{ x: 3.0, y: 7.0, z: 13.0 });
+    ///
+    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 5.0 });
+    /// assert_eq!(u, Vector2df32 { x: 3.0, y: 7.0 });
+    /// ```
+    #[inline]
+    fn from(v: Vector3d<T>) -> Self {
+        Vector2d::<T> { x: v.x, y: v.y }
     }
 }
