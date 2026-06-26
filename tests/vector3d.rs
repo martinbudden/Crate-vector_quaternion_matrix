@@ -1,18 +1,14 @@
 use cfg_if::cfg_if;
-use vqm::{Vector3d, Vector3df32, Vector3df64, Vector3di16};
+use vqm::{Vector3d, Vector3df32, Vector3df64};
 
 // **** Align ****
 cfg_if! {
     if #[cfg(feature = "no_align")] {
-        const _: () = assert!(size_of::<Vector3di16>() == 8); // would be 6 bytes if aligned on 2 instead of 4
-        const _: () = assert!(align_of::<Vector3di16>() == 4);
         const _: () = assert!(size_of::<Vector3df32>() == 12);
         const _: () = assert!(align_of::<Vector3df32>() == 4);
         const _: () = assert!(size_of::<Vector3df64>() == 24);
         const _: () = assert!(align_of::<Vector3df64>() == 8);
     } else {
-        const _: () = assert!(size_of::<Vector3di16>() == 16);
-        const _: () = assert!(align_of::<Vector3di16>() == 16);
         const _: () = assert!(size_of::<Vector3df32>() == 16);
         const _: () = assert!(align_of::<Vector3df32>() == 16);
         const _: () = assert!(size_of::<Vector3df64>() == 32);
@@ -228,8 +224,6 @@ mod tests {
     fn sum() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.sum(), 10.0);
-        let a = Vector3di16 { x: 2, y: 3, z: 5 };
-        assert_eq!(a.sum(), 10);
     }
     #[test]
     fn mean() {
@@ -240,8 +234,6 @@ mod tests {
     fn product() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.product(), 30.0);
-        let a = Vector3di16 { x: 2, y: 3, z: 5 };
-        assert_eq!(a.product(), 30);
     }
     #[test]
     fn dot() {
@@ -255,13 +247,6 @@ mod tests {
         let v2 = Vector3df32::new(4.0, 5.0, 6.0);
         // (1*4) + (2*5) + (3*6) = 4 + 10 + 18 = 32
         assert_eq!(v1.dot(v2), 32.0);
-
-        let a = Vector3di16 { x: 2, y: 3, z: 5 };
-        let b = Vector3di16 { x: 7, y: 11, z: 13 };
-        assert_eq!(a.dot(a), 38);
-        assert_eq!(a.dot(b), 112);
-        assert_eq!(b.dot(a), 112);
-        assert_eq!(b.dot(b), 339);
     }
     #[test]
     fn normalize_unchecked() {

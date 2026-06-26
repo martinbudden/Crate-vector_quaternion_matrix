@@ -24,8 +24,6 @@ Each type has versions for `f32` and `f64`. So we have:
 7. 4x4 matrices: `Matrix4x4f32`, `Matrix4x4f64`
 8. 9x9 matrices: `Matrix9x9f32`, `Matrix9x9f64` - partial implementation with special functions for Kalman filters.
 
-The 3D vector additionally has `i16` and `i32` versions: `Vector3di16` and `Vector3di32`.
-
 (Under the hood, types are implemented using generics, so `Vector3df32` is actually `Vector3d<f32>`,
 but that is transparent to the user.)
 
@@ -113,11 +111,9 @@ but it will not automatically convert between different units.
 
 `vqm` has additional functionality specifically to support robotics applications. This includes:
 
-1. `Vector3di16` to support reading from IMU sensors. (IMU raw readings are typically an `i16` value for each axis.)
-2. `Vector3di16` functions `from_le_bytes`, `to_le_bytes` and big-endian equivalents.
-3. `Vector3df32` functions to load from a `[u8; 6]`.
-4. `RollPitch` and `RollPitchYaw` structs.
-5. Quaternion utility functions such as `cos_tilt` and `gravity`.
+1. `Vector3df32` functions to load from a `[u8; 6]`.
+2. `RollPitch` and `RollPitchYaw` structs.
+3. Quaternion utility functions such as `cos_tilt` and `gravity`.
 
 ## Mathematical methods and constants
 
