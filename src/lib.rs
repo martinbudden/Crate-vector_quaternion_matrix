@@ -27,8 +27,8 @@ mod vector2d;
 mod vector2d_math;
 
 mod vector3d;
+mod vector3d_buf;
 mod vector3d_math;
-mod vector3di;
 
 mod vector4d;
 mod vector4d_math;

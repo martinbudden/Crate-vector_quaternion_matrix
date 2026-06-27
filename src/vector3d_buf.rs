@@ -17,7 +17,7 @@ impl fmt::Display for SliceTooShortError {
 impl Error for SliceTooShortError {}
 
 impl Vector3df32 {
-    /// Creates a Vector3df32 from a 6-byte little-endian array.
+    /// Creates a Vector3df32 from a 6-byte little-endian byte array.
     /// ```
     /// # use vqm::Vector3df32;
     /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
@@ -33,7 +33,7 @@ impl Vector3df32 {
         Self { x: x as f32, y: y as f32, z: z as f32 }
     }
 
-    /// Creates a Vector3df32 from a little-endian slice.
+    /// Creates a Vector3df32 from a little-endian byte slice.
     /// ```
     /// # use vqm::Vector3df32;
     /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
@@ -72,7 +72,7 @@ impl Vector3df32 {
         Ok(Self { x: f32::from(x), y: f32::from(y), z: f32::from(z) })
     }
 
-    /// Creates a Vector3f32 from a 6-byte big-endian array.
+    /// Creates a Vector3f32 from a 6-byte big-endian byte array.
     /// ```
     /// # use vqm::Vector3df32;
     /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
@@ -88,7 +88,7 @@ impl Vector3df32 {
         Self { x: x as f32, y: y as f32, z: z as f32 }
     }
 
-    /// Creates a Vector3df32 from a big-endian slice.
+    /// Creates a Vector3df32 from a big-endian byte slice.
     /// ```
     /// # use vqm::Vector3df32;
     /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
@@ -126,5 +126,4 @@ impl Vector3df32 {
         let z = i16::from_be_bytes([chunk[4], chunk[5]]);
         Ok(Self { x: f32::from(x), y: f32::from(y), z: f32::from(z) })
     }
-
 }
