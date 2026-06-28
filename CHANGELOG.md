@@ -38,6 +38,8 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
 - `outer_product` functions for vectors.
 - `fill` and `try_from_slice` constructors for matrices.
 - multiply for `Matrix9x9`.
+- Units Of Measurement (`uom`) support for vectors.
+- `fill` and `try_from_slice` constructors for matrices.
 
 ### Changed
 
@@ -47,6 +49,8 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
 ### Removed
 
 - `KalmanStateVector9`.
+- `Vector3di16` and `Vector3di32`.
+- `serde` support for `Matrix9x9`.
 
 ## [0.1.12] - 2026-06-08
 
