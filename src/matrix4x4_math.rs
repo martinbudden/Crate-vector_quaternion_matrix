@@ -240,14 +240,14 @@ impl Matrix4x4Math for f32 {
         let c32 = -s12 * t3 + s13 * t1 - s14 * t0;
         let c33 =  s8 * t3 - s9 * t1 + s10 * t0;
 
-        let det = s0 * c00 + s1 * c10 + s2 * c20 + s3 * c30;
+        let determinant = s0 * c00 + s1 * c10 + s2 * c20 + s3 * c30;
 
         (Matrix4x4::from([
             c00, c01, c02, c03,
             c10, c11, c12, c13,
             c20, c21, c22, c23,
             c30, c31, c32, c33
-        ]), det)
+        ]), determinant)
     }
 }
 
@@ -414,6 +414,7 @@ impl Matrix4x4Math for f64 {
     }
 
     #[rustfmt::skip]
+    #[inline]
     fn m4x4_adjugate(s: Matrix4x4<Self>) -> (Matrix4x4<Self>, Self) {
         let s0  = s.a[0];  let s1  = s.a[1];  let s2  = s.a[2];  let s3  = s.a[3];
         let s4  = s.a[4];  let s5  = s.a[5];  let s6  = s.a[6];  let s7  = s.a[7];
@@ -457,13 +458,13 @@ impl Matrix4x4Math for f64 {
         let c32 = -s12 * t3 + s13 * t1 - s14 * t0;
         let c33 =  s8 * t3 - s9 * t1 + s10 * t0;
 
-        let det = s0 * c00 + s1 * c10 + s2 * c20 + s3 * c30;
+        let determinant = s0 * c00 + s1 * c10 + s2 * c20 + s3 * c30;
 
         (Matrix4x4::from([
             c00, c01, c02, c03,
             c10, c11, c12, c13,
             c20, c21, c22, c23,
             c30, c31, c32, c33
-        ]), det)
+        ]), determinant)
     }
 }

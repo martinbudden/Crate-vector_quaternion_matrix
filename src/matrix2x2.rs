@@ -678,7 +678,6 @@ where
 // **** AsRef ****
 
 impl<T> AsRef<[T; 4]> for Matrix2x2<T> {
-    #[inline]
     /// Immutable reference to the raw array.
     /// ```
     /// # use vqm::Matrix2x2f32;
@@ -687,6 +686,7 @@ impl<T> AsRef<[T; 4]> for Matrix2x2<T> {
     /// let a: &[f32; 4] = m.as_ref();
     /// assert_eq!(5.0, a[2]);
     /// ```
+    #[inline]
     fn as_ref(&self) -> &[T; 4] {
         &self.a
     }
@@ -1084,14 +1084,14 @@ where
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::from([  2.0, 17.0,
     ///                               5.0, 11.0]);
-    /// let n = m.adjugate();
+    /// let (n,d) = m.adjugate();
     ///
-    /// assert!((n*m/m.determinant()).is_near_identity());
+    /// assert!((n*m/d).is_near_identity());
     /// ```
     #[inline]
-    #[must_use]
-    pub fn adjugate(self) -> Self {
-        T::m2x2_adjugate(self)
+    pub fn adjugate(self) -> (Self, T) {
+        let (adjugate, determinant) = T::m2x2_adjugate(self);
+        (adjugate, determinant)
     }
 
     /// Adjugate matrix, in-place.
@@ -1102,11 +1102,11 @@ where
     /// let mut n = m;
     /// n.adjugate_in_place();
     ///
-    /// assert_eq!(m.adjugate(), n);
+    /// assert_eq!(m.adjugate().0, n);
     /// ```
     #[inline]
     pub fn adjugate_in_place(&mut self) -> &mut Self {
-        *self = self.adjugate();
+        *self = self.adjugate().0;
         self
     }
     /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
@@ -1120,8 +1120,7 @@ where
     #[inline]
     #[must_use]
     pub fn inverse(self) -> Self {
-        let adjugate = self.adjugate();
-        let determinant = self.determinant();
+        let (adjugate, determinant) = T::m2x2_adjugate(self);
         adjugate / determinant
     }
 
@@ -1134,8 +1133,7 @@ where
     /// ```
     #[inline]
     pub fn invert_in_place(&mut self) -> &mut Self {
-        let adjugate = self.adjugate();
-        let determinant = self.determinant();
+        let (adjugate, determinant) = T::m2x2_adjugate(*self);
         *self = adjugate / determinant;
         self
     }
@@ -1188,11 +1186,10 @@ where
     /// ```
     #[must_use]
     pub fn inverse_or_zero(self) -> Self {
-        let determinant = self.determinant();
+        let (adjugate, determinant) = self.adjugate();
         if determinant.abs() < T::EPSILON {
             return Self::zero();
         }
-        let adjugate = self.adjugate();
         adjugate / determinant
     }
 
@@ -1208,11 +1205,10 @@ where
     ///
     /// ```
     pub fn try_inverse(self) -> Option<Self> {
-        let determinant = self.determinant();
+        let (adjugate, determinant) = self.adjugate();
         if determinant.abs() < T::EPSILON {
             return None;
         }
-        let adjugate = self.adjugate();
         Some(adjugate / determinant)
     }
 

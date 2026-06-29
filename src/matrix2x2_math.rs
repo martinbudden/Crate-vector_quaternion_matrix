@@ -59,7 +59,7 @@ pub trait Matrix2x2Math: Sized {
     fn m2x2_top_right_sum_squares(this: Matrix2x2<Self>) -> Self;
     fn m2x2_top_right_determinant(this: Matrix2x2<Self>) -> Self;
     fn m2x2_determinant(this: Matrix2x2<Self>) -> Self;
-    fn m2x2_adjugate(this: Matrix2x2<Self>) -> Matrix2x2<Self>;
+    fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self);
 }
 
 impl Matrix2x2Math for f32 {
@@ -178,7 +178,6 @@ impl Matrix2x2Math for f32 {
                 (a1_simd * b0_simd).reduce_sum(),
                 (a1_simd * b1_simd).reduce_sum(),
             ];
-
             Matrix2x2::from(a)
         }
         #[cfg(not(feature = "simd"))]
@@ -189,7 +188,6 @@ impl Matrix2x2Math for f32 {
                 this.a[2] * other.a[0] + this.a[3] * other.a[2],
                 this.a[2] * other.a[1] + this.a[3] * other.a[3],
             ];
-
             Matrix2x2::from(a)
         }
     }
@@ -235,8 +233,8 @@ impl Matrix2x2Math for f32 {
     }
 
     #[inline(always)]
-    fn m2x2_adjugate(this: Matrix2x2<Self>) -> Matrix2x2<Self> {
-        Matrix2x2::from([this.a[3], -this.a[1], -this.a[2], this.a[0]])
+    fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
+        (Matrix2x2::from([this.a[3], -this.a[1], -this.a[2], this.a[0]]), this.a[0] * this.a[3] - this.a[1] * this.a[2])
     }
 }
 
@@ -365,7 +363,7 @@ impl Matrix2x2Math for f64 {
     }
 
     #[inline(always)]
-    fn m2x2_adjugate(this: Matrix2x2<Self>) -> Matrix2x2<Self> {
-        Matrix2x2::from([this.a[3], -this.a[1], -this.a[2], this.a[0]])
+    fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
+        (Matrix2x2::from([this.a[3], -this.a[1], -this.a[2], this.a[0]]), this.a[0] * this.a[3] - this.a[1] * this.a[2])
     }
 }
