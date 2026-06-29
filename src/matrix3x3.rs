@@ -1202,6 +1202,28 @@ where
         (adjugate, determinant)
     }
 
+    /// Return the adjugate of this matrix, ie the transpose of the cofactor matrix, assuming this matrix is symmetric.
+    /// Equivalent to the inverse but without dividing by the determinant of the matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use num_traits::One;
+    /// let m = Matrix3x3f32::from([  2.0,  5.0, 23.0,
+    ///                               5.0, 11.0, 31.0,
+    ///                              23.0, 31.0, 41.0]);
+    /// let (n,d) = m.adjugate_symmetric();
+    /// assert_eq!(n, Matrix3x3f32::from([ -510.0,  508.0, -98.0,
+    ///                                     508.0, -447.0,  53.0,
+    ///                                     -98.0,   53.0,  -3.0]));
+    /// assert_eq!(-734.0, d);
+    /// assert!((n*m/m.determinant()).is_near_identity());
+    /// assert_eq!(Matrix3x3f32::one(), n*m/(m.determinant()));
+    /// ```
+    #[inline]
+    pub fn adjugate_symmetric(self) -> (Self, T) {
+        let (adjugate, determinant) = T::m3x3_adjugate_symmetric(self);
+        (adjugate, determinant)
+    }
+
     /// Adjugate matrix, in-place.
     /// ```
     /// # use vqm::Matrix3x3f32;

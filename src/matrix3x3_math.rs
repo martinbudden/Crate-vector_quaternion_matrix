@@ -41,6 +41,7 @@ pub trait Matrix3x3Math: Sized {
     fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self;
     fn m3x3_determinant(this: Matrix3x3<Self>) -> Self;
     fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self);
+    fn m3x3_adjugate_symmetric(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self);
 }
 
 impl Matrix3x3Math for f32 {
@@ -318,6 +319,7 @@ impl Matrix3x3Math for f32 {
         }
     }
 
+    /// Returns the adjugate and determinant of a matrix.
     #[rustfmt::skip]
     #[inline]
     fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
@@ -364,6 +366,35 @@ impl Matrix3x3Math for f32 {
               this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
         ];
         (Matrix3x3::from(a), determinant)
+    }
+
+    /// Returns the adjugate and determinant of a matrix, assuming it is symmetric.
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m3x3_adjugate_symmetric(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
+        // Cache repetitive terms to minimize multiplications
+        let b_sq = this.a[1] * this.a[1];
+        let c_sq = this.a[2] * this.a[2];
+        let f_sq = this.a[5] * this.a[5];
+
+        // Calculate the unique elements of the adjugate matrix
+        let adj_0 = this.a[4] * this.a[8] - f_sq;                          // Row 0, Col 0
+        let adj_1 = this.a[2] * this.a[5] - this.a[1] * this.a[8];         // Row 0, Col 1 (and Row 1, Col 0)
+        let adj_2 = this.a[1] * this.a[5] - this.a[2] * this.a[4];         // Row 0, Col 2 (and Row 2, Col 0)
+        let adj_4 = this.a[0] * this.a[8] - c_sq;                          // Row 1, Col 1
+        let adj_5 = this.a[1] * this.a[2] - this.a[0] * this.a[5];         // Row 1, Col 2 (and Row 2, Col 1)
+        let adj_8 = this.a[0] * this.a[4] - b_sq;                          // Row 2, Col 2
+
+        // Determinant computed via dot product of Row 0 and Adjugate Row 0
+        let determinant = this.a[0] * adj_0 + this.a[1] * adj_1 + this.a[2] * adj_2;
+
+        let a = [
+            adj_0, adj_1, adj_2,
+            adj_1, adj_4, adj_5,
+            adj_2, adj_5, adj_8,
+        ];
+
+        (Matrix3x3 { a }, determinant)
     }
 }
 
@@ -553,6 +584,7 @@ impl Matrix3x3Math for f64 {
         +this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
     }
 
+    /// Returns the adjugate and determinant of a matrix.
     #[rustfmt::skip]
     #[inline(always)]
     fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
@@ -573,5 +605,34 @@ impl Matrix3x3Math for f64 {
               this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
         ];
         (Matrix3x3::from(a), determinant)
+    }
+
+    /// Returns the adjugate and determinant of a matrix, assuming it is symmetric.
+    #[rustfmt::skip]
+    #[inline(always)]
+    fn m3x3_adjugate_symmetric(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
+        // Cache repetitive terms to minimize multiplications
+        let b_sq = this.a[1] * this.a[1];
+        let c_sq = this.a[2] * this.a[2];
+        let f_sq = this.a[5] * this.a[5];
+
+        // Calculate the unique elements of the adjugate matrix
+        let adj_0 = this.a[4] * this.a[8] - f_sq;                          // Row 0, Col 0
+        let adj_1 = this.a[2] * this.a[5] - this.a[1] * this.a[8];         // Row 0, Col 1 (and Row 1, Col 0)
+        let adj_2 = this.a[1] * this.a[5] - this.a[2] * this.a[4];         // Row 0, Col 2 (and Row 2, Col 0)
+        let adj_4 = this.a[0] * this.a[8] - c_sq;                          // Row 1, Col 1
+        let adj_5 = this.a[1] * this.a[2] - this.a[0] * this.a[5];         // Row 1, Col 2 (and Row 2, Col 1)
+        let adj_8 = this.a[0] * this.a[4] - b_sq;                          // Row 2, Col 2
+
+        // Determinant computed via dot product of Row 0 and Adjugate Row 0
+        let determinant = this.a[0] * adj_0 + this.a[1] * adj_1 + this.a[2] * adj_2;
+
+        let a = [
+            adj_0, adj_1, adj_2,
+            adj_1, adj_4, adj_5,
+            adj_2, adj_5, adj_8,
+        ];
+
+        (Matrix3x3 { a }, determinant)
     }
 }
