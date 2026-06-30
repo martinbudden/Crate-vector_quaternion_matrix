@@ -624,8 +624,8 @@ where
     ///                                   14.0,  35.0]));
     ///```
     #[inline]
-    pub fn outer_product(&self, row: Vector2d<T>) -> Matrix2x2<T> {
-        T::m2x2_vector_outer_product(*self, row)
+    pub fn outer_product(self, row: Vector2d<T>) -> Matrix2x2<T> {
+        T::m2x2_vector_outer_product(self, row)
     }
 }
 

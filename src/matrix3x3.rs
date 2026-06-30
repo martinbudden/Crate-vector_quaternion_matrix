@@ -674,8 +674,8 @@ where
     ///                                   26.0,  65.0, 143.0]));
     ///```
     #[inline]
-    pub fn outer_product(&self, row: Vector3d<T>) -> Matrix3x3<T> {
-        T::m3x3_vector_outer_product(*self, row)
+    pub fn outer_product(self, row: Vector3d<T>) -> Matrix3x3<T> {
+        T::m3x3_vector_outer_product(self, row)
     }
 }
 

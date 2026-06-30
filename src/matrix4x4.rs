@@ -769,8 +769,8 @@ where
     ///                                   38.0,  95.0, 209.0, 323.0]));
     ///```
     #[inline]
-    pub fn outer_product(&self, row: Vector4d<T>) -> Matrix4x4<T> {
-        T::m4x4_vector_outer_product(*self, row)
+    pub fn outer_product(self, row: Vector4d<T>) -> Matrix4x4<T> {
+        T::m4x4_vector_outer_product(self, row)
     }
 }
 
