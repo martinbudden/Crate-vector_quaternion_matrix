@@ -68,8 +68,8 @@ where
     /// Create a quaternion.
     /// ```
     /// # use vqm::Quaternionf32;
-    /// let v = Quaternionf32::new(2.0,  3.0, 7.0, 11.0);
-    /// assert_eq!(v, Quaternionf32 { w:2.0, x:3.0, y: 7.0, z: 11.0 });
+    /// let q = Quaternionf32::new(2.0,  3.0, 7.0, 11.0);
+    /// assert_eq!(q, Quaternionf32 { w:2.0, x:3.0, y: 7.0, z: 11.0 });
     /// ```
     #[inline]
     pub const fn new(w: T, x: T, y: T, z: T) -> Self {
@@ -159,6 +159,24 @@ where
     const ONE: Self = Self { w: T::ONE, x: T::ZERO, y: T::ZERO, z: T::ZERO };
 }
 
+impl<T> Quaternion<T>
+where
+    T: Copy + Zero + One,
+{
+    /// Unit quaternion.
+    /// Alias for `one()` that does not require `num_traits::One`.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let i = Quaternionf32::identity();
+    ///
+    /// assert_eq!(i, Quaternionf32 { w: 1.0, x: 0.0, y: 0.0, z: 0.0 });
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn identity() -> Self {
+        Self { w: T::one(), x: T::zero(), y: T::zero(), z: T::zero() }
+    }
+}
 // **** Neg ****
 
 impl<T> Neg for Quaternion<T>
@@ -507,6 +525,30 @@ impl<T> IndexMut<usize> for Quaternion<T> {
     }
 }
 
+// **** lerp ****
+
+impl<T> Quaternion<T>
+where
+    T: Copy,
+    Quaternion<T>: Mul<T, Output = Quaternion<T>> + Add<Output = Quaternion<T>> + Sub<Output = Quaternion<T>>,
+{
+    /// Linear interpolation between two quaternions.
+    /// Calculates `self * (1 - t) + other * t`.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(2.0, 5.0, 11.0, 13.0);
+    /// let r = Quaternionf32::new(3.0, 7.0, 17.0, 23.0);
+    /// let s = q.lerp(r, 0.25);
+    ///
+    /// assert_eq!(s, Quaternionf32::new(2.25, 5.5, 12.5, 15.5));
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn lerp(self, other: Self, t: T) -> Self {
+        self + (other - self) * t
+    }
+}
+
 // **** abs ****
 
 impl<T> Quaternion<T>
@@ -700,8 +742,8 @@ where
     // Return true if the quaternion is normalized.
     /// ```
     /// # use vqm::Quaternionf32;
-    /// let v = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
-    /// let n = v.normalize();
+    /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+    /// let n = q.normalize();
     /// let s = n.norm_squared();
     /// assert_eq!(1.0, s);
     /// assert!(n.is_normalized());
@@ -1047,6 +1089,12 @@ impl<T> Quaternion<T>
 where
     T: Copy + One + Neg<Output = T> + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T>,
 {
+    /// Return the scalar part of the quaternion.
+    #[inline]
+    pub fn scalar(self) -> T {
+        self.w
+    }
+
     /// Return the imaginary part of the quaternion.
     #[inline]
     pub fn imaginary(self) -> Vector3d<T> {

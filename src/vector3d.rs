@@ -507,6 +507,30 @@ impl<T> IndexMut<usize> for Vector3d<T> {
     }
 }
 
+// **** lerp ****
+
+impl<T> Vector3d<T>
+where
+    T: Copy,
+    Vector3d<T>: Mul<T, Output = Vector3d<T>> + Add<Output = Vector3d<T>> + Sub<Output = Vector3d<T>>,
+{
+    /// Linear interpolation between two vectors.
+    /// Calculates `self * (1 - t) + other * t`.
+    /// ```
+    /// # use vqm::Vector3df32;
+    /// let u = Vector3df32::new(2.0, 5.0, 11.0);
+    /// let v = Vector3df32::new(3.0, 7.0, 17.0);
+    /// let w = u.lerp(v, 0.25);
+    ///
+    /// assert_eq!(w, Vector3df32::new(2.25, 5.5, 12.5));
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn lerp(self, other: Self, t: T) -> Self {
+        self + (other - self) * t
+    }
+}
+
 // **** abs ****
 
 impl<T> Vector3d<T>

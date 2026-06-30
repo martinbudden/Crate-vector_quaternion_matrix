@@ -11,7 +11,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4Math, Vector4d};
+use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4Math, Quaternion, Vector4d};
 
 /// 4x4 matrix of `f32` values<br>
 pub type Matrix4x4f32 = Matrix4x4<f32>;
@@ -744,7 +744,7 @@ where
     /// assert_eq!(m, Matrix4x4f32::from([ 6.0,  15.0,  33.0, 51.0,
     ///                                   14.0,  35.0,  77.0, 119.0,
     ///                                   26.0,  65.0, 143.0, 221.0,
-    ///                                   26.0,  65.0, 143.0, 323.0]));
+    ///                                   38.0,  95.0, 209.0, 323.0]));
     ///```
     #[inline]
     pub fn outer_product(col: Vector4d<T>, row: Vector4d<T>) -> Self {
@@ -763,14 +763,36 @@ where
     /// let row = Vector4df32{x:2.0, y:5.0, z:11.0, t:17.0};
     /// let col = Vector4df32{x:3.0, y:7.0, z:13.0, t:19.0};
     /// let m = col.outer_product(row);
-    /// assert_eq!(m, Matrix4x4f32::from([ 6.0,  15.0,  33.0, 51.0,
+    /// assert_eq!(m, Matrix4x4f32::from([ 6.0,  15.0,  33.0,  51.0,
     ///                                   14.0,  35.0,  77.0, 119.0,
     ///                                   26.0,  65.0, 143.0, 221.0,
-    ///                                   26.0,  65.0, 143.0, 323.0]));
+    ///                                   38.0,  95.0, 209.0, 323.0]));
     ///```
     #[inline]
     pub fn outer_product(&self, row: Vector4d<T>) -> Matrix4x4<T> {
         T::m4x4_vector_outer_product(*self, row)
+    }
+}
+
+impl<T> Quaternion<T>
+where
+    T: Copy + Matrix4x4Math,
+{
+    /// Quaternion outer product `q * q^T` resulting in a symmetric 4x4 matrix.
+    /// ```
+    /// # use vqm::{Quaternionf32,Matrix4x4f32};
+    /// let q = Quaternionf32::new(2.0, 5.0, 11.0, 17.0);
+    ///
+    /// let m = q.outer_product();
+    ///
+    /// assert_eq!(m, Matrix4x4f32::from([ 4.0,  10.0,  22.0,  34.0,
+    ///                                   10.0,  25.0,  55.0,  85.0,
+    ///                                   22.0,  55.0, 121.0, 187.0,
+    ///                                   34.0,  85.0, 187.0, 289.0]));
+    /// ```
+    #[inline]
+    pub fn outer_product(self) -> Matrix4x4<T> {
+        T::m4x4_quaternion_outer_product(self)
     }
 }
 

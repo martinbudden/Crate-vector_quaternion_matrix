@@ -40,6 +40,8 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
 - multiply for `Matrix9x9`.
 - Units Of Measurement (`uom`) support for vectors.
 - `fill` and `try_from_slice` constructors for matrices.
+- `lerp` (linear interpolation) for vectors and quaternions.
+- `outer_product` for quaternions.
 
 ### Changed
 

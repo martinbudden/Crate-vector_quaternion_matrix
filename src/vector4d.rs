@@ -499,6 +499,30 @@ impl<T> IndexMut<usize> for Vector4d<T> {
     }
 }
 
+// **** lerp ****
+
+impl<T> Vector4d<T>
+where
+    T: Copy,
+    Vector4d<T>: Mul<T, Output = Vector4d<T>> + Add<Output = Vector4d<T>> + Sub<Output = Vector4d<T>>,
+{
+    /// Linear interpolation between two vectors.
+    /// Calculates `self * (1 - t) + other * t`.
+    /// ```
+    /// # use vqm::Vector4df32;
+    /// let u = Vector4df32::new(2.0, 5.0, 11.0, 13.0);
+    /// let v = Vector4df32::new(3.0, 7.0, 17.0, 23.0);
+    /// let w = u.lerp(v, 0.25);
+    ///
+    /// assert_eq!(w, Vector4df32::new(2.25, 5.5, 12.5, 15.5));
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn lerp(self, other: Self, t: T) -> Self {
+        self + (other - self) * t
+    }
+}
+
 // **** abs ****
 
 impl<T> Vector4d<T>

@@ -130,7 +130,6 @@ impl Matrix3x3Math for f32 {
         }
     }
 
-    #[rustfmt::skip]
     #[inline(always)]
     fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self> {
         #[cfg(feature = "simd")]
@@ -156,28 +155,28 @@ impl Matrix3x3Math for f32 {
             // Since row is align(16), we manually map the implicit 4th buffer element.
             let r = [row.x, row.y, row.z, 0.0];
 
+            let mut m0 = [0.0; 4];
             let mut m1 = [0.0; 4];
             let mut m2 = [0.0; 4];
-            let mut m3 = [0.0; 4];
 
             // Write uniform loops spanning exactly 4 elements.
             // LLVM's auto-vectorizer recognizes 4-wide float operations
             // and combines these into parallel execution blocks, if the processor supports it.
             for ii in 0..4 {
-                m1[ii] = col.x * r[ii];
+                m0[ii] = col.x * r[ii];
             }
             for ii in 0..4 {
-                m2[ii] = col.y * r[ii];
+                m1[ii] = col.y * r[ii];
             }
             for ii in 0..4 {
-                m3[ii] = col.z * r[ii];
+                m2[ii] = col.z * r[ii];
             }
 
             // Populate the matrix, discarding the 4th padding lane.
             Matrix3x3::from([
-                m1[0], m1[1], m1[2],
-                m2[0], m2[1], m2[2],
-                m3[0], m3[1], m3[2],
+                m0[0], m0[1], m0[2], //
+                m1[0], m1[1], m1[2], //
+                m2[0], m2[1], m2[2], //
             ])
         }
     }
@@ -488,35 +487,34 @@ impl Matrix3x3Math for f64 {
         }
     }
 
-    #[rustfmt::skip]
     #[inline(always)]
     fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self> {
         // Structure data into local fixed-size arrays of 4 elements.
         // Since row is align(16), we manually map the implicit 4th buffer element.
         let r = [row.x, row.y, row.z, 0.0];
 
+        let mut m0 = [0.0; 4];
         let mut m1 = [0.0; 4];
         let mut m2 = [0.0; 4];
-        let mut m3 = [0.0; 4];
 
         // Write uniform loops spanning exactly 4 elements.
         // LLVM's auto-vectorizer recognizes 4-wide float operations
         // and combines these into parallel execution blocks, if the processor supports it.
         for ii in 0..4 {
-            m1[ii] = col.x * r[ii];
+            m0[ii] = col.x * r[ii];
         }
         for ii in 0..4 {
-            m2[ii] = col.y * r[ii];
+            m1[ii] = col.y * r[ii];
         }
         for ii in 0..4 {
-            m3[ii] = col.z * r[ii];
+            m2[ii] = col.z * r[ii];
         }
 
         // Populate the matrix, discarding the 4th padding lane.
         Matrix3x3::from([
-            m1[0], m1[1], m1[2],
-            m2[0], m2[1], m2[2],
-            m3[0], m3[1], m3[2],
+            m0[0], m0[1], m0[2], //
+            m1[0], m1[1], m1[2], //
+            m2[0], m2[1], m2[2], //
         ])
     }
 

@@ -48,6 +48,7 @@
         "itoa",
         "Kalman",
         "katex",
+        "lerp",
         "libc",
         "libm",
         "madgwick",
