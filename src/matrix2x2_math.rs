@@ -77,14 +77,14 @@ impl Matrix2x2Math for f32 {
             for r in &mut a {
                 *r = -*r;
             }
-            Matrix2x2::from(a)
+            Matrix2x2::from_row_array(a)
         }
     }
 
     #[inline(always)]
     fn m2x2_abs(this: Matrix2x2<Self>) -> Matrix2x2<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii].abs());
-        Matrix2x2::from(ret)
+        Matrix2x2::from_row_array(ret)
     }
 
     #[inline(always)]
@@ -103,7 +103,7 @@ impl Matrix2x2Math for f32 {
             for (ii, r) in a.iter_mut().enumerate() {
                 *r += other.a[ii];
             }
-            Matrix2x2::from(a)
+            Matrix2x2::from_row_array(a)
         }
     }
 
@@ -122,7 +122,7 @@ impl Matrix2x2Math for f32 {
             for r in &mut a {
                 *r *= other;
             }
-            Matrix2x2::from(a)
+            Matrix2x2::from_row_array(a)
         }
     }
 
@@ -188,7 +188,7 @@ impl Matrix2x2Math for f32 {
                 this.a[2] * other.a[0] + this.a[3] * other.a[2],
                 this.a[2] * other.a[1] + this.a[3] * other.a[3],
             ];
-            Matrix2x2::from(a)
+            Matrix2x2::from_row_array(a)
         }
     }
 
@@ -234,7 +234,10 @@ impl Matrix2x2Math for f32 {
 
     #[inline(always)]
     fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
-        (Matrix2x2::from([this.a[3], -this.a[1], -this.a[2], this.a[0]]), this.a[0] * this.a[3] - this.a[1] * this.a[2])
+        (
+            Matrix2x2::from_row_array([this.a[3], -this.a[1], -this.a[2], this.a[0]]),
+            this.a[0] * this.a[3] - this.a[1] * this.a[2],
+        )
     }
 }
 
@@ -247,7 +250,7 @@ impl Matrix2x2Math for f64 {
         for r in &mut a {
             *r = -*r;
         }
-        Matrix2x2::from(a)
+        Matrix2x2::from_row_array(a)
     }
 
     #[inline(always)]
@@ -256,7 +259,7 @@ impl Matrix2x2Math for f64 {
         for r in &mut a {
             *r = r.abs();
         }
-        Matrix2x2::from(a)
+        Matrix2x2::from_row_array(a)
     }
 
     #[inline(always)]
@@ -265,7 +268,7 @@ impl Matrix2x2Math for f64 {
         for (ii, r) in a.iter_mut().enumerate() {
             *r += other.a[ii];
         }
-        Matrix2x2::from(a)
+        Matrix2x2::from_row_array(a)
     }
 
     #[inline(always)]
@@ -274,7 +277,7 @@ impl Matrix2x2Math for f64 {
         for r in &mut a {
             *r *= other;
         }
-        Matrix2x2::from(a)
+        Matrix2x2::from_row_array(a)
     }
 
     #[inline(always)]
@@ -319,7 +322,7 @@ impl Matrix2x2Math for f64 {
             this.a[2] * other.a[0] + this.a[3] * other.a[2],
             this.a[2] * other.a[1] + this.a[3] * other.a[3],
         ];
-        Matrix2x2::from(a)
+        Matrix2x2::from_row_array(a)
     }
 
     #[inline(always)]
@@ -364,6 +367,9 @@ impl Matrix2x2Math for f64 {
 
     #[inline(always)]
     fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
-        (Matrix2x2::from([this.a[3], -this.a[1], -this.a[2], this.a[0]]), this.a[0] * this.a[3] - this.a[1] * this.a[2])
+        (
+            Matrix2x2::from_row_array([this.a[3], -this.a[1], -this.a[2], this.a[0]]),
+            this.a[0] * this.a[3] - this.a[1] * this.a[2],
+        )
     }
 }

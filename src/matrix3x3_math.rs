@@ -48,25 +48,25 @@ impl Matrix3x3Math for f32 {
     #[inline(always)]
     fn m3x3_neg(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
         let ret = core::array::from_fn(|ii| -this.a[ii]);
-        Matrix3x3::from(ret)
+        Matrix3x3::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m3x3_abs(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii].abs());
-        Matrix3x3::from(ret)
+        Matrix3x3::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m3x3_add(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii] + other.a[ii]);
-        Matrix3x3::from(ret)
+        Matrix3x3::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m3x3_mul_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii] * other);
-        Matrix3x3::from(ret)
+        Matrix3x3::from_row_array(ret)
     }
 
     #[inline(always)]
@@ -116,7 +116,6 @@ impl Matrix3x3Math for f32 {
             z += r3[ii] * v[ii];
         }
 
-        // Return the new vector
         Vector3d { x, y, z }
     }
 
@@ -173,7 +172,7 @@ impl Matrix3x3Math for f32 {
             }
 
             // Populate the matrix, discarding the 4th padding lane.
-            Matrix3x3::from([
+            Matrix3x3::from_row_array([
                 m0[0], m0[1], m0[2], //
                 m1[0], m1[1], m1[2], //
                 m2[0], m2[1], m2[2], //
@@ -202,7 +201,7 @@ impl Matrix3x3Math for f32 {
                 (a6_simd * b1_simd).reduce_sum(),
                 (a6_simd * b2_simd).reduce_sum(),
             ];
-            Matrix3x3::from(a)
+            Matrix3x3::from_row_array(a)
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -217,7 +216,7 @@ impl Matrix3x3Math for f32 {
                 this.a[6] * other.a[1] + this.a[7] * other.a[4] + this.a[8] * other.a[7],
                 this.a[6] * other.a[2] + this.a[7] * other.a[5] + this.a[8] * other.a[8],
             ];
-            Matrix3x3::from(a)
+            Matrix3x3::from_row_array(a)
         }
     }
 
@@ -345,7 +344,7 @@ impl Matrix3x3Math for f32 {
 
             let r: [f32; 8] = (r0_simd + r1_simd).into();
 
-            Matrix3x3::from([r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], a[0] * a[4] - a[1] * a[3]])
+            Matrix3x3::from_row_array([r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], a[0] * a[4] - a[1] * a[3]])
         }
         #[cfg(not(feature = "simd"))]*/
         let ei_fh = this.a[4] * this.a[8] - this.a[5] * this.a[7];
@@ -364,7 +363,7 @@ impl Matrix3x3Math for f32 {
             -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
               this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
         ];
-        (Matrix3x3::from(a), determinant)
+        (Matrix3x3::from_row_array(a), determinant)
     }
 
     /// Returns the adjugate and determinant of a matrix, assuming it is symmetric.
@@ -406,7 +405,7 @@ impl Matrix3x3Math for f64 {
         for r in &mut a {
             *r = -*r;
         }
-        Matrix3x3::from(a)
+        Matrix3x3::from_row_array(a)
     }
 
     #[inline(always)]
@@ -415,7 +414,7 @@ impl Matrix3x3Math for f64 {
         for r in &mut a {
             *r = r.abs();
         }
-        Matrix3x3::from(a)
+        Matrix3x3::from_row_array(a)
     }
 
     #[inline(always)]
@@ -424,7 +423,7 @@ impl Matrix3x3Math for f64 {
         for (ii, r) in a.iter_mut().enumerate() {
             *r += other.a[ii];
         }
-        Matrix3x3::from(a)
+        Matrix3x3::from_row_array(a)
     }
 
     #[inline(always)]
@@ -433,7 +432,7 @@ impl Matrix3x3Math for f64 {
         for r in &mut a {
             *r *= other;
         }
-        Matrix3x3::from(a)
+        Matrix3x3::from_row_array(a)
     }
 
     #[inline(always)]
@@ -474,7 +473,6 @@ impl Matrix3x3Math for f64 {
             z += r3[ii] * v[ii];
         }
 
-        // Return the new vector
         Vector3d { x, y, z }
     }
 
@@ -511,7 +509,7 @@ impl Matrix3x3Math for f64 {
         }
 
         // Populate the matrix, discarding the 4th padding lane.
-        Matrix3x3::from([
+        Matrix3x3::from_row_array([
             m0[0], m0[1], m0[2], //
             m1[0], m1[1], m1[2], //
             m2[0], m2[1], m2[2], //
@@ -531,7 +529,7 @@ impl Matrix3x3Math for f64 {
             this.a[6] * other.a[1] + this.a[7] * other.a[4] + this.a[8] * other.a[7],
             this.a[6] * other.a[2] + this.a[7] * other.a[5] + this.a[8] * other.a[8],
         ];
-        Matrix3x3::from(a)
+        Matrix3x3::from_row_array(a)
     }
 
     #[inline(always)]
@@ -602,7 +600,7 @@ impl Matrix3x3Math for f64 {
             -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
               this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
         ];
-        (Matrix3x3::from(a), determinant)
+        (Matrix3x3::from_row_array(a), determinant)
     }
 
     /// Returns the adjugate and determinant of a matrix, assuming it is symmetric.

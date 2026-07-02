@@ -33,25 +33,25 @@ impl Matrix4x4Math for f32 {
     #[inline(always)]
     fn m4x4_neg(this: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| -this.a[ii]);
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m4x4_abs(this: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii].abs());
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m4x4_add(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii] + other.a[ii]);
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m4x4_mul_scalar(this: Matrix4x4<Self>, other: Self) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii] * other);
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
@@ -121,7 +121,7 @@ impl Matrix4x4Math for f32 {
             m3[ii] = col.t * r[ii];
         }
 
-        Matrix4x4::from([
+        Matrix4x4::from_row_array([
             m0[0], m0[1], m0[2], m0[3], //
             m1[0], m1[1], m1[2], m1[3], //
             m2[0], m2[1], m2[2], m2[3], //
@@ -156,7 +156,7 @@ impl Matrix4x4Math for f32 {
             m3[ii] = this.z * r[ii];
         }
 
-        Matrix4x4::from([
+        Matrix4x4::from_row_array([
             m0[0], m0[1], m0[2], m0[3], //
             m1[0], m1[1], m1[2], m1[3], //
             m2[0], m2[1], m2[2], m2[3], //
@@ -178,7 +178,7 @@ impl Matrix4x4Math for f32 {
                     row[0] * other.a[j] + row[1] * other.a[j + 4] + row[2] * other.a[j + 8] + row[3] * other.a[j + 12];
             }
         }
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
@@ -225,10 +225,10 @@ impl Matrix4x4Math for f32 {
     #[rustfmt::skip]
     #[inline]
     fn m4x4_determinant(this: Matrix4x4<Self>) -> Self {
-         this.a[0] * Self::m3x3_determinant(Matrix3x3::from([this.a[5], this.a[6], this.a[7],   this.a[9], this.a[10], this.a[11],   this.a[13], this.a[14], this.a[15]]))
-        -this.a[1] * Self::m3x3_determinant(Matrix3x3::from([this.a[4], this.a[6], this.a[7],   this.a[8], this.a[10], this.a[11],   this.a[12], this.a[14], this.a[15]]))
-        +this.a[2] * Self::m3x3_determinant(Matrix3x3::from([this.a[4], this.a[5], this.a[7],   this.a[8],  this.a[9], this.a[11],   this.a[12], this.a[13], this.a[15]]))
-        -this.a[3] * Self::m3x3_determinant(Matrix3x3::from([this.a[4], this.a[5], this.a[6],   this.a[8],  this.a[9], this.a[10],   this.a[12], this.a[13], this.a[14]]))
+         this.a[0] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[5], this.a[6], this.a[7],   this.a[9], this.a[10], this.a[11],   this.a[13], this.a[14], this.a[15]]))
+        -this.a[1] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[4], this.a[6], this.a[7],   this.a[8], this.a[10], this.a[11],   this.a[12], this.a[14], this.a[15]]))
+        +this.a[2] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[4], this.a[5], this.a[7],   this.a[8],  this.a[9], this.a[11],   this.a[12], this.a[13], this.a[15]]))
+        -this.a[3] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[4], this.a[5], this.a[6],   this.a[8],  this.a[9], this.a[10],   this.a[12], this.a[13], this.a[14]]))
     }
 
     #[rustfmt::skip]
@@ -277,7 +277,7 @@ impl Matrix4x4Math for f32 {
 
         let determinant = s0 * c00 + s1 * c10 + s2 * c20 + s3 * c30;
 
-        (Matrix4x4::from([
+        (Matrix4x4::from_row_array([
             c00, c01, c02, c03,
             c10, c11, c12, c13,
             c20, c21, c22, c23,
@@ -292,25 +292,25 @@ impl Matrix4x4Math for f64 {
     #[inline(always)]
     fn m4x4_neg(this: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| -this.a[ii]);
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m4x4_abs(this: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii].abs());
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m4x4_add(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii] + other.a[ii]);
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
     fn m4x4_mul_scalar(this: Matrix4x4<Self>, other: Self) -> Matrix4x4<Self> {
         let ret = core::array::from_fn(|ii| this.a[ii] * other);
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
@@ -372,7 +372,7 @@ impl Matrix4x4Math for f64 {
             m3[ii] = col.t * r[ii];
         }
 
-        Matrix4x4::from([
+        Matrix4x4::from_row_array([
             m0[0], m0[1], m0[2], m0[3], //
             m1[0], m1[1], m1[2], m1[3], //
             m2[0], m2[1], m2[2], m2[3], //
@@ -407,7 +407,7 @@ impl Matrix4x4Math for f64 {
             m3[ii] = this.z * r[ii];
         }
 
-        Matrix4x4::from([
+        Matrix4x4::from_row_array([
             m0[0], m0[1], m0[2], m0[3], //
             m1[0], m1[1], m1[2], m1[3], //
             m2[0], m2[1], m2[2], m2[3], //
@@ -429,7 +429,7 @@ impl Matrix4x4Math for f64 {
                     row[0] * other.a[j] + row[1] * other.a[j + 4] + row[2] * other.a[j + 8] + row[3] * other.a[j + 12];
             }
         }
-        Matrix4x4::from(ret)
+        Matrix4x4::from_row_array(ret)
     }
 
     #[inline(always)]
@@ -476,10 +476,10 @@ impl Matrix4x4Math for f64 {
     #[rustfmt::skip]
     #[inline]
     fn m4x4_determinant(this: Matrix4x4<Self>) -> Self {
-         this.a[0] * Self::m3x3_determinant(Matrix3x3::from([this.a[5], this.a[6], this.a[7],   this.a[9], this.a[10], this.a[11],   this.a[13], this.a[14], this.a[15]]))
-        -this.a[1] * Self::m3x3_determinant(Matrix3x3::from([this.a[4], this.a[6], this.a[7],   this.a[8], this.a[10], this.a[11],   this.a[12], this.a[14], this.a[15]]))
-        +this.a[2] * Self::m3x3_determinant(Matrix3x3::from([this.a[4], this.a[5], this.a[7],   this.a[8],  this.a[9], this.a[11],   this.a[12], this.a[13], this.a[15]]))
-        -this.a[3] * Self::m3x3_determinant(Matrix3x3::from([this.a[4], this.a[5], this.a[6],   this.a[8],  this.a[9], this.a[10],   this.a[12], this.a[13], this.a[14]]))
+         this.a[0] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[5], this.a[6], this.a[7],   this.a[9], this.a[10], this.a[11],   this.a[13], this.a[14], this.a[15]]))
+        -this.a[1] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[4], this.a[6], this.a[7],   this.a[8], this.a[10], this.a[11],   this.a[12], this.a[14], this.a[15]]))
+        +this.a[2] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[4], this.a[5], this.a[7],   this.a[8],  this.a[9], this.a[11],   this.a[12], this.a[13], this.a[15]]))
+        -this.a[3] * Self::m3x3_determinant(Matrix3x3::from_row_array([this.a[4], this.a[5], this.a[6],   this.a[8],  this.a[9], this.a[10],   this.a[12], this.a[13], this.a[14]]))
     }
 
     #[rustfmt::skip]
@@ -529,7 +529,7 @@ impl Matrix4x4Math for f64 {
 
         let determinant = s0 * c00 + s1 * c10 + s2 * c20 + s3 * c30;
 
-        (Matrix4x4::from([
+        (Matrix4x4::from_row_array([
             c00, c01, c02, c03,
             c10, c11, c12, c13,
             c20, c21, c22, c23,

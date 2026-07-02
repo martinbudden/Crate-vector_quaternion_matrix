@@ -20,8 +20,8 @@ pub type Matrix9x9f64 = Matrix9x9<f64>;
 /// In particular matrix by matrix multiply, determinant, adjugate, and inverse are not provided.<br>
 /// Functions to extract and utilize 3x3 sub-matrices are provided.<br>
 /// Aliases `Matrix9x9f32` and `Matrix9x9f64` are provided.<br>
-/// Internal implementation is a flattened 9x9 matrix: an array of 9 elements stored in row-major order.
-/// That is the element `m[row][col]` is at array position `[row * 3 + col]`, so element `m12` is at `a[5]`.<br><br>
+/// Internal implementation is a flattened 9x9 matrix: an array of 81 elements stored in row-major order.
+/// That is the element `m[row][col]` is at array position `[row * 9 + col]`, , so element `m01` is at `a[1]` and element `m12` is at `a[11]`.<br><br>
 #[derive(Clone, Copy, PartialEq)]
 #[repr(C)]
 pub struct Matrix9x9<T> {
@@ -167,8 +167,8 @@ where
 {
     /// Create a matrix.
     #[inline]
-    pub const fn new(input: [T; 81]) -> Self {
-        Self { a: input }
+    pub const fn new(a: [T; 81]) -> Self {
+        Self { a }
     }
 }
 
