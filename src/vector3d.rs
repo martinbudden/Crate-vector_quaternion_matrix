@@ -36,7 +36,7 @@ pub struct Vector3d<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Vector3d<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
+impl<T> PostcardValue<'_> for Vector3d<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 // **** New ****
 
@@ -772,7 +772,7 @@ impl<D, U, V> Vector3d<uom::si::Quantity<D, U, V>>
 where
     D: uom::si::Dimension + ?Sized,
     U: uom::si::Units<V> + ?Sized,
-    V: Copy + uom::num_traits::Float + uom::Conversion<V>,
+    V: Copy + num_traits::Float + uom::Conversion<V>,
     uom::si::Quantity<D, U, V>: Copy,
 {
     /// Calculates the squared norm of the vector.

@@ -15,9 +15,6 @@ categories = [
     "science::robotics",
 ]
 
-[package.metadata.docs.rs]
-all-features = true
-
 [build-dependencies]
 rustc_version = "0.4.1"
 
@@ -25,7 +22,7 @@ rustc_version = "0.4.1"
 #default = []
 default = ["libm"]
 #default = ["libm", "uom"]
-#default = ["libm", "serde"]
+#default = ["libm", "serde", "uom"]
 #default = ["std"]
 #default = ["std", "serde"]
 std = ["num-traits/std", "derive_more/std"]

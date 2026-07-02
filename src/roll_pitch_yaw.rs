@@ -30,7 +30,7 @@ pub struct RollPitch<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for RollPitch<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
+impl<T> PostcardValue<'_> for RollPitch<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 impl<T> RollPitch<T>
 where
@@ -104,7 +104,7 @@ pub struct RollPitchYaw<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for RollPitchYaw<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
+impl<T> PostcardValue<'_> for RollPitchYaw<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 impl<T> RollPitchYaw<T>
 where

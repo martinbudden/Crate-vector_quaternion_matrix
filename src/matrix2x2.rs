@@ -25,6 +25,7 @@ pub type Matrix2x2f64 = Matrix2x2<f64>;
 /// Internal implementation is using a flattened 1-dimensional array: an array of 4 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 2 + col]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(16))]
 pub struct Matrix2x2<T> {
@@ -33,7 +34,7 @@ pub struct Matrix2x2<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Matrix2x2<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
+impl<T> PostcardValue<'_> for Matrix2x2<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 /// Constants to index matrix elements.
 impl<T> Matrix2x2<T> {

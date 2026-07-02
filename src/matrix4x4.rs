@@ -25,6 +25,7 @@ pub type Matrix4x4f64 = Matrix4x4<f64>;
 /// Internal implementation is a flattened 4x4 matrix: an array of 16 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 4 + col]`.<br><br>
 #[derive(Clone, Copy, Default, PartialEq)]
+#[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(64))]
 pub struct Matrix4x4<T> {
@@ -33,7 +34,7 @@ pub struct Matrix4x4<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Matrix4x4<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
+impl<T> PostcardValue<'_> for Matrix4x4<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 impl<T> fmt::Debug for Matrix4x4<T>
 where

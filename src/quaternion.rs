@@ -36,7 +36,7 @@ pub struct Quaternion<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Quaternion<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
+impl<T> PostcardValue<'_> for Quaternion<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 // **** Default ****
 

@@ -52,9 +52,9 @@ A small selection from what is available:
     let m = Matrix3x3f32::new([ 2.0,  3.0,  5.0,
                                 7.0, 11.0, 13.0,
                                17.0, 19.0, 23.0]);
-    let n = Matrix3x3f32::from([29.0, 31.0, 37.0,
-                                41.0, 43.0, 47.0,
-                                53.0, 59.0, 61.0]);
+    let n = Matrix3x3f32::new([29.0, 31.0, 37.0,
+                               41.0, 43.0, 47.0,
+                               53.0, 59.0, 61.0]);
 
     // matrix arithmetic
     let mut p = m * n;

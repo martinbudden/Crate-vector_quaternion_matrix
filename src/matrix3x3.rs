@@ -24,6 +24,7 @@ pub type Matrix3x3f64 = Matrix3x3<f64>;
 /// Internal implementation is a flattened 3x3 matrix: an array of 9 elements stored in row-major order.
 /// That is the element `m[row][col]` is at array position `[row * 3 + col]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "no_align", repr(C))]
 #[cfg_attr(not(feature = "no_align"), repr(C, align(64)))]
@@ -33,7 +34,7 @@ pub struct Matrix3x3<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Matrix3x3<T> where T: serde::Serialize + for<'de> serde::Deserialize<'de> {}
+impl<T> PostcardValue<'_> for Matrix3x3<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 /// Constants to index matrix elements.
 impl<T> Matrix3x3<T> {
