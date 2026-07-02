@@ -754,6 +754,48 @@ where
     }
 }
 
+impl<T> Quaternion<T>
+where
+    T: Copy + One + QuaternionMath + Div<T, Output = T> + Neg<Output = T>,
+{
+    // Return the inverse of the quaternion.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+    /// let r = q.inverse();
+    /// let p = q * r;
+    /// assert_eq!(1.0, p.w);
+    /// assert!(p.x.abs() < 1e-7);
+    /// assert!(p.y.abs() < 1e-7);
+    /// assert!(p.z.abs() < 1e-7);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn inverse(self) -> Self {
+        let r = T::one() / self.norm_squared();
+        Self { w: self.w * r, x: -self.x * r, y: -self.y * r, z: -self.z * r }
+    }
+}
+
+impl<T> Quaternion<T>
+where
+    T: Copy + ConstOne + Add<Output = T> + Div<Output = T>,
+{
+    // Return the half of the quaternion.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
+    /// let r = q.half();
+    /// assert_eq!(Quaternionf32 { w: 1.0, x: 1.5, y: 2.5, z: 3.5 }, r);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn half(self) -> Self {
+        let r = T::ONE / (T::ONE + T::ONE);
+        Self { w: self.w * r, x: self.x * r, y: self.y * r, z: self.z * r }
+    }
+}
+
 // **** sum ****
 
 impl<T> Quaternion<T>
