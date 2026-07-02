@@ -13,6 +13,13 @@ const _: () = assert!(align_of::<Matrix2x2<f32>>() == 16);
 
 use crate::{Matrix2x2, Vector2d};
 
+// Row 1
+const M11: usize = 0;
+const M12: usize = 1;
+// Row 2
+const M21: usize = 2;
+const M22: usize = 3;
+
 // **** From ****
 
 #[cfg(feature = "simd")]
@@ -77,14 +84,14 @@ impl Matrix2x2Math for f32 {
             for r in &mut a {
                 *r = -*r;
             }
-            Matrix2x2::from_row_array(a)
+            Matrix2x2 { a }
         }
     }
 
     #[inline(always)]
     fn m2x2_abs(this: Matrix2x2<Self>) -> Matrix2x2<Self> {
-        let ret = core::array::from_fn(|ii| this.a[ii].abs());
-        Matrix2x2::from_row_array(ret)
+        let a = core::array::from_fn(|ii| this.a[ii].abs());
+        Matrix2x2 { a }
     }
 
     #[inline(always)]
@@ -103,7 +110,7 @@ impl Matrix2x2Math for f32 {
             for (ii, r) in a.iter_mut().enumerate() {
                 *r += other.a[ii];
             }
-            Matrix2x2::from_row_array(a)
+            Matrix2x2 { a }
         }
     }
 
@@ -122,7 +129,7 @@ impl Matrix2x2Math for f32 {
             for r in &mut a {
                 *r *= other;
             }
-            Matrix2x2::from_row_array(a)
+            Matrix2x2 { a }
         }
     }
 
@@ -138,15 +145,15 @@ impl Matrix2x2Math for f32 {
 
     #[inline(always)]
     fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.a[0] * other.x + this.a[1] * other.y, y: this.a[2] * other.x + this.a[3] * other.y }
+        Vector2d { x: this.a[M11] * other.x + this.a[M12] * other.y, y: this.a[M21] * other.x + this.a[M22] * other.y }
     }
 
     #[rustfmt::skip]
     #[inline(always)]
     fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self> {
         Vector2d {
-            x: this.x * other.a[0] + this.y * other.a[2],
-            y: this.x * other.a[1] + this.y * other.a[3]
+            x: this.x * other.a[M11] + this.y * other.a[M21],
+            y: this.x * other.a[M12] + this.y * other.a[M22]
         }
     }
 
@@ -168,38 +175,38 @@ impl Matrix2x2Math for f32 {
     fn m2x2_mul(this: Matrix2x2<Self>, other: Matrix2x2<Self>) -> Matrix2x2<Self> {
         #[cfg(feature = "simd")]
         {
-            let a0_simd = f32x2::from_array([this.a[0], this.a[1]]);
-            let a1_simd = f32x2::from_array([this.a[2], this.a[3]]);
-            let b0_simd = f32x2::from_array([other.a[0], other.a[2]]);
-            let b1_simd = f32x2::from_array([other.a[1], other.a[3]]);
+            let a0_simd = f32x2::from_array([this.a[M11], this.a[M12]]);
+            let a1_simd = f32x2::from_array([this.a[M21], this.a[M22]]);
+            let b0_simd = f32x2::from_array([other.a[M11], other.a[M21]]);
+            let b1_simd = f32x2::from_array([other.a[M12], other.a[M22]]);
             let a = [
                 (a0_simd * b0_simd).reduce_sum(),
                 (a0_simd * b1_simd).reduce_sum(),
                 (a1_simd * b0_simd).reduce_sum(),
                 (a1_simd * b1_simd).reduce_sum(),
             ];
-            Matrix2x2::from(a)
+            Matrix2x2 { a }
         }
         #[cfg(not(feature = "simd"))]
         {
             let a = [
-                this.a[0] * other.a[0] + this.a[1] * other.a[2],
-                this.a[0] * other.a[1] + this.a[1] * other.a[3],
-                this.a[2] * other.a[0] + this.a[3] * other.a[2],
-                this.a[2] * other.a[1] + this.a[3] * other.a[3],
+                this.a[M11] * other.a[M11] + this.a[M12] * other.a[M21],
+                this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22],
+                this.a[M21] * other.a[M11] + this.a[M22] * other.a[M21],
+                this.a[M21] * other.a[M12] + this.a[M22] * other.a[M22],
             ];
-            Matrix2x2::from_row_array(a)
+            Matrix2x2 { a }
         }
     }
 
     #[inline(always)]
     fn m2x2_trace(this: Matrix2x2<Self>) -> Self {
-        this.a[0] + this.a[3]
+        this.a[M11] + this.a[M22]
     }
 
     #[inline(always)]
     fn m2x2_trace_sum_squares(this: Matrix2x2<Self>) -> Self {
-        this.a[0] * this.a[0] + this.a[3] * this.a[3]
+        this.a[M11] * this.a[M11] + this.a[M22] * this.a[M22]
     }
 
     #[inline(always)]
@@ -219,24 +226,24 @@ impl Matrix2x2Math for f32 {
 
     #[inline(always)]
     fn m2x2_top_right_sum_squares(this: Matrix2x2<Self>) -> Self {
-        this.a[1] * this.a[1]
+        this.a[M12] * this.a[M12]
     }
 
     #[inline(always)]
     fn m2x2_top_right_determinant(this: Matrix2x2<Self>) -> Self {
-        this.a[0] * this.a[3] - this.a[1] * this.a[1]
+        this.a[M11] * this.a[M22] - this.a[M12] * this.a[M12]
     }
 
     #[inline(always)]
     fn m2x2_determinant(this: Matrix2x2<Self>) -> Self {
-        this.a[0] * this.a[3] - this.a[1] * this.a[2]
+        this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21]
     }
 
     #[inline(always)]
     fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
         (
-            Matrix2x2::from_row_array([this.a[3], -this.a[1], -this.a[2], this.a[0]]),
-            this.a[0] * this.a[3] - this.a[1] * this.a[2],
+            Matrix2x2 { a: [this.a[M22], -this.a[M12], -this.a[M21], this.a[M11]] },
+            this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],
         )
     }
 }
@@ -250,7 +257,7 @@ impl Matrix2x2Math for f64 {
         for r in &mut a {
             *r = -*r;
         }
-        Matrix2x2::from_row_array(a)
+        Matrix2x2 { a }
     }
 
     #[inline(always)]
@@ -259,7 +266,7 @@ impl Matrix2x2Math for f64 {
         for r in &mut a {
             *r = r.abs();
         }
-        Matrix2x2::from_row_array(a)
+        Matrix2x2 { a }
     }
 
     #[inline(always)]
@@ -268,7 +275,7 @@ impl Matrix2x2Math for f64 {
         for (ii, r) in a.iter_mut().enumerate() {
             *r += other.a[ii];
         }
-        Matrix2x2::from_row_array(a)
+        Matrix2x2 { a }
     }
 
     #[inline(always)]
@@ -277,7 +284,7 @@ impl Matrix2x2Math for f64 {
         for r in &mut a {
             *r *= other;
         }
-        Matrix2x2::from_row_array(a)
+        Matrix2x2 { a }
     }
 
     #[inline(always)]
@@ -292,12 +299,12 @@ impl Matrix2x2Math for f64 {
 
     #[inline(always)]
     fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.a[0] * other.x + this.a[2] * other.y, y: this.a[1] * other.x + this.a[3] * other.y }
+        Vector2d { x: this.a[M11] * other.x + this.a[M21] * other.y, y: this.a[M12] * other.x + this.a[M22] * other.y }
     }
 
     #[inline(always)]
     fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x * other.a[0] + this.y * other.a[2], y: this.x * other.a[1] + this.y * other.a[3] }
+        Vector2d { x: this.x * other.a[M11] + this.y * other.a[M21], y: this.x * other.a[M12] + this.y * other.a[M22] }
     }
 
     #[inline(always)]
@@ -317,22 +324,22 @@ impl Matrix2x2Math for f64 {
     #[inline(always)]
     fn m2x2_mul(this: Matrix2x2<Self>, other: Matrix2x2<Self>) -> Matrix2x2<Self> {
         let a = [
-            this.a[0] * other.a[0] + this.a[1] * other.a[2],
-            this.a[0] * other.a[1] + this.a[1] * other.a[3],
-            this.a[2] * other.a[0] + this.a[3] * other.a[2],
-            this.a[2] * other.a[1] + this.a[3] * other.a[3],
+            this.a[M11] * other.a[M11] + this.a[M12] * other.a[M21],
+            this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22],
+            this.a[M21] * other.a[M11] + this.a[M22] * other.a[M21],
+            this.a[M21] * other.a[M12] + this.a[M22] * other.a[M22],
         ];
-        Matrix2x2::from_row_array(a)
+        Matrix2x2 { a }
     }
 
     #[inline(always)]
     fn m2x2_trace(this: Matrix2x2<Self>) -> Self {
-        this.a[0] + this.a[3]
+        this.a[M11] + this.a[M22]
     }
 
     #[inline(always)]
     fn m2x2_trace_sum_squares(this: Matrix2x2<Self>) -> Self {
-        this.a[0] * this.a[0] + this.a[3] * this.a[3]
+        this.a[M11] * this.a[M11] + this.a[M22] * this.a[M22]
     }
 
     #[inline(always)]
@@ -352,24 +359,24 @@ impl Matrix2x2Math for f64 {
 
     #[inline(always)]
     fn m2x2_top_right_sum_squares(this: Matrix2x2<Self>) -> Self {
-        this.a[1] * this.a[1]
+        this.a[M12] * this.a[M12]
     }
 
     #[inline(always)]
     fn m2x2_top_right_determinant(this: Matrix2x2<Self>) -> Self {
-        this.a[0] * this.a[3] - this.a[1] * this.a[1]
+        this.a[M11] * this.a[M22] - this.a[M12] * this.a[M12]
     }
 
     #[inline(always)]
     fn m2x2_determinant(this: Matrix2x2<Self>) -> Self {
-        this.a[0] * this.a[3] - this.a[1] * this.a[2]
+        this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21]
     }
 
     #[inline(always)]
     fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
         (
-            Matrix2x2::from_row_array([this.a[3], -this.a[1], -this.a[2], this.a[0]]),
-            this.a[0] * this.a[3] - this.a[1] * this.a[2],
+            Matrix2x2 { a: [this.a[M22], -this.a[M12], -this.a[M21], this.a[M11]] },
+            this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],
         )
     }
 }

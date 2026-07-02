@@ -168,9 +168,11 @@ where
     /// Create a matrix.
     #[inline]
     pub const fn new(a: [T; 81]) -> Self {
-        Self { a }
+        Self::from_row_array(a)
     }
 }
+
+// **** Other constructors ****
 
 impl<T> Matrix9x9<T>
 where
@@ -184,6 +186,18 @@ where
     /// ```
     pub fn fill(value: T) -> Self {
         Self { a: [value; 81] }
+    }
+
+    /// Matrix from 1D row array.
+    #[inline]
+    pub const fn from_row_array(a: [T; 81]) -> Self {
+        Self { a }
+    }
+
+    /// Matrix from 1D column array.
+    #[inline]
+    pub fn from_column_array(a: [T; 81]) -> Self {
+        Self::from_row_array(a).transpose()
     }
 
     /// Try to create a matrix from a slice.

@@ -18,6 +18,19 @@ cfg_if! {
 
 use crate::{Matrix3x3, Vector3d};
 
+// Row 1
+const M11: usize = 0;
+const M12: usize = 1;
+const M13: usize = 2;
+// Row 2
+const M21: usize = 3;
+const M22: usize = 4;
+const M23: usize = 5;
+// Row 3
+const M31: usize = 6;
+const M32: usize = 7;
+const M33: usize = 8;
+
 // **** Math ****
 
 /// Math functions for Matrix3x3, using **SIMD** accelerations for `f32`.<br>
@@ -47,26 +60,26 @@ pub trait Matrix3x3Math: Sized {
 impl Matrix3x3Math for f32 {
     #[inline(always)]
     fn m3x3_neg(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|ii| -this.a[ii]);
-        Matrix3x3::from_row_array(ret)
+        let a = core::array::from_fn(|ii| -this.a[ii]);
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
     fn m3x3_abs(this: Matrix3x3<Self>) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|ii| this.a[ii].abs());
-        Matrix3x3::from_row_array(ret)
+        let a = core::array::from_fn(|ii| this.a[ii].abs());
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
     fn m3x3_add(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|ii| this.a[ii] + other.a[ii]);
-        Matrix3x3::from_row_array(ret)
+        let a = core::array::from_fn(|ii| this.a[ii] + other.a[ii]);
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
     fn m3x3_mul_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self> {
-        let ret = core::array::from_fn(|ii| this.a[ii] * other);
-        Matrix3x3::from_row_array(ret)
+        let a = core::array::from_fn(|ii| this.a[ii] * other);
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
@@ -82,9 +95,9 @@ impl Matrix3x3Math for f32 {
     /*#[inline]
     fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
         Vector3d {
-            x: this.a[0] * other.x + this.a[1] * other.y + this.a[2] * other.z,
-            y: this.a[3] * other.x + this.a[4] * other.y + this.a[5] * other.z,
-            z: this.a[6] * other.x + this.a[7] * other.y + this.a[8] * other.z,
+            x: this.a[M11] * other.x + this.a[M12] * other.y + this.a[M13] * other.z,
+            y: this.a[M21] * other.x + this.a[M22] * other.y + this.a[M23] * other.z,
+            z: this.a[M31] * other.x + this.a[M32] * other.y + this.a[M33] * other.z,
         }
     }*/
 
@@ -95,9 +108,9 @@ impl Matrix3x3Math for f32 {
         let v = [other.x, other.y, other.z, 0.0];
 
         // Unpack the flat matrix into 4-element padded rows.
-        let r1 = [this.a[0], this.a[1], this.a[2], 0.0];
-        let r2 = [this.a[3], this.a[4], this.a[5], 0.0];
-        let r3 = [this.a[6], this.a[7], this.a[8], 0.0];
+        let r1 = [this.a[M11], this.a[M12], this.a[M13], 0.0];
+        let r2 = [this.a[M21], this.a[M22], this.a[M23], 0.0];
+        let r3 = [this.a[M31], this.a[M32], this.a[M33], 0.0];
 
         // Calculates row dot products using unrolled, 4-wide loops.
         // LLVM easily vectorizes a simple element-wise multiply-and-accumulate loop
@@ -123,9 +136,9 @@ impl Matrix3x3Math for f32 {
     #[inline]
     fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self> {
         Vector3d {
-            x: this.x * other.a[0] + this.y * other.a[3] + this.z * other.a[6],
-            y: this.x * other.a[1] + this.y * other.a[4] + this.z * other.a[7],
-            z: this.x * other.a[2] + this.y * other.a[5] + this.z * other.a[8],
+            x: this.x * other.a[M11] + this.y * other.a[M21] + this.z * other.a[M31],
+            y: this.x * other.a[M12] + this.y * other.a[M22] + this.z * other.a[M32],
+            z: this.x * other.a[M13] + this.y * other.a[M23] + this.z * other.a[M33],
         }
     }
 
@@ -172,11 +185,13 @@ impl Matrix3x3Math for f32 {
             }
 
             // Populate the matrix, discarding the 4th padding lane.
-            Matrix3x3::from_row_array([
-                m0[0], m0[1], m0[2], //
-                m1[0], m1[1], m1[2], //
-                m2[0], m2[1], m2[2], //
-            ])
+            Matrix3x3 {
+                a: [
+                    m0[M11], m0[M12], m0[M13], //
+                    m1[M11], m1[M12], m1[M13], //
+                    m2[M11], m2[M12], m2[M13], //
+                ],
+            }
         }
     }
 
@@ -184,12 +199,12 @@ impl Matrix3x3Math for f32 {
     fn m3x3_mul(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
         #[cfg(feature = "simd")]
         {
-            let a0_simd = f32x4::from_array([this.a[0], this.a[1], this.a[2], 0.0]);
-            let a3_simd = f32x4::from_array([this.a[3], this.a[4], this.a[5], 0.0]);
-            let a6_simd = f32x4::from_array([this.a[6], this.a[7], this.a[8], 0.0]);
-            let b0_simd = f32x4::from_array([other.a[0], other.a[3], other.a[6], 0.0]);
-            let b1_simd = f32x4::from_array([other.a[1], other.a[4], other.a[7], 0.0]);
-            let b2_simd = f32x4::from_array([other.a[2], other.a[5], other.a[8], 0.0]);
+            let a0_simd = f32x4::from_array([this.a[M11], this.a[M12], this.a[M13], 0.0]);
+            let a3_simd = f32x4::from_array([this.a[M21], this.a[M22], this.a[M23], 0.0]);
+            let a6_simd = f32x4::from_array([this.a[M31], this.a[M32], this.a[M33], 0.0]);
+            let b0_simd = f32x4::from_array([other.a[M11], other.a[M21], other.a[M31], 0.0]);
+            let b1_simd = f32x4::from_array([other.a[M12], other.a[M22], other.a[M32], 0.0]);
+            let b2_simd = f32x4::from_array([other.a[M13], other.a[M23], other.a[M33], 0.0]);
             let a = [
                 (a0_simd * b0_simd).reduce_sum(),
                 (a0_simd * b1_simd).reduce_sum(),
@@ -201,40 +216,40 @@ impl Matrix3x3Math for f32 {
                 (a6_simd * b1_simd).reduce_sum(),
                 (a6_simd * b2_simd).reduce_sum(),
             ];
-            Matrix3x3::from_row_array(a)
+            Matrix3x3 { a }
         }
         #[cfg(not(feature = "simd"))]
         {
             let a = [
-                this.a[0] * other.a[0] + this.a[1] * other.a[3] + this.a[2] * other.a[6],
-                this.a[0] * other.a[1] + this.a[1] * other.a[4] + this.a[2] * other.a[7],
-                this.a[0] * other.a[2] + this.a[1] * other.a[5] + this.a[2] * other.a[8],
-                this.a[3] * other.a[0] + this.a[4] * other.a[3] + this.a[5] * other.a[6],
-                this.a[3] * other.a[1] + this.a[4] * other.a[4] + this.a[5] * other.a[7],
-                this.a[3] * other.a[2] + this.a[4] * other.a[5] + this.a[5] * other.a[8],
-                this.a[6] * other.a[0] + this.a[7] * other.a[3] + this.a[8] * other.a[6],
-                this.a[6] * other.a[1] + this.a[7] * other.a[4] + this.a[8] * other.a[7],
-                this.a[6] * other.a[2] + this.a[7] * other.a[5] + this.a[8] * other.a[8],
+                this.a[M11] * other.a[M11] + this.a[M12] * other.a[M21] + this.a[M13] * other.a[M31],
+                this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22] + this.a[M13] * other.a[M32],
+                this.a[M11] * other.a[M13] + this.a[M12] * other.a[M23] + this.a[M13] * other.a[M33],
+                this.a[M21] * other.a[M11] + this.a[M22] * other.a[M21] + this.a[M23] * other.a[M31],
+                this.a[M21] * other.a[M12] + this.a[M22] * other.a[M22] + this.a[M23] * other.a[M32],
+                this.a[M21] * other.a[M13] + this.a[M22] * other.a[M23] + this.a[M23] * other.a[M33],
+                this.a[M31] * other.a[M11] + this.a[M32] * other.a[M21] + this.a[M33] * other.a[M31],
+                this.a[M31] * other.a[M12] + this.a[M32] * other.a[M22] + this.a[M33] * other.a[M32],
+                this.a[M31] * other.a[M13] + this.a[M32] * other.a[M23] + this.a[M33] * other.a[M33],
             ];
-            Matrix3x3::from_row_array(a)
+            Matrix3x3 { a }
         }
     }
 
     #[inline(always)]
     fn m3x3_trace(this: Matrix3x3<Self>) -> Self {
-        this.a[0] + this.a[4] + this.a[8]
+        this.a[M11] + this.a[M22] + this.a[M33]
     }
 
     #[inline(always)]
     fn m3x3_trace_sum_squares(this: Matrix3x3<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
-            let trace_simd = f32x4::from_array([this.a[0], this.a[4], this.a[8], 0.0]);
+            let trace_simd = f32x4::from_array([this.a[M11], this.a[M22], this.a[M33], 0.0]);
             (trace_simd * trace_simd).reduce_sum()
         }
         #[cfg(not(feature = "simd"))]
         {
-            this.a[0] * this.a[0] + this.a[4] * this.a[4] + this.a[8] * this.a[8]
+            this.a[M11] * this.a[M11] + this.a[M22] * this.a[M22] + this.a[M33] * this.a[M33]
         }
     }
 
@@ -257,12 +272,12 @@ impl Matrix3x3Math for f32 {
     fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
-            let top_right_simd = f32x4::from_array([this.a[1], this.a[2], this.a[5], 0.0]);
+            let top_right_simd = f32x4::from_array([this.a[M12], this.a[M13], this.a[M23], 0.0]);
             (top_right_simd * top_right_simd).reduce_sum()
         }
         #[cfg(not(feature = "simd"))]
         {
-            this.a[1] * this.a[1] + this.a[2] * this.a[2] + this.a[5] * this.a[5]
+            this.a[M12] * this.a[M12] + this.a[M13] * this.a[M13] + this.a[M23] * this.a[M23]
         }
     }
 
@@ -272,12 +287,12 @@ impl Matrix3x3Math for f32 {
         //            a0     a4    a8    a5    a5     a1     a1    a8    a5    a2     a2     a1    a5    a4    a2
         #[cfg(feature = "simd")]
         {
-            let a_simd = f32x4::from_array([this.a[0], -this.a[1], this.a[2], 0.0]);
+            let a_simd = f32x4::from_array([this.a[M11], -this.a[M12], this.a[M13], 0.0]);
 
             let d = [
-                this.a[4] * this.a[8] - this.a[5] * this.a[5],
-                this.a[1] * this.a[8] - this.a[5] * this.a[2],
-                this.a[1] * this.a[5] - this.a[4] * this.a[2],
+                this.a[M22] * this.a[M33] - this.a[M23] * this.a[M23],
+                this.a[M12] * this.a[M33] - this.a[M23] * this.a[M13],
+                this.a[M12] * this.a[M23] - this.a[M22] * this.a[M13],
                 0.0,
             ];
             let d_simd = f32x4::from_array(d);
@@ -286,9 +301,9 @@ impl Matrix3x3Math for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[5])
-                - this.a[1] * (this.a[1] * this.a[8] - this.a[5] * this.a[2])
-                + this.a[2] * (this.a[1] * this.a[5] - this.a[4] * this.a[2])
+            this.a[M11] * (this.a[M22] * this.a[M33] - this.a[M23] * this.a[M23])
+                - this.a[M12] * (this.a[M12] * this.a[M33] - this.a[M23] * this.a[M13])
+                + this.a[M13] * (this.a[M12] * this.a[M23] - this.a[M22] * this.a[M13])
         }
     }
 
@@ -297,12 +312,12 @@ impl Matrix3x3Math for f32 {
     fn m3x3_determinant(this: Matrix3x3<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
-            let a_simd = f32x4::from_array([this.a[0], -this.a[1], this.a[2], 0.0]);
+            let a_simd = f32x4::from_array([this.a[M11], -this.a[M12], this.a[M13], 0.0]);
 
             let d = [
-                this.a[4] * this.a[8] - this.a[5] * this.a[7],
-                this.a[3] * this.a[8] - this.a[5] * this.a[6],
-                this.a[3] * this.a[7] - this.a[4] * this.a[6],
+                this.a[M22] * this.a[M33] - this.a[M23] * this.a[M32],
+                this.a[M21] * this.a[M33] - this.a[M23] * this.a[M31],
+                this.a[M21] * this.a[M32] - this.a[M22] * this.a[M31],
                 0.0,
             ];
             let d_simd = f32x4::from_array(d);
@@ -311,9 +326,9 @@ impl Matrix3x3Math for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-             this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
-            -this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
-            +this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
+             this.a[M11] * (this.a[M22] * this.a[M33] - this.a[M23] * this.a[M32])
+            -this.a[M12] * (this.a[M21] * this.a[M33] - this.a[M23] * this.a[M31])
+            +this.a[M13] * (this.a[M21] * this.a[M32] - this.a[M22] * this.a[M31])
         }
     }
 
@@ -327,11 +342,11 @@ impl Matrix3x3Math for f32 {
 
             // use SIMD to calculate the first 8 elements of the array, and then manually calculate the 9th element.
             // TODO: change the 4 from_arrays into 2 from_arrays and use swizzles.
-            let r0a = [a[4], -a[1], a[1], -a[3], a[0], -a[0], a[3], -a[0]];
-            let r0b = [a[8], a[8], a[5], a[8], a[8], a[5], a[7], a[7]];
+            let r0a = [a[M22], -a[M12], a[M12], -a[M21], a[M11], -a[M11], a[M21], -a[M11]];
+            let r0b = [a[M33], a[M33], a[M23], a[M33], a[M33], a[M23], a[M32], a[M32]];
 
-            let r1a = [-a[5], a[2], -a[2], a[5], -a[2], a[2], -a[4], a[1]];
-            let r1b = [a[7], a[7], a[4], a[6], a[6], a[3], a[6], a[6]];
+            let r1a = [-a[M23], a[M13], -a[M13], a[M23], -a[M13], a[M13], -a[M22], a[M12]];
+            let r1b = [a[M32], a[M32], a[M22], a[M31], a[M31], a[M21], a[M31], a[M31]];
 
             let r0a_simd = f32x8::from_array(r0a);
             let r0b_simd = f32x8::from_array(r0b);
@@ -344,26 +359,26 @@ impl Matrix3x3Math for f32 {
 
             let r: [f32; 8] = (r0_simd + r1_simd).into();
 
-            Matrix3x3::from_row_array([r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], a[0] * a[4] - a[1] * a[3]])
+            Matrix3x3 { a: [r[M11], r[M12], r[M13], r[M21], r[M22], r[M23], r[M31], r[M32], a[M11] * a[M22] - a[M12] * a[M21]] }
         }
         #[cfg(not(feature = "simd"))]*/
-        let ei_fh = this.a[4] * this.a[8] - this.a[5] * this.a[7];
-        let di_fg = this.a[3] * this.a[8] - this.a[5] * this.a[6];
-        let dh_eg = this.a[3] * this.a[7] - this.a[4] * this.a[6];
-        let determinant = this.a[0] * ei_fh - this.a[1]*di_fg + this.a[2]* dh_eg;
+        let ei_fh = this.a[M22] * this.a[M33] - this.a[M23] * this.a[M32];
+        let di_fg = this.a[M21] * this.a[M33] - this.a[M23] * this.a[M31];
+        let dh_eg = this.a[M21] * this.a[M32] - this.a[M22] * this.a[M31];
+        let determinant = this.a[M11] * ei_fh - this.a[M12]*di_fg + this.a[M13]* dh_eg;
 
         let a = [
               ei_fh,                                          //  (e*i - f*h)
-            -(this.a[1] * this.a[8] - this.a[2] * this.a[7]), // -(b*i - c*h)
-              this.a[1] * this.a[5] - this.a[2] * this.a[4],  //  (b*f - c*e)
+            -(this.a[M12] * this.a[M33] - this.a[M13] * this.a[M32]), // -(b*i - c*h)
+              this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22],  //  (b*f - c*e)
             - di_fg,                                          // -(d*i - f*g)
-              this.a[0] * this.a[8] - this.a[2] * this.a[6],  //  (a*i - c*g)
-            -(this.a[0] * this.a[5] - this.a[2] * this.a[3]), // -(a*f - c*d)
+              this.a[M11] * this.a[M33] - this.a[M13] * this.a[M31],  //  (a*i - c*g)
+            -(this.a[M11] * this.a[M23] - this.a[M13] * this.a[M21]), // -(a*f - c*d)
               dh_eg,                                          //  (d*h - e*g)
-            -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
-              this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
+            -(this.a[M11] * this.a[M32] - this.a[M12] * this.a[M31]), // -(a*h - b*g)
+              this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],  //  (a*e - b*d)
         ];
-        (Matrix3x3::from_row_array(a), determinant)
+        (Matrix3x3 { a }, determinant)
     }
 
     /// Returns the adjugate and determinant of a matrix, assuming it is symmetric.
@@ -371,20 +386,20 @@ impl Matrix3x3Math for f32 {
     #[inline(always)]
     fn m3x3_adjugate_symmetric(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
         // Cache repetitive terms to minimize multiplications
-        let b_sq = this.a[1] * this.a[1];
-        let c_sq = this.a[2] * this.a[2];
-        let f_sq = this.a[5] * this.a[5];
+        let b_sq = this.a[M12] * this.a[M12];
+        let c_sq = this.a[M13] * this.a[M13];
+        let f_sq = this.a[M23] * this.a[M23];
 
         // Calculate the unique elements of the adjugate matrix
-        let adj_0 = this.a[4] * this.a[8] - f_sq;                          // Row 0, Col 0
-        let adj_1 = this.a[2] * this.a[5] - this.a[1] * this.a[8];         // Row 0, Col 1 (and Row 1, Col 0)
-        let adj_2 = this.a[1] * this.a[5] - this.a[2] * this.a[4];         // Row 0, Col 2 (and Row 2, Col 0)
-        let adj_4 = this.a[0] * this.a[8] - c_sq;                          // Row 1, Col 1
-        let adj_5 = this.a[1] * this.a[2] - this.a[0] * this.a[5];         // Row 1, Col 2 (and Row 2, Col 1)
-        let adj_8 = this.a[0] * this.a[4] - b_sq;                          // Row 2, Col 2
+        let adj_0 = this.a[M22] * this.a[M33] - f_sq;                          // Row 0, Col 0
+        let adj_1 = this.a[M13] * this.a[M23] - this.a[M12] * this.a[M33];         // Row 0, Col 1 (and Row 1, Col 0)
+        let adj_2 = this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22];         // Row 0, Col 2 (and Row 2, Col 0)
+        let adj_4 = this.a[M11] * this.a[M33] - c_sq;                          // Row 1, Col 1
+        let adj_5 = this.a[M12] * this.a[M13] - this.a[M11] * this.a[M23];         // Row 1, Col 2 (and Row 2, Col 1)
+        let adj_8 = this.a[M11] * this.a[M22] - b_sq;                          // Row 2, Col 2
 
         // Determinant computed via dot product of Row 0 and Adjugate Row 0
-        let determinant = this.a[0] * adj_0 + this.a[1] * adj_1 + this.a[2] * adj_2;
+        let determinant = this.a[M11] * adj_0 + this.a[M12] * adj_1 + this.a[M13] * adj_2;
 
         let a = [
             adj_0, adj_1, adj_2,
@@ -405,7 +420,7 @@ impl Matrix3x3Math for f64 {
         for r in &mut a {
             *r = -*r;
         }
-        Matrix3x3::from_row_array(a)
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
@@ -414,7 +429,7 @@ impl Matrix3x3Math for f64 {
         for r in &mut a {
             *r = r.abs();
         }
-        Matrix3x3::from_row_array(a)
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
@@ -423,7 +438,7 @@ impl Matrix3x3Math for f64 {
         for (ii, r) in a.iter_mut().enumerate() {
             *r += other.a[ii];
         }
-        Matrix3x3::from_row_array(a)
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
@@ -432,7 +447,7 @@ impl Matrix3x3Math for f64 {
         for r in &mut a {
             *r *= other;
         }
-        Matrix3x3::from_row_array(a)
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
@@ -452,9 +467,9 @@ impl Matrix3x3Math for f64 {
         let v = [other.x, other.y, other.z, 0.0];
 
         // Unpack the flat matrix into 4-element padded rows.
-        let r1 = [this.a[0], this.a[1], this.a[2], 0.0];
-        let r2 = [this.a[3], this.a[4], this.a[5], 0.0];
-        let r3 = [this.a[6], this.a[7], this.a[8], 0.0];
+        let r1 = [this.a[M11], this.a[M12], this.a[M13], 0.0];
+        let r2 = [this.a[M21], this.a[M22], this.a[M23], 0.0];
+        let r3 = [this.a[M31], this.a[M32], this.a[M33], 0.0];
 
         // Calculates row dot products using unrolled, 4-wide loops.
         // LLVM easily vectorizes a simple element-wise multiply-and-accumulate loop
@@ -479,9 +494,9 @@ impl Matrix3x3Math for f64 {
     #[inline(always)]
     fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self> {
         Vector3d {
-            x: this.x * other.a[0] + this.y * other.a[3] + this.z * other.a[6],
-            y: this.x * other.a[1] + this.y * other.a[4] + this.z * other.a[7],
-            z: this.x * other.a[2] + this.y * other.a[5] + this.z * other.a[8],
+            x: this.x * other.a[M11] + this.y * other.a[M21] + this.z * other.a[M31],
+            y: this.x * other.a[M12] + this.y * other.a[M22] + this.z * other.a[M32],
+            z: this.x * other.a[M13] + this.y * other.a[M23] + this.z * other.a[M33],
         }
     }
 
@@ -509,37 +524,39 @@ impl Matrix3x3Math for f64 {
         }
 
         // Populate the matrix, discarding the 4th padding lane.
-        Matrix3x3::from_row_array([
-            m0[0], m0[1], m0[2], //
-            m1[0], m1[1], m1[2], //
-            m2[0], m2[1], m2[2], //
-        ])
+        Matrix3x3 {
+            a: [
+                m0[M11], m0[M12], m0[M13], //
+                m1[M11], m1[M12], m1[M13], //
+                m2[M11], m2[M12], m2[M13], //
+            ],
+        }
     }
 
     #[inline(always)]
     fn m3x3_mul(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self> {
         let a = [
-            this.a[0] * other.a[0] + this.a[1] * other.a[3] + this.a[2] * other.a[6],
-            this.a[0] * other.a[1] + this.a[1] * other.a[4] + this.a[2] * other.a[7],
-            this.a[0] * other.a[2] + this.a[1] * other.a[5] + this.a[2] * other.a[8],
-            this.a[3] * other.a[0] + this.a[4] * other.a[3] + this.a[5] * other.a[6],
-            this.a[3] * other.a[1] + this.a[4] * other.a[4] + this.a[5] * other.a[7],
-            this.a[3] * other.a[2] + this.a[4] * other.a[5] + this.a[5] * other.a[8],
-            this.a[6] * other.a[0] + this.a[7] * other.a[3] + this.a[8] * other.a[6],
-            this.a[6] * other.a[1] + this.a[7] * other.a[4] + this.a[8] * other.a[7],
-            this.a[6] * other.a[2] + this.a[7] * other.a[5] + this.a[8] * other.a[8],
+            this.a[M11] * other.a[M11] + this.a[M12] * other.a[M21] + this.a[M13] * other.a[M31],
+            this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22] + this.a[M13] * other.a[M32],
+            this.a[M11] * other.a[M13] + this.a[M12] * other.a[M23] + this.a[M13] * other.a[M33],
+            this.a[M21] * other.a[M11] + this.a[M22] * other.a[M21] + this.a[M23] * other.a[M31],
+            this.a[M21] * other.a[M12] + this.a[M22] * other.a[M22] + this.a[M23] * other.a[M32],
+            this.a[M21] * other.a[M13] + this.a[M22] * other.a[M23] + this.a[M23] * other.a[M33],
+            this.a[M31] * other.a[M11] + this.a[M32] * other.a[M21] + this.a[M33] * other.a[M31],
+            this.a[M31] * other.a[M12] + this.a[M32] * other.a[M22] + this.a[M33] * other.a[M32],
+            this.a[M31] * other.a[M13] + this.a[M32] * other.a[M23] + this.a[M33] * other.a[M33],
         ];
-        Matrix3x3::from_row_array(a)
+        Matrix3x3 { a }
     }
 
     #[inline(always)]
     fn m3x3_trace(this: Matrix3x3<Self>) -> Self {
-        this.a[0] + this.a[4] + this.a[8]
+        this.a[M11] + this.a[M22] + this.a[M33]
     }
 
     #[inline(always)]
     fn m3x3_trace_sum_squares(this: Matrix3x3<Self>) -> Self {
-        this.a[0] * this.a[0] + this.a[4] * this.a[4] + this.a[8] * this.a[8]
+        this.a[M11] * this.a[M11] + this.a[M22] * this.a[M22] + this.a[M33] * this.a[M33]
     }
 
     #[inline(always)]
@@ -559,7 +576,7 @@ impl Matrix3x3Math for f64 {
 
     #[inline(always)]
     fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
-        this.a[1] * this.a[1] + this.a[2] * this.a[2] + this.a[5] * this.a[5]
+        this.a[M12] * this.a[M12] + this.a[M13] * this.a[M13] + this.a[M23] * this.a[M23]
     }
 
     #[rustfmt::skip]
@@ -567,40 +584,40 @@ impl Matrix3x3Math for f64 {
     fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self {
         //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
         //             0     4     8     5      5      1      1     8    5     2        2     1    5      4     2
-          this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[5])
-        - this.a[1] * (this.a[1] * this.a[8] - this.a[5] * this.a[2])
-        + this.a[2] * (this.a[1] * this.a[5] - this.a[4] * this.a[2])
+          this.a[M11] * (this.a[M22] * this.a[M33] - this.a[M23] * this.a[M23])
+        - this.a[M12] * (this.a[M12] * this.a[M33] - this.a[M23] * this.a[M13])
+        + this.a[M13] * (this.a[M12] * this.a[M23] - this.a[M22] * this.a[M13])
     }
 
     #[rustfmt::skip]
     #[inline(always)]
     fn m3x3_determinant(this: Matrix3x3<Self>) -> Self {
-         this.a[0] * (this.a[4] * this.a[8] - this.a[5] * this.a[7])
-        -this.a[1] * (this.a[3] * this.a[8] - this.a[5] * this.a[6])
-        +this.a[2] * (this.a[3] * this.a[7] - this.a[4] * this.a[6])
+         this.a[M11] * (this.a[M22] * this.a[M33] - this.a[M23] * this.a[M32])
+        -this.a[M12] * (this.a[M21] * this.a[M33] - this.a[M23] * this.a[M31])
+        +this.a[M13] * (this.a[M21] * this.a[M32] - this.a[M22] * this.a[M31])
     }
 
     /// Returns the adjugate and determinant of a matrix.
     #[rustfmt::skip]
     #[inline(always)]
     fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
-        let ei_fh = this.a[4] * this.a[8] - this.a[5] * this.a[7];
-        let di_fg = this.a[3] * this.a[8] - this.a[5] * this.a[6];
-        let dh_eg = this.a[3] * this.a[7] - this.a[4] * this.a[6];
-        let determinant = this.a[0] * ei_fh - this.a[1]*di_fg + this.a[2]* dh_eg;
+        let ei_fh = this.a[M22] * this.a[M33] - this.a[M23] * this.a[M32];
+        let di_fg = this.a[M21] * this.a[M33] - this.a[M23] * this.a[M31];
+        let dh_eg = this.a[M21] * this.a[M32] - this.a[M22] * this.a[M31];
+        let determinant = this.a[M11] * ei_fh - this.a[M12]*di_fg + this.a[M13]* dh_eg;
 
         let a = [
               ei_fh,                                          //  (e*i - f*h)
-            -(this.a[1] * this.a[8] - this.a[2] * this.a[7]), // -(b*i - c*h)
-              this.a[1] * this.a[5] - this.a[2] * this.a[4],  //  (b*f - c*e)
+            -(this.a[M12] * this.a[M33] - this.a[M13] * this.a[M32]), // -(b*i - c*h)
+              this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22],  //  (b*f - c*e)
             - di_fg,                                          // -(d*i - f*g)
-              this.a[0] * this.a[8] - this.a[2] * this.a[6],  //  (a*i - c*g)
-            -(this.a[0] * this.a[5] - this.a[2] * this.a[3]), // -(a*f - c*d)
+              this.a[M11] * this.a[M33] - this.a[M13] * this.a[M31],  //  (a*i - c*g)
+            -(this.a[M11] * this.a[M23] - this.a[M13] * this.a[M21]), // -(a*f - c*d)
               dh_eg,                                          //  (d*h - e*g)
-            -(this.a[0] * this.a[7] - this.a[1] * this.a[6]), // -(a*h - b*g)
-              this.a[0] * this.a[4] - this.a[1] * this.a[3],  //  (a*e - b*d)
+            -(this.a[M11] * this.a[M32] - this.a[M12] * this.a[M31]), // -(a*h - b*g)
+              this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],  //  (a*e - b*d)
         ];
-        (Matrix3x3::from_row_array(a), determinant)
+        (Matrix3x3 { a }, determinant)
     }
 
     /// Returns the adjugate and determinant of a matrix, assuming it is symmetric.
@@ -608,20 +625,20 @@ impl Matrix3x3Math for f64 {
     #[inline(always)]
     fn m3x3_adjugate_symmetric(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self) {
         // Cache repetitive terms to minimize multiplications
-        let b_sq = this.a[1] * this.a[1];
-        let c_sq = this.a[2] * this.a[2];
-        let f_sq = this.a[5] * this.a[5];
+        let b_sq = this.a[M12] * this.a[M12];
+        let c_sq = this.a[M13] * this.a[M13];
+        let f_sq = this.a[M23] * this.a[M23];
 
         // Calculate the unique elements of the adjugate matrix
-        let adj_0 = this.a[4] * this.a[8] - f_sq;                          // Row 0, Col 0
-        let adj_1 = this.a[2] * this.a[5] - this.a[1] * this.a[8];         // Row 0, Col 1 (and Row 1, Col 0)
-        let adj_2 = this.a[1] * this.a[5] - this.a[2] * this.a[4];         // Row 0, Col 2 (and Row 2, Col 0)
-        let adj_4 = this.a[0] * this.a[8] - c_sq;                          // Row 1, Col 1
-        let adj_5 = this.a[1] * this.a[2] - this.a[0] * this.a[5];         // Row 1, Col 2 (and Row 2, Col 1)
-        let adj_8 = this.a[0] * this.a[4] - b_sq;                          // Row 2, Col 2
+        let adj_0 = this.a[M22] * this.a[M33] - f_sq;                          // Row 0, Col 0
+        let adj_1 = this.a[M13] * this.a[M23] - this.a[M12] * this.a[M33];         // Row 0, Col 1 (and Row 1, Col 0)
+        let adj_2 = this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22];         // Row 0, Col 2 (and Row 2, Col 0)
+        let adj_4 = this.a[M11] * this.a[M33] - c_sq;                          // Row 1, Col 1
+        let adj_5 = this.a[M12] * this.a[M13] - this.a[M11] * this.a[M23];         // Row 1, Col 2 (and Row 2, Col 1)
+        let adj_8 = this.a[M11] * this.a[M22] - b_sq;                          // Row 2, Col 2
 
         // Determinant computed via dot product of Row 0 and Adjugate Row 0
-        let determinant = this.a[0] * adj_0 + this.a[1] * adj_1 + this.a[2] * adj_2;
+        let determinant = this.a[M11] * adj_0 + this.a[M12] * adj_1 + this.a[M13] * adj_2;
 
         let a = [
             adj_0, adj_1, adj_2,

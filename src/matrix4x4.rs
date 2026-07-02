@@ -105,7 +105,7 @@ where
     /// ```
     #[inline]
     pub const fn new(a: [T; 16]) -> Self {
-        Self { a }
+        Self::from_row_array(a)
     }
 }
 
@@ -124,7 +124,7 @@ where
     ///                                    2.0, 2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0, 2.0]));
     /// ```
-    pub fn fill(value: T) -> Self {
+    pub const fn fill(value: T) -> Self {
         Self { a: [value; 16] }
     }
 
@@ -141,7 +141,7 @@ where
     ///                                   67.0, 73.0, 83.0,  97.0]));
     /// ```
     #[inline]
-    pub fn from_rows(v: [Vector4d<T>; 4]) -> Self {
+    pub const fn from_rows(v: [Vector4d<T>; 4]) -> Self {
         Self {
             a: [
                 v[0].x, v[0].y, v[0].z, v[0].t, //
@@ -165,7 +165,7 @@ where
     ///                                  127.0, 109.0, 103.0,  97.0]));
     /// ```
     #[inline]
-    pub fn from_columns(v: [Vector4d<T>; 4]) -> Self {
+    pub const fn from_columns(v: [Vector4d<T>; 4]) -> Self {
         Self {
             a: [
                 v[0].x, v[1].x, v[2].x, v[3].x, //
@@ -189,7 +189,7 @@ where
     ///                                   67.0, 73.0, 83.0,  97.0]));
     /// ```
     #[inline]
-    pub fn from_row_array(a: [T; 16]) -> Self {
+    pub const fn from_row_array(a: [T; 16]) -> Self {
         Self { a }
     }
 
@@ -206,7 +206,7 @@ where
     ///                                  127.0, 109.0, 103.0,  97.0]));
     /// ```
     #[inline]
-    pub fn from_column_array(a: [T; 16]) -> Self {
+    pub const fn from_column_array(a: [T; 16]) -> Self {
         Self {
             a: [
                 a[0], a[4], a[8], a[12], //
@@ -230,7 +230,7 @@ where
     ///                                   67.0, 73.0, 83.0,  97.0]));
     /// ```
     #[inline]
-    pub fn from_2d_row_array(a: [[T; 4]; 4]) -> Self {
+    pub const fn from_2d_row_array(a: [[T; 4]; 4]) -> Self {
         Self {
             a: [
                 a[0][0], a[0][1], a[0][2], a[0][3], //
@@ -254,7 +254,7 @@ where
     ///                                  127.0, 109.0, 103.0,  97.0]));
     /// ```
     #[inline]
-    pub fn from_2d_column_array(a: [[T; 4]; 4]) -> Self {
+    pub const fn from_2d_column_array(a: [[T; 4]; 4]) -> Self {
         Self {
             a: [
                 a[0][0], a[1][0], a[2][0], a[3][0], //
