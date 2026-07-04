@@ -31,7 +31,7 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
 
 ### Security
 
-## [0.1.13] - 2026-06-xx
+## [0.1.13] - 2026-07-04
 
 ### Added
 
@@ -41,12 +41,13 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
 - Units Of Measurement (`uom`) support for vectors.
 - `fill` and `try_from_slice` constructors for matrices.
 - `lerp` (linear interpolation) for vectors and quaternions.
-- `outer_product` for quaternions.
+- `outer_product`, `inverse`, and `half` functions for quaternions.
 
 ### Changed
 
 - Moved documentation from `impl` blocks to directly before functions.
 - Improved matrix row and column functions.
+- Changed `from` functions to explicitly state whether from row or column.
 
 ### Removed
 
