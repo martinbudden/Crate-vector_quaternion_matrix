@@ -178,13 +178,13 @@ impl<T> Matrix9x9<T>
 where
     T: Copy,
 {
-    /// Create a matrix filled with a single value.
+    /// Create a matrix with all its elements set to a single value.
     /// ```
     /// # use vqm::Matrix9x9f32;
-    /// let m = Matrix9x9f32::fill(2.0);
+    /// let m = Matrix9x9f32::from_element(2.0);
     /// assert_eq!(2.0, m[9]);
     /// ```
-    pub fn fill(value: T) -> Self {
+    pub fn from_element(value: T) -> Self {
         Self { a: [value; 81] }
     }
 
@@ -220,6 +220,43 @@ where
         let mut a = [slice[0]; 81];
         a.copy_from_slice(&slice[0..81]);
         Some(Self { a })
+    }
+}
+
+impl<T> Matrix9x9<T>
+where
+    T: Copy + ConstZero,
+{
+    /// Create a matrix with the diagonal set to a single value.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_diagonal_element(2.0);
+    /// assert_eq!(m, Matrix9x9f32::new([ 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_element(value: T) -> Self {
+        Self {
+            a: [
+            value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,   T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,   T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,   T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,
+            ]
+        }
     }
 }
 

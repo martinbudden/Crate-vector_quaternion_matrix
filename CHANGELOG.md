@@ -19,7 +19,12 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Added
 
+- `from_diagonal_element` and `from_diagonal` constructors to matrices.
+- `try_from_column_slice` constructors to matrices.
+
 ### Changed
+
+- renamed matrix `fill` constructor to `from_element`.
 
 ### Removed
 
@@ -39,7 +44,6 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
 - `fill` and `try_from_slice` constructors for matrices.
 - multiply for `Matrix9x9`.
 - Units Of Measurement (`uom`) support for vectors.
-- `fill` and `try_from_slice` constructors for matrices.
 - `lerp` (linear interpolation) for vectors and quaternions.
 - `outer_product`, `inverse`, and `half` functions for quaternions.
 
@@ -203,6 +207,6 @@ At some point [0.1.0] to [0.1.10] will be [YANKED]
   ie `transpose` and `transpose_in_place` rather than `transpose` and `transposed`.
 - Updated README.md
 
-## [0.1.0] - 2023-03-05
+## [0.1.0] - 2026-03-05
 
 Initial release.

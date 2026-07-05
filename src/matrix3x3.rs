@@ -83,15 +83,15 @@ impl<T> Matrix3x3<T>
 where
     T: Copy,
 {
-    /// Create a matrix filled with a single value.
+    /// Create a matrix with all its elements set to a single value.
     /// ```
     /// # use vqm::Matrix3x3f32;
-    /// let m = Matrix3x3f32::fill(2.0);
+    /// let m = Matrix3x3f32::from_element(2.0);
     /// assert_eq!(m, Matrix3x3f32::new([  2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0]));
     /// ```
-    pub const fn fill(value: T) -> Self {
+    pub const fn from_element(value: T) -> Self {
         Self { a: [value; 9] }
     }
 
@@ -236,7 +236,7 @@ where
         }
     }
 
-    /// Try to create a matrix from a slice.
+    /// Try to create a matrix from a row slice.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let valid_data = [2.0; 9];
@@ -256,6 +256,71 @@ where
         let mut a = [slice[0]; 9];
         a.copy_from_slice(&slice[0..9]);
         Some(Self { a })
+    }
+
+    /// Try to create a matrix from a column slice.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// let valid_data = [2.0; 9];
+    /// let invalid_data = [2.0; 3];
+    /// let Some(m) = Matrix3x3f32::try_from_column_slice(&valid_data) else {
+    ///     panic!("Expected Some(Matrix3x3), but got None");
+    /// };
+    /// assert_eq!(2.0, m[0]);
+    /// let None = Matrix3x3f32::try_from_column_slice(&invalid_data) else {
+    ///     panic!("Expected None for invalid data, but got Some");
+    /// };
+    /// ```
+    pub fn try_from_column_slice(slice: &[T]) -> Option<Self> {
+        if slice.len() != 9 {
+            return None;
+        }
+        let a = [slice[0], slice[3], slice[6], slice[1], slice[4], slice[7], slice[2], slice[5], slice[8]];
+        Some(Self { a })
+    }
+}
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + ConstZero,
+{
+    /// Create a matrix with the diagonal set to a single value.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// let m = Matrix3x3f32::from_diagonal_element(2.0);
+    /// assert_eq!(m, Matrix3x3f32::new([ 2.0, 0.0, 0.0,
+    ///                                   0.0, 2.0, 0.0,
+    ///                                   0.0, 0.0, 2.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_element(value: T) -> Self {
+        Self {
+            a: [
+                value,   T::ZERO, T::ZERO,
+                T::ZERO, value,   T::ZERO,
+                T::ZERO, T::ZERO, value,
+            ]
+        }
+    }
+    /// Create a matrix with the diagonal set to a vector.
+    /// ```
+    /// # use vqm::{Matrix3x3f32,Vector3df32};
+    /// let m = Matrix3x3f32::from_diagonal(Vector3df32::new(2.0, 3.0, 5.0));
+    /// assert_eq!(m, Matrix3x3f32::new([ 2.0, 0.0, 0.0,
+    ///                                   0.0, 3.0, 0.0,
+    ///                                   0.0, 0.0, 5.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal(v: Vector3d<T>) -> Self {
+        Self {
+            a: [
+                v.x,     T::ZERO, T::ZERO,
+                T::ZERO, v.y,     T::ZERO,
+                T::ZERO, T::ZERO, v.z,
+            ]
+        }
     }
 }
 

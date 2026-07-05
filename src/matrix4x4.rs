@@ -116,16 +116,16 @@ impl<T> Matrix4x4<T>
 where
     T: Copy,
 {
-    /// Create a matrix filled with a single value.
+    /// Create a matrix with all its elements set to a single value.
     /// ```
     /// # use vqm::Matrix4x4f32;
-    /// let m = Matrix4x4f32::fill(2.0);
+    /// let m = Matrix4x4f32::from_element(2.0);
     /// assert_eq!(m, Matrix4x4f32::new([  2.0, 2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0, 2.0]));
     /// ```
-    pub const fn fill(value: T) -> Self {
+    pub const fn from_element(value: T) -> Self {
         Self { a: [value; 16] }
     }
 
@@ -266,7 +266,7 @@ where
         }
     }
 
-    /// Try to create a matrix from a slice.
+    /// Try to create a matrix from a row slice.
     /// ```
     /// # use vqm::Matrix4x4f32;
     /// let valid_data = [2.0; 16];
@@ -279,6 +279,8 @@ where
     ///     panic!("Expected None for invalid data, but got Some");
     /// };
     /// ```
+    #[rustfmt::skip]
+    #[inline]
     pub fn try_from_row_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 16 {
             return None;
@@ -286,6 +288,77 @@ where
         let mut a = [slice[0]; 16];
         a.copy_from_slice(&slice[0..16]);
         Some(Self { a })
+    }
+    /// Try to create a matrix from a column slice.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let valid_data = [2.0; 16];
+    /// let invalid_data = [2.0; 3];
+    /// let Some(m) = Matrix4x4f32::try_from_column_slice(&valid_data) else {
+    ///     panic!("Expected Some(Matrix4x4), but got None");
+    /// };
+    /// assert_eq!(2.0, m[0]);
+    /// let None = Matrix4x4f32::try_from_column_slice(&invalid_data) else {
+    ///     panic!("Expected None for invalid data, but got Some");
+    /// };
+    /// ```
+    pub fn try_from_column_slice(slice: &[T]) -> Option<Self> {
+        if slice.len() != 16 {
+            return None;
+        }
+        let a = [
+            slice[0], slice[4], slice[8], slice[12], slice[1], slice[5], slice[9], slice[13], slice[2], slice[6],
+            slice[10], slice[14], slice[3], slice[7], slice[11], slice[15],
+        ];
+        Some(Self { a })
+    }
+}
+
+impl<T> Matrix4x4<T>
+where
+    T: Copy + ConstZero,
+{
+    /// Create a matrix with the diagonal set to a single value.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let m = Matrix4x4f32::from_diagonal_element(2.0);
+    /// assert_eq!(m, Matrix4x4f32::new([ 2.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 2.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 2.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 2.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_element(value: T) -> Self {
+        Self {
+            a: [
+                value,   T::ZERO, T::ZERO, T::ZERO,
+                T::ZERO, value,   T::ZERO, T::ZERO,
+                T::ZERO, T::ZERO, value,   T::ZERO,
+                T::ZERO, T::ZERO, T::ZERO, value,
+            ]
+        }
+    }
+    /// Create a matrix with the diagonal set to a vector.
+    /// ```
+    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// let m = Matrix4x4f32::from_diagonal(Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// assert_eq!(m, Matrix4x4f32::new([ 2.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 3.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 5.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 7.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal(v: Vector4d<T>) -> Self {
+        Self {
+            a: [
+                v.x,     T::ZERO, T::ZERO, T::ZERO,
+                T::ZERO, v.y,     T::ZERO, T::ZERO,
+                T::ZERO, T::ZERO, v.z,     T::ZERO,
+                T::ZERO, T::ZERO, T::ZERO, v.t,
+            ]
+        }
     }
 }
 

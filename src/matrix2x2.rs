@@ -75,17 +75,16 @@ impl<T> Matrix2x2<T>
 where
     T: Copy,
 {
-    /// Create a matrix filled with a single value.
+    /// Create a matrix with all its elements set to a single value.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let m = Matrix2x2f32::fill(2.0);
+    /// let m = Matrix2x2f32::from_element(2.0);
     /// assert_eq!(m, Matrix2x2f32::new([  2.0, 2.0,
     ///                                    2.0, 2.0]));
     /// ```
-    pub const fn fill(value: T) -> Self {
+    pub const fn from_element(value: T) -> Self {
         Self { a: [value; 4] }
     }
-
     /// Matrix from array of row vectors.
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2df32};
@@ -189,7 +188,7 @@ where
         }
     }
 
-    /// Try to create a matrix from a slice.
+    /// Try to create a matrix from a row slice.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let valid_data = [1.0; 4];
@@ -202,6 +201,8 @@ where
     ///     panic!("Expected None for invalid data, but got Some");
     /// };
     /// ```
+    #[rustfmt::skip]
+    #[inline]
     pub fn try_from_row_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 4 {
             return None;
@@ -209,6 +210,71 @@ where
         let mut a = [slice[0]; 4];
         a.copy_from_slice(&slice[0..4]);
         Some(Self { a })
+    }
+    /// Try to create a matrix from a column slice.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// let valid_data = [2.0; 4];
+    /// let invalid_data = [2.0; 3];
+    /// let Some(m) = Matrix2x2f32::try_from_column_slice(&valid_data) else {
+    ///     panic!("Expected Some(Matrix2x2), but got None");
+    /// };
+    /// assert_eq!(2.0, m[0]);
+    /// let None = Matrix2x2f32::try_from_column_slice(&invalid_data) else {
+    ///     panic!("Expected None for invalid data, but got Some");
+    /// };
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub fn try_from_column_slice(slice: &[T]) -> Option<Self> {
+        if slice.len() != 4 {
+            return None;
+        }
+        let a = [
+            slice[0], slice[2],
+            slice[1], slice[3],
+        ];
+        Some(Self { a })
+    }
+}
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + ConstZero,
+{
+    /// Create a matrix with the diagonal set to a single value.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from_diagonal_element(2.0);
+    /// assert_eq!(m, Matrix2x2f32::new([  2.0, 0.0,
+    ///                                    0.0, 2.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_element(value: T) -> Self {
+        Self {
+            a: [
+                value,   T::ZERO,
+                T::ZERO, value,
+            ]
+        }
+    }
+    /// Create a matrix with the diagonal set to a vector.
+    /// ```
+    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// let m = Matrix2x2f32::from_diagonal(Vector2df32::new(2.0, 3.0));
+    /// assert_eq!(m, Matrix2x2f32::new([ 2.0, 0.0,
+    ///                                   0.0, 3.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal(v: Vector2d<T>) -> Self {
+        Self {
+            a: [
+                v.x,     T::ZERO,
+                T::ZERO, v.y,
+            ]
+        }
     }
 }
 
