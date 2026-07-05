@@ -3,7 +3,7 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "simd")] {
-        use core::{mem::transmute};
+        use core::mem::transmute;
         use core::simd::{f32x2,f32x4,num::SimdFloat};
     }
 }
@@ -157,16 +157,13 @@ impl Matrix2x2Math for f32 {
         }
     }
 
+    #[rustfmt::skip]
     #[inline(always)]
     fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
         Matrix2x2 {
             a: [
-                // Row 1: col.x multiplied across the row vector
-                col.x * row.x,
-                col.x * row.y,
-                // Row 2: col.y multiplied across the row vector
-                col.y * row.x,
-                col.y * row.y,
+                col.x * row.x, col.x * row.y,
+                col.y * row.x, col.y * row.y,
             ],
         }
     }
@@ -307,16 +304,13 @@ impl Matrix2x2Math for f64 {
         Vector2d { x: this.x * other.a[M11] + this.y * other.a[M21], y: this.x * other.a[M12] + this.y * other.a[M22] }
     }
 
+    #[rustfmt::skip]
     #[inline(always)]
     fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
         Matrix2x2 {
             a: [
-                // Row 1: col.x multiplied across the row vector
-                col.x * row.x,
-                col.x * row.y,
-                // Row 2: col.y multiplied across the row vector
-                col.y * row.x,
-                col.y * row.y,
+                col.x * row.x, col.x * row.y,
+                col.y * row.x, col.y * row.y,
             ],
         }
     }

@@ -125,6 +125,7 @@ where
     ///                                    2.0, 2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0, 2.0]));
     /// ```
+    #[inline]
     pub const fn from_element(value: T) -> Self {
         Self { a: [value; 16] }
     }
@@ -302,13 +303,17 @@ where
     ///     panic!("Expected None for invalid data, but got Some");
     /// };
     /// ```
+    #[rustfmt::skip]
+    #[inline]
     pub fn try_from_column_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 16 {
             return None;
         }
         let a = [
-            slice[0], slice[4], slice[8], slice[12], slice[1], slice[5], slice[9], slice[13], slice[2], slice[6],
-            slice[10], slice[14], slice[3], slice[7], slice[11], slice[15],
+            slice[0], slice[4], slice[8],  slice[12],
+            slice[1], slice[5], slice[9],  slice[13],
+            slice[2], slice[6], slice[10], slice[14],
+            slice[3], slice[7], slice[11], slice[15],
         ];
         Some(Self { a })
     }

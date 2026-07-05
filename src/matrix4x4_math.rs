@@ -85,25 +85,16 @@ impl Matrix4x4Math for f32 {
         Self::m4x4_add(Self::m4x4_mul_scalar(this, k), other)
     }
 
-    #[inline]
-    #[must_use]
+
+    #[inline(always)]
     fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
-        let mut ret = [0.0; 4];
-        let v = [other.x, other.y, other.z, other.t];
-
-        for (row, ret_element) in ret.iter_mut().enumerate() {
-            let row_offset = row * 4;
-            let mut sum = 0.0;
-            let matrix_row = &this.a[row_offset..row_offset + 4];
-            for (matrix_val, vector_val) in matrix_row.iter().zip(&v) {
-                sum += matrix_val * vector_val;
-            }
-            *ret_element = sum;
+        Vector4d {
+            x: this.a[M11] * other.x + this.a[M12] * other.y + this.a[M13] * other.z + this.a[M14] * other.t,
+            y: this.a[M21] * other.x + this.a[M22] * other.y + this.a[M23] * other.z + this.a[M24] * other.t,
+            z: this.a[M31] * other.x + this.a[M32] * other.y + this.a[M33] * other.z + this.a[M34] * other.t,
+            t: this.a[M41] * other.x + this.a[M42] * other.y + this.a[M43] * other.z + this.a[M44] * other.t,
         }
-
-        Vector4d { x: ret[M11], y: ret[M12], z: ret[M13], t: ret[M14] }
     }
-
     #[rustfmt::skip]
     #[inline]
     fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self> {
@@ -250,7 +241,7 @@ impl Matrix4x4Math for f32 {
     }
 
     #[rustfmt::skip]
-    #[inline]
+    #[inline(always)]
     fn m4x4_determinant(this: Matrix4x4<Self>) -> Self {
          this.a[M11] * Self::m3x3_determinant(Matrix3x3 { a: [this.a[M22], this.a[M23], this.a[M24], this.a[M32], this.a[M33], this.a[M34], this.a[M42], this.a[M43], this.a[M44]]})
         -this.a[M12] * Self::m3x3_determinant(Matrix3x3 { a: [this.a[M21], this.a[M23], this.a[M24], this.a[M31], this.a[M33], this.a[M34], this.a[M41], this.a[M43], this.a[M44]]})
@@ -259,6 +250,7 @@ impl Matrix4x4Math for f32 {
     }
 
     #[rustfmt::skip]
+    #[inline(always)]
     fn m4x4_adjugate(s: Matrix4x4<Self>) -> (Matrix4x4<Self>, Self) {
         let s0  = s.a[M11]; let s1  = s.a[M12]; let s2  = s.a[M13]; let s3  = s.a[M14];
         let s4  = s.a[M21]; let s5  = s.a[M22]; let s6  = s.a[M23]; let s7  = s.a[M24];
@@ -350,7 +342,7 @@ impl Matrix4x4Math for f64 {
         Self::m4x4_add(Self::m4x4_mul_scalar(this, k), other)
     }
 
-    #[inline]
+    #[inline(always)]
     fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self> {
         Vector4d {
             x: this.x * other.a[M11] + this.y * other.a[M21] + this.z * other.a[M31] + this.t * other.a[M41],
@@ -360,7 +352,7 @@ impl Matrix4x4Math for f64 {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
         Vector4d {
             x: this.a[M11] * other.x + this.a[M12] * other.y + this.a[M13] * other.z + this.a[M14] * other.t,
@@ -444,7 +436,7 @@ impl Matrix4x4Math for f64 {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     fn m4x4_mul(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self> {
         let mut ret = [0.0; 16];
 
@@ -510,7 +502,7 @@ impl Matrix4x4Math for f64 {
     }
 
     #[rustfmt::skip]
-    #[inline]
+    #[inline(always)]
     fn m4x4_determinant(this: Matrix4x4<Self>) -> Self {
          this.a[M11] * Self::m3x3_determinant(Matrix3x3 { a: [this.a[M22], this.a[M23], this.a[M24], this.a[M32], this.a[M33], this.a[M34], this.a[M42], this.a[M43], this.a[M44]]})
         -this.a[M12] * Self::m3x3_determinant(Matrix3x3 { a: [this.a[M21], this.a[M23], this.a[M24], this.a[M31], this.a[M33], this.a[M34], this.a[M41], this.a[M43], this.a[M44]]})
@@ -519,7 +511,7 @@ impl Matrix4x4Math for f64 {
     }
 
     #[rustfmt::skip]
-    #[inline]
+    #[inline(always)]
     fn m4x4_adjugate(s: Matrix4x4<Self>) -> (Matrix4x4<Self>, Self) {
         let s0  = s.a[M11]; let s1  = s.a[M12]; let s2  = s.a[M13]; let s3  = s.a[M14];
         let s4  = s.a[M21]; let s5  = s.a[M22]; let s6  = s.a[M23]; let s7  = s.a[M24];

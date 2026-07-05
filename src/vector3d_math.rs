@@ -3,7 +3,7 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "simd")] {
-        use core::{mem::transmute};
+        use core::mem::transmute;
         use core::simd::{f32x4,num::SimdFloat,simd_swizzle};
         // must be aligned if using SIMD
         const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
@@ -119,7 +119,7 @@ impl Vector3dMath for f32 {
         {
             let this_simd = f32x4::from(this);
             let other_simd = f32x4::from(other);
-            this_simd * other.simd
+            (this_simd * other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {
@@ -133,7 +133,7 @@ impl Vector3dMath for f32 {
         {
             let this_simd = f32x4::from(this);
             let other_simd = f32x4::from(other);
-            this_simd / other.simd
+            (this_simd / other_simd).into()
         }
         #[cfg(not(feature = "simd"))]
         {

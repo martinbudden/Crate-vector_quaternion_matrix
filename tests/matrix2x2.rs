@@ -8,6 +8,7 @@ const _: () = assert!(align_of::<Matrix2x2<f32>>() == 16);
 
 const _: () = assert!(size_of::<Matrix2x2<f64>>() == 32);
 const _: () = assert!(align_of::<Matrix2x2<f64>>() == 16);
+
 #[cfg(test)]
 mod tests {
     use super::*;

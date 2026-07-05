@@ -21,6 +21,7 @@ rustc_version = "0.4.1"
 [features]
 #default = []
 default = ["libm"]
+#default = ["libm","simd"]
 #default = ["libm", "uom"]
 #default = ["libm", "serde", "uom"]
 #default = ["std"]

@@ -82,6 +82,7 @@ where
     /// assert_eq!(m, Matrix2x2f32::new([  2.0, 2.0,
     ///                                    2.0, 2.0]));
     /// ```
+    #[inline]
     pub const fn from_element(value: T) -> Self {
         Self { a: [value; 4] }
     }

@@ -91,6 +91,7 @@ where
     ///                                    2.0, 2.0, 2.0,
     ///                                    2.0, 2.0, 2.0]));
     /// ```
+    #[inline]
     pub const fn from_element(value: T) -> Self {
         Self { a: [value; 9] }
     }
@@ -215,6 +216,27 @@ where
         }
     }
 
+    /// Matrix from padded 2D row array.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// let m = Matrix3x3f32::from_padded_2d_column_array([[  2.0, 17.0, 59.0, 127.0],
+    ///                                                    [  5.0, 11.0, 47.0, 109.0],
+    ///                                                    [ 23.0, 31.0, 41.0, 103.0]]);
+    /// assert_eq!(m, Matrix3x3f32::new([  2.0,  5.0, 23.0,
+    ///                                   17.0, 11.0, 31.0,
+    ///                                   59.0, 47.0, 41.0]));
+    /// ```
+    #[inline]
+    pub const fn from_padded_2d_column_array(a: [[T; 4]; 3]) -> Self {
+        Self {
+            a: [
+                a[0][0], a[1][0], a[2][0], //
+                a[0][1], a[1][1], a[2][1], //
+                a[0][2], a[1][2], a[2][2], //
+            ],
+        }
+    }
+
     /// Matrix from 2D column array.
     /// ```
     /// # use vqm::Matrix3x3f32;
@@ -271,11 +293,17 @@ where
     ///     panic!("Expected None for invalid data, but got Some");
     /// };
     /// ```
+    #[rustfmt::skip]
+    #[inline]
     pub fn try_from_column_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 9 {
             return None;
         }
-        let a = [slice[0], slice[3], slice[6], slice[1], slice[4], slice[7], slice[2], slice[5], slice[8]];
+        let a = [
+            slice[0], slice[3], slice[6],
+            slice[1], slice[4], slice[7],
+            slice[2], slice[5], slice[8]
+        ];
         Some(Self { a })
     }
 }

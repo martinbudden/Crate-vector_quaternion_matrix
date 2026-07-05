@@ -3,7 +3,7 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "simd")] {
-        use core::{mem::transmute};
+        use core::mem::transmute;
         use core::simd::{f32x2,num::SimdFloat};
     }
 }
