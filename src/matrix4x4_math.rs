@@ -85,7 +85,6 @@ impl Matrix4x4Math for f32 {
         Self::m4x4_add(Self::m4x4_mul_scalar(this, k), other)
     }
 
-
     #[inline(always)]
     fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
         Vector4d {

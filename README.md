@@ -138,22 +138,13 @@ unstable in rust.
 
 **SIMD** does not work with Units of Measurement `uom`.
 
+**SIMD** require using the `align` feature flag.
+
 This can be invoked using `rustup`, eg:
 
 ```sh
-rustup run nightly cargo build --features simd --target thumbv8m.main-none-eabi
+rustup run nightly cargo build --features "simd align" --target thumbv8m.main-none-eabi
 ```
-
-## Struct alignment
-
-By default `Vector3df32` is aligned to a 16-byte boundary, and `Matrix3x3f32` is aligned to a 32-byte boundary.
-This can be turned off using the `no_align` feature flag:
-
-```sh
-cargo build -features no_align
-```
-
-If `no_align` is used then SIMD support is not available.
 
 ## Architecture
 

@@ -4,16 +4,16 @@ use vqm::{Matrix3x3, Matrix3x3f32, Vector3d};
 
 // **** Align ****
 cfg_if! {
-    if #[cfg(feature = "no_align")] {
-        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 36);
-        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 4);
-        const _: () = assert!(size_of::<Matrix3x3<f64>>() == 72);
-        const _: () = assert!(align_of::<Matrix3x3<f64>>() == 8);
-    } else {
+    if #[cfg(feature = "align")] {
         const _: () = assert!(size_of::<Matrix3x3<f32>>() == 64);
         const _: () = assert!(align_of::<Matrix3x3<f32>>() == 64);
         const _: () = assert!(size_of::<Matrix3x3<f64>>() == 128);
         const _: () = assert!(align_of::<Matrix3x3<f64>>() == 64);
+    } else {
+        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 36);
+        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 4);
+        const _: () = assert!(size_of::<Matrix3x3<f64>>() == 72);
+        const _: () = assert!(align_of::<Matrix3x3<f64>>() == 8);
     }
 }
 

@@ -26,8 +26,8 @@ pub type Matrix3x3f64 = Matrix3x3<f64>;
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "no_align", repr(C))]
-#[cfg_attr(not(feature = "no_align"), repr(C, align(64)))]
+#[cfg_attr(feature = "align", repr(C, align(64)))]
+#[cfg_attr(not(feature = "align"), repr(C))]
 pub struct Matrix3x3<T> {
     // Flattened 3x3 matrix: 9 elements in row-major order
     pub(crate) a: [T; 9],

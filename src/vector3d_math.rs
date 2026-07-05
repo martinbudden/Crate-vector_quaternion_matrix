@@ -8,12 +8,12 @@ cfg_if! {
         // must be aligned if using SIMD
         const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
         const _: () = assert!(align_of::<Vector3d<f32>>() == 16);
-    } else if #[cfg(feature = "no_align")] {
-        const _: () = assert!(size_of::<Vector3d<f32>>() == 12);
-        const _: () = assert!(align_of::<Vector3d<f32>>() == 4);
-    } else {
+    } else if #[cfg(feature = "align")] {
         const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
         const _: () = assert!(align_of::<Vector3d<f32>>() == 16);
+    } else {
+        const _: () = assert!(size_of::<Vector3d<f32>>() == 12);
+        const _: () = assert!(align_of::<Vector3d<f32>>() == 4);
     }
 }
 

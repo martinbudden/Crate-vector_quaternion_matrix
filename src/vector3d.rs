@@ -25,9 +25,9 @@ pub type Vector3df64 = Vector3d<f64>;
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}}}"))]
 // Conditionally derive serde traits
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-// Conditionally apply alignment based on "no_align" feature
-#[cfg_attr(feature = "no_align", repr(C, align(4)))]
-#[cfg_attr(not(feature = "no_align"), repr(C, align(16)))]
+// Conditionally apply alignment based on "align" feature
+#[cfg_attr(feature = "align", repr(C, align(16)))]
+#[cfg_attr(not(feature = "align"), repr(C))]
 #[allow(missing_docs)]
 pub struct Vector3d<T> {
     pub x: T,

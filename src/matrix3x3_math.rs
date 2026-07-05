@@ -7,12 +7,12 @@ cfg_if! {
         // must be aligned if using SIMD
         const _: () = assert!(size_of::<Matrix3x3<f32>>() == 64);
         const _: () = assert!(align_of::<Matrix3x3<f32>>() == 64);
-    } else if #[cfg(feature = "no_align")] {
-        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 36);
-        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 4);
-    } else {
+    } else if #[cfg(feature = "align")] {
         const _: () = assert!(size_of::<Matrix3x3<f32>>() == 64);
         const _: () = assert!(align_of::<Matrix3x3<f32>>() == 64);
+    } else {
+        const _: () = assert!(size_of::<Matrix3x3<f32>>() == 36);
+        const _: () = assert!(align_of::<Matrix3x3<f32>>() == 4);
     }
 }
 
@@ -441,8 +441,8 @@ impl Matrix3x3Math for f64 {
 
     #[inline(always)]
     fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { 
-            x: this.a[M11] * other.x + this.a[M21] * other.y + this.a[M31] * other.z, 
+        Vector3d {
+            x: this.a[M11] * other.x + this.a[M21] * other.y + this.a[M31] * other.z,
             y: this.a[M12] * other.x + this.a[M22] * other.y + this.a[M32] * other.z,
             z: this.a[M13] * other.x + this.a[M23] * other.y + this.a[M33] * other.z,
         }

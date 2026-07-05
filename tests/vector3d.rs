@@ -3,16 +3,16 @@ use vqm::{Vector3d, Vector3df32, Vector3df64};
 
 // **** Align ****
 cfg_if! {
-    if #[cfg(feature = "no_align")] {
-        const _: () = assert!(size_of::<Vector3df32>() == 12);
-        const _: () = assert!(align_of::<Vector3df32>() == 4);
-        const _: () = assert!(size_of::<Vector3df64>() == 24);
-        const _: () = assert!(align_of::<Vector3df64>() == 8);
-    } else {
+    if #[cfg(feature = "align")] {
         const _: () = assert!(size_of::<Vector3df32>() == 16);
         const _: () = assert!(align_of::<Vector3df32>() == 16);
         const _: () = assert!(size_of::<Vector3df64>() == 32);
         const _: () = assert!(align_of::<Vector3df64>() == 16);
+    } else {
+        const _: () = assert!(size_of::<Vector3df32>() == 12);
+        const _: () = assert!(align_of::<Vector3df32>() == 4);
+        const _: () = assert!(size_of::<Vector3df64>() == 24);
+        const _: () = assert!(align_of::<Vector3df64>() == 8);
     }
 }
 
@@ -55,16 +55,16 @@ mod tests {
     fn vector_memory_layout() {
         // A 3-axis f32 vector is 12 bytes.
         // With align(16), the compiler pads it to 16 bytes.
-        #[cfg(feature = "no_align")]
-        assert_eq!(size_of::<Vector3df32>(), 12);
-        #[cfg(not(feature = "no_align"))]
+        #[cfg(feature = "align")]
         assert_eq!(size_of::<Vector3df32>(), 16);
+        #[cfg(not(feature = "align"))]
+        assert_eq!(size_of::<Vector3df32>(), 12);
 
         // This ensures the start of every vector is on a 16-byte boundary
-        #[cfg(feature = "no_align")]
-        assert_eq!(align_of::<Vector3df32>(), 4);
-        #[cfg(not(feature = "no_align"))]
+        #[cfg(feature = "align")]
         assert_eq!(align_of::<Vector3df32>(), 16);
+        #[cfg(not(feature = "align"))]
+        assert_eq!(align_of::<Vector3df32>(), 4);
     }
     #[test]
     fn neg_owned() {
