@@ -911,10 +911,10 @@ impl<T> Index<usize> for Matrix2x2<T> {
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
     ///                              5.0, 11.0]);
     ///
-    /// assert_eq!(m[0], 2.0);
-    /// assert_eq!(m[1], 17.0);
-    /// assert_eq!(m[2], 5.0);
-    /// assert_eq!(m[3], 11.0);
+    /// assert_eq!(m[Matrix2x2f32::M11], 2.0);
+    /// assert_eq!(m[Matrix2x2f32::M12], 17.0);
+    /// assert_eq!(m[Matrix2x2f32::M21], 5.0);
+    /// assert_eq!(m[Matrix2x2f32::M22], 11.0);
     /// ```
     #[inline]
     fn index(&self, index: usize) -> &T {
@@ -981,10 +981,10 @@ impl<T> IndexMut<usize> for Matrix2x2<T> {
     /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
     ///                                  5.0, 11.0]);
     ///
-    /// m[0] = 3.0;
-    /// m[1] = 19.0;
-    /// m[2] = 7.0;
-    /// m[3] = 13.0;
+    /// m[Matrix2x2f32::M11] = 3.0;
+    /// m[Matrix2x2f32::M12] = 19.0;
+    /// m[Matrix2x2f32::M21] = 7.0;
+    /// m[Matrix2x2f32::M22] = 13.0;
     ///
     /// assert_eq!(m, Matrix2x2f32::new([  3.0, 19.0,
     ///                                    7.0, 13.0]));

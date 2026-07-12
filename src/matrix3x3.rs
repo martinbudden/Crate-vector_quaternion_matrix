@@ -1032,15 +1032,15 @@ impl<T> Index<usize> for Matrix3x3<T> {
     ///                              5.0, 11.0, 47.0,
     ///                             23.0, 31.0, 41.0]);
     ///
-    /// assert_eq!(m[0], 2.0);
-    /// assert_eq!(m[1], 17.0);
-    /// assert_eq!(m[2], 59.0);
-    /// assert_eq!(m[3], 5.0);
-    /// assert_eq!(m[4], 11.0);
-    /// assert_eq!(m[5], 47.0);
-    /// assert_eq!(m[6], 23.0);
-    /// assert_eq!(m[7], 31.0);
-    /// assert_eq!(m[8], 41.0);
+    /// assert_eq!(m[Matrix3x3f32::M11], 2.0);
+    /// assert_eq!(m[Matrix3x3f32::M12], 17.0);
+    /// assert_eq!(m[Matrix3x3f32::M13], 59.0);
+    /// assert_eq!(m[Matrix3x3f32::M21], 5.0);
+    /// assert_eq!(m[Matrix3x3f32::M22], 11.0);
+    /// assert_eq!(m[Matrix3x3f32::M23], 47.0);
+    /// assert_eq!(m[Matrix3x3f32::M31], 23.0);
+    /// assert_eq!(m[Matrix3x3f32::M32], 31.0);
+    /// assert_eq!(m[Matrix3x3f32::M33], 41.0);
     /// ```
     #[inline]
     fn index(&self, index: usize) -> &T {
@@ -1114,15 +1114,15 @@ impl<T> IndexMut<usize> for Matrix3x3<T> {
     ///                                  5.0, 11.0, 47.0,
     ///                                 23.0, 31.0, 41.0]);
     ///
-    /// m[0] = 3.0;
-    /// m[1] = 19.0;
-    /// m[2] = 61.0;
-    /// m[3] = 7.0;
-    /// m[4] = 13.0;
-    /// m[5] = 53.0;
-    /// m[6] = 29.0;
-    /// m[7] = 37.0;
-    /// m[8] = 43.0;
+    /// m[Matrix3x3f32::M11] = 3.0;
+    /// m[Matrix3x3f32::M12] = 19.0;
+    /// m[Matrix3x3f32::M13] = 61.0;
+    /// m[Matrix3x3f32::M21] = 7.0;
+    /// m[Matrix3x3f32::M22] = 13.0;
+    /// m[Matrix3x3f32::M23] = 53.0;
+    /// m[Matrix3x3f32::M31] = 29.0;
+    /// m[Matrix3x3f32::M32] = 37.0;
+    /// m[Matrix3x3f32::M33] = 43.0;
     ///
     /// assert_eq!(m, Matrix3x3f32::new([  3.0, 19.0, 61.0,
     ///                                    7.0, 13.0, 53.0,

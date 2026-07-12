@@ -1138,22 +1138,22 @@ impl<T> Index<usize> for Matrix4x4<T> {
     ///                             23.0, 31.0, 41.0, 103.0,
     ///                             67.0, 73.0, 83.0,  97.0]);
     ///
-    /// assert_eq!(m[0], 2.0);
-    /// assert_eq!(m[1], 17.0);
-    /// assert_eq!(m[2], 59.0);
-    /// assert_eq!(m[3], 127.0);
-    /// assert_eq!(m[4], 5.0);
-    /// assert_eq!(m[5], 11.0);
-    /// assert_eq!(m[6], 47.0);
-    /// assert_eq!(m[7], 109.0);
-    /// assert_eq!(m[8], 23.0);
-    /// assert_eq!(m[9], 31.0);
-    /// assert_eq!(m[10], 41.0);
-    /// assert_eq!(m[11], 103.0);
-    /// assert_eq!(m[12], 67.0);
-    /// assert_eq!(m[13], 73.0);
-    /// assert_eq!(m[14], 83.0);
-    /// assert_eq!(m[15], 97.0);
+    /// assert_eq!(m[Matrix4x4f32::M11], 2.0);
+    /// assert_eq!(m[Matrix4x4f32::M12], 17.0);
+    /// assert_eq!(m[Matrix4x4f32::M13], 59.0);
+    /// assert_eq!(m[Matrix4x4f32::M14], 127.0);
+    /// assert_eq!(m[Matrix4x4f32::M21], 5.0);
+    /// assert_eq!(m[Matrix4x4f32::M22], 11.0);
+    /// assert_eq!(m[Matrix4x4f32::M23], 47.0);
+    /// assert_eq!(m[Matrix4x4f32::M24], 109.0);
+    /// assert_eq!(m[Matrix4x4f32::M31], 23.0);
+    /// assert_eq!(m[Matrix4x4f32::M32], 31.0);
+    /// assert_eq!(m[Matrix4x4f32::M33], 41.0);
+    /// assert_eq!(m[Matrix4x4f32::M34], 103.0);
+    /// assert_eq!(m[Matrix4x4f32::M41], 67.0);
+    /// assert_eq!(m[Matrix4x4f32::M42], 73.0);
+    /// assert_eq!(m[Matrix4x4f32::M43], 83.0);
+    /// assert_eq!(m[Matrix4x4f32::M44], 97.0);
     /// ```
     #[inline]
     fn index(&self, index: usize) -> &T {
@@ -1236,22 +1236,22 @@ impl<T> IndexMut<usize> for Matrix4x4<T> {
     ///                                 23.0, 31.0, 41.0, 103.0,
     ///                                 67.0, 73.0, 83.0,  97.0]);
     ///
-    /// m[0] = 3.0;
-    /// m[1] = 19.0;
-    /// m[2] = 61.0;
-    /// m[3] = 131.0;
-    /// m[4] = 7.0;
-    /// m[5] = 13.0;
-    /// m[6] = 53.0;
-    /// m[7] = 113.0;
-    /// m[8] = 29.0;
-    /// m[9] = 37.0;
-    /// m[10] = 43.0;
-    /// m[11] = 107.0;
-    /// m[12] = 71.0;
-    /// m[13] = 79.0;
-    /// m[14] = 89.0;
-    /// m[15] = 101.0;
+    /// m[Matrix4x4f32::M11] = 3.0;
+    /// m[Matrix4x4f32::M12] = 19.0;
+    /// m[Matrix4x4f32::M13] = 61.0;
+    /// m[Matrix4x4f32::M14] = 131.0;
+    /// m[Matrix4x4f32::M21] = 7.0;
+    /// m[Matrix4x4f32::M22] = 13.0;
+    /// m[Matrix4x4f32::M23] = 53.0;
+    /// m[Matrix4x4f32::M24] = 113.0;
+    /// m[Matrix4x4f32::M31] = 29.0;
+    /// m[Matrix4x4f32::M32] = 37.0;
+    /// m[Matrix4x4f32::M33] = 43.0;
+    /// m[Matrix4x4f32::M34] = 107.0;
+    /// m[Matrix4x4f32::M41] = 71.0;
+    /// m[Matrix4x4f32::M42] = 79.0;
+    /// m[Matrix4x4f32::M43] = 89.0;
+    /// m[Matrix4x4f32::M44] = 101.0;
     ///
     /// assert_eq!(m, Matrix4x4f32::new([  3.0, 19.0, 61.0, 131.0,
     ///                                    7.0, 13.0, 53.0, 113.0,
