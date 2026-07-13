@@ -1,5 +1,4 @@
 #![allow(clippy::inline_always)]
-#![allow(unused)]
 
 use crate::{Matrix3x3, Matrix3x3Math, Matrix4x4, Quaternion, Vector4d};
 
@@ -134,10 +133,10 @@ impl Matrix4x4Math for f32 {
 
         Matrix4x4 {
             a: [
-                m0[M11], m0[M12], m0[M13], m0[M14], //
-                m1[M11], m1[M12], m1[M13], m1[M14], //
-                m2[M11], m2[M12], m2[M13], m2[M14], //
-                m3[M11], m3[M12], m3[M13], m3[M14], //
+                m0[0], m0[1], m0[2], m0[3], //
+                m1[0], m1[1], m1[2], m1[3], //
+                m2[0], m2[1], m2[2], m2[3], //
+                m3[0], m3[1], m3[2], m3[3], //
             ],
         }
     }
@@ -171,10 +170,10 @@ impl Matrix4x4Math for f32 {
 
         Matrix4x4 {
             a: [
-                m0[M11], m0[M12], m0[M13], m0[M14], //
-                m1[M11], m1[M12], m1[M13], m1[M14], //
-                m2[M11], m2[M12], m2[M13], m2[M14], //
-                m3[M11], m3[M12], m3[M13], m3[M14], //
+                m0[0], m0[1], m0[2], m0[3], //
+                m1[0], m1[1], m1[2], m1[3], //
+                m2[0], m2[1], m2[2], m2[3], //
+                m3[0], m3[1], m3[2], m3[3], //
             ],
         }
     }
@@ -235,7 +234,7 @@ impl Matrix4x4Math for f32 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m4x4_top_right_determinant(this: Matrix4x4<Self>) -> Self {
+    fn m4x4_top_right_determinant(_this: Matrix4x4<Self>) -> Self {
         0.0
     }
 
@@ -390,10 +389,10 @@ impl Matrix4x4Math for f64 {
 
         Matrix4x4 {
             a: [
-                m0[M11], m0[M12], m0[M13], m0[M14], //
-                m1[M11], m1[M12], m1[M13], m1[M14], //
-                m2[M11], m2[M12], m2[M13], m2[M14], //
-                m3[M11], m3[M12], m3[M13], m3[M14], //
+                m0[0], m0[1], m0[2], m0[3], //
+                m1[0], m1[1], m1[2], m1[3], //
+                m2[0], m2[1], m2[2], m2[3], //
+                m3[0], m3[1], m3[2], m3[3], //
             ],
         }
     }
@@ -427,10 +426,10 @@ impl Matrix4x4Math for f64 {
 
         Matrix4x4 {
             a: [
-                m0[M11], m0[M12], m0[M13], m0[M14], //
-                m1[M11], m1[M12], m1[M13], m1[M14], //
-                m2[M11], m2[M12], m2[M13], m2[M14], //
-                m3[M11], m3[M12], m3[M13], m3[M14], //
+                m0[0], m0[1], m0[2], m0[3], //
+                m1[0], m1[1], m1[2], m1[3], //
+                m2[0], m2[1], m2[2], m2[3], //
+                m3[0], m3[1], m3[2], m3[3], //
             ],
         }
     }
@@ -496,7 +495,7 @@ impl Matrix4x4Math for f64 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m4x4_top_right_determinant(this: Matrix4x4<Self>) -> Self {
+    fn m4x4_top_right_determinant(_this: Matrix4x4<Self>) -> Self {
         0.0
     }
 

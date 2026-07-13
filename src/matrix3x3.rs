@@ -976,7 +976,7 @@ impl<T> AsRef<[T; 9]> for Matrix3x3<T> {
     ///                              5.0, 11.0, 47.0,
     ///                             23.0, 31.0, 41.0]);
     /// let a: &[f32; 9] = m.as_ref();
-    /// assert_eq!(5.0, a[3]);
+    /// assert_eq!(5.0, a[Matrix3x3f32::M21]);
     /// ```
     #[inline]
     fn as_ref(&self) -> &[T; 9] {
@@ -992,8 +992,8 @@ impl<T> AsMut<[T; 9]> for Matrix3x3<T> {
     ///                                  5.0, 11.0, 47.0,
     ///                                 23.0, 31.0, 41.0]);
     /// let a: &mut [f32; 9] = m.as_mut();
-    /// a[3] = 7.0;
-    /// assert_eq!(7.0, m[3]);
+    /// a[Matrix3x3f32::M12] = 7.0;
+    /// assert_eq!(7.0, m[Matrix3x3f32::M12]);
     /// ```
     #[inline]
     fn as_mut(&mut self) -> &mut [T; 9] {

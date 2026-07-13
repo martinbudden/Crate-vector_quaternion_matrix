@@ -857,7 +857,7 @@ impl<T> AsRef<[T; 4]> for Matrix2x2<T> {
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
     ///                              5.0, 11.0]);
     /// let a: &[f32; 4] = m.as_ref();
-    /// assert_eq!(5.0, a[2]);
+    /// assert_eq!(5.0, a[Matrix2x2f32::M21]);
     /// ```
     #[inline]
     fn as_ref(&self) -> &[T; 4] {
@@ -1259,6 +1259,8 @@ where
     ///                              5.0, 11.0]);
     /// let (n,d) = m.adjugate();
     ///
+    /// assert_eq!(n, Matrix2x2f32::new([ 11.0, -17.0,
+    ///                                   -5.0,   2.0]));
     /// assert!((n*m/d).is_near_identity());
     /// ```
     #[inline]

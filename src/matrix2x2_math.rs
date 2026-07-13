@@ -294,14 +294,22 @@ impl Matrix2x2Math for f64 {
         Self::m2x2_add(Self::m2x2_mul_scalar(this, k), other)
     }
 
+    #[rustfmt::skip]
     #[inline(always)]
     fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.a[M11] * other.x + this.a[M21] * other.y, y: this.a[M12] * other.x + this.a[M22] * other.y }
+        Vector2d {
+            x: this.a[M11] * other.x + this.a[M21] * other.y,
+            y: this.a[M12] * other.x + this.a[M22] * other.y
+        }
     }
 
+    #[rustfmt::skip]
     #[inline(always)]
     fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x * other.a[M11] + this.y * other.a[M21], y: this.x * other.a[M12] + this.y * other.a[M22] }
+        Vector2d {
+            x: this.x * other.a[M11] + this.y * other.a[M21], 
+            y: this.x * other.a[M12] + this.y * other.a[M22] 
+        }
     }
 
     #[rustfmt::skip]

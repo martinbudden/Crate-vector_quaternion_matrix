@@ -1080,7 +1080,7 @@ impl<T> AsRef<[T; 16]> for Matrix4x4<T> {
     ///                             23.0, 31.0, 41.0, 103.0,
     ///                             67.0, 73.0, 83.0,  97.0]);
     /// let a: &[f32; 16] = m.as_ref();
-    /// assert_eq!(5.0, a[4]);
+    /// assert_eq!(5.0, a[Matrix4x4f32::M21]);
     /// ```
     #[inline]
     fn as_ref(&self) -> &[T; 16] {
@@ -1671,7 +1671,7 @@ where
     ///                             67.0, 73.0, 83.0,  97.0]);
     /// let d = m.determinant();
     ///
-    /// //assert_eq!(-78.0, d);
+    /// assert_eq!(-945984.0, d);
     ///
     /// ```
     #[inline]
