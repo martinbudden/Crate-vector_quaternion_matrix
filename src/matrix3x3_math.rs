@@ -50,8 +50,6 @@ pub trait Matrix3x3Math: Sized {
     fn m3x3_sum(this: Matrix3x3<Self>) -> Self;
     fn m3x3_mean(this: Matrix3x3<Self>) -> Self;
     fn m3x3_product(this: Matrix3x3<Self>) -> Self;
-    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self;
-    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self;
     fn m3x3_determinant(this: Matrix3x3<Self>) -> Self;
     fn m3x3_adjugate(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self);
     fn m3x3_adjugate_symmetric(this: Matrix3x3<Self>) -> (Matrix3x3<Self>, Self);
@@ -245,45 +243,6 @@ impl Matrix3x3Math for f32 {
     #[inline(always)]
     fn m3x3_product(this: Matrix3x3<Self>) -> Self {
         this.a.iter().product()
-    }
-
-    #[inline(always)]
-    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
-        #[cfg(feature = "simd")]
-        {
-            let top_right_simd = f32x4::from_array([this.a[M12], this.a[M13], this.a[M23], 0.0]);
-            (top_right_simd * top_right_simd).reduce_sum()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            this.a[M12] * this.a[M12] + this.a[M13] * this.a[M13] + this.a[M23] * this.a[M23]
-        }
-    }
-
-    #[inline(always)]
-    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self {
-        //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
-        //            a0     a4    a8    a5    a5     a1     a1    a8    a5    a2     a2     a1    a5    a4    a2
-        #[cfg(feature = "simd")]
-        {
-            let a_simd = f32x4::from_array([this.a[M11], -this.a[M12], this.a[M13], 0.0]);
-
-            let d = [
-                this.a[M22] * this.a[M33] - this.a[M23] * this.a[M23],
-                this.a[M12] * this.a[M33] - this.a[M23] * this.a[M13],
-                this.a[M12] * this.a[M23] - this.a[M22] * this.a[M13],
-                0.0,
-            ];
-            let d_simd = f32x4::from_array(d);
-
-            (a_simd * d_simd).reduce_sum()
-        }
-        #[cfg(not(feature = "simd"))]
-        {
-            this.a[M11] * (this.a[M22] * this.a[M33] - this.a[M23] * this.a[M23])
-                - this.a[M12] * (this.a[M12] * this.a[M33] - this.a[M23] * this.a[M13])
-                + this.a[M13] * (this.a[M12] * this.a[M23] - this.a[M22] * this.a[M13])
-        }
     }
 
     #[rustfmt::skip]
@@ -508,21 +467,6 @@ impl Matrix3x3Math for f64 {
     #[inline(always)]
     fn m3x3_product(this: Matrix3x3<Self>) -> Self {
         this.a.iter().product()
-    }
-
-    #[inline(always)]
-    fn m3x3_top_right_sum_squares(this: Matrix3x3<Self>) -> Self {
-        this.a[M12] * this.a[M12] + this.a[M13] * this.a[M13] + this.a[M23] * this.a[M23]
-    }
-
-    #[rustfmt::skip]
-    #[inline(always)]
-    fn m3x3_top_right_determinant(this: Matrix3x3<Self>) -> Self {
-        //let det_b = b00 * (b11 * b22 - b12 * b12) - b01 * (b01 * b22 - b12 * b02) + b02 * (b01 * b12 - b11 * b02);
-        //             0     4     8     5      5      1      1     8    5     2        2     1    5      4     2
-          this.a[M11] * (this.a[M22] * this.a[M33] - this.a[M23] * this.a[M23])
-        - this.a[M12] * (this.a[M12] * this.a[M33] - this.a[M23] * this.a[M13])
-        + this.a[M13] * (this.a[M12] * this.a[M23] - this.a[M22] * this.a[M13])
     }
 
     #[rustfmt::skip]

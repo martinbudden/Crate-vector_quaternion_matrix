@@ -39,8 +39,6 @@ pub trait Matrix4x4Math: Sized {
     fn m4x4_quaternion_outer_product(this: Quaternion<Self>) -> Matrix4x4<Self>;
     fn m4x4_mul(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self>;
     fn m4x4_determinant(this: Matrix4x4<Self>) -> Self;
-    fn m4x4_top_right_determinant(this: Matrix4x4<Self>) -> Self;
-    fn m4x4_top_right_sum_squares(this: Matrix4x4<Self>) -> Self;
     fn m4x4_trace(this: Matrix4x4<Self>) -> Self;
     fn m4x4_trace_sum_squares(this: Matrix4x4<Self>) -> Self;
     fn m4x4_sum(this: Matrix4x4<Self>) -> Self;
@@ -220,22 +218,6 @@ impl Matrix4x4Math for f32 {
     #[inline(always)]
     fn m4x4_product(this: Matrix4x4<Self>) -> Self {
         this.a.iter().product()
-    }
-
-    #[inline]
-    fn m4x4_top_right_sum_squares(this: Matrix4x4<Self>) -> Self {
-        this.a[M12] * this.a[M12]
-            + this.a[M13] * this.a[M13]
-            + this.a[M14] * this.a[M14]
-            + this.a[M23] * this.a[M23]
-            + this.a[M24] * this.a[M24]
-            + this.a[M34] * this.a[M34]
-    }
-
-    #[rustfmt::skip]
-    #[inline(always)]
-    fn m4x4_top_right_determinant(_this: Matrix4x4<Self>) -> Self {
-        0.0
     }
 
     #[rustfmt::skip]
@@ -481,22 +463,6 @@ impl Matrix4x4Math for f64 {
     #[inline(always)]
     fn m4x4_product(this: Matrix4x4<Self>) -> Self {
         this.a.iter().product()
-    }
-
-    #[inline(always)]
-    fn m4x4_top_right_sum_squares(this: Matrix4x4<Self>) -> Self {
-        this.a[M12] * this.a[M12]
-            + this.a[M13] * this.a[M13]
-            + this.a[M14] * this.a[M14]
-            + this.a[M23] * this.a[M23]
-            + this.a[M24] * this.a[M24]
-            + this.a[M34] * this.a[M34]
-    }
-
-    #[rustfmt::skip]
-    #[inline(always)]
-    fn m4x4_top_right_determinant(_this: Matrix4x4<Self>) -> Self {
-        0.0
     }
 
     #[rustfmt::skip]
