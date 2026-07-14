@@ -267,6 +267,12 @@ where
     T: Copy + Zero + PartialEq + Matrix9x9Math,
 {
     /// Zero matrix.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// # use num_traits::Zero;
+    /// let z = Matrix9x9f32::zero();
+    /// assert!(z.is_zero());
+    /// ```
     #[inline]
     fn zero() -> Self {
         Self { a: [T::zero(); 81] }
@@ -299,6 +305,13 @@ where
     T: Copy + ConstZero + ConstOne + PartialEq + Matrix9x9Math,
 {
     /// Identity matrix.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// # use num_traits::One;
+    /// let i = Matrix9x9f32::one();
+    ///
+    /// assert!(i.is_one());
+    /// ```
     #[inline]
     fn one() -> Self {
         Self::ONE
@@ -315,6 +328,13 @@ where
     T: Copy + ConstZero + ConstOne + PartialEq + Matrix9x9Math,
 {
     /// Const identity matrix.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// # use num_traits::{ConstOne, One};
+    /// let i = Matrix9x9f32::ONE;
+    ///
+    /// assert!(i.is_one());
+    /// ```
     #[rustfmt::skip]
     const ONE: Self = Self {
         a: [
@@ -336,6 +356,11 @@ where
 {
     /// Identity matrix.
     /// Alias for `one()` that does not require `num_traits::One`.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let i = Matrix9x9f32::identity();
+    /// ```
+    #[rustfmt::skip]
     #[inline]
     #[must_use]
     pub fn identity() -> Self {
@@ -356,6 +381,11 @@ where
     type Output = Self;
 
     /// Negate matrix.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// m = - m;
+    /// ```
     #[inline]
     fn neg(self) -> Self {
         T::m9x9_neg(self)
@@ -371,6 +401,20 @@ where
     type Output = Self;
 
     /// Add two matrices.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let n = Matrix9x9f32::from_element(3.0);
+    /// let r = m + n;
+    ///
+    ///
+    /// # use num_traits::Zero;
+    ///
+    /// let z = Matrix9x9f32::zero();
+    /// let r2 = m + z;
+    ///
+    /// assert_eq!(r2, m);
+    /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
         T::m9x9_add(self, other)
@@ -384,6 +428,14 @@ where
     T: Copy + Matrix9x9Math,
 {
     /// Add one matrix to another.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// let n = Matrix9x9f32::from_element(3.0);
+    /// m += n;
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(5.0));
+    /// ```
     #[inline]
     fn add_assign(&mut self, other: Self) {
         *self = *self + other;
@@ -399,6 +451,16 @@ where
     type Output = Self;
 
     /// Multiply matrix by constant and add another matrix.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// # use num_traits::MulAdd;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let n = Matrix9x9f32::from_element(3.0);
+    /// let k = 5.0;
+    /// let r = m.mul_add(k, n);
+    ///
+    /// assert_eq!(r, Matrix9x9f32::from_element(13.0));
+    /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
         T::m9x9_mul_add(self, k, other)
@@ -412,6 +474,16 @@ where
     T: Copy + Matrix9x9Math,
 {
     /// Multiply matrix by constant and add another matrix in place.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// # use num_traits::MulAddAssign;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// let n = Matrix9x9f32::from_element(3.0);
+    /// let k = 5.0;
+    /// m.mul_add_assign(k, n);
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(13.0));
+    /// ```
     #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
         *self = self.mul_add(k, other);
@@ -427,6 +499,14 @@ where
     type Output = Self;
 
     /// Subtract two matrices.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let n = Matrix9x9f32::from_element(3.0);
+    /// let r = m - n;
+    ///
+    /// assert_eq!(r, Matrix9x9f32::from_element(-1.0));
+    /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
         // Reuse SIMD-optimized Add and Neg implementations
@@ -441,6 +521,14 @@ where
     T: Copy + Matrix9x9Math,
 {
     /// Subtract one matrix from another.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// let n = Matrix9x9f32::from_element(3.0);
+    /// m -= n;
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(-1.0));
+    /// ```
     #[inline]
     fn sub_assign(&mut self, other: Self) {
         *self = *self - other;
@@ -453,6 +541,13 @@ impl Mul<Matrix9x9<f32>> for f32 {
     type Output = Matrix9x9<f32>;
 
     /// Pre-multiply a matrix by a constant.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let r = 2.0 * m;
+    ///
+    /// assert_eq!(r, Matrix9x9f32::from_element(4.0));
+    /// ```
     #[inline]
     fn mul(self, other: Matrix9x9<f32>) -> Matrix9x9<f32> {
         f32::m9x9_mul_scalar(other, self)
@@ -461,6 +556,15 @@ impl Mul<Matrix9x9<f32>> for f32 {
 
 impl Mul<Matrix9x9<f64>> for f64 {
     type Output = Matrix9x9<f64>;
+
+    /// Pre-multiply a matrix by a constant.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let r = 2.0 * m;
+    ///
+    /// assert_eq!(r, Matrix9x9f32::from_element(4.0));
+    /// ```
     #[inline]
     fn mul(self, other: Matrix9x9<f64>) -> Matrix9x9<f64> {
         f64::m9x9_mul_scalar(other, self)
@@ -476,6 +580,13 @@ where
     type Output = Self;
 
     /// Multiply a matrix by a constant.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let r = m * 2.0;
+    ///
+    /// assert_eq!(r, Matrix9x9f32::from_element(4.0));
+    /// ```
     #[inline]
     fn mul(self, other: T) -> Self {
         T::m9x9_mul_scalar(self, other)
@@ -489,6 +600,13 @@ where
     T: Copy + Matrix9x9Math,
 {
     /// In-place multiply a matrix by a constant.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// m *= 2.0;
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(4.0));
+    /// ```
     #[inline]
     fn mul_assign(&mut self, other: T) {
         *self = *self * other;
@@ -502,6 +620,21 @@ where
     type Output = Self;
 
     /// Multiply two matrices.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let n = Matrix9x9f32::from_element(3.0);
+    /// let r = m * n;
+    ///
+    /// assert_eq!(r, Matrix9x9f32::from_element(54.0));
+    ///
+    /// # use num_traits::{One,one};
+    ///
+    /// let i = Matrix9x9f32::one();
+    /// let r2 = m * i;
+    ///
+    /// assert_eq!(r2, m);
+    /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
         T::m9x9_mul(self, other)
@@ -513,6 +646,7 @@ where
     T: Copy + Zero + Matrix9x9Math + Mul<T, Output = T>,
 {
     /// Extract the first 3 columns of the 9x9 matrix as an array of 27 elements.
+    #[inline]
     pub fn extract_9x3_array(&self) -> [T; 27] {
         let mut ret = [T::zero(); 27];
         for r in 0..9 {
@@ -568,6 +702,13 @@ where
     type Output = Self;
 
     /// Divide a matrix by a constant.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let r = m / 2.0;
+    ///
+    /// assert_eq!(r, Matrix9x9f32::from_element(1.0));
+    /// ```
     #[inline]
     fn div(self, other: T) -> Self {
         T::m9x9_div_scalar(self, other)
@@ -581,6 +722,13 @@ where
     T: Copy + Matrix9x9Math,
 {
     /// In-place divide a matrix by a constant.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// m /= 2.0;
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(1.0));
+    /// ```
     #[inline]
     fn div_assign(&mut self, other: T) {
         *self = *self / other;
@@ -591,6 +739,12 @@ where
 
 impl<T> AsRef<[T; 81]> for Matrix9x9<T> {
     /// Immutable reference to the raw array.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// let a: &[f32; 81] = m.as_ref();
+    /// assert_eq!(2.0, a[Matrix9x9f32::M21]);
+    /// ```
     #[inline]
     fn as_ref(&self) -> &[T; 81] {
         &self.a
@@ -599,6 +753,13 @@ impl<T> AsRef<[T; 81]> for Matrix9x9<T> {
 
 impl<T> AsMut<[T; 81]> for Matrix9x9<T> {
     /// Mutable reference to the raw array.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// let a: &mut [f32; 81] = m.as_mut();
+    /// a[4] = 7.0;
+    /// assert_eq!(7.0, m[4]);
+    /// ```
     #[inline]
     fn as_mut(&mut self) -> &mut [T; 81] {
         &mut self.a
@@ -676,8 +837,8 @@ impl<T> Index<(usize, usize)> for Matrix9x9<T> {
 // **** IndexMut ****
 
 impl<T> IndexMut<usize> for Matrix9x9<T> {
-    #[inline]
     /// Set matrix element by index.
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
         &mut self.a[index]
     }
@@ -747,6 +908,13 @@ where
     T: Copy + Matrix9x9Math,
 {
     /// Return a copy of the matrix with all elements set to their absolute values.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(-2.0);
+    /// let n = m.abs();
+    ///
+    /// assert_eq!(n, Matrix9x9f32::from_element(2.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn abs(self) -> Self {
@@ -754,6 +922,13 @@ where
     }
 
     /// Set all elements of the matrix to their absolute values.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(-2.0);
+    /// m.abs_in_place();
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(2.0));
+    /// ```
     #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
         *self = T::m9x9_abs(*self);
@@ -768,6 +943,14 @@ where
     T: Copy + FloatCore,
 {
     /// Return a copy of the matrix with all elements clamped to the specified range.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_element(-2.0);
+    ///
+    /// let n = m.clamp(7.0, 17.0);
+    ///
+    /// assert_eq!(n, Matrix9x9f32::from_element(7.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn clamp(self, min: T, max: T) -> Self {
@@ -779,6 +962,13 @@ where
     }
 
     /// Clamp all elements of the matrix to the specified range.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(-2.0);
+    /// m.clamp_in_place(7.0, 17.0);
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(7.0));
+    /// ```
     #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
         *self = self.clamp(min, max);
@@ -791,6 +981,13 @@ where
     T: Copy,
 {
     /// Return the transpose of this matrix.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// let n = m.transpose();
+    ///
+    /// assert_eq!(n, Matrix9x9f32::from_element(2.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn transpose(&mut self) -> Self {
@@ -815,6 +1012,13 @@ where
     }
 
     /// Transpose matrix, in-place.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let mut m = Matrix9x9f32::from_element(2.0);
+    /// m.transpose_in_place();
+    ///
+    /// assert_eq!(m, Matrix9x9f32::from_element(2.0));
+    /// ```
     #[inline]
     pub fn transpose_in_place(&mut self) -> &mut Self {
         *self = self.transpose();
