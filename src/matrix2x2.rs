@@ -260,16 +260,33 @@ where
             ]
         }
     }
-    /// Create a matrix with the diagonal set to a vector.
+    /// Create a matrix with the diagonal set to an array.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
-    /// let m = Matrix2x2f32::from_diagonal(Vector2df32::new(2.0, 3.0));
+    /// # use vqm::Matrix2x2f32;
+    /// let m = Matrix2x2f32::from_diagonal_array([2.0, 3.0]);
     /// assert_eq!(m, Matrix2x2f32::new([ 2.0, 0.0,
     ///                                   0.0, 3.0]));
     /// ```
     #[rustfmt::skip]
     #[inline]
-    pub const fn from_diagonal(v: Vector2d<T>) -> Self {
+    pub const fn from_diagonal_array(a: [T;2]) -> Self {
+        Self {
+            a: [
+                a[0],    T::ZERO,
+                T::ZERO, a[1],
+            ]
+        }
+    }
+    /// Create a matrix with the diagonal set to a vector.
+    /// ```
+    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// let m = Matrix2x2f32::from_diagonal_vector(Vector2df32::new(2.0, 3.0));
+    /// assert_eq!(m, Matrix2x2f32::new([ 2.0, 0.0,
+    ///                                   0.0, 3.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_vector(v: Vector2d<T>) -> Self {
         Self {
             a: [
                 v.x,     T::ZERO,
@@ -1114,17 +1131,31 @@ where
         unsafe { Vector2d { x: *self.a.get_unchecked(c), y: *self.a.get_unchecked(c + 2) } }
     }
 
+    /// Return matrix diagonal as a array.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    ///
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
+    /// let a = m.diagonal_as_array();
+    ///
+    /// assert_eq!(a, [ 2.0, 11.0 ]);
+    /// ```
+    pub fn diagonal_as_array(self) -> [T; 2] {
+        [self.a[Self::M11], self.a[Self::M22]]
+    }
+
     /// Return matrix diagonal as a vector.
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2df32};
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
     ///                              5.0, 11.0]);
-    /// let v = m.diagonal();
+    /// let v = m.diagonal_as_vector();
     ///
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 11.0 });
     /// ```
-    pub fn diagonal(self) -> Vector2d<T> {
-        Vector2d { x: self.a[0], y: self.a[3] }
+    pub fn diagonal_as_vector(self) -> Vector2d<T> {
+        Vector2d { x: self.a[Self::M11], y: self.a[Self::M22] }
     }
 }
 

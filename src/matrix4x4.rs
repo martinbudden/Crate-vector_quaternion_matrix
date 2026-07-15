@@ -344,10 +344,10 @@ where
             ]
         }
     }
-    /// Create a matrix with the diagonal set to a vector.
+    /// Create a matrix with the diagonal set to an array.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
-    /// let m = Matrix4x4f32::from_diagonal(Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// # use vqm::Matrix4x4f32;
+    /// let m = Matrix4x4f32::from_diagonal_array([ 2.0, 3.0, 5.0, 7.0 ]);
     /// assert_eq!(m, Matrix4x4f32::new([ 2.0, 0.0, 0.0, 0.0,
     ///                                   0.0, 3.0, 0.0, 0.0,
     ///                                   0.0, 0.0, 5.0, 0.0,
@@ -355,7 +355,28 @@ where
     /// ```
     #[rustfmt::skip]
     #[inline]
-    pub const fn from_diagonal(v: Vector4d<T>) -> Self {
+    pub const fn from_diagonal_array(a: [T;4]) -> Self {
+        Self {
+            a: [
+                a[0],    T::ZERO, T::ZERO, T::ZERO,
+                T::ZERO, a[1],    T::ZERO, T::ZERO,
+                T::ZERO, T::ZERO, a[2],    T::ZERO,
+                T::ZERO, T::ZERO, T::ZERO, a[3],
+            ]
+        }
+    }
+    /// Create a matrix with the diagonal set to a vector.
+    /// ```
+    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// let m = Matrix4x4f32::from_diagonal_vector(Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// assert_eq!(m, Matrix4x4f32::new([ 2.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 3.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 5.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 7.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_vector(v: Vector4d<T>) -> Self {
         Self {
             a: [
                 v.x,     T::ZERO, T::ZERO, T::ZERO,
@@ -1420,6 +1441,22 @@ where
         }
     }
 
+    /// Return matrix diagonal as an array.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    ///
+    /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                              5.0, 11.0, 47.0, 109.0,
+    ///                             23.0, 31.0, 41.0, 103.0,
+    ///                             67.0, 73.0, 83.0,  97.0]);
+    /// let a = m.diagonal_as_array();
+    ///
+    /// assert_eq!(a, [ 2.0, 11.0, 41.0, 97.0 ]);
+    /// ```
+    pub fn diagonal_as_array(self) -> [T; 4] {
+        [self.a[Self::M11], self.a[Self::M22], self.a[Self::M33], self.a[Self::M44]]
+    }
+
     /// Return matrix diagonal as a vector.
     /// ```
     /// # use vqm::{Matrix4x4f32,Vector4df32};
@@ -1428,12 +1465,12 @@ where
     ///                              5.0, 11.0, 47.0, 109.0,
     ///                             23.0, 31.0, 41.0, 103.0,
     ///                             67.0, 73.0, 83.0,  97.0]);
-    /// let v = m.diagonal();
+    /// let v = m.diagonal_as_vector();
     ///
     /// assert_eq!(v, Vector4df32{ x: 2.0, y: 11.0, z: 41.0, t: 97.0 });
     /// ```
-    pub fn diagonal(self) -> Vector4d<T> {
-        Vector4d { x: self.a[0], y: self.a[5], z: self.a[10], t: self.a[15] }
+    pub fn diagonal_as_vector(self) -> Vector4d<T> {
+        Vector4d { x: self.a[Self::M11], y: self.a[Self::M22], z: self.a[Self::M33], t: self.a[Self::M44] }
     }
 }
 

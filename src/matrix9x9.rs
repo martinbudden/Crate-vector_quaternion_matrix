@@ -899,8 +899,30 @@ where
             Vector3d { x: self.a[c + 54], y: self.a[c + 63], z: self.a[c + 72] },
         )
     }
-}
 
+    /// Return matrix diagonal as an array.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    ///
+    /// let m = Matrix9x9f32::from_element(2.0);
+    /// let a = m.diagonal_as_array();
+    ///
+    /// assert_eq!(a, [ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0 ]);
+    /// ```
+    pub fn diagonal_as_array(self) -> [T; 9] {
+        [
+            self.a[Self::M11],
+            self.a[Self::M22],
+            self.a[Self::M33],
+            self.a[Self::M44],
+            self.a[Self::M55],
+            self.a[Self::M66],
+            self.a[Self::M77],
+            self.a[Self::M88],
+            self.a[Self::M99],
+        ]
+    }
+}
 // **** abs ****
 
 impl<T> Matrix9x9<T>

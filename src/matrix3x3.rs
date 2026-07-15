@@ -331,17 +331,36 @@ where
             ]
         }
     }
-    /// Create a matrix with the diagonal set to a vector.
+    /// Create a matrix with the diagonal set to an array.
     /// ```
-    /// # use vqm::{Matrix3x3f32,Vector3df32};
-    /// let m = Matrix3x3f32::from_diagonal(Vector3df32::new(2.0, 3.0, 5.0));
+    /// # use vqm::Matrix3x3f32;
+    /// let m = Matrix3x3f32::from_diagonal_array([2.0, 3.0, 5.0]);
     /// assert_eq!(m, Matrix3x3f32::new([ 2.0, 0.0, 0.0,
     ///                                   0.0, 3.0, 0.0,
     ///                                   0.0, 0.0, 5.0]));
     /// ```
     #[rustfmt::skip]
     #[inline]
-    pub const fn from_diagonal(v: Vector3d<T>) -> Self {
+    pub const fn from_diagonal_array(a: [T;3]) -> Self {
+        Self {
+            a: [
+                a[0],    T::ZERO, T::ZERO,
+                T::ZERO, a[1],     T::ZERO,
+                T::ZERO, T::ZERO, a[2],
+            ]
+        }
+    }
+    /// Create a matrix with the diagonal set to a vector.
+    /// ```
+    /// # use vqm::{Matrix3x3f32,Vector3df32};
+    /// let m = Matrix3x3f32::from_diagonal_vector(Vector3df32::new(2.0, 3.0, 5.0));
+    /// assert_eq!(m, Matrix3x3f32::new([ 2.0, 0.0, 0.0,
+    ///                                   0.0, 3.0, 0.0,
+    ///                                   0.0, 0.0, 5.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_vector(v: Vector3d<T>) -> Self {
         Self {
             a: [
                 v.x,     T::ZERO, T::ZERO,
@@ -1268,6 +1287,21 @@ where
         }
     }
 
+    /// Return matrix diagonal as an array.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    ///
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
+    /// let a = m.diagonal_as_array();
+    ///
+    /// assert_eq!(a, [ 2.0, 11.0, 41.0 ]);
+    /// ```
+    pub fn diagonal_as_array(self) -> [T; 3] {
+        [self.a[Self::M11], self.a[Self::M22], self.a[Self::M33]]
+    }
+
     /// Return matrix diagonal as a vector.
     /// ```
     /// # use vqm::{Matrix3x3f32,Vector3df32};
@@ -1275,12 +1309,12 @@ where
     /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
     ///                              5.0, 11.0, 47.0,
     ///                             23.0, 31.0, 41.0]);
-    /// let v = m.diagonal();
+    /// let v = m.diagonal_as_vector();
     ///
     /// assert_eq!(v, Vector3df32{ x: 2.0, y: 11.0, z: 41.0 });
     /// ```
-    pub fn diagonal(self) -> Vector3d<T> {
-        Vector3d { x: self.a[0], y: self.a[4], z: self.a[8] }
+    pub fn diagonal_as_vector(self) -> Vector3d<T> {
+        Vector3d { x: self.a[Self::M11], y: self.a[Self::M22], z: self.a[Self::M33] }
     }
 }
 
