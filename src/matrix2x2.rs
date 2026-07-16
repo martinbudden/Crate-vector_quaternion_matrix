@@ -1508,6 +1508,24 @@ where
     }
 }
 
+// **** Symmetry ****
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + One + Add<Output = T> + Div<Output = T>,
+{
+    /// Enforces strict mathematical symmetry on the matrix in-place.
+    /// Used so that rounding errors do not erode the symmetry of the matrix.
+    /// Formula: `M = (M + Mᵀ) / 2`.
+    #[inline]
+    pub fn enforce_symmetry(&mut self) {
+        let half = T::one() / (T::one() + T::one());
+
+        self.a[Self::M12] = (self.a[Self::M12] + self.a[Self::M21]) * half;
+        self.a[Self::M21] = self.a[Self::M12];
+    }
+}
+
 // **** Iterators ****
 
 impl<T> Matrix2x2<T> {

@@ -244,8 +244,7 @@ where
     #[rustfmt::skip]
     #[inline]
     pub const fn from_diagonal_element(value: T) -> Self {
-        Self {
-            a: [
+        Self { a: [
             value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
             T::ZERO, value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
             T::ZERO, T::ZERO, value,   T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
@@ -255,8 +254,36 @@ where
             T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,   T::ZERO, T::ZERO,
             T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,   T::ZERO,
             T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, value,
-            ]
-        }
+        ] }
+    }
+    /// Create a matrix with the diagonal set to an array.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_diagonal_array([ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 ]);
+    /// assert_eq!(m, Matrix9x9f32::new([ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 6.0, 0.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0, 0.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.0, 0.0,
+    ///                                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 9.0]));
+    /// ```
+    #[rustfmt::skip]
+    #[inline]
+    pub const fn from_diagonal_array(a: [T;9]) -> Self {
+        Self { a: [
+            a[0],    T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, a[1],    T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, a[2],    T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, a[3],    T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, a[4],    T::ZERO, T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, a[5],    T::ZERO, T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, a[6],    T::ZERO, T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, a[7],    T::ZERO,
+            T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, T::ZERO, a[8],
+        ] }
     }
 }
 
@@ -923,6 +950,7 @@ where
         ]
     }
 }
+
 // **** abs ****
 
 impl<T> Matrix9x9<T>
@@ -1089,6 +1117,108 @@ where
             }
         }
         true
+    }
+}
+
+// **** Symmetry ****
+
+impl<T> Matrix9x9<T>
+where
+    T: Copy + One + Add<Output = T> + Div<Output = T>,
+{
+    /// Enforces strict mathematical symmetry on the matrix in-place.
+    /// Used so that rounding errors do not erode the symmetry of the matrix.
+    /// Formula: `M = (M + Mᵀ) / 2`.
+    pub fn enforce_symmetry(&mut self) {
+        let half = T::one() / (T::one() + T::one());
+
+        // --- Column 1 Cross-terms ---
+        self.a[9] = (self.a[9] + self.a[1]) * half;
+        self.a[1] = self.a[9];
+
+        // --- Column 2 Cross-terms ---
+        self.a[18] = (self.a[18] + self.a[2]) * half;
+        self.a[2] = self.a[18];
+        self.a[19] = (self.a[19] + self.a[11]) * half;
+        self.a[11] = self.a[19];
+
+        // --- Column 3 Cross-terms ---
+        self.a[27] = (self.a[27] + self.a[3]) * half;
+        self.a[3] = self.a[27];
+        self.a[28] = (self.a[28] + self.a[12]) * half;
+        self.a[12] = self.a[28];
+        self.a[29] = (self.a[29] + self.a[21]) * half;
+        self.a[21] = self.a[29];
+
+        // --- Column 4 Cross-terms ---
+        self.a[36] = (self.a[36] + self.a[4]) * half;
+        self.a[4] = self.a[36];
+        self.a[37] = (self.a[37] + self.a[13]) * half;
+        self.a[13] = self.a[37];
+        self.a[38] = (self.a[38] + self.a[22]) * half;
+        self.a[22] = self.a[38];
+        self.a[39] = (self.a[39] + self.a[31]) * half;
+        self.a[31] = self.a[39];
+
+        // --- Column 5 Cross-terms ---
+        self.a[45] = (self.a[45] + self.a[5]) * half;
+        self.a[5] = self.a[45];
+        self.a[46] = (self.a[46] + self.a[14]) * half;
+        self.a[14] = self.a[46];
+        self.a[47] = (self.a[47] + self.a[23]) * half;
+        self.a[23] = self.a[47];
+        self.a[48] = (self.a[48] + self.a[32]) * half;
+        self.a[32] = self.a[48];
+        self.a[49] = (self.a[49] + self.a[41]) * half;
+        self.a[41] = self.a[49];
+
+        // --- Column 6 Cross-terms ---
+        self.a[54] = (self.a[54] + self.a[6]) * half;
+        self.a[6] = self.a[54];
+        self.a[55] = (self.a[55] + self.a[15]) * half;
+        self.a[15] = self.a[55];
+        self.a[56] = (self.a[56] + self.a[24]) * half;
+        self.a[24] = self.a[56];
+        self.a[57] = (self.a[57] + self.a[33]) * half;
+        self.a[33] = self.a[57];
+        self.a[58] = (self.a[58] + self.a[42]) * half;
+        self.a[42] = self.a[58];
+        self.a[59] = (self.a[59] + self.a[51]) * half;
+        self.a[51] = self.a[59];
+
+        // --- Column 7 Cross-terms ---
+        self.a[63] = (self.a[63] + self.a[7]) * half;
+        self.a[7] = self.a[63];
+        self.a[64] = (self.a[64] + self.a[16]) * half;
+        self.a[16] = self.a[64];
+        self.a[65] = (self.a[65] + self.a[25]) * half;
+        self.a[25] = self.a[65];
+        self.a[66] = (self.a[66] + self.a[34]) * half;
+        self.a[34] = self.a[66];
+        self.a[67] = (self.a[67] + self.a[43]) * half;
+        self.a[43] = self.a[67];
+        self.a[68] = (self.a[68] + self.a[52]) * half;
+        self.a[52] = self.a[68];
+        self.a[69] = (self.a[69] + self.a[61]) * half;
+        self.a[61] = self.a[69];
+
+        // --- Column 8 Cross-terms ---
+        self.a[72] = (self.a[72] + self.a[8]) * half;
+        self.a[8] = self.a[72];
+        self.a[73] = (self.a[73] + self.a[17]) * half;
+        self.a[17] = self.a[73];
+        self.a[74] = (self.a[74] + self.a[26]) * half;
+        self.a[26] = self.a[74];
+        self.a[75] = (self.a[75] + self.a[35]) * half;
+        self.a[35] = self.a[75];
+        self.a[76] = (self.a[76] + self.a[44]) * half;
+        self.a[44] = self.a[76];
+        self.a[77] = (self.a[77] + self.a[53]) * half;
+        self.a[53] = self.a[77];
+        self.a[78] = (self.a[78] + self.a[62]) * half;
+        self.a[62] = self.a[78];
+        self.a[79] = (self.a[79] + self.a[71]) * half;
+        self.a[71] = self.a[79];
     }
 }
 

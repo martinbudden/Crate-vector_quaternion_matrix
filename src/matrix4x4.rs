@@ -1894,6 +1894,36 @@ where
     }
 }
 
+// **** Symmetry ****
+
+impl<T> Matrix4x4<T>
+where
+    T: Copy + One + Add<Output = T> + Div<Output = T>,
+{
+    /// Enforces strict mathematical symmetry on the matrix in-place.
+    /// Used so that rounding errors do not erode the symmetry of the matrix.
+    /// Formula: `M = (M + Mᵀ) / 2`.
+    #[inline]
+    pub fn enforce_symmetry(&mut self) {
+        let half = T::one() / (T::one() + T::one());
+
+        self.a[Self::M12] = (self.a[Self::M12] + self.a[Self::M21]) * half;
+        self.a[Self::M21] = self.a[Self::M12];
+        self.a[Self::M13] = (self.a[Self::M13] + self.a[Self::M31]) * half;
+        self.a[Self::M31] = self.a[Self::M13];
+        self.a[Self::M14] = (self.a[Self::M14] + self.a[Self::M41]) * half;
+        self.a[Self::M41] = self.a[Self::M14];
+
+        self.a[Self::M23] = (self.a[Self::M23] + self.a[Self::M32]) * half;
+        self.a[Self::M32] = self.a[Self::M23];
+        self.a[Self::M24] = (self.a[Self::M24] + self.a[Self::M42]) * half;
+        self.a[Self::M42] = self.a[Self::M24];
+
+        self.a[Self::M34] = (self.a[Self::M34] + self.a[Self::M43]) * half;
+        self.a[Self::M43] = self.a[Self::M34];
+    }
+}
+
 // **** Iterators ****
 
 impl<T> Matrix4x4<T> {
