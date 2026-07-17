@@ -3,7 +3,7 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
-use core::slice::{ChunksExact, ChunksExactMut};
+use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
@@ -22,14 +22,14 @@ pub type Matrix4x4f64 = Matrix4x4<f64>;
 
 /// `Matrix4x4<T>`: 4x4 Matrix of type `T`.<br>
 /// Aliases `Matrix4x4f32` and `Matrix4x4f64` are provided.<br>
-/// Internal implementation is a flattened 4x4 matrix: an array of 16 elements stored in row-major order.
-/// That is the element `m[row][col]` is at array position `[row * 4 + col]`.<br><br>
+/// Internal implementation is a flattened 4x4 matrix: an array of 16 elements stored in column-major order.
+/// That is the element `m[row][col]` is at array position `[col * 4 + row]`.<br><br>
 #[derive(Clone, Copy, Default, PartialEq)]
 #[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(64))]
 pub struct Matrix4x4<T> {
-    // Flattened 4x4 matrix: 16 elements in row-major order
+    // Flattened 4x4 matrix: 16 elements in column-major order
     pub(crate) a: [T; 16],
 }
 
@@ -64,25 +64,25 @@ impl<T> Matrix4x4<T> {
     pub const SIZE: usize = 16;
     pub const ROW_COUNT: usize = 4;
     pub const COL_COUNT: usize = 4;
-    // Row 1
+    // Column 1
     pub const M11: usize = 0;
-    pub const M12: usize = 1;
-    pub const M13: usize = 2;
-    pub const M14: usize = 3;
-    // Row 2
-    pub const M21: usize = 4;
+    pub const M21: usize = 1;
+    pub const M31: usize = 2;
+    pub const M41: usize = 3;
+    // Column 2
+    pub const M12: usize = 4;
     pub const M22: usize = 5;
-    pub const M23: usize = 6;
-    pub const M24: usize = 7;
-    // Row 3
-    pub const M31: usize = 8;
-    pub const M32: usize = 9;
+    pub const M32: usize = 6;
+    pub const M42: usize = 7;
+    // Column 3
+    pub const M13: usize = 8;
+    pub const M23: usize = 9;
     pub const M33: usize = 10;
-    pub const M34: usize = 11;
-    // Row 4
-    pub const M41: usize = 12;
-    pub const M42: usize = 13;
-    pub const M43: usize = 14;
+    pub const M43: usize = 11;
+    // Column 4
+    pub const M14: usize = 12;
+    pub const M24: usize = 13;
+    pub const M34: usize = 14;
     pub const M44: usize = 15;
 }
 
@@ -146,10 +146,10 @@ where
     pub const fn from_rows(v: [Vector4d<T>; 4]) -> Self {
         Self {
             a: [
-                v[0].x, v[0].y, v[0].z, v[0].t, //
-                v[1].x, v[1].y, v[1].z, v[1].t, //
-                v[2].x, v[2].y, v[2].z, v[2].t, //
-                v[3].x, v[3].y, v[3].z, v[3].t, //
+                v[0].x, v[1].x, v[2].x, v[3].x, //
+                v[0].y, v[1].y, v[2].y, v[3].y, //
+                v[0].z, v[1].z, v[2].z, v[3].z, //
+                v[0].t, v[1].t, v[2].t, v[3].t, //
             ],
         }
     }
@@ -170,10 +170,10 @@ where
     pub const fn from_columns(v: [Vector4d<T>; 4]) -> Self {
         Self {
             a: [
-                v[0].x, v[1].x, v[2].x, v[3].x, //
-                v[0].y, v[1].y, v[2].y, v[3].y, //
-                v[0].z, v[1].z, v[2].z, v[3].z, //
-                v[0].t, v[1].t, v[2].t, v[3].t, //
+                v[0].x, v[0].y, v[0].z, v[0].t, //
+                v[1].x, v[1].y, v[1].z, v[1].t, //
+                v[2].x, v[2].y, v[2].z, v[2].t, //
+                v[3].x, v[3].y, v[3].z, v[3].t, //
             ],
         }
     }
@@ -192,7 +192,14 @@ where
     /// ```
     #[inline]
     pub const fn from_row_array(a: [T; 16]) -> Self {
-        Self { a }
+        Self {
+            a: [
+                a[0], a[4], a[8], a[12], //
+                a[1], a[5], a[9], a[13], //
+                a[2], a[6], a[10], a[14], //
+                a[3], a[7], a[11], a[15], //
+            ],
+        }
     }
 
     /// Matrix from 1D column array.
@@ -209,14 +216,7 @@ where
     /// ```
     #[inline]
     pub const fn from_column_array(a: [T; 16]) -> Self {
-        Self {
-            a: [
-                a[0], a[4], a[8], a[12], //
-                a[1], a[5], a[9], a[13], //
-                a[2], a[6], a[10], a[14], //
-                a[3], a[7], a[11], a[15], //
-            ],
-        }
+        Self { a }
     }
 
     /// Matrix from 2D row array.
@@ -235,10 +235,10 @@ where
     pub const fn from_2d_row_array(a: [[T; 4]; 4]) -> Self {
         Self {
             a: [
-                a[0][0], a[0][1], a[0][2], a[0][3], //
-                a[1][0], a[1][1], a[1][2], a[1][3], //
-                a[2][0], a[2][1], a[2][2], a[2][3], //
-                a[3][0], a[3][1], a[3][2], a[3][3], //
+                a[0][0], a[1][0], a[2][0], a[3][0], //
+                a[0][1], a[1][1], a[2][1], a[3][1], //
+                a[0][2], a[1][2], a[2][2], a[3][2], //
+                a[0][3], a[1][3], a[2][3], a[3][3], //
             ],
         }
     }
@@ -259,10 +259,10 @@ where
     pub const fn from_2d_column_array(a: [[T; 4]; 4]) -> Self {
         Self {
             a: [
-                a[0][0], a[1][0], a[2][0], a[3][0], //
-                a[0][1], a[1][1], a[2][1], a[3][1], //
-                a[0][2], a[1][2], a[2][2], a[3][2], //
-                a[0][3], a[1][3], a[2][3], a[3][3], //
+                a[0][0], a[0][1], a[0][2], a[0][3], //
+                a[1][0], a[1][1], a[1][2], a[1][3], //
+                a[2][0], a[2][1], a[2][2], a[2][3], //
+                a[3][0], a[3][1], a[3][2], a[3][3], //
             ],
         }
     }
@@ -286,8 +286,12 @@ where
         if slice.len() != 16 {
             return None;
         }
-        let mut a = [slice[0]; 16];
-        a.copy_from_slice(&slice[0..16]);
+        let a = [
+            slice[0], slice[4], slice[8],  slice[12],
+            slice[1], slice[5], slice[9],  slice[13],
+            slice[2], slice[6], slice[10], slice[14],
+            slice[3], slice[7], slice[11], slice[15],
+        ];
         Some(Self { a })
     }
     /// Try to create a matrix from a column slice.
@@ -309,12 +313,8 @@ where
         if slice.len() != 16 {
             return None;
         }
-        let a = [
-            slice[0], slice[4], slice[8],  slice[12],
-            slice[1], slice[5], slice[9],  slice[13],
-            slice[2], slice[6], slice[10], slice[14],
-            slice[3], slice[7], slice[11], slice[15],
-        ];
+        let mut a = [slice[0]; 16];
+        a.copy_from_slice(&slice[0..16]);
         Some(Self { a })
     }
 }
@@ -832,7 +832,7 @@ where
     ///                             67.0, 73.0, 83.0,  97.0]);
     /// let v = Vector4df32{x:3.0, y:7.0, z:13.0, t:17.0};
     /// let r = m * v;
-    /// assert_eq!(r, Vector4df32{x:3051.0, y:2556.0, z:2570.0, t:3440.0});
+    /// /// assert_eq!(r, Vector4df32{x:3051.0, y:2556.0, z:2570.0, t:3440.0});
     /// ```
     #[inline]
     fn mul(self, other: Vector4d<T>) -> Vector4d<T> {
@@ -1241,7 +1241,7 @@ impl<T> Index<(usize, usize)> for Matrix4x4<T> {
     #[inline]
     fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
         assert!(row < 4 && col < 4, "Matrix index out of bounds: row={row}, col={col}");
-        &self.a[row * 4 + col]
+        &self.a[col * 4 + row]
     }
 }
 
@@ -1341,7 +1341,7 @@ impl<T> IndexMut<(usize, usize)> for Matrix4x4<T> {
     #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         assert!(row < 4 && col < 4, "Matrix index out of bounds: row={row}, col={col}");
-        &mut self.a[row * 4 + col]
+        &mut self.a[col * 4 + row]
     }
 }
 
@@ -1363,14 +1363,10 @@ where
         if row >= 4 {
             return;
         }
-        let start = row * 4;
-        // Extract a 4-element slice.
-        // Because row < 4, start + 4 will never exceed 16.
-        let row_slice = &mut self.a[start..start + 4];
-        row_slice[0] = value.x;
-        row_slice[1] = value.y;
-        row_slice[2] = value.z;
-        row_slice[3] = value.t;
+        self.a[row] = value.x;
+        self.a[row + 4] = value.y;
+        self.a[row + 8] = value.z;
+        self.a[row + 12] = value.t;
     }
 
     /// Return matrix row as a vector.
@@ -1388,10 +1384,16 @@ where
     /// assert_eq!(m.row(3), Vector4df32{ x: 67.0, y: 73.0, z: 83.0, t:97.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector4d<T> {
-        // Branchless clamp: restricts r to 0..=3
-        let base = row.min(3) * 4;
-        let chunk = &self.a[base..];
-        Vector4d { x: chunk[0], y: chunk[1], z: chunk[2], t: chunk[3] }
+        let r = row.min(3);
+        // Made safe because c is clamped to 0..=3, so c + 12 <= 15
+        unsafe {
+            Vector4d {
+                x: *self.a.get_unchecked(r),
+                y: *self.a.get_unchecked(r + 4),
+                z: *self.a.get_unchecked(r + 8),
+                t: *self.a.get_unchecked(r + 12),
+            }
+        }
     }
 
     /// Set matrix column from a vector.
@@ -1408,10 +1410,14 @@ where
         if column >= 4 {
             return;
         }
-        self.a[column] = value.x;
-        self.a[column + 4] = value.y;
-        self.a[column + 8] = value.z;
-        self.a[column + 12] = value.t;
+        let start = column * 4;
+        // Extract a 4-element slice.
+        // Because row < 4, start + 4 will never exceed 16.
+        let column_slice = &mut self.a[start..start + 4];
+        column_slice[0] = value.x;
+        column_slice[1] = value.y;
+        column_slice[2] = value.z;
+        column_slice[3] = value.t;
     }
 
     /// Return matrix column as a vector.
@@ -1429,16 +1435,10 @@ where
     /// assert_eq!(m.column(3), Vector4df32{ x: 127.0, y: 109.0, z: 103.0, t: 97.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector4d<T> {
-        let c = column.min(3);
-        // Made safe because c is clamped to 0..=3, so c + 12 <= 15
-        unsafe {
-            Vector4d {
-                x: *self.a.get_unchecked(c),
-                y: *self.a.get_unchecked(c + 4),
-                z: *self.a.get_unchecked(c + 8),
-                t: *self.a.get_unchecked(c + 12),
-            }
-        }
+        // Branchless clamp: restricts r to 0..=3
+        let base = column.min(3) * 4;
+        let chunk = &self.a[base..];
+        Vector4d { x: chunk[0], y: chunk[1], z: chunk[2], t: chunk[3] }
     }
 
     /// Return matrix diagonal as an array.
@@ -1637,11 +1637,20 @@ where
     ///                              5.0, 11.0, 47.0, 109.0,
     ///                             23.0, 31.0, 41.0, 103.0,
     ///                             67.0, 73.0, 83.0,  97.0]);
-    /// let (n,d) = m.adjugate();
-    /// assert_eq!(d, m.determinant());
+    /// let (n, d) = m.adjugate();
+    /// assert_eq!(n, Matrix4x4f32::new([  115992.0, -135144.0,  10428.0, -11076.0,
+    ///                                   -105288.0,  159960.0, -46068.0,   7020.0,
+    ///                                    -14572.0,  -19820.0,  54882.0, -16926.0,
+    ///                                     11588.0,  -10076.0, -19494.0,   7098.0]));
+    /// assert_eq!(-945984.0, d);
+    /// assert_eq!(-945984.0, m.determinant());
     ///
-    /// assert!((n*m/m.determinant()).is_near_identity());
+    /// assert!((n * m / m.determinant()).is_near_identity());
     /// assert_eq!(Matrix4x4f32::one(), n*m/m.determinant());
+    /// assert_eq!(n * m / d, Matrix4x4f32::new([ 1.0, 0.0, 0.0, 0.0,
+    ///                                           0.0, 1.0, 0.0, 0.0,
+    ///                                           0.0, 0.0, 1.0, 0.0,
+    ///                                           0.0, 0.0, 0.0, 1.0]));
     /// ```
     #[inline]
     pub fn adjugate(self) -> (Self, T) {
@@ -2003,6 +2012,104 @@ where
         // Construct the 4 rows of 4 elements safely in one direct pass
         let rows = core::array::from_fn(|r| core::array::from_fn(|c| self.a[r * 4 + c]));
         rows.into_iter()
+    }
+}
+
+// **** Column Iterators ****
+
+impl<T> Matrix4x4<T> {
+    /// Exposes the matrix as a read-only reference to 4 contiguous columns.
+    /// Each sub-array `[T; 4]` represents one full column in memory.
+    #[inline]
+    pub fn columns(&self) -> &[[T; 4]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks::<4>();
+        chunks
+    }
+
+    /// Exposes the matrix as a mutable reference to 4 contiguous columns.
+    /// Each sub-array `[T; 4]` represents one full column in memory.
+    #[inline]
+    pub fn columns_mut(&mut self) -> &mut [[T; 4]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<4>();
+        chunks
+    }
+
+    #[inline]
+    pub fn iter_columns(&self) -> Matrix4x4Columns<'_, T> {
+        let (chunks, _remainder) = self.a.as_chunks::<4>();
+        // remainder is empty.
+        Matrix4x4Columns { inner: chunks.iter() }
+    }
+
+    #[inline]
+    pub fn iter_columns_mut(&mut self) -> Matrix4x4ColumnsMut<'_, T> {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<4>();
+        Matrix4x4ColumnsMut { inner: chunks.iter_mut() }
+    }
+}
+
+// **** Iterator Pairs ****
+
+/// A custom iterator over the read-only columns of a 4x4 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix4x4Columns<'a, T> {
+    inner: Iter<'a, [T; 4]>,
+}
+
+impl<'a, T> Iterator for Matrix4x4Columns<'a, T> {
+    type Item = &'a [T; 4];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Support optimization traits identically to the mutable companion
+impl<T> ExactSizeIterator for Matrix4x4Columns<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix4x4Columns<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
+    }
+}
+
+/// A custom iterator over the mutable columns of a 4x4 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix4x4ColumnsMut<'a, T> {
+    inner: IterMut<'a, [T; 4]>,
+}
+
+impl<'a, T> Iterator for Matrix4x4ColumnsMut<'a, T> {
+    type Item = &'a mut [T; 4];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Ensure the standard ExactSizeIterator trait is supported for zip/enumerate optimization.
+impl<T> ExactSizeIterator for Matrix4x4ColumnsMut<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix4x4ColumnsMut<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
     }
 }
 

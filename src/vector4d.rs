@@ -523,6 +523,25 @@ where
     }
 }
 
+// **** approx_eq ****
+
+impl<T> Vector4d<T>
+where
+    T: FloatCore,
+{
+    /// Compare two vectors with a tolerance.
+    #[inline]
+    pub fn approx_eq(&self, other: &Self, epsilon: T) -> bool
+    where
+        T: FloatCore,
+    {
+        (self.x - other.x).abs() <= epsilon
+            && (self.y - other.y).abs() <= epsilon
+            && (self.z - other.z).abs() <= epsilon
+            && (self.t - other.t).abs() <= epsilon
+    }
+}
+
 // **** abs ****
 
 impl<T> Vector4d<T>

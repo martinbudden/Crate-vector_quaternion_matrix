@@ -18,17 +18,17 @@ cfg_if! {
 
 use crate::{Matrix3x3, Vector3d};
 
-// Row 1
+// Column 1
 const M11: usize = 0;
-const M12: usize = 1;
-const M13: usize = 2;
-// Row 2
-const M21: usize = 3;
+const M21: usize = 1;
+const M31: usize = 2;
+// Column 2
+const M12: usize = 3;
 const M22: usize = 4;
-const M23: usize = 5;
-// Row 3
-const M31: usize = 6;
-const M32: usize = 7;
+const M32: usize = 5;
+// Column 3
+const M13: usize = 6;
+const M23: usize = 7;
 const M33: usize = 8;
 
 // **** Math ****
@@ -148,25 +148,25 @@ impl Matrix3x3Math for f32 {
             // By taking ownership of the value, Rust guarantees no other pointer
             // can modify these values during our calculation loop.
             // let row_simd = unsafe { *(&row as *const Vector3df32 as *const f32x4) };
-            let row_simd = f32x4::from_array([row.x, row.y, row.z, 0.0]);
+            let col_simd = f32x4::from_array([col.x, col.y, col.z, 0.0]);
 
-            let col_x = f32x4::splat(col.x);
-            let col_y = f32x4::splat(col.y);
-            let col_z = f32x4::splat(col.z);
+            let row_x = f32x4::splat(row.x);
+            let row_y = f32x4::splat(row.y);
+            let row_z = f32x4::splat(row.z);
 
-            let r1 = col_x * row_simd;
-            let r2 = col_y * row_simd;
-            let r3 = col_z * row_simd;
+            let c1 = row_x * col_simd;
+            let c2 = row_y * col_simd;
+            let c3 = row_z * col_simd;
 
-            Matrix3x3::from_padded_2d_row_array([r1.to_array(), r2.to_array(), r3.to_array()])
+            Matrix3x3::from_padded_2d_row_array([c1.to_array(), c2.to_array(), c3.to_array()])
         }
         #[cfg(not(feature = "simd"))]
         {
         Matrix3x3 {
             a: [
-                col.x * row.x, col.x * row.y, col.x * row.z,
-                col.y * row.x, col.y * row.y, col.y * row.z,
-                col.z * row.x, col.z * row.y, col.z * row.z,
+                col.x * row.x, col.y * row.x, col.z * row.x,
+                col.x * row.y, col.y * row.y, col.z * row.y,
+                col.x * row.z, col.y * row.z, col.z * row.z,
             ],
         }
         }
@@ -199,13 +199,13 @@ impl Matrix3x3Math for f32 {
         {
             let a = [
                 this.a[M11] * other.a[M11] + this.a[M12] * other.a[M21] + this.a[M13] * other.a[M31],
-                this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22] + this.a[M13] * other.a[M32],
-                this.a[M11] * other.a[M13] + this.a[M12] * other.a[M23] + this.a[M13] * other.a[M33],
                 this.a[M21] * other.a[M11] + this.a[M22] * other.a[M21] + this.a[M23] * other.a[M31],
-                this.a[M21] * other.a[M12] + this.a[M22] * other.a[M22] + this.a[M23] * other.a[M32],
-                this.a[M21] * other.a[M13] + this.a[M22] * other.a[M23] + this.a[M23] * other.a[M33],
                 this.a[M31] * other.a[M11] + this.a[M32] * other.a[M21] + this.a[M33] * other.a[M31],
+                this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22] + this.a[M13] * other.a[M32],
+                this.a[M21] * other.a[M12] + this.a[M22] * other.a[M22] + this.a[M23] * other.a[M32],
                 this.a[M31] * other.a[M12] + this.a[M32] * other.a[M22] + this.a[M33] * other.a[M32],
+                this.a[M11] * other.a[M13] + this.a[M12] * other.a[M23] + this.a[M13] * other.a[M33],
+                this.a[M21] * other.a[M13] + this.a[M22] * other.a[M23] + this.a[M23] * other.a[M33],
                 this.a[M31] * other.a[M13] + this.a[M32] * other.a[M23] + this.a[M33] * other.a[M33],
             ];
             Matrix3x3 { a }
@@ -306,14 +306,16 @@ impl Matrix3x3Math for f32 {
         let determinant = this.a[M11] * ei_fh - this.a[M12]*di_fg + this.a[M13]* dh_eg;
 
         let a = [
-              ei_fh,                                          //  (e*i - f*h)
+             ei_fh,                                          //  (e*i - f*h)
+            -di_fg,                                          // -(d*i - f*g)
+             dh_eg,                                          //  (d*h - e*g)
+
             -(this.a[M12] * this.a[M33] - this.a[M13] * this.a[M32]), // -(b*i - c*h)
-              this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22],  //  (b*f - c*e)
-            - di_fg,                                          // -(d*i - f*g)
               this.a[M11] * this.a[M33] - this.a[M13] * this.a[M31],  //  (a*i - c*g)
-            -(this.a[M11] * this.a[M23] - this.a[M13] * this.a[M21]), // -(a*f - c*d)
-              dh_eg,                                          //  (d*h - e*g)
             -(this.a[M11] * this.a[M32] - this.a[M12] * this.a[M31]), // -(a*h - b*g)
+
+              this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22],  //  (b*f - c*e)
+            -(this.a[M11] * this.a[M23] - this.a[M13] * this.a[M21]), // -(a*f - c*d)
               this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],  //  (a*e - b*d)
         ];
         (Matrix3x3 { a }, determinant)
@@ -421,9 +423,9 @@ impl Matrix3x3Math for f64 {
     fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self> {
         Matrix3x3 {
             a: [
-                col.x * row.x, col.x * row.y, col.x * row.z,
-                col.y * row.x, col.y * row.y, col.y * row.z,
-                col.z * row.x, col.z * row.y, col.z * row.z,
+                col.x * row.x, col.y * row.x, col.z * row.x,
+                col.x * row.y, col.y * row.y, col.z * row.y,
+                col.x * row.z, col.y * row.z, col.z * row.z,
             ],
         }
     }
@@ -487,14 +489,16 @@ impl Matrix3x3Math for f64 {
         let determinant = this.a[M11] * ei_fh - this.a[M12]*di_fg + this.a[M13]* dh_eg;
 
         let a = [
-              ei_fh,                                          //  (e*i - f*h)
+             ei_fh,                                          //  (e*i - f*h)
+            -di_fg,                                          // -(d*i - f*g)
+             dh_eg,                                          //  (d*h - e*g)
+
             -(this.a[M12] * this.a[M33] - this.a[M13] * this.a[M32]), // -(b*i - c*h)
-              this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22],  //  (b*f - c*e)
-            - di_fg,                                          // -(d*i - f*g)
               this.a[M11] * this.a[M33] - this.a[M13] * this.a[M31],  //  (a*i - c*g)
-            -(this.a[M11] * this.a[M23] - this.a[M13] * this.a[M21]), // -(a*f - c*d)
-              dh_eg,                                          //  (d*h - e*g)
             -(this.a[M11] * this.a[M32] - this.a[M12] * this.a[M31]), // -(a*h - b*g)
+
+              this.a[M12] * this.a[M23] - this.a[M13] * this.a[M22],  //  (b*f - c*e)
+            -(this.a[M11] * this.a[M23] - this.a[M13] * this.a[M21]), // -(a*f - c*d)
               this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],  //  (a*e - b*d)
         ];
         (Matrix3x3 { a }, determinant)

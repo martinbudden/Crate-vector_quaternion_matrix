@@ -3,7 +3,7 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
-use core::slice::{ChunksExact, ChunksExactMut};
+use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3d};
@@ -20,12 +20,12 @@ pub type Matrix9x9f64 = Matrix9x9<f64>;
 /// In particular matrix by matrix multiply, determinant, adjugate, and inverse are not provided.<br>
 /// Functions to extract and utilize 3x3 sub-matrices are provided.<br>
 /// Aliases `Matrix9x9f32` and `Matrix9x9f64` are provided.<br>
-/// Internal implementation is a flattened 9x9 matrix: an array of 81 elements stored in row-major order.
-/// That is the element `m[row][col]` is at array position `[row * 9 + col]`, , so element `m01` is at `a[1]` and element `m12` is at `a[11]`.<br><br>
+/// Internal implementation is a flattened 9x9 matrix: an array of 81 elements stored in column-major order.
+/// That is the element `m[row][col]` is at array position `[col * 9 + row]`, , so element `m01` is at `a[1]` and element `m12` is at `a[11]`.<br><br>
 #[derive(Clone, Copy, PartialEq)]
 #[repr(C)]
 pub struct Matrix9x9<T> {
-    // Flattened 9x9 matrix: 81 elements in row-major order
+    // Flattened 9x9 matrix: 81 elements in column-major order
     pub(crate) a: [T; 81],
 }
 
@@ -67,95 +67,95 @@ impl<T> Matrix9x9<T> {
     pub const SIZE: usize = 81;
     pub const ROW_COUNT: usize = 9;
     pub const COL_COUNT: usize = 9;
-    // Row 1
+    // Column 1
     pub const M11: usize = 0;
-    pub const M12: usize = 1;
-    pub const M13: usize = 2;
-    pub const M14: usize = 3;
-    pub const M15: usize = 4;
-    pub const M16: usize = 5;
-    pub const M17: usize = 6;
-    pub const M18: usize = 7;
-    pub const M19: usize = 8;
-    // Row 2
-    pub const M21: usize = 9;
+    pub const M21: usize = 1;
+    pub const M31: usize = 2;
+    pub const M41: usize = 3;
+    pub const M51: usize = 4;
+    pub const M61: usize = 5;
+    pub const M71: usize = 6;
+    pub const M81: usize = 7;
+    pub const M91: usize = 8;
+    // Column 2
+    pub const M12: usize = 9;
     pub const M22: usize = 10;
-    pub const M23: usize = 11;
-    pub const M24: usize = 12;
-    pub const M25: usize = 13;
-    pub const M26: usize = 14;
-    pub const M27: usize = 15;
-    pub const M28: usize = 16;
-    pub const M29: usize = 17;
-    // Row 3
-    pub const M31: usize = 18;
-    pub const M32: usize = 19;
+    pub const M32: usize = 11;
+    pub const M42: usize = 12;
+    pub const M52: usize = 13;
+    pub const M62: usize = 14;
+    pub const M72: usize = 15;
+    pub const M82: usize = 16;
+    pub const M92: usize = 17;
+    // Column 3
+    pub const M13: usize = 18;
+    pub const M23: usize = 19;
     pub const M33: usize = 20;
-    pub const M34: usize = 21;
-    pub const M35: usize = 22;
-    pub const M36: usize = 23;
-    pub const M37: usize = 24;
-    pub const M38: usize = 25;
-    pub const M39: usize = 26;
-    // Row 4
-    pub const M41: usize = 27;
-    pub const M42: usize = 28;
-    pub const M43: usize = 29;
+    pub const M43: usize = 21;
+    pub const M53: usize = 22;
+    pub const M63: usize = 23;
+    pub const M73: usize = 24;
+    pub const M83: usize = 25;
+    pub const M93: usize = 26;
+    // Column 4
+    pub const M14: usize = 27;
+    pub const M24: usize = 28;
+    pub const M34: usize = 29;
     pub const M44: usize = 30;
-    pub const M45: usize = 31;
-    pub const M46: usize = 32;
-    pub const M47: usize = 33;
-    pub const M48: usize = 34;
-    pub const M49: usize = 35;
-    // Row 5
-    pub const M51: usize = 36;
-    pub const M52: usize = 37;
-    pub const M53: usize = 38;
-    pub const M54: usize = 39;
+    pub const M54: usize = 31;
+    pub const M64: usize = 32;
+    pub const M74: usize = 33;
+    pub const M84: usize = 34;
+    pub const M94: usize = 35;
+    // Column 5
+    pub const M15: usize = 36;
+    pub const M25: usize = 37;
+    pub const M35: usize = 38;
+    pub const M45: usize = 39;
     pub const M55: usize = 40;
-    pub const M56: usize = 41;
-    pub const M57: usize = 42;
-    pub const M58: usize = 43;
-    pub const M59: usize = 44;
-    // Row 6
-    pub const M61: usize = 45;
-    pub const M62: usize = 46;
-    pub const M63: usize = 47;
-    pub const M64: usize = 48;
-    pub const M65: usize = 49;
+    pub const M65: usize = 41;
+    pub const M75: usize = 42;
+    pub const M85: usize = 43;
+    pub const M95: usize = 44;
+    // Column 6
+    pub const M16: usize = 45;
+    pub const M26: usize = 46;
+    pub const M36: usize = 47;
+    pub const M46: usize = 48;
+    pub const M56: usize = 49;
     pub const M66: usize = 50;
-    pub const M67: usize = 51;
-    pub const M68: usize = 52;
-    pub const M69: usize = 53;
-    // Row 7
-    pub const M71: usize = 54;
-    pub const M72: usize = 55;
-    pub const M73: usize = 56;
-    pub const M74: usize = 57;
-    pub const M75: usize = 58;
-    pub const M76: usize = 59;
+    pub const M76: usize = 51;
+    pub const M86: usize = 52;
+    pub const M96: usize = 53;
+    // Column 7
+    pub const M17: usize = 54;
+    pub const M27: usize = 55;
+    pub const M37: usize = 56;
+    pub const M47: usize = 57;
+    pub const M57: usize = 58;
+    pub const M67: usize = 59;
     pub const M77: usize = 60;
-    pub const M78: usize = 61;
-    pub const M79: usize = 62;
-    // Row 8
-    pub const M81: usize = 63;
-    pub const M82: usize = 64;
-    pub const M83: usize = 65;
-    pub const M84: usize = 66;
-    pub const M85: usize = 67;
-    pub const M86: usize = 68;
-    pub const M87: usize = 69;
+    pub const M87: usize = 61;
+    pub const M97: usize = 62;
+    // Column 8
+    pub const M18: usize = 63;
+    pub const M28: usize = 64;
+    pub const M38: usize = 65;
+    pub const M48: usize = 66;
+    pub const M58: usize = 67;
+    pub const M68: usize = 68;
+    pub const M78: usize = 69;
     pub const M88: usize = 70;
-    pub const M89: usize = 71;
-    // Row 9
-    pub const M91: usize = 72;
-    pub const M92: usize = 73;
-    pub const M93: usize = 74;
-    pub const M94: usize = 75;
-    pub const M95: usize = 76;
-    pub const M96: usize = 77;
-    pub const M97: usize = 78;
-    pub const M98: usize = 79;
+    pub const M98: usize = 71;
+    // Column 9
+    pub const M19: usize = 72;
+    pub const M29: usize = 73;
+    pub const M39: usize = 74;
+    pub const M49: usize = 75;
+    pub const M59: usize = 76;
+    pub const M69: usize = 77;
+    pub const M79: usize = 78;
+    pub const M89: usize = 79;
     pub const M99: usize = 80;
 }
 
@@ -167,7 +167,7 @@ where
 {
     /// Create a matrix.
     #[inline]
-    pub const fn new(a: [T; 81]) -> Self {
+    pub fn new(a: [T; 81]) -> Self {
         Self::from_row_array(a)
     }
 }
@@ -190,14 +190,14 @@ where
 
     /// Matrix from 1D row array.
     #[inline]
-    pub const fn from_row_array(a: [T; 81]) -> Self {
-        Self { a }
+    pub fn from_row_array(a: [T; 81]) -> Self {
+        Self::from_column_array(a).transpose()
     }
 
     /// Matrix from 1D column array.
     #[inline]
-    pub fn from_column_array(a: [T; 81]) -> Self {
-        Self::from_row_array(a).transpose()
+    pub const fn from_column_array(a: [T; 81]) -> Self {
+        Self { a }
     }
 
     /// Try to create a matrix from a slice.
@@ -676,13 +676,8 @@ where
     #[inline]
     pub fn extract_9x3_array(&self) -> [T; 27] {
         let mut ret = [T::zero(); 27];
-        for r in 0..9 {
-            let offset9 = r * 9;
-            let offset3 = r * 3;
-            ret[offset3] = self.a[offset9]; // Column 1
-            ret[offset3 + 1] = self.a[offset9 + 1]; // Column 2
-            ret[offset3 + 2] = self.a[offset9 + 2]; // Column 3
-        }
+        // Direct, zero-stride slice copy since Col 1, 2, and 3 occupy self.a[0..27]
+        ret.copy_from_slice(&self.a[0..27]);
         ret
     }
 
@@ -690,26 +685,28 @@ where
     /// Returns a tuple of three 3x3 matrices.
     #[inline]
     pub fn multiply_9x3_array_by_3x3(lhs: [T; 27], rhs: Matrix3x3<T>) -> (Matrix3x3<T>, Matrix3x3<T>, Matrix3x3<T>) {
-        // Helper closure to calculate a single 3x3 block from a specific row slice.
+        // Helper closure to calculate a single 3x3 sub-matrix block from a 3-row band.
+        // start_row must be 0, 3, or 6.
         #[rustfmt::skip]
         let multiply_block = |start_row: usize| -> Matrix3x3<T> {
             let mut ret = [T::zero(); 9];
-            for r in 0..3 {
-                let l_offset = (start_row + r) * 3;
-                let l1 = lhs[l_offset];
-                let l2 = lhs[l_offset + 1];
-                let l3 = lhs[l_offset + 2];
-
-                // Calculates row dot products with the 3 columns of `rhs`
-                let ret_offset = r * 3;
-                ret[ret_offset] =     l1 * rhs.a[0] + l2 * rhs.a[3] + l3 * rhs.a[6];
-                ret[ret_offset + 1] = l1 * rhs.a[1] + l2 * rhs.a[4] + l3 * rhs.a[7];
-                ret[ret_offset + 2] = l1 * rhs.a[2] + l2 * rhs.a[5] + l3 * rhs.a[8];
+            // Loop through the 3 columns of the output 3x3 matrix (column-by-column iteration)
+            for c in 0..3 {
+                let rhs_offset = c * 3;
+                let r1 = rhs.a[rhs_offset]; // Row 1 element of current column in rhs
+                let r2 = rhs.a[rhs_offset + 1]; // Row 2 element of current column in rhs
+                let r3 = rhs.a[rhs_offset + 2]; // Row 3 element of current column in rhs
+                // Calculate the 3 vertical row entries for this output column.
+                // In lhs (9x3), columns are spaced 9 elements apart.
+                let ret_offset = c * 3;
+                ret[ret_offset] =     lhs[start_row]     * r1 + lhs[start_row + 9]  * r2 + lhs[start_row + 18] * r3;
+                ret[ret_offset + 1] = lhs[start_row + 1] * r1 + lhs[start_row + 10] * r2 + lhs[start_row + 19] * r3;
+                ret[ret_offset + 2] = lhs[start_row + 2] * r1 + lhs[start_row + 11] * r2 + lhs[start_row + 20] * r3;
             }
             Matrix3x3 { a: ret }
         };
 
-        // Separate and calculate the three blocks (rows 0-2, rows 3-5, rows 6-8)
+        // Separate and calculate the three sub-matrices (rows 0-2, rows 3-5, rows 6-8)
         (multiply_block(0), multiply_block(3), multiply_block(6))
     }
 
@@ -857,7 +854,7 @@ impl<T> Index<(usize, usize)> for Matrix9x9<T> {
     #[inline]
     fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
         assert!(row < 9 && col < 9, "Matrix index out of bounds: row={row}, col={col}");
-        &self.a[row * 9 + col]
+        &self.a[col * 9 + row]
     }
 }
 
@@ -897,7 +894,7 @@ impl<T> IndexMut<(usize, usize)> for Matrix9x9<T> {
     #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         assert!(row < 9 && col < 9, "Matrix index out of bounds: row={row}, col={col}");
-        &mut self.a[row * 9 + col]
+        &mut self.a[col * 9 + row]
     }
 }
 
@@ -908,22 +905,22 @@ where
     /// Returns a row as a Vector3d 3-tuple.
     #[inline]
     pub fn row_tuple3d(&self, row_index: usize) -> (Vector3d<T>, Vector3d<T>, Vector3d<T>) {
-        let offset = row_index * 9;
+        let r = row_index;
         (
-            Vector3d { x: self.a[offset], y: self.a[offset + 1], z: self.a[offset + 2] },
-            Vector3d { x: self.a[offset + 3], y: self.a[offset + 4], z: self.a[offset + 5] },
-            Vector3d { x: self.a[offset + 6], y: self.a[offset + 7], z: self.a[offset + 8] },
+            Vector3d { x: self.a[r], y: self.a[r + 9], z: self.a[r + 18] },
+            Vector3d { x: self.a[r + 27], y: self.a[r + 36], z: self.a[r + 45] },
+            Vector3d { x: self.a[r + 54], y: self.a[r + 63], z: self.a[r + 72] },
         )
     }
 
     /// Returns a column as a Vector3d 3-tuple.
     #[inline]
     pub fn column_tuple3d(&self, col_index: usize) -> (Vector3d<T>, Vector3d<T>, Vector3d<T>) {
-        let c = col_index;
+        let offset = col_index * 9;
         (
-            Vector3d { x: self.a[c], y: self.a[c + 9], z: self.a[c + 18] },
-            Vector3d { x: self.a[c + 27], y: self.a[c + 36], z: self.a[c + 45] },
-            Vector3d { x: self.a[c + 54], y: self.a[c + 63], z: self.a[c + 72] },
+            Vector3d { x: self.a[offset], y: self.a[offset + 1], z: self.a[offset + 2] },
+            Vector3d { x: self.a[offset + 3], y: self.a[offset + 4], z: self.a[offset + 5] },
+            Vector3d { x: self.a[offset + 6], y: self.a[offset + 7], z: self.a[offset + 8] },
         )
     }
 
@@ -1256,7 +1253,7 @@ impl<T> Matrix9x9<T>
 where
     T: Copy,
 {
-    /// Returns an iterator over the columns of the matrix as owned 4-element arrays.
+    /// Returns an iterator over the columns of the matrix as owned 9-element arrays.
     #[inline]
     pub fn cols(&self) -> impl Iterator<Item = [T; 9]> {
         // Create an iterator over the column indices (0, 1, 2, ..)
@@ -1311,6 +1308,104 @@ where
         // Construct the 9 rows of 9 elements safely in one direct pass
         let rows = core::array::from_fn(|r| core::array::from_fn(|c| self.a[r * 9 + c]));
         rows.into_iter()
+    }
+}
+
+// **** Column Iterators ****
+
+impl<T> Matrix9x9<T> {
+    /// Exposes the matrix as a read-only reference to 9 contiguous columns.
+    /// Each sub-array `[T; 9]` represents one full column in memory.
+    #[inline]
+    pub fn columns(&self) -> &[[T; 9]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks::<9>();
+        chunks
+    }
+
+    /// Exposes the matrix as a mutable reference to 9 contiguous columns.
+    /// Each sub-array `[T; 9]` represents one full column in memory.
+    #[inline]
+    pub fn columns_mut(&mut self) -> &mut [[T; 9]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<9>();
+        chunks
+    }
+
+    #[inline]
+    pub fn iter_columns(&self) -> Matrix9x9Columns<'_, T> {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks::<9>();
+        Matrix9x9Columns { inner: chunks.iter() }
+    }
+
+    #[inline]
+    pub fn iter_columns_mut(&mut self) -> Matrix9x9ColumnsMut<'_, T> {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<9>();
+        Matrix9x9ColumnsMut { inner: chunks.iter_mut() }
+    }
+}
+
+// **** Iterator Pairs ****
+
+/// A custom iterator over the read-only columns of a 9x9 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix9x9Columns<'a, T> {
+    inner: Iter<'a, [T; 9]>,
+}
+
+impl<'a, T> Iterator for Matrix9x9Columns<'a, T> {
+    type Item = &'a [T; 9];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Support optimization traits identically to the mutable companion
+impl<T> ExactSizeIterator for Matrix9x9Columns<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix9x9Columns<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
+    }
+}
+
+/// A custom iterator over the mutable columns of a 9x9 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix9x9ColumnsMut<'a, T> {
+    inner: IterMut<'a, [T; 9]>,
+}
+
+impl<'a, T> Iterator for Matrix9x9ColumnsMut<'a, T> {
+    type Item = &'a mut [T; 9];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Ensure the standard ExactSizeIterator trait is supported for zip/enumerate optimization.
+impl<T> ExactSizeIterator for Matrix9x9ColumnsMut<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix9x9ColumnsMut<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
     }
 }
 

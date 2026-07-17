@@ -2,7 +2,7 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
-use core::slice::{ChunksExact, ChunksExactMut};
+use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
@@ -21,15 +21,15 @@ pub type Matrix3x3f64 = Matrix3x3<f64>;
 
 /// `Matrix3x3<T>`: 3x3 Matrix of type `T`.<br>
 /// Aliases `Matrix3x3f32` and `Matrix3x3f64` are provided.<br>
-/// Internal implementation is a flattened 3x3 matrix: an array of 9 elements stored in row-major order.
-/// That is the element `m[row][col]` is at array position `[row * 3 + col]`.<br><br>
+/// Internal implementation is a flattened 3x3 matrix: an array of 9 elements stored in column-major order.
+/// That is the element `m[row][col]` is at array position `[col * 3 + row]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "align", repr(C, align(64)))]
 #[cfg_attr(not(feature = "align"), repr(C))]
 pub struct Matrix3x3<T> {
-    // Flattened 3x3 matrix: 9 elements in row-major order
+    // Flattened 3x3 matrix: 9 elements in column-major order
     pub(crate) a: [T; 9],
 }
 
@@ -41,17 +41,17 @@ impl<T> Matrix3x3<T> {
     pub const SIZE: usize = 9;
     pub const ROW_COUNT: usize = 3;
     pub const COL_COUNT: usize = 3;
-    // Row 1
+    // Column 1
     pub const M11: usize = 0;
-    pub const M12: usize = 1;
-    pub const M13: usize = 2;
-    // Row 2
-    pub const M21: usize = 3;
+    pub const M21: usize = 1;
+    pub const M31: usize = 2;
+    // Column 2
+    pub const M12: usize = 3;
     pub const M22: usize = 4;
-    pub const M23: usize = 5;
-    // Row 3
-    pub const M31: usize = 6;
-    pub const M32: usize = 7;
+    pub const M32: usize = 5;
+    // Column 3
+    pub const M13: usize = 6;
+    pub const M23: usize = 7;
     pub const M33: usize = 8;
 }
 
@@ -110,9 +110,9 @@ where
     pub const fn from_rows(v: [Vector3d<T>; 3]) -> Self {
         Self {
             a: [
-                v[0].x, v[0].y, v[0].z, //
-                v[1].x, v[1].y, v[1].z, //
-                v[2].x, v[2].y, v[2].z, //
+                v[0].x, v[1].x, v[2].x, //
+                v[0].y, v[1].y, v[2].y, //
+                v[0].z, v[1].z, v[2].z, //
             ],
         }
     }
@@ -131,9 +131,9 @@ where
     pub const fn from_columns(v: [Vector3d<T>; 3]) -> Self {
         Self {
             a: [
-                v[0].x, v[1].x, v[2].x, //
-                v[0].y, v[1].y, v[2].y, //
-                v[0].z, v[1].z, v[2].z, //
+                v[0].x, v[0].y, v[0].z, //
+                v[1].x, v[1].y, v[1].z, //
+                v[2].x, v[2].y, v[2].z, //
             ],
         }
     }
@@ -150,7 +150,13 @@ where
     /// ```
     #[inline]
     pub const fn from_row_array(a: [T; 9]) -> Self {
-        Self { a }
+        Self {
+            a: [
+                a[0], a[3], a[6], //
+                a[1], a[4], a[7], //
+                a[2], a[5], a[8], //
+            ],
+        }
     }
 
     /// Matrix from 1D column array.
@@ -165,13 +171,7 @@ where
     /// ```
     #[inline]
     pub const fn from_column_array(a: [T; 9]) -> Self {
-        Self {
-            a: [
-                a[0], a[3], a[6], //
-                a[1], a[4], a[7], //
-                a[2], a[5], a[8], //
-            ],
-        }
+        Self { a }
     }
 
     /// Matrix from 2D row array.
@@ -188,9 +188,9 @@ where
     pub const fn from_2d_row_array(a: [[T; 3]; 3]) -> Self {
         Self {
             a: [
-                a[0][0], a[0][1], a[0][2], //
-                a[1][0], a[1][1], a[1][2], //
-                a[2][0], a[2][1], a[2][2], //
+                a[0][0], a[1][0], a[2][0], //
+                a[0][1], a[1][1], a[2][1], //
+                a[0][2], a[1][2], a[2][2], //
             ],
         }
     }
@@ -209,14 +209,14 @@ where
     pub const fn from_padded_2d_row_array(a: [[T; 4]; 3]) -> Self {
         Self {
             a: [
-                a[0][0], a[0][1], a[0][2], //
-                a[1][0], a[1][1], a[1][2], //
-                a[2][0], a[2][1], a[2][2], //
+                a[0][0], a[1][0], a[2][0], //
+                a[0][1], a[1][1], a[2][1], //
+                a[0][2], a[1][2], a[2][2], //
             ],
         }
     }
 
-    /// Matrix from padded 2D row array.
+    /// Matrix from padded 2D column array.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::from_padded_2d_column_array([[  2.0, 17.0, 59.0, 127.0],
@@ -230,9 +230,9 @@ where
     pub const fn from_padded_2d_column_array(a: [[T; 4]; 3]) -> Self {
         Self {
             a: [
-                a[0][0], a[1][0], a[2][0], //
-                a[0][1], a[1][1], a[2][1], //
-                a[0][2], a[1][2], a[2][2], //
+                a[0][0], a[0][1], a[0][2], //
+                a[1][0], a[1][1], a[1][2], //
+                a[2][0], a[2][1], a[2][2], //
             ],
         }
     }
@@ -251,9 +251,9 @@ where
     pub const fn from_2d_column_array(a: [[T; 3]; 3]) -> Self {
         Self {
             a: [
-                a[0][0], a[1][0], a[2][0], //
-                a[0][1], a[1][1], a[2][1], //
-                a[0][2], a[1][2], a[2][2], //
+                a[0][0], a[0][1], a[0][2], //
+                a[1][0], a[1][1], a[1][2], //
+                a[2][0], a[2][1], a[2][2], //
             ],
         }
     }
@@ -271,12 +271,16 @@ where
     ///     panic!("Expected None for invalid data, but got Some");
     /// };
     /// ```
+    #[rustfmt::skip]
     pub fn try_from_row_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 9 {
             return None;
         }
-        let mut a = [slice[0]; 9];
-        a.copy_from_slice(&slice[0..9]);
+        let a = [
+            slice[0], slice[3], slice[6],
+            slice[1], slice[4], slice[7],
+            slice[2], slice[5], slice[8]
+        ];
         Some(Self { a })
     }
 
@@ -293,17 +297,13 @@ where
     ///     panic!("Expected None for invalid data, but got Some");
     /// };
     /// ```
-    #[rustfmt::skip]
     #[inline]
     pub fn try_from_column_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 9 {
             return None;
         }
-        let a = [
-            slice[0], slice[3], slice[6],
-            slice[1], slice[4], slice[7],
-            slice[2], slice[5], slice[8]
-        ];
+        let mut a = [slice[0]; 9];
+        a.copy_from_slice(&slice[0..9]);
         Some(Self { a })
     }
 }
@@ -1118,7 +1118,7 @@ impl<T> Index<(usize, usize)> for Matrix3x3<T> {
     #[inline]
     fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
         assert!(row < 3 && col < 3, "Matrix index out of bounds: row={row}, col={col}");
-        &self.a[row * 3 + col]
+        &self.a[col * 3 + row]
     }
 }
 
@@ -1200,7 +1200,7 @@ impl<T> IndexMut<(usize, usize)> for Matrix3x3<T> {
     #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         assert!(row < 3 && col < 3, "Matrix index out of bounds: row={row}, col={col}");
-        &mut self.a[row * 3 + col]
+        &mut self.a[col * 3 + row]
     }
 }
 
@@ -1221,13 +1221,9 @@ where
         if row >= 3 {
             return;
         }
-        let start = row * 3;
-        // Extract a 4-element slice.
-        // Because row < 4, start + 4 will never exceed 16.
-        let row_slice = &mut self.a[start..start + 3];
-        row_slice[0] = value.x;
-        row_slice[1] = value.y;
-        row_slice[2] = value.z;
+        self.a[row] = value.x;
+        self.a[row + 3] = value.y;
+        self.a[row + 6] = value.z;
     }
 
     /// Return matrix row as a vector.
@@ -1243,10 +1239,11 @@ where
     /// assert_eq!(m.row(2), Vector3df32{ x: 23.0, y: 31.0, z: 41.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector3d<T> {
-        // Branchless clamp: restricts r to 0..=2
-        let base = row.min(2) * 3;
-        let chunk = &self.a[base..];
-        Vector3d { x: chunk[0], y: chunk[1], z: chunk[2] }
+        let r = row.min(2);
+        // Made safe because c is clamped to 0..=2, so c + 6 <= 8
+        unsafe {
+            Vector3d { x: *self.a.get_unchecked(r), y: *self.a.get_unchecked(r + 3), z: *self.a.get_unchecked(r + 6) }
+        }
     }
 
     /// Set matrix column from a vector.
@@ -1262,9 +1259,13 @@ where
         if column >= 3 {
             return;
         }
-        self.a[column] = value.x;
-        self.a[column + 3] = value.y;
-        self.a[column + 6] = value.z;
+        let start = column * 3;
+        // Extract a 3-element slice.
+        // Because row < 3, start + 3 will never exceed 9.
+        let column_slice = &mut self.a[start..start + 3];
+        column_slice[0] = value.x;
+        column_slice[1] = value.y;
+        column_slice[2] = value.z;
     }
 
     /// Return matrix column as a vector.
@@ -1280,11 +1281,10 @@ where
     /// assert_eq!(m.column(2), Vector3df32{ x: 59.0, y: 47.0, z: 41.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector3d<T> {
-        let c = column.min(2);
-        // Made safe because c is clamped to 0..=2, so c + 6 <= 8
-        unsafe {
-            Vector3d { x: *self.a.get_unchecked(c), y: *self.a.get_unchecked(c + 3), z: *self.a.get_unchecked(c + 6) }
-        }
+        // Branchless clamp: restricts r to 0..=2
+        let base = column.min(2) * 3;
+        let chunk = &self.a[base..];
+        Vector3d { x: chunk[0], y: chunk[1], z: chunk[2] }
     }
 
     /// Return matrix diagonal as an array.
@@ -1821,6 +1821,104 @@ impl<T> IntoIterator for Matrix3x3<T> {
         let [a, b, c, d, e, f, g, h, i] = self.a;
         // Construct an array of rows, then convert that array into an iterator
         [[a, b, c], [d, e, f], [g, h, i]].into_iter()
+    }
+}
+
+// **** Column Iterators ****
+
+impl<T> Matrix3x3<T> {
+    /// Exposes the matrix as a read-only reference to 3 contiguous columns.
+    /// Each sub-array `[T; 3]` represents one full column in memory.
+    #[inline]
+    pub fn columns(&self) -> &[[T; 3]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks::<3>();
+        chunks
+    }
+
+    /// Exposes the matrix as a mutable reference to 3 contiguous columns.
+    /// Each sub-array `[T; 3]` represents one full column in memory.
+    #[inline]
+    pub fn columns_mut(&mut self) -> &mut [[T; 3]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<3>();
+        chunks
+    }
+
+    #[inline]
+    pub fn iter_columns(&self) -> Matrix3x3Columns<'_, T> {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks::<3>();
+        Matrix3x3Columns { inner: chunks.iter() }
+    }
+
+    #[inline]
+    pub fn iter_columns_mut(&mut self) -> Matrix3x3ColumnsMut<'_, T> {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<3>();
+        Matrix3x3ColumnsMut { inner: chunks.iter_mut() }
+    }
+}
+
+// **** Iterator Pairs ****
+
+/// A custom iterator over the read-only columns of a 3x3 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix3x3Columns<'a, T> {
+    inner: Iter<'a, [T; 3]>,
+}
+
+impl<'a, T> Iterator for Matrix3x3Columns<'a, T> {
+    type Item = &'a [T; 3];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Support optimization traits identically to the mutable companion
+impl<T> ExactSizeIterator for Matrix3x3Columns<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix3x3Columns<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
+    }
+}
+
+/// A custom iterator over the mutable columns of a 3x3 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix3x3ColumnsMut<'a, T> {
+    inner: IterMut<'a, [T; 3]>,
+}
+
+impl<'a, T> Iterator for Matrix3x3ColumnsMut<'a, T> {
+    type Item = &'a mut [T; 3];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Ensure the standard ExactSizeIterator trait is supported for zip/enumerate optimization.
+impl<T> ExactSizeIterator for Matrix3x3ColumnsMut<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix3x3ColumnsMut<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
     }
 }
 

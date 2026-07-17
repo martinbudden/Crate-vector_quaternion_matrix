@@ -19,11 +19,16 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Added
 
+- column iterators to matrices.
 - `from_diagonal_element` and `from_diagonal` constructors to matrices.
 - `try_from_column_slice` constructors to matrices.
+- `enforce_symmetry` to matrices.
+- `approx_eq` to vectors.
 
 ### Changed
 
+- changed matrices to use column-major storage.
+- changed to use feature `align` rather than `no_align`.
 - renamed matrix `fill` constructor to `from_element`.
 
 ### Removed

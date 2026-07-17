@@ -2,7 +2,7 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Range, RangeFull,
     RangeInclusive, Sub, SubAssign,
 };
-use core::slice::{ChunksExact, ChunksExactMut};
+use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
@@ -22,14 +22,14 @@ pub type Matrix2x2f64 = Matrix2x2<f64>;
 /// `Matrix2x2<T>`: 2x2 Matrix of type `T`.<br>
 /// Aliases `Matrix2x2f32` and `Matrix2x2f64` are provided.<br>
 /// `Matrix2x2f32` uses **SIMD** accelerations implemented in `Matrix2x2Math`.<br>
-/// Internal implementation is using a flattened 1-dimensional array: an array of 4 elements stored in row-major order.
-/// That is the element `m[row][col]` is at array position `[row * 2 + col]`.<br><br>
+/// Internal implementation is using a flattened 1-dimensional array: an array of 4 elements stored in column-major order.
+/// That is the element `m[row][col]` is at array position `[col * 2 + row]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(16))]
 pub struct Matrix2x2<T> {
-    // Flattened 2x2 matrix: 4 elements in row-major order
+    // Flattened 2x2 matrix: 4 elements in column-major order
     pub(crate) a: [T; 4],
 }
 
@@ -41,11 +41,11 @@ impl<T> Matrix2x2<T> {
     pub const SIZE: usize = 4;
     pub const ROW_COUNT: usize = 2;
     pub const COL_COUNT: usize = 2;
-    // Row 1
+    // Column 1
     pub const M11: usize = 0;
-    pub const M12: usize = 1;
-    // Row 2
-    pub const M21: usize = 2;
+    pub const M21: usize = 1;
+    // Column 2
+    pub const M12: usize = 2;
     pub const M22: usize = 3;
 }
 
@@ -98,8 +98,8 @@ where
     pub const fn from_rows(v: [Vector2d<T>; 2]) -> Self {
         Self {
             a: [
-                v[0].x, v[0].y, //
-                v[1].x, v[1].y, //
+                v[0].x, v[1].x, //
+                v[0].y, v[1].y, //
             ],
         }
     }
@@ -116,8 +116,8 @@ where
     pub const fn from_columns(v: [Vector2d<T>; 2]) -> Self {
         Self {
             a: [
-                v[0].x, v[1].x, //
-                v[0].y, v[1].y, //
+                v[0].x, v[0].y, //
+                v[1].x, v[1].y, //
             ],
         }
     }
@@ -132,7 +132,12 @@ where
     /// ```
     #[inline]
     pub const fn from_row_array(a: [T; 4]) -> Self {
-        Self { a }
+        Self {
+            a: [
+                a[0], a[2], //
+                a[1], a[3], //
+            ],
+        }
     }
 
     /// Matrix from 1D column array.
@@ -145,12 +150,7 @@ where
     /// ```
     #[inline]
     pub const fn from_column_array(a: [T; 4]) -> Self {
-        Self {
-            a: [
-                a[0], a[2], //
-                a[1], a[3], //
-            ],
-        }
+        Self { a }
     }
 
     /// Matrix from 2D row array.
@@ -165,8 +165,8 @@ where
     pub const fn from_2d_row_array(a: [[T; 2]; 2]) -> Self {
         Self {
             a: [
-                a[0][0], a[0][1], //
-                a[1][0], a[1][1], //
+                a[0][0], a[1][0], //
+                a[0][1], a[1][1], //
             ],
         }
     }
@@ -183,8 +183,8 @@ where
     pub const fn from_2d_column_array(a: [[T; 2]; 2]) -> Self {
         Self {
             a: [
-                a[0][0], a[1][0], //
-                a[0][1], a[1][1], //
+                a[0][0], a[0][1], //
+                a[1][0], a[1][1], //
             ],
         }
     }
@@ -208,10 +208,13 @@ where
         if slice.len() != 4 {
             return None;
         }
-        let mut a = [slice[0]; 4];
-        a.copy_from_slice(&slice[0..4]);
+        let a = [
+            slice[0], slice[2],
+            slice[1], slice[3],
+        ];
         Some(Self { a })
     }
+
     /// Try to create a matrix from a column slice.
     /// ```
     /// # use vqm::Matrix2x2f32;
@@ -231,10 +234,8 @@ where
         if slice.len() != 4 {
             return None;
         }
-        let a = [
-            slice[0], slice[2],
-            slice[1], slice[3],
-        ];
+        let mut a = [slice[0]; 4];
+        a.copy_from_slice(&slice[0..4]);
         Some(Self { a })
     }
 }
@@ -984,7 +985,7 @@ impl<T> Index<(usize, usize)> for Matrix2x2<T> {
     #[inline]
     fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
         assert!(row < 2 && col < 2, "Matrix index out of bounds: row={row}, col={col}");
-        &self.a[row * 2 + col]
+        &self.a[col * 2 + row]
     }
 }
 
@@ -1052,7 +1053,7 @@ impl<T> IndexMut<(usize, usize)> for Matrix2x2<T> {
     #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         assert!(row < 2 && col < 2, "Matrix index out of bounds: row={row}, col={col}");
-        &mut self.a[row * 2 + col]
+        &mut self.a[col * 2 + row]
     }
 }
 
@@ -1069,15 +1070,13 @@ where
     /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.row(1));
     /// ```
     pub fn set_row(&mut self, row: usize, value: Vector2d<T>) {
-        if row >= 2 {
-            return;
+        if row == 0 {
+            self.a[0] = value.x;
+            self.a[2] = value.y;
+        } else {
+            self.a[1] = value.x;
+            self.a[3] = value.y;
         }
-        let start = row * 2;
-        // Extract a 4-element slice.
-        // Because row < 4, start + 4 will never exceed 16.
-        let row_slice = &mut self.a[start..start + 2];
-        row_slice[0] = value.x;
-        row_slice[1] = value.y;
     }
 
     /// Return matrix row as a vector.
@@ -1091,10 +1090,9 @@ where
     /// assert_eq!(m.row(1), Vector2df32{ x: 5.0, y: 11.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector2d<T> {
-        // Branchless clamp: restricts r to 0..=1
-        let base = row.min(1) * 2;
-        let chunk = &self.a[base..];
-        Vector2d { x: chunk[0], y: chunk[1] }
+        let r = row.min(1);
+        // Made safe because r is clamped to 0..=1, so r + 2 <= 3
+        unsafe { Vector2d { x: *self.a.get_unchecked(r), y: *self.a.get_unchecked(r + 2) } }
     }
 
     /// Set matrix column from a vector.
@@ -1106,13 +1104,15 @@ where
     /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.column(1));
     /// ```
     pub fn set_column(&mut self, column: usize, value: Vector2d<T>) {
-        if column == 0 {
-            self.a[0] = value.x;
-            self.a[2] = value.y;
-        } else {
-            self.a[1] = value.x;
-            self.a[3] = value.y;
+        if column >= 2 {
+            return;
         }
+        let start = column * 2;
+        // Extract a 4-element slice.
+        // Because row < 2, start + 2 will never exceed 3.
+        let column_slice = &mut self.a[start..start + 2];
+        column_slice[0] = value.x;
+        column_slice[1] = value.y;
     }
 
     /// Return matrix column as a vector.
@@ -1126,9 +1126,10 @@ where
     /// assert_eq!(m.column(1), Vector2df32{ x: 17.0, y: 11.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector2d<T> {
-        let c = column.min(1);
-        // Made safe because c is clamped to 0..=1, so c + 2 <= 3
-        unsafe { Vector2d { x: *self.a.get_unchecked(c), y: *self.a.get_unchecked(c + 2) } }
+        // Branchless clamp: restricts c to 0..=1
+        let base = column.min(1) * 2;
+        let chunk = &self.a[base..];
+        Vector2d { x: chunk[0], y: chunk[1] }
     }
 
     /// Return matrix diagonal as a array.
@@ -1601,5 +1602,103 @@ impl<T> IntoIterator for Matrix2x2<T> {
         let [a, b, c, d] = self.a;
         // Construct an array of rows, then convert that array into an iterator
         [[a, b], [c, d]].into_iter()
+    }
+}
+
+// **** Column Iterators ****
+
+impl<T> Matrix2x2<T> {
+    /// Exposes the matrix as a read-only reference to 2 contiguous columns.
+    /// Each sub-array `[T; 2]` represents one full column in memory.
+    #[inline]
+    pub fn columns(&self) -> &[[T; 2]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks::<2>();
+        chunks
+    }
+
+    /// Exposes the matrix as a mutable reference to 2 contiguous columns.
+    /// Each sub-array `[T; 2]` represents one full column in memory.
+    #[inline]
+    pub fn columns_mut(&mut self) -> &mut [[T; 2]] {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<2>();
+        chunks
+    }
+
+    #[inline]
+    pub fn iter_columns(&self) -> Matrix2x2Columns<'_, T> {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks::<2>();
+        Matrix2x2Columns { inner: chunks.iter() }
+    }
+
+    #[inline]
+    pub fn iter_columns_mut(&mut self) -> Matrix2x2ColumnsMut<'_, T> {
+        // remainder is empty.
+        let (chunks, _remainder) = self.a.as_chunks_mut::<2>();
+        Matrix2x2ColumnsMut { inner: chunks.iter_mut() }
+    }
+}
+
+// **** Iterator Pairs ****
+
+/// A custom iterator over the read-only columns of a 2x2 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix2x2Columns<'a, T> {
+    inner: Iter<'a, [T; 2]>,
+}
+
+impl<'a, T> Iterator for Matrix2x2Columns<'a, T> {
+    type Item = &'a [T; 2];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Support optimization traits identically to the mutable companion
+impl<T> ExactSizeIterator for Matrix2x2Columns<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix2x2Columns<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
+    }
+}
+
+/// A custom iterator over the mutable columns of a 2x2 matrix.
+#[derive(Debug, Default)]
+pub struct Matrix2x2ColumnsMut<'a, T> {
+    inner: IterMut<'a, [T; 2]>,
+}
+
+impl<'a, T> Iterator for Matrix2x2ColumnsMut<'a, T> {
+    type Item = &'a mut [T; 2];
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.inner.size_hint()
+    }
+}
+
+// Ensure the standard ExactSizeIterator trait is supported for zip/enumerate optimization.
+impl<T> ExactSizeIterator for Matrix2x2ColumnsMut<'_, T> {}
+
+impl<T> DoubleEndedIterator for Matrix2x2ColumnsMut<'_, T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.inner.next_back()
     }
 }

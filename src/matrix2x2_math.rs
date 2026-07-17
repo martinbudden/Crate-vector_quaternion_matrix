@@ -13,11 +13,11 @@ const _: () = assert!(align_of::<Matrix2x2<f32>>() == 16);
 
 use crate::{Matrix2x2, Vector2d};
 
-// Row 1
+// Column 1
 const M11: usize = 0;
-const M12: usize = 1;
-// Row 2
-const M21: usize = 2;
+const M21: usize = 1;
+// Column 2
+const M12: usize = 2;
 const M22: usize = 3;
 
 // **** From ****
@@ -160,8 +160,8 @@ impl Matrix2x2Math for f32 {
     fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
         Matrix2x2 {
             a: [
-                col.x * row.x, col.x * row.y,
-                col.y * row.x, col.y * row.y,
+                col.x * row.x, col.y * row.x,
+                col.x * row.y, col.y * row.y,
             ],
         }
     }
@@ -176,8 +176,8 @@ impl Matrix2x2Math for f32 {
             let b1_simd = f32x2::from_array([other.a[M12], other.a[M22]]);
             let a = [
                 (a0_simd * b0_simd).reduce_sum(),
-                (a0_simd * b1_simd).reduce_sum(),
                 (a1_simd * b0_simd).reduce_sum(),
+                (a0_simd * b1_simd).reduce_sum(),
                 (a1_simd * b1_simd).reduce_sum(),
             ];
             Matrix2x2 { a }
@@ -186,8 +186,8 @@ impl Matrix2x2Math for f32 {
         {
             let a = [
                 this.a[M11] * other.a[M11] + this.a[M12] * other.a[M21],
-                this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22],
                 this.a[M21] * other.a[M11] + this.a[M22] * other.a[M21],
+                this.a[M11] * other.a[M12] + this.a[M12] * other.a[M22],
                 this.a[M21] * other.a[M12] + this.a[M22] * other.a[M22],
             ];
             Matrix2x2 { a }
@@ -227,7 +227,7 @@ impl Matrix2x2Math for f32 {
     #[inline(always)]
     fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
         (
-            Matrix2x2 { a: [this.a[M22], -this.a[M12], -this.a[M21], this.a[M11]] },
+            Matrix2x2 { a: [this.a[M22], -this.a[M21], -this.a[M12], this.a[M11]] },
             this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],
         )
     }
@@ -305,8 +305,8 @@ impl Matrix2x2Math for f64 {
     fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
         Matrix2x2 {
             a: [
-                col.x * row.x, col.x * row.y,
-                col.y * row.x, col.y * row.y,
+                col.x * row.x, col.y * row.x,
+                col.x * row.y, col.y * row.y,
             ],
         }
     }
@@ -355,7 +355,7 @@ impl Matrix2x2Math for f64 {
     #[inline(always)]
     fn m2x2_adjugate(this: Matrix2x2<Self>) -> (Matrix2x2<Self>, Self) {
         (
-            Matrix2x2 { a: [this.a[M22], -this.a[M12], -this.a[M21], this.a[M11]] },
+            Matrix2x2 { a: [this.a[M22], -this.a[M21], -this.a[M12], this.a[M11]] },
             this.a[M11] * this.a[M22] - this.a[M12] * this.a[M21],
         )
     }

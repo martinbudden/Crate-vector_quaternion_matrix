@@ -55,7 +55,7 @@ mod tests {
         assert!(i.is_near_identity());
     }
     #[test]
-    fn neg() {
+    fn m3x3_neg() {
         let a = Matrix3x3f32::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
 
         assert_eq!(-a, Matrix3x3f32::new([-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0]));
@@ -64,7 +64,7 @@ mod tests {
         assert_eq!(b, Matrix3x3f32::new([-2.0, -3.0, -5.0, -7.0, -11.0, -13.0, -17.0, -19.0, -23.0]));
     }
     #[test]
-    fn add() {
+    fn m3x3_add() {
         let a = Matrix3x3f32::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let b = Matrix3x3f32::new([29.0, 31.0, 37.0, 41.0, 43.0, 47.0, 53.0, 59.0, 61.0]);
         let a_plus_b = Matrix3x3f32::new([
@@ -81,7 +81,7 @@ mod tests {
         assert_eq!(a + b, a_plus_b);
     }
     #[test]
-    fn sub() {
+    fn m3x3_sub() {
         let a = Matrix3x3f32::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let b = Matrix3x3f32::new([29.0, 31.0, 37.0, 41.0, 43.0, 47.0, 53.0, 59.0, 61.0]);
         let a_minus_b = Matrix3x3::new([
@@ -98,7 +98,7 @@ mod tests {
         assert_eq!(a - b, a_minus_b);
     }
     #[test]
-    fn mul() {
+    fn m3x3_mul() {
         let a = Matrix3x3f32::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let b = Matrix3x3f32::new([29.0, 31.0, 37.0, 41.0, 43.0, 47.0, 53.0, 59.0, 61.0]);
         let a_times_b = Matrix3x3::new([
@@ -116,7 +116,7 @@ mod tests {
         assert_eq!(a * b, a_times_b);
     }
     #[test]
-    fn new() {
+    fn m3x3_new() {
         let a = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let b = Matrix3x3::from_rows([
             Vector3d { x: 2.0, y: 3.0, z: 5.0 },
@@ -128,26 +128,26 @@ mod tests {
         assert_eq!(a, c);
     }
     #[test]
-    fn from_array() {
-        let a = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
-        assert_eq!(2.0, a[0]);
-        assert_eq!(3.0, a[1]);
-        assert_eq!(5.0, a[2]);
-        assert_eq!(7.0, a[3]);
-        assert_eq!(11.0, a[4]);
-        assert_eq!(13.0, a[5]);
-        assert_eq!(17.0, a[6]);
-        assert_eq!(19.0, a[7]);
-        assert_eq!(23.0, a[8]);
+    fn m3x3_from_array() {
+        let a = Matrix3x3f32::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
+        assert_eq!(2.0, a[Matrix3x3f32::M11]);
+        assert_eq!(3.0, a[Matrix3x3f32::M12]);
+        assert_eq!(5.0, a[Matrix3x3f32::M13]);
+        assert_eq!(7.0, a[Matrix3x3f32::M21]);
+        assert_eq!(11.0, a[Matrix3x3f32::M22]);
+        assert_eq!(13.0, a[Matrix3x3f32::M23]);
+        assert_eq!(17.0, a[Matrix3x3f32::M31]);
+        assert_eq!(19.0, a[Matrix3x3f32::M32]);
+        assert_eq!(23.0, a[Matrix3x3f32::M33]);
     }
     #[test]
-    fn determinant() {
+    fn m3x3_determinant() {
         let a: Matrix3x3<f32> = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let determinant = a.determinant();
         assert_eq!(-78.0, determinant);
     }
     #[test]
-    fn adjugate() {
+    fn m3x3_adjugate() {
         let a: Matrix3x3<f32> = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let (b, determinant) = a.adjugate();
         assert_eq!(b, Matrix3x3f32::new([6.0, 26.0, -16.0, 60.0, -39.0, 9.0, -54.0, 13.0, 1.0]));
@@ -155,7 +155,7 @@ mod tests {
         assert!((c / determinant).is_near_identity());
     }
     #[test]
-    fn inverse() {
+    fn m3x3_inverse() {
         let a: Matrix3x3<f32> = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let b = a.inverse();
         let c = a * b;
@@ -165,9 +165,9 @@ mod tests {
         assert!(c[1].abs() < f32::EPSILON);
         assert!(c[2].abs() < f32::EPSILON);
         assert!(c[3].abs() < f32::EPSILON);
-        assert!(c[5].abs() < f32::EPSILON);
+        assert!(c[5].abs() < f32::EPSILON * 5.0);
         assert!(c[6].abs() < f32::EPSILON);
-        assert!(c[7].abs() < f32::EPSILON * 5.0);
+        assert!(c[7].abs() < f32::EPSILON);
 
         assert!(((c - Matrix3x3::one()) / 5.0).is_near_zero());
     }
