@@ -46,13 +46,13 @@ mod tests {
         assert_eq!(a, z);
         assert!(z.is_zero());
         assert!(!z.is_one());
-        assert!(z.is_near_zero());
+        assert!(z.is_near_zero(1e-5));
 
         let i = Matrix3x3f32::one();
         //let i: Matrix3x3 = one();
         assert!(i.is_one());
         assert!(!i.is_zero());
-        assert!(i.is_near_identity());
+        assert!(i.is_near_identity(1e-5));
     }
     #[test]
     fn m3x3_neg() {
@@ -152,7 +152,7 @@ mod tests {
         let (b, determinant) = a.adjugate();
         assert_eq!(b, Matrix3x3f32::new([6.0, 26.0, -16.0, 60.0, -39.0, 9.0, -54.0, 13.0, 1.0]));
         let c = a * b;
-        assert!((c / determinant).is_near_identity());
+        assert!((c / determinant).is_near_identity(1e-5));
     }
     #[test]
     fn m3x3_inverse() {
@@ -169,6 +169,6 @@ mod tests {
         assert!(c[6].abs() < f32::EPSILON);
         assert!(c[7].abs() < f32::EPSILON);
 
-        assert!(((c - Matrix3x3::one()) / 5.0).is_near_zero());
+        assert!(((c - Matrix3x3::one()) / 5.0).is_near_zero(1e-5));
     }
 }

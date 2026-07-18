@@ -3,7 +3,7 @@ use core::ops::{
     RangeInclusive, Sub, SubAssign,
 };
 use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
-use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
     sequential_storage::map::PostcardValue,
@@ -272,6 +272,7 @@ where
     /// };
     /// ```
     #[rustfmt::skip]
+    #[inline]
     pub fn try_from_row_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 9 {
             return None;
@@ -413,6 +414,27 @@ where
     const ZERO: Self = Self { a: [T::ZERO; 9] };
 }
 
+impl<T> Matrix3x3<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return true if matrix is near zero.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use num_traits::Zero;
+    /// let z = Matrix3x3f32::zero();
+    /// assert!(z.is_near_zero(1e-5));
+    /// ```
+    pub fn is_near_zero(self, epsilon: T) -> bool {
+        for a in &self.a {
+            if a.abs() > epsilon {
+                return false;
+            }
+        }
+        true
+    }
+}
+
 // **** One ****
 
 impl<T> One for Matrix3x3<T>
@@ -489,6 +511,37 @@ where
                 T::zero(), T::zero(), T::one()
             ],
         }
+    }
+}
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + One + FloatCore,
+{
+    /// Return true if matrix is near identity.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// # use num_traits::One;
+    /// let i = Matrix3x3f32::one();
+    /// assert!(i.is_near_identity(1e-5));
+    /// ```
+    pub fn is_near_identity(self, epsilon: T) -> bool {
+        if self.a[Self::M21].abs() > epsilon
+            || self.a[Self::M31].abs() > epsilon
+            || self.a[Self::M12].abs() > epsilon
+            || self.a[Self::M32].abs() > epsilon
+            || self.a[Self::M13].abs() > epsilon
+            || self.a[Self::M23].abs() > epsilon
+        {
+            return false;
+        }
+        if (self.a[Self::M11] - T::one()).abs() > epsilon
+            || (self.a[Self::M22] - T::one()).abs() > epsilon
+            || (self.a[Self::M33] - T::one()).abs() > epsilon
+        {
+            return false;
+        }
+        true
     }
 }
 
@@ -1464,7 +1517,7 @@ where
     /// let (n,d) = m.adjugate();
     ///
     /// assert_eq!(m.determinant(), d);
-    /// assert!((n*m/m.determinant()).is_near_identity());
+    /// assert!((n*m/m.determinant()).is_near_identity(1e-5));
     /// assert_eq!(Matrix3x3f32::one(), n*m/(m.determinant()));
     /// ```
     #[inline]
@@ -1486,7 +1539,7 @@ where
     ///                                    508.0, -447.0,  53.0,
     ///                                    -98.0,   53.0,  -3.0]));
     /// assert_eq!(-734.0, d);
-    /// assert!((n*m/m.determinant()).is_near_identity());
+    /// assert!((n*m/m.determinant()).is_near_identity(1e-5));
     /// assert_eq!(Matrix3x3f32::one(), n*m/(m.determinant()));
     /// ```
     #[inline]
@@ -1576,7 +1629,7 @@ where
 
 impl<T> Matrix3x3<T>
 where
-    T: Copy + Zero + One + Matrix3x3Math + MathConstants + PartialOrd + Signed,
+    T: Copy + Zero + One + Matrix3x3Math + MathConstants + PartialOrd + FloatCore,
 {
     /// Return inverse of matrix or `T::zero()` if not invertible.
     /// ```
@@ -1678,47 +1731,6 @@ where
     #[inline]
     pub fn trace_sum_squares(self) -> T {
         T::m3x3_trace_sum_squares(self)
-    }
-
-    /// Return true if matrix is near zero.
-    /// ```
-    /// # use vqm::Matrix3x3f32;
-    /// # use num_traits::Zero;
-    /// let z = Matrix3x3f32::zero();
-    /// assert!(z.is_near_zero());
-    /// ```
-    pub fn is_near_zero(self) -> bool {
-        for a in &self.a {
-            if a.abs() > T::EPSILON {
-                return false;
-            }
-        }
-        true
-    }
-
-    /// Return true if matrix is near identity.
-    /// ```
-    /// # use vqm::Matrix3x3f32;
-    /// # use num_traits::One;
-    /// let i = Matrix3x3f32::one();
-    /// assert!(i.is_near_identity());
-    /// ```
-    pub fn is_near_identity(self) -> bool {
-        if self.a[1].abs() > T::EPSILON
-            || self.a[2].abs() > T::EPSILON
-            || self.a[3].abs() > T::EPSILON
-            || self.a[5].abs() > T::EPSILON
-            || self.a[6].abs() > T::EPSILON
-        {
-            return false;
-        }
-        if (self.a[0] - T::one()).abs() > T::EPSILON
-            || (self.a[4] - T::one()).abs() > T::EPSILON
-            || (self.a[8] - T::one()).abs() > T::EPSILON
-        {
-            return false;
-        }
-        true
     }
 }
 

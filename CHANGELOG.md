@@ -24,6 +24,7 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 - `try_from_column_slice` constructors to matrices.
 - `enforce_symmetry` to matrices.
 - `approx_eq` to vectors.
+- `epsilon` parameter to `is_near_zero` and `is_near_identity` matrix functions.
 
 ### Changed
 

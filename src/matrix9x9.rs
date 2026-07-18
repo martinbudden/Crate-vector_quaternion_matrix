@@ -4,7 +4,7 @@ use core::ops::{
     RangeInclusive, Sub, SubAssign,
 };
 use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
-use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::FloatCore};
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3d};
 
@@ -170,7 +170,7 @@ where
     #[inline]
     pub const fn new(a: [T; 81]) -> Self {
         Self {a: [
-            a[0], a[9], a[18], a[27], a[36], a[45], a[54], a[63], a[72],
+            a[0], a[9],  a[18], a[27], a[36], a[45], a[54], a[63], a[72],
             a[1], a[10], a[19], a[28], a[37], a[46], a[55], a[64], a[73],
             a[2], a[11], a[20], a[29], a[38], a[47], a[56], a[65], a[74],
             a[3], a[12], a[21], a[30], a[39], a[48], a[57], a[66], a[75],
@@ -200,9 +200,19 @@ where
     }
 
     /// Matrix from 1D row array.
-    #[inline]
     pub fn from_row_array(a: [T; 81]) -> Self {
-        Self::from_column_array(a).transpose()
+        // Initialize the output array with the first element of the input
+        let mut column_major = [a[0]; 81];
+
+        for r in 0..9 {
+            for c in 0..9 {
+                let row_idx = r * 9 + c;
+                let col_idx = c * 9 + r;
+                column_major[col_idx] = a[row_idx];
+            }
+        }
+
+        Self { a: column_major }
     }
 
     /// Matrix from 1D column array.
@@ -334,6 +344,27 @@ where
     /// assert!(m.is_zero());
     /// ```
     const ZERO: Self = Self { a: [T::ZERO; 81] };
+}
+
+impl<T> Matrix9x9<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return true if matrix is near zero.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// # use num_traits::Zero;
+    /// let z = Matrix9x9f32::zero();
+    /// assert!(z.is_near_zero(1e-5));
+    /// ```
+    pub fn is_near_zero(self, epsilon: T) -> bool {
+        for a in &self.a {
+            if a.abs() > epsilon {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 // **** One ****
@@ -1097,7 +1128,7 @@ where
 
 impl<T> Matrix9x9<T>
 where
-    T: Copy + Zero + One + Matrix9x9Math + MathConstants + PartialOrd + Signed,
+    T: Copy + Zero + One + Matrix9x9Math + MathConstants + PartialOrd + FloatCore,
 {
     /// Return the sum of all elements of the matrix.
     #[inline]
@@ -1115,16 +1146,6 @@ where
     #[inline]
     pub fn product(self) -> T {
         T::m9x9_product(self)
-    }
-
-    /// Return true if matrix is near zero.
-    pub fn is_near_zero(self) -> bool {
-        for a in &self.a {
-            if a.abs() > T::EPSILON {
-                return false;
-            }
-        }
-        true
     }
 }
 

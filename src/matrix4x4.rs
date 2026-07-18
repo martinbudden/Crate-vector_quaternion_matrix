@@ -4,7 +4,7 @@ use core::ops::{
     RangeInclusive, Sub, SubAssign,
 };
 use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
-use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
     sequential_storage::map::PostcardValue,
@@ -430,6 +430,27 @@ where
     const ZERO: Self = Self { a: [T::ZERO; 16] };
 }
 
+impl<T> Matrix4x4<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return true if matrix is near zero.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// # use num_traits::Zero;
+    /// let z = Matrix4x4f32::zero();
+    /// assert!(z.is_near_zero(1e-5));
+    /// ```
+    pub fn is_near_zero(self, epsilon: T) -> bool {
+        for a in &self.a {
+            if a.abs() > epsilon {
+                return false;
+            }
+        }
+        true
+    }
+}
+
 // **** One ****
 
 impl<T> One for Matrix4x4<T>
@@ -512,6 +533,44 @@ where
                 T::zero(), T::zero(), T::zero(), T::one()
             ],
         }
+    }
+}
+
+impl<T> Matrix4x4<T>
+where
+    T: Copy + One + FloatCore,
+{
+    /// Return true if matrix is near identity.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// # use num_traits::One;
+    /// let i = Matrix4x4f32::one();
+    /// assert!(i.is_near_identity(1e-5));
+    /// ```
+    pub fn is_near_identity(self, epsilon: T) -> bool {
+        if self.a[Self::M21].abs() > epsilon
+            || self.a[Self::M31].abs() > epsilon
+            || self.a[Self::M41].abs() > epsilon
+            || self.a[Self::M12].abs() > epsilon
+            || self.a[Self::M32].abs() > epsilon
+            || self.a[Self::M42].abs() > epsilon
+            || self.a[Self::M13].abs() > epsilon
+            || self.a[Self::M23].abs() > epsilon
+            || self.a[Self::M43].abs() > epsilon
+            || self.a[Self::M14].abs() > epsilon
+            || self.a[Self::M24].abs() > epsilon
+            || self.a[Self::M34].abs() > epsilon
+        {
+            return false;
+        }
+        if (self.a[Self::M11] - T::one()).abs() > epsilon
+            || (self.a[Self::M22] - T::one()).abs() > epsilon
+            || (self.a[Self::M33] - T::one()).abs() > epsilon
+            || (self.a[Self::M44] - T::one()).abs() > epsilon
+        {
+            return false;
+        }
+        true
     }
 }
 
@@ -1645,7 +1704,7 @@ where
     /// assert_eq!(-945984.0, d);
     /// assert_eq!(-945984.0, m.determinant());
     ///
-    /// assert!((n * m / m.determinant()).is_near_identity());
+    /// assert!((n * m / m.determinant()).is_near_identity(1e-5));
     /// assert_eq!(Matrix4x4f32::one(), n*m/m.determinant());
     /// assert_eq!(n * m / d, Matrix4x4f32::new([ 1.0, 0.0, 0.0, 0.0,
     ///                                           0.0, 1.0, 0.0, 0.0,
@@ -1744,7 +1803,7 @@ where
 
 impl<T> Matrix4x4<T>
 where
-    T: Copy + Zero + One + Matrix4x4Math + MathConstants + PartialOrd + Signed,
+    T: Copy + Zero + One + Matrix4x4Math + MathConstants + PartialOrd + FloatCore,
 {
     /// Return inverse of matrix or `T::zero()` if not invertible.
     /// ```
@@ -1852,54 +1911,6 @@ where
     #[inline]
     pub fn trace_sum_squares(self) -> T {
         T::m4x4_trace_sum_squares(self)
-    }
-
-    /// Return true if matrix is near zero.
-    /// ```
-    /// # use vqm::Matrix4x4f32;
-    /// # use num_traits::Zero;
-    /// let z = Matrix4x4f32::zero();
-    /// assert!(z.is_near_zero());
-    /// ```
-    pub fn is_near_zero(self) -> bool {
-        for a in &self.a {
-            if a.abs() > T::EPSILON {
-                return false;
-            }
-        }
-        true
-    }
-
-    /// Return true if matrix is near identity.
-    /// ```
-    /// # use vqm::Matrix4x4f32;
-    /// # use num_traits::One;
-    /// let i = Matrix4x4f32::one();
-    /// assert!(i.is_near_identity());
-    /// ```
-    pub fn is_near_identity(self) -> bool {
-        if self.a[1].abs() > T::EPSILON
-            || self.a[2].abs() > T::EPSILON
-            || self.a[3].abs() > T::EPSILON
-            || self.a[4].abs() > T::EPSILON
-            || self.a[6].abs() > T::EPSILON
-            || self.a[7].abs() > T::EPSILON
-            || self.a[8].abs() > T::EPSILON
-            || self.a[9].abs() > T::EPSILON
-            || self.a[11].abs() > T::EPSILON
-            || self.a[12].abs() > T::EPSILON
-            || self.a[13].abs() > T::EPSILON
-        {
-            return false;
-        }
-        if (self.a[0] - T::one()).abs() > T::EPSILON
-            || (self.a[5] - T::one()).abs() > T::EPSILON
-            || (self.a[10] - T::one()).abs() > T::EPSILON
-            || (self.a[15] - T::one()).abs() > T::EPSILON
-        {
-            return false;
-        }
-        true
     }
 }
 

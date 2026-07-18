@@ -3,7 +3,7 @@ use core::ops::{
     RangeInclusive, Sub, SubAssign,
 };
 use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
-use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
+use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
     sequential_storage::map::PostcardValue,
@@ -86,6 +86,7 @@ where
     pub const fn from_element(value: T) -> Self {
         Self { a: [value; 4] }
     }
+
     /// Matrix from array of row vectors.
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2df32};
@@ -228,7 +229,6 @@ where
     ///     panic!("Expected None for invalid data, but got Some");
     /// };
     /// ```
-    #[rustfmt::skip]
     #[inline]
     pub fn try_from_column_slice(slice: &[T]) -> Option<Self> {
         if slice.len() != 4 {
@@ -248,8 +248,8 @@ where
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::from_diagonal_element(2.0);
-    /// assert_eq!(m, Matrix2x2f32::new([  2.0, 0.0,
-    ///                                    0.0, 2.0]));
+    /// assert_eq!(m, Matrix2x2f32::new([ 2.0, 0.0,
+    ///                                   0.0, 2.0]));
     /// ```
     #[rustfmt::skip]
     #[inline]
@@ -338,6 +338,27 @@ where
     const ZERO: Self = Self { a: [T::ZERO; 4] };
 }
 
+impl<T> Matrix2x2<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return true if matrix is near zero.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// # use num_traits::Zero;
+    /// let z = Matrix2x2f32::zero();
+    /// assert!(z.is_near_zero(1e-5));
+    /// ```
+    pub fn is_near_zero(self, epsilon: T) -> bool {
+        for a in &self.a {
+            if a.abs() > epsilon {
+                return false;
+            }
+        }
+        true
+    }
+}
+
 // **** One ****
 
 impl<T> One for Matrix2x2<T>
@@ -409,6 +430,28 @@ where
                 T::zero(), T::one(),
             ],
         }
+    }
+}
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + One + FloatCore,
+{
+    /// Return true if matrix is near identity.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// # use num_traits::One;
+    /// let i = Matrix2x2f32::one();
+    /// assert!(i.is_near_identity(1e-5));
+    /// ```
+    pub fn is_near_identity(self, epsilon: T) -> bool {
+        if self.a[Self::M21].abs() > epsilon || self.a[Self::M12].abs() > epsilon {
+            return false;
+        }
+        if (self.a[Self::M11] - T::one()).abs() > epsilon || (self.a[Self::M22] - T::one()).abs() > epsilon {
+            return false;
+        }
+        true
     }
 }
 
@@ -1293,7 +1336,7 @@ where
     ///
     /// assert_eq!(n, Matrix2x2f32::new([ 11.0, -17.0,
     ///                                   -5.0,   2.0]));
-    /// assert!((n*m/d).is_near_identity());
+    /// assert!((n*m/d).is_near_identity(1e-5));
     /// ```
     #[inline]
     pub fn adjugate(self) -> (Self, T) {
@@ -1364,7 +1407,7 @@ where
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
-    ///                               5.0, 11.0]);
+    ///                              5.0, 11.0]);
     /// let trace = m.trace();
     ///
     /// assert_eq!(trace, 13.0);
@@ -1377,7 +1420,7 @@ where
 
 impl<T> Matrix2x2<T>
 where
-    T: Copy + Zero + One + Matrix2x2Math + MathConstants + PartialOrd + Signed,
+    T: Copy + Zero + One + Matrix2x2Math + MathConstants + PartialOrd + FloatCore,
 {
     /// Return inverse of matrix or `T::zero()` if not invertible.
     /// ```
@@ -1473,39 +1516,6 @@ where
     #[inline]
     pub fn trace_sum_squares(self) -> T {
         T::m2x2_trace_sum_squares(self)
-    }
-
-    /// Return true if matrix is near zero.
-    /// ```
-    /// # use vqm::Matrix2x2f32;
-    /// # use num_traits::Zero;
-    /// let z = Matrix2x2f32::zero();
-    /// assert!(z.is_near_zero());
-    /// ```
-    pub fn is_near_zero(self) -> bool {
-        for a in &self.a {
-            if a.abs() > T::EPSILON {
-                return false;
-            }
-        }
-        true
-    }
-
-    /// Return true if matrix is near identity.
-    /// ```
-    /// # use vqm::Matrix2x2f32;
-    /// # use num_traits::One;
-    /// let i = Matrix2x2f32::one();
-    /// assert!(i.is_near_identity());
-    /// ```
-    pub fn is_near_identity(self) -> bool {
-        if self.a[1].abs() > T::EPSILON || self.a[2].abs() > T::EPSILON {
-            return false;
-        }
-        if (self.a[0] - T::one()).abs() > T::EPSILON || (self.a[3] - T::one()).abs() > T::EPSILON {
-            return false;
-        }
-        true
     }
 }
 

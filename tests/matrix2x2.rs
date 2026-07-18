@@ -38,13 +38,13 @@ mod tests {
         assert_eq!(a, z);
         assert!(z.is_zero());
         assert!(!z.is_one());
-        assert!(z.is_near_zero());
+        assert!(z.is_near_zero(1e-5));
 
         let i = Matrix2x2f32::one();
         //let i: Matrix2x2 = one();
         assert!(i.is_one());
         assert!(!i.is_zero());
-        assert!(i.is_near_identity());
+        assert!(i.is_near_identity(1e-5));
     }
     #[test]
     fn m2x2_neg() {
@@ -117,7 +117,7 @@ mod tests {
         let a: Matrix2x2<f32> = Matrix2x2::new([2.0, 3.0, 5.0, 7.0]);
         let (b, determinant) = a.adjugate();
         let c = a * b;
-        assert!((c / determinant).is_near_identity());
+        assert!((c / determinant).is_near_identity(1e-5));
     }
     #[test]
     fn m2x2_inverse() {
