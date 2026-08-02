@@ -10,7 +10,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Matrix2x2, Matrix3x3Math, Quaternion, QuaternionMath, SqrtMethods, Vector3d};
+use crate::{MathConstants, Matrix2x2, Matrix3x3Math, Quaternion, QuaternionMath, SqrtMethods, Vector3};
 
 /// 3x3 matrix of `f32` values<br>
 pub type Matrix3x3f32 = Matrix3x3<f32>;
@@ -107,7 +107,7 @@ where
     ///                                   23.0, 31.0, 41.0]));
     /// ```
     #[inline]
-    pub const fn from_rows(v: [Vector3d<T>; 3]) -> Self {
+    pub const fn from_rows(v: [Vector3<T>; 3]) -> Self {
         Self {
             a: [
                 v[0].x, v[1].x, v[2].x, //
@@ -128,7 +128,7 @@ where
     ///                                   59.0,  47.0,  41.0]));
     /// ```
     #[inline]
-    pub const fn from_columns(v: [Vector3d<T>; 3]) -> Self {
+    pub const fn from_columns(v: [Vector3<T>; 3]) -> Self {
         Self {
             a: [
                 v[0].x, v[0].y, v[0].z, //
@@ -361,7 +361,7 @@ where
     /// ```
     #[rustfmt::skip]
     #[inline]
-    pub const fn from_diagonal_vector(v: Vector3d<T>) -> Self {
+    pub const fn from_diagonal_vector(v: Vector3<T>) -> Self {
         Self {
             a: [
                 v.x,     T::ZERO, T::ZERO,
@@ -833,11 +833,11 @@ where
     }
 }
 
-impl<T> Mul<Vector3d<T>> for Matrix3x3<T>
+impl<T> Mul<Vector3<T>> for Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
 {
-    type Output = Vector3d<T>;
+    type Output = Vector3<T>;
 
     /// Multiply a vector by a matrix.
     /// ```
@@ -852,13 +852,13 @@ where
     /// assert_eq!(r, Vector3df32{x:892.0, y:703.0, z:819.0});
     /// ```
     #[inline]
-    fn mul(self, other: Vector3d<T>) -> Vector3d<T> {
+    fn mul(self, other: Vector3<T>) -> Vector3<T> {
         T::m3x3_mul_vector(self, other)
     }
 }
 
 #[cfg(not(feature = "uom"))]
-impl<T> Mul<Matrix3x3<T>> for Vector3d<T>
+impl<T> Mul<Matrix3x3<T>> for Vector3<T>
 where
     T: Copy + Matrix3x3Math,
 {
@@ -962,12 +962,12 @@ where
     ///                                  26.0,  65.0, 143.0]));
     ///```
     #[inline]
-    pub fn outer_product(col: Vector3d<T>, row: Vector3d<T>) -> Self {
+    pub fn outer_product(col: Vector3<T>, row: Vector3<T>) -> Self {
         T::m3x3_vector_outer_product(col, row)
     }
 }
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Matrix3x3Math,
 {
@@ -983,7 +983,7 @@ where
     ///                                  26.0,  65.0, 143.0]));
     ///```
     #[inline]
-    pub fn outer_product(self, row: Vector3d<T>) -> Matrix3x3<T> {
+    pub fn outer_product(self, row: Vector3<T>) -> Matrix3x3<T> {
         T::m3x3_vector_outer_product(self, row)
     }
 }
@@ -1270,7 +1270,7 @@ where
     /// m.set_row(1, Vector3df32::new(7.0, 13.0, 19.0));
     /// assert_eq!(Vector3df32{ x: 7.0, y: 13.0, z: 19.0 }, m.row(1));
     /// ```
-    pub fn set_row(&mut self, row: usize, value: Vector3d<T>) {
+    pub fn set_row(&mut self, row: usize, value: Vector3<T>) {
         if row >= 3 {
             return;
         }
@@ -1291,11 +1291,11 @@ where
     /// assert_eq!(m.row(1), Vector3df32{ x: 5.0, y: 11.0, z: 47.0 });
     /// assert_eq!(m.row(2), Vector3df32{ x: 23.0, y: 31.0, z: 41.0 });
     /// ```
-    pub fn row(self, row: usize) -> Vector3d<T> {
+    pub fn row(self, row: usize) -> Vector3<T> {
         let r = row.min(2);
         // Made safe because c is clamped to 0..=2, so c + 6 <= 8
         unsafe {
-            Vector3d { x: *self.a.get_unchecked(r), y: *self.a.get_unchecked(r + 3), z: *self.a.get_unchecked(r + 6) }
+            Vector3 { x: *self.a.get_unchecked(r), y: *self.a.get_unchecked(r + 3), z: *self.a.get_unchecked(r + 6) }
         }
     }
 
@@ -1308,7 +1308,7 @@ where
     /// m.set_column(1, Vector3df32::new(7.0, 13.0, 19.0));
     /// assert_eq!(Vector3df32{ x: 7.0, y: 13.0, z: 19.0 }, m.column(1));
     /// ```
-    pub fn set_column(&mut self, column: usize, value: Vector3d<T>) {
+    pub fn set_column(&mut self, column: usize, value: Vector3<T>) {
         if column >= 3 {
             return;
         }
@@ -1333,11 +1333,11 @@ where
     /// assert_eq!(m.column(1), Vector3df32{ x: 17.0, y: 11.0, z: 31.0 });
     /// assert_eq!(m.column(2), Vector3df32{ x: 59.0, y: 47.0, z: 41.0 });
     /// ```
-    pub fn column(self, column: usize) -> Vector3d<T> {
+    pub fn column(self, column: usize) -> Vector3<T> {
         // Branchless clamp: restricts r to 0..=2
         let base = column.min(2) * 3;
         let chunk = &self.a[base..];
-        Vector3d { x: chunk[0], y: chunk[1], z: chunk[2] }
+        Vector3 { x: chunk[0], y: chunk[1], z: chunk[2] }
     }
 
     /// Return matrix diagonal as an array.
@@ -1366,8 +1366,8 @@ where
     ///
     /// assert_eq!(v, Vector3df32{ x: 2.0, y: 11.0, z: 41.0 });
     /// ```
-    pub fn diagonal_as_vector(self) -> Vector3d<T> {
-        Vector3d { x: self.a[Self::M11], y: self.a[Self::M22], z: self.a[Self::M33] }
+    pub fn diagonal_as_vector(self) -> Vector3<T> {
+        Vector3 { x: self.a[Self::M11], y: self.a[Self::M22], z: self.a[Self::M33] }
     }
 }
 

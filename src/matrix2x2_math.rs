@@ -11,7 +11,7 @@ cfg_if! {
 const _: () = assert!(size_of::<Matrix2x2<f32>>() == 16);
 const _: () = assert!(align_of::<Matrix2x2<f32>>() == 16);
 
-use crate::{Matrix2x2, Vector2d};
+use crate::{Matrix2x2, Vector2};
 
 // Column 1
 const M11: usize = 0;
@@ -54,9 +54,9 @@ pub trait Matrix2x2Math: Sized {
     fn m2x2_mul_scalar(this: Matrix2x2<Self>, other: Self) -> Matrix2x2<Self>;
     fn m2x2_div_scalar(this: Matrix2x2<Self>, other: Self) -> Matrix2x2<Self>;
     fn m2x2_mul_add(this: Matrix2x2<Self>, k: Self, other: Matrix2x2<Self>) -> Matrix2x2<Self>;
-    fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self>;
-    fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self>;
-    fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self>;
+    fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2<Self>) -> Vector2<Self>;
+    fn m2x2_vector_mul(this: Vector2<Self>, other: Matrix2x2<Self>) -> Vector2<Self>;
+    fn m2x2_vector_outer_product(col: Vector2<Self>, row: Vector2<Self>) -> Matrix2x2<Self>;
     fn m2x2_mul(this: Matrix2x2<Self>, other: Matrix2x2<Self>) -> Matrix2x2<Self>;
     fn m2x2_trace(this: Matrix2x2<Self>) -> Self;
     fn m2x2_trace_sum_squares(this: Matrix2x2<Self>) -> Self;
@@ -142,14 +142,14 @@ impl Matrix2x2Math for f32 {
     }
 
     #[inline(always)]
-    fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.a[M11] * other.x + this.a[M12] * other.y, y: this.a[M21] * other.x + this.a[M22] * other.y }
+    fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2<Self>) -> Vector2<Self> {
+        Vector2 { x: this.a[M11] * other.x + this.a[M12] * other.y, y: this.a[M21] * other.x + this.a[M22] * other.y }
     }
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self> {
-        Vector2d {
+    fn m2x2_vector_mul(this: Vector2<Self>, other: Matrix2x2<Self>) -> Vector2<Self> {
+        Vector2 {
             x: this.x * other.a[M11] + this.y * other.a[M21],
             y: this.x * other.a[M12] + this.y * other.a[M22]
         }
@@ -157,7 +157,7 @@ impl Matrix2x2Math for f32 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
+    fn m2x2_vector_outer_product(col: Vector2<Self>, row: Vector2<Self>) -> Matrix2x2<Self> {
         Matrix2x2 {
             a: [
                 col.x * row.x, col.y * row.x,
@@ -284,8 +284,8 @@ impl Matrix2x2Math for f64 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d {
+    fn m2x2_mul_vector(this: Matrix2x2<Self>, other: Vector2<Self>) -> Vector2<Self> {
+        Vector2 {
             x: this.a[M11] * other.x + this.a[M21] * other.y,
             y: this.a[M12] * other.x + this.a[M22] * other.y
         }
@@ -293,8 +293,8 @@ impl Matrix2x2Math for f64 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m2x2_vector_mul(this: Vector2d<Self>, other: Matrix2x2<Self>) -> Vector2d<Self> {
-        Vector2d {
+    fn m2x2_vector_mul(this: Vector2<Self>, other: Matrix2x2<Self>) -> Vector2<Self> {
+        Vector2 {
             x: this.x * other.a[M11] + this.y * other.a[M21],
             y: this.x * other.a[M12] + this.y * other.a[M22]
         }
@@ -302,7 +302,7 @@ impl Matrix2x2Math for f64 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m2x2_vector_outer_product(col: Vector2d<Self>, row: Vector2d<Self>) -> Matrix2x2<Self> {
+    fn m2x2_vector_outer_product(col: Vector2<Self>, row: Vector2<Self>) -> Matrix2x2<Self> {
         Matrix2x2 {
             a: [
                 col.x * row.x, col.y * row.x,

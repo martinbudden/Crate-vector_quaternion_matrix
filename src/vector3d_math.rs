@@ -12,19 +12,19 @@ cfg_if! {
         const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
         const _: () = assert!(align_of::<Vector3d<f32>>() == 16);
     } else {
-        const _: () = assert!(size_of::<Vector3d<f32>>() == 12);
-        const _: () = assert!(align_of::<Vector3d<f32>>() == 4);
+        const _: () = assert!(size_of::<Vector3<f32>>() == 12);
+        const _: () = assert!(align_of::<Vector3<f32>>() == 4);
     }
 }
 
-use crate::Vector3d;
+use crate::Vector3;
 
 // **** From ****
 
 #[cfg(feature = "simd")]
-impl From<Vector3d<f32>> for f32x4 {
+impl From<Vector3<f32>> for f32x4 {
     #[inline(always)]
-    fn from(this: Vector3d<f32>) -> Self {
+    fn from(this: Vector3<f32>) -> Self {
         // SAFETY: assert f32x4 and Vector3d<f32> have same size and alignment
         const _: () = assert!(size_of::<f32x4>() == size_of::<Vector3d<f32>>());
         const _: () = assert!(size_of::<f32x4>() == align_of::<Vector3d<f32>>());
@@ -34,7 +34,7 @@ impl From<Vector3d<f32>> for f32x4 {
 }
 
 #[cfg(feature = "simd")]
-impl From<f32x4> for Vector3d<f32> {
+impl From<f32x4> for Vector3<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
         // SAFETY: assert f32x4 and Vector3d<f32> have same size and alignment
@@ -48,38 +48,38 @@ impl From<f32x4> for Vector3d<f32> {
 
 /// Math functions for Vector3d, using **SIMD** accelerations for `f32`.<br>
 pub trait Vector3dMath: Sized {
-    fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self>;
-    fn v3_add(this: Vector3d<Self>, this: Vector3d<Self>) -> Vector3d<Self>;
-    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self>;
-    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self>;
-    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
-    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
-    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self>;
-    fn v3_norm_squared(this: Vector3d<Self>) -> Self;
-    fn v3_is_normalized(this: Vector3d<Self>) -> bool;
-    fn v3_max(this: Vector3d<Self>) -> Self;
-    fn v3_min(this: Vector3d<Self>) -> Self;
-    fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self;
-    fn v3_cross(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
+    fn v3_neg(this: Vector3<Self>) -> Vector3<Self>;
+    fn v3_add(this: Vector3<Self>, this: Vector3<Self>) -> Vector3<Self>;
+    fn v3_mul_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self>;
+    fn v3_div_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self>;
+    fn v3_mul_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self>;
+    fn v3_div_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self>;
+    fn v3_mul_add(this: Vector3<Self>, k: Self, other: Vector3<Self>) -> Vector3<Self>;
+    fn v3_norm_squared(this: Vector3<Self>) -> Self;
+    fn v3_is_normalized(this: Vector3<Self>) -> bool;
+    fn v3_max(this: Vector3<Self>) -> Self;
+    fn v3_min(this: Vector3<Self>) -> Self;
+    fn v3_dot(this: Vector3<Self>, other: Vector3<Self>) -> Self;
+    fn v3_cross(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self>;
 }
 
 // **** SIMD-accelerated implementation for f32 ****
 
 impl Vector3dMath for f32 {
     #[inline(always)]
-    fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
         #[cfg(feature = "simd")]
         {
             (-f32x4::from(this)).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: -this.x, y: -this.y, z: -this.z }
+            Vector3 { x: -this.x, y: -this.y, z: -this.z }
         }
     }
 
     #[inline(always)]
-    fn v3_add(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_add(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -89,12 +89,12 @@ impl Vector3dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
+            Vector3 { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
         }
     }
 
     #[inline(always)]
-    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+    fn v3_mul_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -104,17 +104,17 @@ impl Vector3dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
+            Vector3 { x: this.x * k, y: this.y * k, z: this.z * k }
         }
     }
 
     #[inline(always)]
-    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+    fn v3_div_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
         Self::v3_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_mul_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -123,12 +123,12 @@ impl Vector3dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+            Vector3 { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
         }
     }
 
     #[inline(always)]
-    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_div_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -137,12 +137,12 @@ impl Vector3dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
+            Vector3 { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
         }
     }
 
     #[inline(always)]
-    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_mul_add(this: Vector3<Self>, k: Self, other: Vector3<Self>) -> Vector3<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -154,12 +154,12 @@ impl Vector3dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
+            Vector3 { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
         }
     }
 
     #[inline(always)]
-    fn v3_norm_squared(this: Vector3d<Self>) -> Self {
+    fn v3_norm_squared(this: Vector3<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this) * f32x4::from_array([1.0, 1.0, 1.0, 0.0]);
@@ -172,13 +172,13 @@ impl Vector3dMath for f32 {
     }
 
     #[inline(always)]
-    fn v3_is_normalized(this: Vector3d<Self>) -> bool {
+    fn v3_is_normalized(this: Vector3<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
         (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
-    fn v3_max(this: Vector3d<Self>) -> Self {
+    fn v3_max(this: Vector3<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             // repeat this.z in final lane to allow reduce_max to work correctly
@@ -196,7 +196,7 @@ impl Vector3dMath for f32 {
     }
 
     #[inline(always)]
-    fn v3_min(this: Vector3d<Self>) -> Self {
+    fn v3_min(this: Vector3<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             // repeat this.z in final lane to allow reduce_min to work correctly
@@ -215,7 +215,7 @@ impl Vector3dMath for f32 {
 
     // **** dot ****
     #[inline(always)]
-    fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
+    fn v3_dot(this: Vector3<Self>, other: Vector3<Self>) -> Self {
         //this.x * other.x + this.y * other.y + this.z * other.z
         #[cfg(feature = "simd")]
         {
@@ -234,7 +234,7 @@ impl Vector3dMath for f32 {
     }
 
     #[inline(always)]
-    fn v3_cross(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_cross(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -258,7 +258,7 @@ impl Vector3dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector3d {
+            Vector3 {
                 x: this.y * other.z - this.z * other.y,
                 y: this.z * other.x - this.x * other.z,
                 z: this.x * other.y - this.y * other.x,
@@ -271,53 +271,53 @@ impl Vector3dMath for f32 {
 
 impl Vector3dMath for f64 {
     #[inline(always)]
-    fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: -this.x, y: -this.y, z: -this.z }
+    fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: -this.x, y: -this.y, z: -this.z }
     }
 
     #[inline(always)]
-    fn v3_add(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
+    fn v3_add(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
     }
 
     #[inline(always)]
-    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
-        Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
+    fn v3_mul_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
+        Vector3 { x: this.x * k, y: this.y * k, z: this.z * k }
     }
 
     #[inline(always)]
-    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+    fn v3_div_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
         Self::v3_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+    fn v3_mul_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
     }
 
     #[inline(always)]
-    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
+    fn v3_div_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
     }
 
     #[inline(always)]
-    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
+    fn v3_mul_add(this: Vector3<Self>, k: Self, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
     }
 
     #[inline(always)]
-    fn v3_norm_squared(this: Vector3d<Self>) -> Self {
+    fn v3_norm_squared(this: Vector3<Self>) -> Self {
         this.x * this.x + this.y * this.y + this.z * this.z
     }
 
     #[inline(always)]
-    fn v3_is_normalized(this: Vector3d<Self>) -> bool {
+    fn v3_is_normalized(this: Vector3<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
         (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
-    fn v3_max(this: Vector3d<Self>) -> Self {
+    fn v3_max(this: Vector3<Self>) -> Self {
         if this.x > this.y {
             if this.x > this.z { this.x } else { this.z }
         } else {
@@ -326,7 +326,7 @@ impl Vector3dMath for f64 {
     }
 
     #[inline(always)]
-    fn v3_min(this: Vector3d<Self>) -> Self {
+    fn v3_min(this: Vector3<Self>) -> Self {
         if this.x < this.y {
             if this.x < this.z { this.x } else { this.z }
         } else {
@@ -336,13 +336,13 @@ impl Vector3dMath for f64 {
 
     // **** dot ****
     #[inline(always)]
-    fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
+    fn v3_dot(this: Vector3<Self>, other: Vector3<Self>) -> Self {
         this.x * other.x + this.y * other.y + this.z * other.z
     }
 
     #[inline(always)]
-    fn v3_cross(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d {
+    fn v3_cross(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 {
             x: this.y * other.z - this.z * other.y,
             y: this.z * other.x - this.x * other.z,
             z: this.x * other.y - this.y * other.x,
@@ -352,55 +352,55 @@ impl Vector3dMath for f64 {
 
 impl Vector3dMath for i16 {
     #[inline(always)]
-    fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: -this.x, y: -this.y, z: -this.z }
+    fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: -this.x, y: -this.y, z: -this.z }
     }
 
     #[inline(always)]
-    fn v3_add(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
+    fn v3_add(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
     }
 
     #[inline(always)]
-    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
-        Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
+    fn v3_mul_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
+        Vector3 { x: this.x * k, y: this.y * k, z: this.z * k }
     }
 
     #[inline(always)]
-    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+    fn v3_div_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
         #[allow(clippy::cast_possible_truncation)]
         Self::v3_mul_scalar(this, (1.0 / f32::from(k)) as i16)
     }
 
     #[inline(always)]
-    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+    fn v3_mul_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
     }
 
     #[inline(always)]
-    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_div_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
         #[allow(clippy::cast_possible_truncation)]
-        Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
+        Vector3 { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
     }
 
     #[inline(always)]
-    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
+    fn v3_mul_add(this: Vector3<Self>, k: Self, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
     }
 
     #[inline(always)]
-    fn v3_norm_squared(this: Vector3d<Self>) -> Self {
+    fn v3_norm_squared(this: Vector3<Self>) -> Self {
         this.x * this.x + this.y * this.y + this.z * this.z
     }
 
     #[inline(always)]
-    fn v3_is_normalized(this: Vector3d<Self>) -> bool {
+    fn v3_is_normalized(this: Vector3<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
         norm_squared == 1
     }
 
     #[inline(always)]
-    fn v3_max(this: Vector3d<Self>) -> Self {
+    fn v3_max(this: Vector3<Self>) -> Self {
         if this.x > this.y {
             if this.x > this.z { this.x } else { this.z }
         } else {
@@ -409,7 +409,7 @@ impl Vector3dMath for i16 {
     }
 
     #[inline(always)]
-    fn v3_min(this: Vector3d<Self>) -> Self {
+    fn v3_min(this: Vector3<Self>) -> Self {
         if this.x < this.y {
             if this.x < this.z { this.x } else { this.z }
         } else {
@@ -418,13 +418,13 @@ impl Vector3dMath for i16 {
     }
 
     #[inline(always)]
-    fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
+    fn v3_dot(this: Vector3<Self>, other: Vector3<Self>) -> Self {
         this.x * other.x + this.y * other.y + this.z * other.z
     }
 
     #[inline(always)]
-    fn v3_cross(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d {
+    fn v3_cross(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 {
             x: this.y * other.z - this.z * other.y,
             y: this.z * other.x - this.x * other.z,
             z: this.x * other.y - this.y * other.x,
@@ -434,55 +434,55 @@ impl Vector3dMath for i16 {
 
 impl Vector3dMath for i32 {
     #[inline(always)]
-    fn v3_neg(this: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: -this.x, y: -this.y, z: -this.z }
+    fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: -this.x, y: -this.y, z: -this.z }
     }
 
     #[inline(always)]
-    fn v3_add(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
+    fn v3_add(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z }
     }
 
     #[inline(always)]
-    fn v3_mul_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
-        Vector3d { x: this.x * k, y: this.y * k, z: this.z * k }
+    fn v3_mul_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
+        Vector3 { x: this.x * k, y: this.y * k, z: this.z * k }
     }
 
     #[inline(always)]
-    fn v3_div_scalar(this: Vector3d<Self>, k: Self) -> Vector3d<Self> {
+    fn v3_div_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self> {
         #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
         Self::v3_mul_scalar(this, (1.0 / (k as f32)) as i32)
     }
 
     #[inline(always)]
-    fn v3_mul_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
+    fn v3_mul_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z }
     }
 
     #[inline(always)]
-    fn v3_div_elementwise(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn v3_div_elementwise(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
         #[allow(clippy::cast_possible_truncation)]
-        Vector3d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
+        Vector3 { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z }
     }
 
     #[inline(always)]
-    fn v3_mul_add(this: Vector3d<Self>, k: Self, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
+    fn v3_mul_add(this: Vector3<Self>, k: Self, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z }
     }
 
     #[inline(always)]
-    fn v3_norm_squared(this: Vector3d<Self>) -> Self {
+    fn v3_norm_squared(this: Vector3<Self>) -> Self {
         this.x * this.x + this.y * this.y + this.z * this.z
     }
 
     #[inline(always)]
-    fn v3_is_normalized(this: Vector3d<Self>) -> bool {
+    fn v3_is_normalized(this: Vector3<Self>) -> bool {
         let norm_squared = Self::v3_norm_squared(this);
         norm_squared == 1
     }
 
     #[inline(always)]
-    fn v3_max(this: Vector3d<Self>) -> Self {
+    fn v3_max(this: Vector3<Self>) -> Self {
         if this.x > this.y {
             if this.x > this.z { this.x } else { this.z }
         } else {
@@ -491,7 +491,7 @@ impl Vector3dMath for i32 {
     }
 
     #[inline(always)]
-    fn v3_min(this: Vector3d<Self>) -> Self {
+    fn v3_min(this: Vector3<Self>) -> Self {
         if this.x < this.y {
             if this.x < this.z { this.x } else { this.z }
         } else {
@@ -500,13 +500,13 @@ impl Vector3dMath for i32 {
     }
 
     #[inline(always)]
-    fn v3_dot(this: Vector3d<Self>, other: Vector3d<Self>) -> Self {
+    fn v3_dot(this: Vector3<Self>, other: Vector3<Self>) -> Self {
         this.x * other.x + this.y * other.y + this.z * other.z
     }
 
     #[inline(always)]
-    fn v3_cross(this: Vector3d<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d {
+    fn v3_cross(this: Vector3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 {
             x: this.y * other.z - this.z * other.y,
             y: this.z * other.x - this.x * other.z,
             z: this.x * other.y - this.y * other.x,

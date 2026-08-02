@@ -8,12 +8,12 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2d, vector3d_math::Vector3dMath};
+use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2, vector3d_math::Vector3dMath};
 
 /// 3-dimensional `{x, y, z}` vector of `f32` values<br>
-pub type Vector3df32 = Vector3d<f32>;
+pub type Vector3df32 = Vector3<f32>;
 /// 3-dimensional `{x, y, z}` vector of `f64` values<br><br>
-pub type Vector3df64 = Vector3d<f64>;
+pub type Vector3df64 = Vector3<f64>;
 
 // **** Define ****
 
@@ -29,18 +29,18 @@ pub type Vector3df64 = Vector3d<f64>;
 #[cfg_attr(feature = "align", repr(C, align(16)))]
 #[cfg_attr(not(feature = "align"), repr(C))]
 #[allow(missing_docs)]
-pub struct Vector3d<T> {
+pub struct Vector3<T> {
     pub x: T,
     pub y: T,
     pub z: T,
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Vector3d<T> where T: Serialize + for<'de> Deserialize<'de> {}
+impl<T> PostcardValue<'_> for Vector3<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 // **** New ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy,
 {
@@ -58,7 +58,7 @@ where
 
 // **** Zero ****
 
-impl<T> Zero for Vector3d<T>
+impl<T> Zero for Vector3<T>
 where
     T: Copy + ConstZero + PartialEq,
 {
@@ -89,7 +89,7 @@ where
 /// assert!(z.is_zero());
 /// assert_eq!(z, Vector3df32 { x: 0.0, y: 0.0, z: 0.0 });
 /// ```
-impl<T> ConstZero for Vector3d<T>
+impl<T> ConstZero for Vector3<T>
 where
     T: Copy + Zero + ConstZero + PartialEq,
 {
@@ -98,7 +98,7 @@ where
 
 // **** Neg ****
 
-impl<T> Neg for Vector3d<T>
+impl<T> Neg for Vector3<T>
 where
     T: Copy + Neg<Output = T>,
 {
@@ -120,7 +120,7 @@ where
 
 // **** Add ****
 
-impl<T> Add for Vector3d<T>
+impl<T> Add for Vector3<T>
 where
     T: Copy + Add<T, Output = T>,
 {
@@ -137,13 +137,13 @@ where
     /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
-        Vector3d { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
+        Vector3 { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
     }
 }
 
 // **** AddAssign ****
 
-impl<T> AddAssign for Vector3d<T>
+impl<T> AddAssign for Vector3<T>
 where
     T: Copy + Add<T, Output = T>,
 {
@@ -169,7 +169,7 @@ where
 
 // **** MulAdd ****
 
-impl<T> MulAdd<T> for Vector3d<T>
+impl<T> MulAdd<T> for Vector3<T>
 where
     T: Copy + Mul<T, Output = T> + Add<T, Output = T>,
 {
@@ -188,13 +188,13 @@ where
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
-        Vector3d { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z }
+        Vector3 { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z }
     }
 }
 
 // **** MulAddAssign ****
 
-impl<T> MulAddAssign<T> for Vector3d<T>
+impl<T> MulAddAssign<T> for Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -217,7 +217,7 @@ where
 
 // **** Sub ****
 
-impl<T> Sub for Vector3d<T>
+impl<T> Sub for Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Neg<Output = T>,
 {
@@ -241,7 +241,7 @@ where
 
 // **** SubAssign ****
 
-impl<T> SubAssign for Vector3d<T>
+impl<T> SubAssign for Vector3<T>
 where
     T: Copy + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T>,
 {
@@ -262,8 +262,8 @@ where
 
 // **** Scalar Mul ****
 
-impl Mul<Vector3d<f32>> for f32 {
-    type Output = Vector3d<f32>;
+impl Mul<Vector3<f32>> for f32 {
+    type Output = Vector3<f32>;
 
     /// Pre-multiply vector by a scalar.
     /// ```
@@ -274,24 +274,24 @@ impl Mul<Vector3d<f32>> for f32 {
     /// assert_eq!(r, Vector3df32 { x: 4.0, y: 10.0, z: 22.0 });
     /// ```
     #[inline]
-    fn mul(self, other: Vector3d<f32>) -> Vector3d<f32> {
+    fn mul(self, other: Vector3<f32>) -> Vector3<f32> {
         f32::v3_mul_scalar(other, self)
     }
 }
 
-impl Mul<Vector3d<f64>> for f64 {
-    type Output = Vector3d<f64>;
+impl Mul<Vector3<f64>> for f64 {
+    type Output = Vector3<f64>;
 
     #[inline]
-    fn mul(self, other: Vector3d<f64>) -> Vector3d<f64> {
-        Vector3d { x: other.x * self, y: other.y * self, z: other.z * self }
+    fn mul(self, other: Vector3<f64>) -> Vector3<f64> {
+        Vector3 { x: other.x * self, y: other.y * self, z: other.z * self }
     }
 }
 
 // **** Mul Scalar ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Mul<T> for Vector3d<T>
+impl<T> Mul<T> for Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
     // #[cfg(feature = "simd")] T: crate::Vector3dMath, placeholder code for when this feature becomes stable
@@ -319,23 +319,23 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<T, Rhs, Out> Mul<Rhs> for Vector3d<T>
+impl<T, Rhs, Out> Mul<Rhs> for Vector3<T>
 where
     T: Copy + Mul<Rhs, Output = Out>,
     Rhs: Copy,
 {
-    type Output = Vector3d<Out>;
+    type Output = Vector3<Out>;
 
     /// Multiply a vector by a scalar.
     #[inline]
     fn mul(self, rhs: Rhs) -> Self::Output {
-        Vector3d { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs }
+        Vector3 { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs }
     }
 }
 
 // **** MulAssign ****
 
-impl<T> MulAssign<T> for Vector3d<T>
+impl<T> MulAssign<T> for Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -356,7 +356,7 @@ where
 // **** Mul Elementwise ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Mul<Vector3d<T>> for Vector3d<T>
+impl<T> Mul<Vector3<T>> for Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -380,7 +380,7 @@ where
 // **** Div by scalar ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Div<T> for Vector3d<T>
+impl<T> Div<T> for Vector3<T>
 where
     T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
@@ -401,21 +401,21 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<T, Rhs, Out> Div<Rhs> for Vector3d<T>
+impl<T, Rhs, Out> Div<Rhs> for Vector3<T>
 where
     T: Copy + Div<Rhs, Output = Out>,
     Rhs: Copy,
 {
-    type Output = Vector3d<Out>;
+    type Output = Vector3<Out>;
 
     /// Divide a vector by a scalar.
     #[inline]
-    fn div(self, rhs: Rhs) -> Vector3d<Out> {
-        Vector3d::<Out> { x: self.x / rhs, y: self.y / rhs, z: self.z / rhs }
+    fn div(self, rhs: Rhs) -> Vector3<Out> {
+        Vector3::<Out> { x: self.x / rhs, y: self.y / rhs, z: self.z / rhs }
     }
 }
 
-impl<T> DivAssign<T> for Vector3d<T>
+impl<T> DivAssign<T> for Vector3<T>
 where
     T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
@@ -437,7 +437,7 @@ where
 // **** Div Elementwise ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Div<Vector3d<T>> for Vector3d<T>
+impl<T> Div<Vector3<T>> for Vector3<T>
 where
     T: Copy + Div<T, Output = T>,
 {
@@ -454,13 +454,13 @@ where
     /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
-        Vector3d { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z }
+        Vector3 { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z }
     }
 }
 
 // **** Index ****
 
-impl<T> Index<usize> for Vector3d<T> {
+impl<T> Index<usize> for Vector3<T> {
     type Output = T;
 
     /// Access vector component by index.
@@ -485,7 +485,7 @@ impl<T> Index<usize> for Vector3d<T> {
 
 // **** IndexMut ****
 
-impl<T> IndexMut<usize> for Vector3d<T> {
+impl<T> IndexMut<usize> for Vector3<T> {
     // Set vector component by index.
     /// ```
     /// # use vqm::Vector3df32;
@@ -509,10 +509,10 @@ impl<T> IndexMut<usize> for Vector3d<T> {
 
 // **** lerp ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy,
-    Vector3d<T>: Mul<T, Output = Vector3d<T>> + Add<Output = Vector3d<T>> + Sub<Output = Vector3d<T>>,
+    Vector3<T>: Mul<T, Output = Vector3<T>> + Add<Output = Vector3<T>> + Sub<Output = Vector3<T>>,
 {
     /// Linear interpolation between two vectors.
     /// Calculates `self * (1 - t) + other * t`.
@@ -533,7 +533,7 @@ where
 
 // **** approx_eq ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: FloatCore,
 {
@@ -551,7 +551,7 @@ where
 
 // **** abs ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Signed,
 {
@@ -586,7 +586,7 @@ where
 
 // **** clamp ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + FloatCore,
 {
@@ -621,7 +621,7 @@ where
 
 // **** dot ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -642,7 +642,7 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<T> Vector3d<T> {
+impl<T> Vector3<T> {
     /// Calculates the dot product of two vectors.
     ///
     /// When using `uom`, the output quantity automatically scales its dimensions
@@ -674,7 +674,7 @@ impl<T> Vector3d<T> {
     ///
     /// assert_eq!(work_done, Energy::new::<joule>(35.0));
     /// ```
-    pub fn dot_uom<Rhs, Out>(self, rhs: Vector3d<Rhs>) -> Out
+    pub fn dot_uom<Rhs, Out>(self, rhs: Vector3<Rhs>) -> Out
     where
         T: Mul<Rhs, Output = Out>,
         Out: Add<Output = Out>,
@@ -685,7 +685,7 @@ impl<T> Vector3d<T> {
 
 // **** cross ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Sub<T, Output = T> + Mul<T, Output = T>,
 {
@@ -701,8 +701,8 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn cross(self, other: Self) -> Vector3d<T> {
-        Vector3d {
+    pub fn cross(self, other: Self) -> Vector3<T> {
+        Vector3 {
             x: self.y * other.z - self.z * other.y,
             y: self.z * other.x - self.x * other.z,
             z: self.x * other.y - self.y * other.x,
@@ -711,7 +711,7 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<T> Vector3d<T> {
+impl<T> Vector3<T> {
     /// Calculates the cross product of two 3D vectors.
     ///
     /// When using `uom`, the dimensions of the output vector adapt dynamically
@@ -741,13 +741,13 @@ impl<T> Vector3d<T> {
     /// assert_eq!(area_vector.z, Area::new::<square_meter>(-1.0));
     /// ```
     #[inline]
-    pub fn cross_uom<Rhs, Out>(self, rhs: Vector3d<Rhs>) -> Vector3d<Out>
+    pub fn cross_uom<Rhs, Out>(self, rhs: Vector3<Rhs>) -> Vector3<Out>
     where
         T: Copy + Mul<Rhs, Output = Out>,
         Rhs: Copy,
         Out: Sub<Output = Out>,
     {
-        Vector3d {
+        Vector3 {
             x: (self.y * rhs.z) - (self.z * rhs.y),
             y: (self.z * rhs.x) - (self.x * rhs.z),
             z: (self.x * rhs.y) - (self.y * rhs.x),
@@ -757,7 +757,7 @@ impl<T> Vector3d<T> {
 
 // **** norm_squared ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T>,
 {
@@ -786,7 +786,7 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<D, U, V> Vector3d<uom::si::Quantity<D, U, V>>
+impl<D, U, V> Vector3<uom::si::Quantity<D, U, V>>
 where
     D: uom::si::Dimension + ?Sized,
     U: uom::si::Units<V> + ?Sized,
@@ -856,7 +856,7 @@ where
     /// assert!((unit_vector.y - Ratio::new::<ratio>(4.0 / 13.0)).value.abs() < 1e-7);
     /// assert!((unit_vector.z - Ratio::new::<ratio>(12.0 / 13.0)).value.abs() < 1e-7);
     /// ```
-    pub fn normalize_uom<Intermediate>(self) -> Vector3d<uom::si::ratio::Ratio<U, V>>
+    pub fn normalize_uom<Intermediate>(self) -> Vector3<uom::si::ratio::Ratio<U, V>>
     where
         uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
         Intermediate: Add<Output = Intermediate>,
@@ -867,7 +867,7 @@ where
         let norm = (x * x + y * y + z * z).sqrt();
         let norm_reciprocal = V::one() / norm;
 
-        Vector3d {
+        Vector3 {
             x: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: x * norm_reciprocal },
             y: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: y * norm_reciprocal },
             z: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: z * norm_reciprocal },
@@ -877,7 +877,7 @@ where
 
 // **** norm ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
@@ -888,7 +888,7 @@ where
     }
 }
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
 {
@@ -951,7 +951,7 @@ where
     }
 }
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
@@ -964,7 +964,7 @@ where
 
 // **** to_degrees ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + FloatCore,
 {
@@ -996,7 +996,7 @@ where
     }
 }
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Mul<Output = T> + MathConstants,
 {
@@ -1027,7 +1027,7 @@ where
 
 // **** sum ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Add<Output = T> + Mul<Output = T>,
 {
@@ -1056,7 +1056,7 @@ where
 
 // **** mean ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + One + Add<Output = T> + Div<Output = T>,
 {
@@ -1075,7 +1075,7 @@ where
 
 // **** max ****
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Vector3dMath,
 {
@@ -1110,7 +1110,7 @@ where
     }
 }
 
-impl<T> Vector3d<T>
+impl<T> Vector3<T>
 where
     T: Copy + Zero + One + Sub<Output = T> + Vector3dMath + SqrtMethods + QuaternionMath,
 {
@@ -1119,7 +1119,7 @@ where
     /// Rotate vector using quaternion.
     pub fn rotate_by(self, q: Quaternion<T>) -> Self {
         // Extract the vector part of the quaternion (x, y, z)
-        let q_xyz = Vector3d { x: q.x, y: q.y, z: q.z };
+        let q_xyz = Vector3 { x: q.x, y: q.y, z: q.z };
 
         // 1. uv = 2 * (q_xyz cross v)
         let uv = q_xyz.cross(self) * (T::one() + T::one());
@@ -1141,7 +1141,7 @@ where
 
 // **** From Tuple ****
 
-impl<T> From<(T, T, T)> for Vector3d<T> {
+impl<T> From<(T, T, T)> for Vector3<T> {
     /// Vector from tuple.
     /// ```
     /// # use vqm::Vector3df32;
@@ -1159,7 +1159,7 @@ impl<T> From<(T, T, T)> for Vector3d<T> {
 
 // **** From Array ****
 
-impl<T> From<[T; 3]> for Vector3d<T>
+impl<T> From<[T; 3]> for Vector3<T>
 where
     T: Copy,
 {
@@ -1178,7 +1178,7 @@ where
     }
 }
 
-impl<T> From<Vector3d<T>> for [T; 3] {
+impl<T> From<Vector3<T>> for [T; 3] {
     /// Array from vector.
     /// ```
     /// # use vqm::Vector3df32;
@@ -1191,27 +1191,27 @@ impl<T> From<Vector3d<T>> for [T; 3] {
     /// assert_eq!(b, [2.0, 5.0, 11.0]);
     /// ```
     #[inline]
-    fn from(v: Vector3d<T>) -> Self {
+    fn from(v: Vector3<T>) -> Self {
         [v.x, v.y, v.z]
     }
 }
 
-impl From<[i16; 3]> for Vector3d<f32> {
+impl From<[i16; 3]> for Vector3<f32> {
     #[inline]
     fn from(v: [i16; 3]) -> Self {
         Self { x: f32::from(v[0]), y: f32::from(v[1]), z: f32::from(v[2]) }
     }
 }
 
-impl From<Vector3d<f32>> for [i16; 3] {
+impl From<Vector3<f32>> for [i16; 3] {
     #[inline]
-    fn from(v: Vector3d<f32>) -> Self {
+    fn from(v: Vector3<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         [v.x as i16, v.y as i16, v.z as i16]
     }
 }
 
-impl From<[i32; 3]> for Vector3d<f32> {
+impl From<[i32; 3]> for Vector3<f32> {
     #[inline]
     fn from(v: [i32; 3]) -> Self {
         #[allow(clippy::cast_precision_loss)]
@@ -1219,9 +1219,9 @@ impl From<[i32; 3]> for Vector3d<f32> {
     }
 }
 
-impl From<Vector3d<f32>> for [i32; 3] {
+impl From<Vector3<f32>> for [i32; 3] {
     #[inline]
-    fn from(v: Vector3d<f32>) -> Self {
+    fn from(v: Vector3<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         [v.x as i32, v.y as i32, v.z as i32]
     }
@@ -1229,7 +1229,7 @@ impl From<Vector3d<f32>> for [i32; 3] {
 
 // **** From Vector ****
 
-impl<T> From<Vector2d<T>> for Vector3d<T>
+impl<T> From<Vector2<T>> for Vector3<T>
 where
     T: Copy + Zero,
 {
@@ -1243,12 +1243,12 @@ where
     /// assert_eq!(w, Vector3df32 { x: 3.0, y: 7.0, z: 0.0 });
     /// ```
     #[inline]
-    fn from(other: Vector2d<T>) -> Self {
+    fn from(other: Vector2<T>) -> Self {
         Self { x: other.x, y: other.y, z: T::zero() }
     }
 }
 
-impl<T> From<Vector3d<T>> for Vector2d<T>
+impl<T> From<Vector3<T>> for Vector2<T>
 where
     T: Copy + Zero,
 {
@@ -1262,7 +1262,7 @@ where
     /// assert_eq!(u, Vector2df32 { x: 3.0, y: 7.0 });
     /// ```
     #[inline]
-    fn from(v: Vector3d<T>) -> Self {
-        Vector2d::<T> { x: v.x, y: v.y }
+    fn from(v: Vector3<T>) -> Self {
+        Vector2::<T> { x: v.x, y: v.y }
     }
 }

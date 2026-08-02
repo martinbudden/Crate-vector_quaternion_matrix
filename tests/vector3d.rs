@@ -1,5 +1,5 @@
 use cfg_if::cfg_if;
-use vqm::{Vector3d, Vector3df32, Vector3df64};
+use vqm::{Vector3, Vector3df32, Vector3df64};
 
 // **** Align ****
 cfg_if! {
@@ -35,14 +35,14 @@ mod tests {
 
     #[test]
     fn normal_types() {
-        is_full::<Vector3d<f32>>();
+        is_full::<Vector3<f32>>();
         #[cfg(feature = "serde")]
-        is_config::<Vector3d<f32>>();
+        is_config::<Vector3<f32>>();
     }
     #[test]
     fn default() {
-        let a: Vector3df32 = Vector3d::default();
-        assert_eq!(a, Vector3d { x: 0.0, y: 0.0, z: 0.0 });
+        let a: Vector3df32 = Vector3::default();
+        assert_eq!(a, Vector3 { x: 0.0, y: 0.0, z: 0.0 });
     }
     #[test]
     fn zero() {
@@ -68,7 +68,7 @@ mod tests {
     }
     #[test]
     fn neg_owned() {
-        let v = Vector3d { x: 1.0, y: -2.0, z: 3.0 };
+        let v = Vector3 { x: 1.0, y: -2.0, z: 3.0 };
         let neg_v = -v;
         assert_eq!(neg_v.x, -1.0);
         assert_eq!(neg_v.y, 2.0);
@@ -77,70 +77,70 @@ mod tests {
     #[test]
     fn neg() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        assert_eq!(-a, Vector3d { x: -2.0, y: -3.0, z: -5.0 });
+        assert_eq!(-a, Vector3 { x: -2.0, y: -3.0, z: -5.0 });
 
         let b = -a;
-        assert_eq!(b, Vector3d { x: -2.0, y: -3.0, z: -5.0 });
+        assert_eq!(b, Vector3 { x: -2.0, y: -3.0, z: -5.0 });
     }
     #[test]
     fn add() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d { x: 7.0, y: 11.0, z: 13.0 };
-        assert_eq!(a + b, Vector3d { x: 9.0, y: 14.0, z: 18.0 });
+        let b = Vector3 { x: 7.0, y: 11.0, z: 13.0 };
+        assert_eq!(a + b, Vector3 { x: 9.0, y: 14.0, z: 18.0 });
     }
     #[test]
     fn add_assign() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d { x: 7.0, y: 11.0, z: 13.0 };
+        let b = Vector3 { x: 7.0, y: 11.0, z: 13.0 };
         let mut c = a;
         c += b;
-        assert_eq!(c, Vector3d { x: 9.0, y: 14.0, z: 18.0 });
+        assert_eq!(c, Vector3 { x: 9.0, y: 14.0, z: 18.0 });
     }
     #[test]
     fn sub() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d { x: 7.0, y: 11.0, z: 17.0 };
+        let b = Vector3 { x: 7.0, y: 11.0, z: 17.0 };
         let c = a - b;
-        assert_eq!(c, Vector3d { x: -5.0, y: -8.0, z: -12.0 });
+        assert_eq!(c, Vector3 { x: -5.0, y: -8.0, z: -12.0 });
     }
     #[test]
     fn sub_assign() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3d { x: 7.0, y: 11.0, z: 17.0 };
+        let b = Vector3 { x: 7.0, y: 11.0, z: 17.0 };
         let mut c = a;
         c -= b;
-        assert_eq!(c, Vector3d { x: -5.0, y: -8.0, z: -12.0 });
+        assert_eq!(c, Vector3 { x: -5.0, y: -8.0, z: -12.0 });
     }
     #[test]
     fn mul() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        assert_eq!(a * 2.0, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
-        assert_eq!(2.0 * a, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
+        assert_eq!(a * 2.0, Vector3 { x: 4.0, y: 6.0, z: 10.0 });
+        assert_eq!(2.0 * a, Vector3 { x: 4.0, y: 6.0, z: 10.0 });
     }
     #[test]
     fn mul_assign() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
         b *= 2.0;
-        assert_eq!(b, Vector3d { x: 4.0, y: 6.0, z: 10.0 });
+        assert_eq!(b, Vector3 { x: 4.0, y: 6.0, z: 10.0 });
     }
     #[test]
     fn div() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        assert_eq!(a / 2.0, Vector3d { x: 1.0, y: 1.5, z: 2.5 });
+        assert_eq!(a / 2.0, Vector3 { x: 1.0, y: 1.5, z: 2.5 });
     }
     #[test]
     fn div_assign() {
         let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
         b /= 2.0;
-        assert_eq!(b, Vector3d { x: 1.0, y: 1.5, z: 2.5 });
+        assert_eq!(b, Vector3 { x: 1.0, y: 1.5, z: 2.5 });
     }
     #[test]
     fn new() {
-        let a = Vector3d::new(2.0, 3.0, 5.0);
-        assert_eq!(a, Vector3d { x: 2.0, y: 3.0, z: 5.0 });
-        let b = Vector3d::from((2.0, 3.0, 5.0));
+        let a = Vector3::new(2.0, 3.0, 5.0);
+        assert_eq!(a, Vector3 { x: 2.0, y: 3.0, z: 5.0 });
+        let b = Vector3::from((2.0, 3.0, 5.0));
         assert_eq!(a, b);
 
         use num_traits::zero;
@@ -149,7 +149,7 @@ mod tests {
 
         let c: Vector3df32 = (2.0, 3.0, 5.0).into();
         assert_eq!(a, c);
-        let d = Vector3d::from((2.0, 3.0, 5.0));
+        let d = Vector3::from((2.0, 3.0, 5.0));
         assert_eq!(a, d);
         let e: Vector3df32 = [2.0, 3.0, 5.0].into();
         assert_eq!(a, e);
@@ -182,13 +182,13 @@ mod tests {
         assert_abs_diff_eq!(n.y, b.y, epsilon = 1e-7);
         assert_abs_diff_eq!(n.z, b.z, epsilon = 2e-6);
 
-        let z = Vector3d { x: 0.0, y: 0.0, z: 0.0 };
+        let z = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.normalize(), z);
     }
     #[test]
     fn abs() {
         let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
-        assert_eq!(a.abs(), Vector3d { x: 2.0, y: 3.0, z: 5.0 });
+        assert_eq!(a.abs(), Vector3 { x: 2.0, y: 3.0, z: 5.0 });
     }
     #[test]
     fn abs_in_place() {
@@ -199,12 +199,12 @@ mod tests {
     }
     #[test]
     fn clamped() {
-        let a = Vector3d { x: -2.0, y: 3.0, z: 5.0 };
-        assert_eq!(a.clamp(-1.0, 4.0), Vector3d { x: -1.0, y: 3.0, z: 4.0 });
+        let a = Vector3 { x: -2.0, y: 3.0, z: 5.0 };
+        assert_eq!(a.clamp(-1.0, 4.0), Vector3 { x: -1.0, y: 3.0, z: 4.0 });
     }
     #[test]
     fn clamp() {
-        let a = Vector3d { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3 { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
         b.clamp_in_place(-1.0, 4.0);
         assert_eq!(b, a.clamp(-1.0, 4.0));

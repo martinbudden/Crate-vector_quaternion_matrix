@@ -8,17 +8,17 @@ cfg_if! {
     }
 }
 
-const _: () = assert!(size_of::<Vector4d<f32>>() == 16);
-const _: () = assert!(align_of::<Vector4d<f32>>() == 16);
+const _: () = assert!(size_of::<Vector4<f32>>() == 16);
+const _: () = assert!(align_of::<Vector4<f32>>() == 16);
 
-use crate::Vector4d;
+use crate::Vector4;
 
 // **** From ****
 
 #[cfg(feature = "simd")]
-impl From<Vector4d<f32>> for f32x4 {
+impl From<Vector4<f32>> for f32x4 {
     #[inline(always)]
-    fn from(this: Vector4d<f32>) -> Self {
+    fn from(this: Vector4<f32>) -> Self {
         // SAFETY: assert f32x4 and Vector4d<f32> have same size and alignment
         const _: () = assert!(size_of::<f32x4>() == size_of::<Vector4d<f32>>());
         const _: () = assert!(size_of::<f32x4>() == align_of::<Vector4d<f32>>());
@@ -28,7 +28,7 @@ impl From<Vector4d<f32>> for f32x4 {
 }
 
 #[cfg(feature = "simd")]
-impl From<f32x4> for Vector4d<f32> {
+impl From<f32x4> for Vector4<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
         // SAFETY: assert f32x4 and Vector4d<f32> have same size and alignment
@@ -42,37 +42,37 @@ impl From<f32x4> for Vector4d<f32> {
 
 /// Math functions for Vector4d, using **SIMD** accelerations for `f32`.<br><br>
 pub trait Vector4dMath: Sized {
-    fn v4_neg(this: Vector4d<Self>) -> Vector4d<Self>;
-    fn v4_add(this: Vector4d<Self>, this: Vector4d<Self>) -> Vector4d<Self>;
-    fn v4_mul_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self>;
-    fn v4_div_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self>;
-    fn v4_mul_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self>;
-    fn v4_div_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self>;
-    fn v4_mul_add(this: Vector4d<Self>, k: Self, other: Vector4d<Self>) -> Vector4d<Self>;
-    fn v4_norm_squared(this: Vector4d<Self>) -> Self;
-    fn v4_is_normalized(this: Vector4d<Self>) -> bool;
-    fn v4_max(this: Vector4d<Self>) -> Self;
-    fn v4_min(this: Vector4d<Self>) -> Self;
-    fn v4_dot(this: Vector4d<Self>, other: Vector4d<Self>) -> Self;
+    fn v4_neg(this: Vector4<Self>) -> Vector4<Self>;
+    fn v4_add(this: Vector4<Self>, this: Vector4<Self>) -> Vector4<Self>;
+    fn v4_mul_scalar(this: Vector4<Self>, k: Self) -> Vector4<Self>;
+    fn v4_div_scalar(this: Vector4<Self>, k: Self) -> Vector4<Self>;
+    fn v4_mul_elementwise(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self>;
+    fn v4_div_elementwise(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self>;
+    fn v4_mul_add(this: Vector4<Self>, k: Self, other: Vector4<Self>) -> Vector4<Self>;
+    fn v4_norm_squared(this: Vector4<Self>) -> Self;
+    fn v4_is_normalized(this: Vector4<Self>) -> bool;
+    fn v4_max(this: Vector4<Self>) -> Self;
+    fn v4_min(this: Vector4<Self>) -> Self;
+    fn v4_dot(this: Vector4<Self>, other: Vector4<Self>) -> Self;
 }
 
 // **** SIMD-accelerated implementation for f32 ****
 
 impl Vector4dMath for f32 {
     #[inline(always)]
-    fn v4_neg(this: Vector4d<Self>) -> Vector4d<Self> {
+    fn v4_neg(this: Vector4<Self>) -> Vector4<Self> {
         #[cfg(feature = "simd")]
         {
             (-f32x4::from(this)).into()
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector4d { x: -this.x, y: -this.y, z: -this.z, t: -this.t }
+            Vector4 { x: -this.x, y: -this.y, z: -this.z, t: -this.t }
         }
     }
 
     #[inline(always)]
-    fn v4_add(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
+    fn v4_add(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -82,12 +82,12 @@ impl Vector4dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector4d { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z, t: this.t + other.t }
+            Vector4 { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z, t: this.t + other.t }
         }
     }
 
     #[inline(always)]
-    fn v4_mul_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self> {
+    fn v4_mul_scalar(this: Vector4<Self>, k: Self) -> Vector4<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -97,17 +97,17 @@ impl Vector4dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector4d { x: this.x * k, y: this.y * k, z: this.z * k, t: this.t * k }
+            Vector4 { x: this.x * k, y: this.y * k, z: this.z * k, t: this.t * k }
         }
     }
 
     #[inline(always)]
-    fn v4_div_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self> {
+    fn v4_div_scalar(this: Vector4<Self>, k: Self) -> Vector4<Self> {
         Self::v4_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v4_mul_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
+    fn v4_mul_elementwise(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -116,12 +116,12 @@ impl Vector4dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector4d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z, t: this.t * other.t }
+            Vector4 { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z, t: this.t * other.t }
         }
     }
 
     #[inline(always)]
-    fn v4_div_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
+    fn v4_div_elementwise(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -130,12 +130,12 @@ impl Vector4dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector4d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z, t: this.t / other.t }
+            Vector4 { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z, t: this.t / other.t }
         }
     }
 
     #[inline(always)]
-    fn v4_mul_add(this: Vector4d<Self>, k: Self, other: Vector4d<Self>) -> Vector4d<Self> {
+    fn v4_mul_add(this: Vector4<Self>, k: Self, other: Vector4<Self>) -> Vector4<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -147,7 +147,7 @@ impl Vector4dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector4d {
+            Vector4 {
                 x: this.x * k + other.x,
                 y: this.y * k + other.y,
                 z: this.z * k + other.z,
@@ -157,7 +157,7 @@ impl Vector4dMath for f32 {
     }
 
     #[inline(always)]
-    fn v4_norm_squared(this: Vector4d<Self>) -> Self {
+    fn v4_norm_squared(this: Vector4<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -170,13 +170,13 @@ impl Vector4dMath for f32 {
     }
 
     #[inline(always)]
-    fn v4_is_normalized(this: Vector4d<Self>) -> bool {
+    fn v4_is_normalized(this: Vector4<Self>) -> bool {
         let norm_squared = Self::v4_norm_squared(this);
         (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
-    fn v4_max(this: Vector4d<Self>) -> Self {
+    fn v4_max(this: Vector4<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -201,7 +201,7 @@ impl Vector4dMath for f32 {
     }
 
     #[inline(always)]
-    fn v4_min(this: Vector4d<Self>) -> Self {
+    fn v4_min(this: Vector4<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x4::from(this);
@@ -226,7 +226,7 @@ impl Vector4dMath for f32 {
     }
 
     #[inline(always)]
-    fn v4_dot(this: Vector4d<Self>, other: Vector4d<Self>) -> Self {
+    fn v4_dot(this: Vector4<Self>, other: Vector4<Self>) -> Self {
         //this.x * other.x + this.y * other.y + this.z * other.z + this.t * other.t
         #[cfg(feature = "simd")]
         {
@@ -246,53 +246,53 @@ impl Vector4dMath for f32 {
 
 impl Vector4dMath for f64 {
     #[inline(always)]
-    fn v4_neg(this: Vector4d<Self>) -> Vector4d<Self> {
-        Vector4d { x: -this.x, y: -this.y, z: -this.z, t: -this.t }
+    fn v4_neg(this: Vector4<Self>) -> Vector4<Self> {
+        Vector4 { x: -this.x, y: -this.y, z: -this.z, t: -this.t }
     }
 
     #[inline(always)]
-    fn v4_add(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
-        Vector4d { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z, t: this.t + other.t }
+    fn v4_add(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self> {
+        Vector4 { x: this.x + other.x, y: this.y + other.y, z: this.z + other.z, t: this.t + other.t }
     }
 
     #[inline(always)]
-    fn v4_mul_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self> {
-        Vector4d { x: this.x * k, y: this.y * k, z: this.z * k, t: this.t * k }
+    fn v4_mul_scalar(this: Vector4<Self>, k: Self) -> Vector4<Self> {
+        Vector4 { x: this.x * k, y: this.y * k, z: this.z * k, t: this.t * k }
     }
 
     #[inline(always)]
-    fn v4_div_scalar(this: Vector4d<Self>, k: Self) -> Vector4d<Self> {
+    fn v4_div_scalar(this: Vector4<Self>, k: Self) -> Vector4<Self> {
         Self::v4_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v4_mul_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
-        Vector4d { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z, t: this.t * other.t }
+    fn v4_mul_elementwise(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self> {
+        Vector4 { x: this.x * other.x, y: this.y * other.y, z: this.z * other.z, t: this.t * other.t }
     }
 
     #[inline(always)]
-    fn v4_div_elementwise(this: Vector4d<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
-        Vector4d { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z, t: this.t / other.t }
+    fn v4_div_elementwise(this: Vector4<Self>, other: Vector4<Self>) -> Vector4<Self> {
+        Vector4 { x: this.x / other.x, y: this.y / other.y, z: this.z / other.z, t: this.t / other.t }
     }
 
     #[inline(always)]
-    fn v4_mul_add(this: Vector4d<Self>, k: Self, other: Vector4d<Self>) -> Vector4d<Self> {
-        Vector4d { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z, t: this.t * k + other.t }
+    fn v4_mul_add(this: Vector4<Self>, k: Self, other: Vector4<Self>) -> Vector4<Self> {
+        Vector4 { x: this.x * k + other.x, y: this.y * k + other.y, z: this.z * k + other.z, t: this.t * k + other.t }
     }
 
     #[inline(always)]
-    fn v4_norm_squared(this: Vector4d<Self>) -> Self {
+    fn v4_norm_squared(this: Vector4<Self>) -> Self {
         this.x * this.x + this.y * this.y + this.z * this.z + this.t * this.t
     }
 
     #[inline(always)]
-    fn v4_is_normalized(this: Vector4d<Self>) -> bool {
+    fn v4_is_normalized(this: Vector4<Self>) -> bool {
         let norm_squared = Self::v4_norm_squared(this);
         (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
-    fn v4_max(this: Vector4d<Self>) -> Self {
+    fn v4_max(this: Vector4<Self>) -> Self {
         if this.x > this.y {
             if this.x > this.z {
                 if this.x > this.t { this.x } else { this.t }
@@ -309,7 +309,7 @@ impl Vector4dMath for f64 {
     }
 
     #[inline(always)]
-    fn v4_min(this: Vector4d<Self>) -> Self {
+    fn v4_min(this: Vector4<Self>) -> Self {
         if this.x < this.y {
             if this.x < this.z {
                 if this.x < this.t { this.x } else { this.t }
@@ -327,7 +327,7 @@ impl Vector4dMath for f64 {
 
     // **** dot ****
     #[inline(always)]
-    fn v4_dot(this: Vector4d<Self>, other: Vector4d<Self>) -> Self {
+    fn v4_dot(this: Vector4<Self>, other: Vector4<Self>) -> Self {
         this.x * other.x + this.y * other.y + this.z * other.z + this.t * other.t
     }
 }

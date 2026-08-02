@@ -1,4 +1,4 @@
-use vqm::{Vector4d, Vector4df32, Vector4df64};
+use vqm::{Vector4, Vector4df32, Vector4df64};
 
 const _: () = assert!(size_of::<Vector4df32>() == 16);
 const _: () = assert!(align_of::<Vector4df32>() == 16);
@@ -23,9 +23,9 @@ mod tests {
 
     #[test]
     fn normal_types() {
-        is_full::<Vector4d<f32>>();
+        is_full::<Vector4<f32>>();
         #[cfg(feature = "serde")]
-        is_config::<Vector4d<f32>>();
+        is_config::<Vector4<f32>>();
     }
     #[test]
     fn default() {

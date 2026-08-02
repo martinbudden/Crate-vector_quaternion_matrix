@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 use num_traits::identities::{One, Zero};
-use vqm::{Matrix3x3, Matrix3x3f32, Vector3d};
+use vqm::{Matrix3x3, Matrix3x3f32, Vector3};
 
 // **** Align ****
 cfg_if! {
@@ -119,9 +119,9 @@ mod tests {
     fn m3x3_new() {
         let a = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);
         let b = Matrix3x3::from_rows([
-            Vector3d { x: 2.0, y: 3.0, z: 5.0 },
-            Vector3d { x: 7.0, y: 11.0, z: 13.0 },
-            Vector3d { x: 17.0, y: 19.0, z: 23.0 },
+            Vector3 { x: 2.0, y: 3.0, z: 5.0 },
+            Vector3 { x: 7.0, y: 11.0, z: 13.0 },
+            Vector3 { x: 17.0, y: 19.0, z: 23.0 },
         ]);
         assert_eq!(a, b);
         let c: Matrix3x3<f32> = Matrix3x3::new([2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0, 19.0, 23.0]);

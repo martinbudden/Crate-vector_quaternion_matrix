@@ -10,7 +10,7 @@ use {
 
 use crate::math_methods::TrigonometricMethods;
 use crate::sqrt_methods::SqrtMethods;
-use crate::{QuaternionMath, Vector3d};
+use crate::{QuaternionMath, Vector3};
 
 /// Quaternion of `f32` values<br>
 pub type Quaternionf32 = Quaternion<f32>;
@@ -845,7 +845,7 @@ impl<T> Quaternion<T>
 where
     T: Copy + FloatCore + SqrtMethods,
 {
-    pub fn rotate(self, v: &Vector3d<T>) -> Vector3d<T> {
+    pub fn rotate(self, v: &Vector3<T>) -> Vector3<T> {
         let two: T = T::one() + T::one();
         let half = T::one() / two;
 
@@ -853,7 +853,7 @@ where
         let y2: T = self.y * self.y;
         let z2: T = self.z * self.z;
 
-        Vector3d::<T> {
+        Vector3::<T> {
             x: (v.x * (half - y2 - z2)
                 + v.y * (self.x * self.y - self.w * self.z)
                 + v.z * (self.w * self.y + self.x * self.z))
@@ -1139,15 +1139,15 @@ where
 
     /// Return the imaginary part of the quaternion.
     #[inline]
-    pub fn imaginary(self) -> Vector3d<T> {
-        Vector3d::<T> { x: self.x, y: self.y, z: self.z }
+    pub fn imaginary(self) -> Vector3<T> {
+        Vector3::<T> { x: self.x, y: self.y, z: self.z }
     }
 
     /// Return the last column of the equivalent rotation matrix, but calculated more efficiently than a full conversion.
     #[inline]
-    pub fn direction_cosine_matrix_z(self) -> Vector3d<T> {
+    pub fn direction_cosine_matrix_z(self) -> Vector3<T> {
         let two = T::one() + T::one();
-        Vector3d::<T> {
+        Vector3::<T> {
             x: (self.w * self.y + self.x * self.z) * two,
             y: (self.y * self.z - self.w * self.x) * two,
             z: self.w * self.w,
@@ -1155,9 +1155,9 @@ where
     }
 
     #[inline]
-    pub fn gravity(self) -> Vector3d<T> {
+    pub fn gravity(self) -> Vector3<T> {
         let two = T::one() + T::one();
-        Vector3d::<T> {
+        Vector3::<T> {
             x: (self.x * self.z - self.w * self.y) * two,
             y: (self.w * self.x + self.y * self.z) * two,
             z: (self.w * self.w + self.z * self.z) * two - T::one(),
@@ -1165,9 +1165,9 @@ where
     }
 
     #[inline]
-    pub fn half_gravity(self) -> Vector3d<T> {
+    pub fn half_gravity(self) -> Vector3<T> {
         let half: T = T::one() / (T::one() + T::one());
-        Vector3d::<T> {
+        Vector3::<T> {
             x: self.x * self.z - self.w * self.y,
             y: self.w * self.x + self.y * self.z,
             z: self.w * self.w + self.z * self.z - half,

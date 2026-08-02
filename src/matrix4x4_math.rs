@@ -1,6 +1,6 @@
 #![allow(clippy::inline_always)]
 
-use crate::{Matrix3x3, Matrix3x3Math, Matrix4x4, Quaternion, Vector4d};
+use crate::{Matrix3x3, Matrix3x3Math, Matrix4x4, Quaternion, Vector4};
 
 // Column 1
 const M11: usize = 0;
@@ -33,9 +33,9 @@ pub trait Matrix4x4Math: Sized {
     fn m4x4_mul_scalar(this: Matrix4x4<Self>, other: Self) -> Matrix4x4<Self>;
     fn m4x4_div_scalar(this: Matrix4x4<Self>, other: Self) -> Matrix4x4<Self>;
     fn m4x4_mul_add(this: Matrix4x4<Self>, k: Self, other: Matrix4x4<Self>) -> Matrix4x4<Self>;
-    fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self>;
-    fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self>;
-    fn m4x4_vector_outer_product(col: Vector4d<Self>, row: Vector4d<Self>) -> Matrix4x4<Self>;
+    fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4<Self>) -> Vector4<Self>;
+    fn m4x4_vector_mul(this: Vector4<Self>, other: Matrix4x4<Self>) -> Vector4<Self>;
+    fn m4x4_vector_outer_product(col: Vector4<Self>, row: Vector4<Self>) -> Matrix4x4<Self>;
     fn m4x4_quaternion_outer_product(this: Quaternion<Self>) -> Matrix4x4<Self>;
     fn m4x4_mul(this: Matrix4x4<Self>, other: Matrix4x4<Self>) -> Matrix4x4<Self>;
     fn m4x4_determinant(this: Matrix4x4<Self>) -> Self;
@@ -84,8 +84,8 @@ impl Matrix4x4Math for f32 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
-        Vector4d {
+    fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4<Self>) -> Vector4<Self> {
+        Vector4 {
             x: this.a[M11] * other.x + this.a[M21] * other.y + this.a[M31] * other.z + this.a[M41] * other.t,
             y: this.a[M12] * other.x + this.a[M22] * other.y + this.a[M32] * other.z + this.a[M42] * other.t,
             z: this.a[M13] * other.x + this.a[M23] * other.y + this.a[M33] * other.z + this.a[M43] * other.t,
@@ -94,8 +94,8 @@ impl Matrix4x4Math for f32 {
     }
     #[rustfmt::skip]
     #[inline]
-    fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self> {
-        Vector4d {
+    fn m4x4_vector_mul(this: Vector4<Self>, other: Matrix4x4<Self>) -> Vector4<Self> {
+        Vector4 {
             x: this.x * other.a[M11] + this.y * other.a[M21] + this.z * other.a[M31] + this.t * other.a[M41],
             y: this.x * other.a[M12] + this.y * other.a[M22] + this.z * other.a[M32] + this.t * other.a[M42],
             z: this.x * other.a[M13] + this.y * other.a[M23] + this.z * other.a[M33] + this.t * other.a[M43],
@@ -104,7 +104,7 @@ impl Matrix4x4Math for f32 {
     }
 
     #[inline(always)]
-    fn m4x4_vector_outer_product(col: Vector4d<Self>, row: Vector4d<Self>) -> Matrix4x4<Self> {
+    fn m4x4_vector_outer_product(col: Vector4<Self>, row: Vector4<Self>) -> Matrix4x4<Self> {
         // Structure data into local fixed-size arrays of 4 elements.
         // Since row is align(16), we manually map the implicit 4th buffer element.
         let c = [col.x, col.y, col.z, col.t];
@@ -374,8 +374,8 @@ impl Matrix4x4Math for f64 {
     }
 
     #[inline(always)]
-    fn m4x4_vector_mul(this: Vector4d<Self>, other: Matrix4x4<Self>) -> Vector4d<Self> {
-        Vector4d {
+    fn m4x4_vector_mul(this: Vector4<Self>, other: Matrix4x4<Self>) -> Vector4<Self> {
+        Vector4 {
             x: this.x * other.a[M11] + this.y * other.a[M21] + this.z * other.a[M31] + this.t * other.a[M41],
             y: this.x * other.a[M12] + this.y * other.a[M22] + this.z * other.a[M32] + this.t * other.a[M42],
             z: this.x * other.a[M13] + this.y * other.a[M23] + this.z * other.a[M33] + this.t * other.a[M43],
@@ -384,8 +384,8 @@ impl Matrix4x4Math for f64 {
     }
 
     #[inline(always)]
-    fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4d<Self>) -> Vector4d<Self> {
-        Vector4d {
+    fn m4x4_mul_vector(this: Matrix4x4<Self>, other: Vector4<Self>) -> Vector4<Self> {
+        Vector4 {
             x: this.a[M11] * other.x + this.a[M12] * other.y + this.a[M13] * other.z + this.a[M14] * other.t,
             y: this.a[M21] * other.x + this.a[M22] * other.y + this.a[M23] * other.z + this.a[M24] * other.t,
             z: this.a[M31] * other.x + this.a[M32] * other.y + this.a[M33] * other.z + this.a[M34] * other.t,
@@ -394,7 +394,7 @@ impl Matrix4x4Math for f64 {
     }
 
     #[inline(always)]
-    fn m4x4_vector_outer_product(col: Vector4d<Self>, row: Vector4d<Self>) -> Matrix4x4<Self> {
+    fn m4x4_vector_outer_product(col: Vector4<Self>, row: Vector4<Self>) -> Matrix4x4<Self> {
         // Structure data into local fixed-size arrays of 4 elements.
         // Since row is align(16), we manually map the implicit 4th buffer element.
         let r = [row.x, row.y, row.z, row.t];

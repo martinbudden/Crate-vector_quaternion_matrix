@@ -5,7 +5,7 @@ mod tests {
     //use super::*;
     use uom::si::f32::{Area, Length, Ratio, Time, Velocity};
     use uom::si::{area::square_meter, length::meter, ratio::ratio, time::second, velocity::meter_per_second};
-    use vqm::Vector3d;
+    use vqm::Vector3;
 
     /*#[test]
     fn default() {

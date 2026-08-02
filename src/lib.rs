@@ -56,12 +56,12 @@ pub use math_methods::TrigonometricMethods;
 pub use math_methods::{cos_approx, sin_approx, sin_cos_approx};
 pub use sqrt_methods::SqrtMethods;
 
-pub use vector2d::{Vector2d, Vector2df32, Vector2df64};
+pub use vector2d::{Vector2, Vector2df32, Vector2df64};
 
-pub use vector3d::{Vector3d, Vector3df32, Vector3df64};
+pub use vector3d::{Vector3, Vector3df32, Vector3df64};
 pub use vector3d_buf::SliceTooShortError;
 
-pub use vector4d::{Vector4d, Vector4df32, Vector4df64};
+pub use vector4d::{Vector4, Vector4df32, Vector4df64};
 
 pub use quaternion::{Quaternion, Quaternionf32, Quaternionf64};
 pub use quaternion_math::QuaternionMath;

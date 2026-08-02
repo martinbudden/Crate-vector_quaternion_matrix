@@ -6,7 +6,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Quaternion, TrigonometricMethods, Vector2d, Vector3d};
+use crate::{MathConstants, Quaternion, TrigonometricMethods, Vector2, Vector3};
 
 /// `RollPitchYaw` `struct { roll: f32, pitch: f32, yaw: f32 }`<br>
 pub type RollPitchYawf32 = RollPitchYaw<f32>;
@@ -44,7 +44,7 @@ where
 
     /// Create a `RollPitch` from a `Vector2d` assuming the North East Down (NED) convention.
     #[inline]
-    pub fn from_vector_ned(v: Vector2d<T>) -> Self {
+    pub fn from_vector_ned(v: Vector2<T>) -> Self {
         Self { roll: v.y, pitch: v.x }
     }
 }
@@ -118,7 +118,7 @@ where
 
     /// Create a `RollPitchYaw` from a `Vector3d` assuming the North East Down (NED) convention.
     #[inline]
-    pub fn from_vector_ned(v: Vector3d<T>) -> Self {
+    pub fn from_vector_ned(v: Vector3<T>) -> Self {
         Self { roll: v.y, pitch: v.x, yaw: -v.z }
     }
 }

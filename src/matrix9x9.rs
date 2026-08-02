@@ -6,7 +6,7 @@ use core::ops::{
 use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::FloatCore};
 
-use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3d};
+use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4, Matrix9x9Math, Vector3};
 
 /// 9x9 matrix of `f32` values<br>
 pub type Matrix9x9f32 = Matrix9x9<f32>;
@@ -946,23 +946,23 @@ where
 {
     /// Returns a row as a Vector3d 3-tuple.
     #[inline]
-    pub fn row_tuple3d(&self, row_index: usize) -> (Vector3d<T>, Vector3d<T>, Vector3d<T>) {
+    pub fn row_tuple3d(&self, row_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
         let r = row_index;
         (
-            Vector3d { x: self.a[r], y: self.a[r + 9], z: self.a[r + 18] },
-            Vector3d { x: self.a[r + 27], y: self.a[r + 36], z: self.a[r + 45] },
-            Vector3d { x: self.a[r + 54], y: self.a[r + 63], z: self.a[r + 72] },
+            Vector3 { x: self.a[r], y: self.a[r + 9], z: self.a[r + 18] },
+            Vector3 { x: self.a[r + 27], y: self.a[r + 36], z: self.a[r + 45] },
+            Vector3 { x: self.a[r + 54], y: self.a[r + 63], z: self.a[r + 72] },
         )
     }
 
     /// Returns a column as a Vector3d 3-tuple.
     #[inline]
-    pub fn column_tuple3d(&self, col_index: usize) -> (Vector3d<T>, Vector3d<T>, Vector3d<T>) {
+    pub fn column_tuple3d(&self, col_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
         let offset = col_index * 9;
         (
-            Vector3d { x: self.a[offset], y: self.a[offset + 1], z: self.a[offset + 2] },
-            Vector3d { x: self.a[offset + 3], y: self.a[offset + 4], z: self.a[offset + 5] },
-            Vector3d { x: self.a[offset + 6], y: self.a[offset + 7], z: self.a[offset + 8] },
+            Vector3 { x: self.a[offset], y: self.a[offset + 1], z: self.a[offset + 2] },
+            Vector3 { x: self.a[offset + 3], y: self.a[offset + 4], z: self.a[offset + 5] },
+            Vector3 { x: self.a[offset + 6], y: self.a[offset + 7], z: self.a[offset + 8] },
         )
     }
 

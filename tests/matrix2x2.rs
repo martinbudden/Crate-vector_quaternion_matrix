@@ -1,5 +1,5 @@
 use num_traits::identities::{One, Zero};
-use vqm::{Matrix2x2, Matrix2x2f32, Vector2d};
+use vqm::{Matrix2x2, Matrix2x2f32, Vector2};
 
 // **** Align
 
@@ -85,7 +85,7 @@ mod tests {
     fn m2x2_new() {
         let a = Matrix2x2::new([2.0, 3.0, 5.0, 7.0]);
         assert_eq!(a, a);
-        let b = Matrix2x2::from_rows([Vector2d { x: 2.0, y: 3.0 }, Vector2d { x: 5.0, y: 7.0 }]);
+        let b = Matrix2x2::from_rows([Vector2 { x: 2.0, y: 3.0 }, Vector2 { x: 5.0, y: 7.0 }]);
         assert_eq!(a, b);
         let d: Matrix2x2<f32> = Matrix2x2::new([2.0, 3.0, 5.0, 7.0]);
         assert_eq!(a, d);

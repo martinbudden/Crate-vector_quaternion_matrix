@@ -11,7 +11,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4Math, Quaternion, Vector4d};
+use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix4x4Math, Quaternion, Vector4};
 
 /// 4x4 matrix of `f32` values<br>
 pub type Matrix4x4f32 = Matrix4x4<f32>;
@@ -143,7 +143,7 @@ where
     ///                                   67.0, 73.0, 83.0,  97.0]));
     /// ```
     #[inline]
-    pub const fn from_rows(v: [Vector4d<T>; 4]) -> Self {
+    pub const fn from_rows(v: [Vector4<T>; 4]) -> Self {
         Self {
             a: [
                 v[0].x, v[1].x, v[2].x, v[3].x, //
@@ -167,7 +167,7 @@ where
     ///                                  127.0, 109.0, 103.0,  97.0]));
     /// ```
     #[inline]
-    pub const fn from_columns(v: [Vector4d<T>; 4]) -> Self {
+    pub const fn from_columns(v: [Vector4<T>; 4]) -> Self {
         Self {
             a: [
                 v[0].x, v[0].y, v[0].z, v[0].t, //
@@ -376,7 +376,7 @@ where
     /// ```
     #[rustfmt::skip]
     #[inline]
-    pub const fn from_diagonal_vector(v: Vector4d<T>) -> Self {
+    pub const fn from_diagonal_vector(v: Vector4<T>) -> Self {
         Self {
             a: [
                 v.x,     T::ZERO, T::ZERO, T::ZERO,
@@ -875,11 +875,11 @@ where
     }
 }
 
-impl<T> Mul<Vector4d<T>> for Matrix4x4<T>
+impl<T> Mul<Vector4<T>> for Matrix4x4<T>
 where
     T: Copy + Matrix4x4Math,
 {
-    type Output = Vector4d<T>;
+    type Output = Vector4<T>;
 
     /// Multiply a vector by a matrix.
     /// ```
@@ -894,13 +894,13 @@ where
     /// /// assert_eq!(r, Vector4df32{x:3051.0, y:2556.0, z:2570.0, t:3440.0});
     /// ```
     #[inline]
-    fn mul(self, other: Vector4d<T>) -> Vector4d<T> {
+    fn mul(self, other: Vector4<T>) -> Vector4<T> {
         T::m4x4_mul_vector(self, other)
     }
 }
 
 #[cfg(not(feature = "uom"))]
-impl<T> Mul<Matrix4x4<T>> for Vector4d<T>
+impl<T> Mul<Matrix4x4<T>> for Vector4<T>
 where
     T: Copy + Matrix4x4Math,
 {
@@ -1046,12 +1046,12 @@ where
     ///                                  38.0,  95.0, 209.0, 323.0]));
     ///```
     #[inline]
-    pub fn outer_product(col: Vector4d<T>, row: Vector4d<T>) -> Self {
+    pub fn outer_product(col: Vector4<T>, row: Vector4<T>) -> Self {
         T::m4x4_vector_outer_product(col, row)
     }
 }
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Matrix4x4Math,
 {
@@ -1068,7 +1068,7 @@ where
     ///                                  38.0,  95.0, 209.0, 323.0]));
     ///```
     #[inline]
-    pub fn outer_product(self, row: Vector4d<T>) -> Matrix4x4<T> {
+    pub fn outer_product(self, row: Vector4<T>) -> Matrix4x4<T> {
         T::m4x4_vector_outer_product(self, row)
     }
 }
@@ -1418,7 +1418,7 @@ where
     /// m.set_row(1, Vector4df32::new(7.0, 13.0, 19.0, 29.0));
     /// assert_eq!(Vector4df32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.row(1));
     /// ```
-    pub fn set_row(&mut self, row: usize, value: Vector4d<T>) {
+    pub fn set_row(&mut self, row: usize, value: Vector4<T>) {
         if row >= 4 {
             return;
         }
@@ -1442,11 +1442,11 @@ where
     /// assert_eq!(m.row(2), Vector4df32{ x: 23.0, y: 31.0, z: 41.0, t:103.0 });
     /// assert_eq!(m.row(3), Vector4df32{ x: 67.0, y: 73.0, z: 83.0, t:97.0 });
     /// ```
-    pub fn row(self, row: usize) -> Vector4d<T> {
+    pub fn row(self, row: usize) -> Vector4<T> {
         let r = row.min(3);
         // Made safe because c is clamped to 0..=3, so c + 12 <= 15
         unsafe {
-            Vector4d {
+            Vector4 {
                 x: *self.a.get_unchecked(r),
                 y: *self.a.get_unchecked(r + 4),
                 z: *self.a.get_unchecked(r + 8),
@@ -1465,7 +1465,7 @@ where
     /// m.set_column(1, Vector4df32::new(7.0, 13.0, 19.0, 29.0));
     /// assert_eq!(Vector4df32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.column(1));
     /// ```
-    pub fn set_column(&mut self, column: usize, value: Vector4d<T>) {
+    pub fn set_column(&mut self, column: usize, value: Vector4<T>) {
         if column >= 4 {
             return;
         }
@@ -1493,11 +1493,11 @@ where
     /// assert_eq!(m.column(2), Vector4df32{ x: 59.0, y: 47.0, z: 41.0, t: 83.0 });
     /// assert_eq!(m.column(3), Vector4df32{ x: 127.0, y: 109.0, z: 103.0, t: 97.0 });
     /// ```
-    pub fn column(self, column: usize) -> Vector4d<T> {
+    pub fn column(self, column: usize) -> Vector4<T> {
         // Branchless clamp: restricts r to 0..=3
         let base = column.min(3) * 4;
         let chunk = &self.a[base..];
-        Vector4d { x: chunk[0], y: chunk[1], z: chunk[2], t: chunk[3] }
+        Vector4 { x: chunk[0], y: chunk[1], z: chunk[2], t: chunk[3] }
     }
 
     /// Return matrix diagonal as an array.
@@ -1528,8 +1528,8 @@ where
     ///
     /// assert_eq!(v, Vector4df32{ x: 2.0, y: 11.0, z: 41.0, t: 97.0 });
     /// ```
-    pub fn diagonal_as_vector(self) -> Vector4d<T> {
-        Vector4d { x: self.a[Self::M11], y: self.a[Self::M22], z: self.a[Self::M33], t: self.a[Self::M44] }
+    pub fn diagonal_as_vector(self) -> Vector4<T> {
+        Vector4 { x: self.a[Self::M11], y: self.a[Self::M22], z: self.a[Self::M33], t: self.a[Self::M44] }
     }
 }
 

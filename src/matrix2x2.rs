@@ -10,7 +10,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Matrix2x2Math, Vector2d};
+use crate::{MathConstants, Matrix2x2Math, Vector2};
 
 /// 2x2 matrix of `f32` values<br>
 pub type Matrix2x2f32 = Matrix2x2<f32>;
@@ -96,7 +96,7 @@ where
     ///                                    5.0, 11.0 ]));
     /// ```
     #[inline]
-    pub const fn from_rows(v: [Vector2d<T>; 2]) -> Self {
+    pub const fn from_rows(v: [Vector2<T>; 2]) -> Self {
         Self {
             a: [
                 v[0].x, v[1].x, //
@@ -114,7 +114,7 @@ where
     ///                                   17.0,  11.0 ]));
     /// ```
     #[inline]
-    pub const fn from_columns(v: [Vector2d<T>; 2]) -> Self {
+    pub const fn from_columns(v: [Vector2<T>; 2]) -> Self {
         Self {
             a: [
                 v[0].x, v[0].y, //
@@ -287,7 +287,7 @@ where
     /// ```
     #[rustfmt::skip]
     #[inline]
-    pub const fn from_diagonal_vector(v: Vector2d<T>) -> Self {
+    pub const fn from_diagonal_vector(v: Vector2<T>) -> Self {
         Self {
             a: [
                 v.x,     T::ZERO,
@@ -716,11 +716,11 @@ where
     }
 }
 
-impl<T> Mul<Vector2d<T>> for Matrix2x2<T>
+impl<T> Mul<Vector2<T>> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    type Output = Vector2d<T>;
+    type Output = Vector2<T>;
 
     /// Multiply a vector by a matrix.
     /// ```
@@ -734,13 +734,13 @@ where
     /// assert_eq!(r, Vector2df32{x:2.0*3.0 + 17.0*7.0, y:5.0*3.0 + 11.0*7.0});
     /// ```
     #[inline]
-    fn mul(self, other: Vector2d<T>) -> Vector2d<T> {
+    fn mul(self, other: Vector2<T>) -> Vector2<T> {
         T::m2x2_mul_vector(self, other)
     }
 }
 
 #[cfg(not(feature = "uom"))]
-impl<T> Mul<Matrix2x2<T>> for Vector2d<T>
+impl<T> Mul<Matrix2x2<T>> for Vector2<T>
 where
     T: Copy + Matrix2x2Math,
 {
@@ -838,12 +838,12 @@ where
     ///                                  14.0,  35.0]));
     ///```
     #[inline]
-    pub fn outer_product(col: Vector2d<T>, row: Vector2d<T>) -> Self {
+    pub fn outer_product(col: Vector2<T>, row: Vector2<T>) -> Self {
         T::m2x2_vector_outer_product(col, row)
     }
 }
 
-impl<T> Vector2d<T>
+impl<T> Vector2<T>
 where
     T: Copy + Matrix2x2Math,
 {
@@ -858,7 +858,7 @@ where
     ///                                  14.0,  35.0]));
     ///```
     #[inline]
-    pub fn outer_product(self, row: Vector2d<T>) -> Matrix2x2<T> {
+    pub fn outer_product(self, row: Vector2<T>) -> Matrix2x2<T> {
         T::m2x2_vector_outer_product(self, row)
     }
 }
@@ -1112,7 +1112,7 @@ where
     /// m.set_row(1, Vector2df32::new(7.0, 13.0));
     /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.row(1));
     /// ```
-    pub fn set_row(&mut self, row: usize, value: Vector2d<T>) {
+    pub fn set_row(&mut self, row: usize, value: Vector2<T>) {
         if row == 0 {
             self.a[0] = value.x;
             self.a[2] = value.y;
@@ -1132,10 +1132,10 @@ where
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 17.0 });
     /// assert_eq!(m.row(1), Vector2df32{ x: 5.0, y: 11.0 });
     /// ```
-    pub fn row(self, row: usize) -> Vector2d<T> {
+    pub fn row(self, row: usize) -> Vector2<T> {
         let r = row.min(1);
         // Made safe because r is clamped to 0..=1, so r + 2 <= 3
-        unsafe { Vector2d { x: *self.a.get_unchecked(r), y: *self.a.get_unchecked(r + 2) } }
+        unsafe { Vector2 { x: *self.a.get_unchecked(r), y: *self.a.get_unchecked(r + 2) } }
     }
 
     /// Set matrix column from a vector.
@@ -1146,7 +1146,7 @@ where
     /// m.set_column(1, Vector2df32::new(7.0, 13.0));
     /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.column(1));
     /// ```
-    pub fn set_column(&mut self, column: usize, value: Vector2d<T>) {
+    pub fn set_column(&mut self, column: usize, value: Vector2<T>) {
         if column >= 2 {
             return;
         }
@@ -1168,11 +1168,11 @@ where
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 5.0 });
     /// assert_eq!(m.column(1), Vector2df32{ x: 17.0, y: 11.0 });
     /// ```
-    pub fn column(self, column: usize) -> Vector2d<T> {
+    pub fn column(self, column: usize) -> Vector2<T> {
         // Branchless clamp: restricts c to 0..=1
         let base = column.min(1) * 2;
         let chunk = &self.a[base..];
-        Vector2d { x: chunk[0], y: chunk[1] }
+        Vector2 { x: chunk[0], y: chunk[1] }
     }
 
     /// Return matrix diagonal as a array.
@@ -1198,8 +1198,8 @@ where
     ///
     /// assert_eq!(v, Vector2df32{ x: 2.0, y: 11.0 });
     /// ```
-    pub fn diagonal_as_vector(self) -> Vector2d<T> {
-        Vector2d { x: self.a[Self::M11], y: self.a[Self::M22] }
+    pub fn diagonal_as_vector(self) -> Vector2<T> {
+        Vector2 { x: self.a[Self::M11], y: self.a[Self::M22] }
     }
 }
 

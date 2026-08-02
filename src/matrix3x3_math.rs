@@ -16,7 +16,7 @@ cfg_if! {
     }
 }
 
-use crate::{Matrix3x3, Vector3d};
+use crate::{Matrix3x3, Vector3};
 
 // Column 1
 const M11: usize = 0;
@@ -41,9 +41,9 @@ pub trait Matrix3x3Math: Sized {
     fn m3x3_mul_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self>;
     fn m3x3_div_scalar(this: Matrix3x3<Self>, other: Self) -> Matrix3x3<Self>;
     fn m3x3_mul_add(this: Matrix3x3<Self>, k: Self, other: Matrix3x3<Self>) -> Matrix3x3<Self>;
-    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self>;
-    fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self>;
-    fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self>;
+    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3<Self>) -> Vector3<Self>;
+    fn m3x3_vector_mul(this: Vector3<Self>, other: Matrix3x3<Self>) -> Vector3<Self>;
+    fn m3x3_vector_outer_product(col: Vector3<Self>, row: Vector3<Self>) -> Matrix3x3<Self>;
     fn m3x3_mul(this: Matrix3x3<Self>, other: Matrix3x3<Self>) -> Matrix3x3<Self>;
     fn m3x3_trace(this: Matrix3x3<Self>) -> Self;
     fn m3x3_trace_sum_squares(this: Matrix3x3<Self>) -> Self;
@@ -91,8 +91,8 @@ impl Matrix3x3Math for f32 {
     }
 
     #[inline(always)]
-    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d {
+    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 {
             x: this.a[M11] * other.x + this.a[M12] * other.y + this.a[M13] * other.z,
             y: this.a[M21] * other.x + this.a[M22] * other.y + this.a[M23] * other.z,
             z: this.a[M31] * other.x + this.a[M32] * other.y + this.a[M33] * other.z,
@@ -132,8 +132,8 @@ impl Matrix3x3Math for f32 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self> {
-        Vector3d {
+    fn m3x3_vector_mul(this: Vector3<Self>, other: Matrix3x3<Self>) -> Vector3<Self> {
+        Vector3 {
             x: this.x * other.a[M11] + this.y * other.a[M21] + this.z * other.a[M31],
             y: this.x * other.a[M12] + this.y * other.a[M22] + this.z * other.a[M32],
             z: this.x * other.a[M13] + this.y * other.a[M23] + this.z * other.a[M33],
@@ -142,7 +142,7 @@ impl Matrix3x3Math for f32 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self> {
+    fn m3x3_vector_outer_product(col: Vector3<Self>, row: Vector3<Self>) -> Matrix3x3<Self> {
         #[cfg(feature = "simd")]
         {
             // By taking ownership of the value, Rust guarantees no other pointer
@@ -401,8 +401,8 @@ impl Matrix3x3Math for f64 {
     }
 
     #[inline(always)]
-    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
-        Vector3d {
+    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3<Self>) -> Vector3<Self> {
+        Vector3 {
             x: this.a[M11] * other.x + this.a[M21] * other.y + this.a[M31] * other.z,
             y: this.a[M12] * other.x + this.a[M22] * other.y + this.a[M32] * other.z,
             z: this.a[M13] * other.x + this.a[M23] * other.y + this.a[M33] * other.z,
@@ -410,8 +410,8 @@ impl Matrix3x3Math for f64 {
     }
 
     #[inline(always)]
-    fn m3x3_vector_mul(this: Vector3d<Self>, other: Matrix3x3<Self>) -> Vector3d<Self> {
-        Vector3d {
+    fn m3x3_vector_mul(this: Vector3<Self>, other: Matrix3x3<Self>) -> Vector3<Self> {
+        Vector3 {
             x: this.x * other.a[M11] + this.y * other.a[M21] + this.z * other.a[M31],
             y: this.x * other.a[M12] + this.y * other.a[M22] + this.z * other.a[M32],
             z: this.x * other.a[M13] + this.y * other.a[M23] + this.z * other.a[M33],
@@ -420,7 +420,7 @@ impl Matrix3x3Math for f64 {
 
     #[rustfmt::skip]
     #[inline(always)]
-    fn m3x3_vector_outer_product(col: Vector3d<Self>, row: Vector3d<Self>) -> Matrix3x3<Self> {
+    fn m3x3_vector_outer_product(col: Vector3<Self>, row: Vector3<Self>) -> Matrix3x3<Self> {
         Matrix3x3 {
             a: [
                 col.x * row.x, col.y * row.x, col.z * row.x,

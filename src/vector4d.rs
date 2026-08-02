@@ -8,12 +8,12 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, SqrtMethods, Vector2d, Vector3d, vector4d_math::Vector4dMath};
+use crate::{MathConstants, SqrtMethods, Vector2, Vector3, vector4d_math::Vector4dMath};
 
 /// 4-dimensional `{x, y, z, t}` vector of `f32` values<br>
-pub type Vector4df32 = Vector4d<f32>;
+pub type Vector4df32 = Vector4<f32>;
 /// 4-dimensional `{x, y, z, t}` vector of `f64` values<br><br>
-pub type Vector4df64 = Vector4d<f64>;
+pub type Vector4df64 = Vector4<f64>;
 
 // **** Define ****
 
@@ -26,7 +26,7 @@ pub type Vector4df64 = Vector4d<f64>;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C, align(16))]
 #[allow(missing_docs)]
-pub struct Vector4d<T> {
+pub struct Vector4<T> {
     pub x: T,
     pub y: T,
     pub z: T,
@@ -34,11 +34,11 @@ pub struct Vector4d<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<T> PostcardValue<'_> for Vector4d<T> where T: Serialize + for<'de> Deserialize<'de> {}
+impl<T> PostcardValue<'_> for Vector4<T> where T: Serialize + for<'de> Deserialize<'de> {}
 
 // **** New ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy,
 {
@@ -56,7 +56,7 @@ where
 
 // **** Zero ****
 
-impl<T> Zero for Vector4d<T>
+impl<T> Zero for Vector4<T>
 where
     T: Copy + ConstZero + PartialEq,
 {
@@ -87,7 +87,7 @@ where
 /// assert!(z.is_zero());
 /// assert_eq!(z, Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
 /// ```
-impl<T> ConstZero for Vector4d<T>
+impl<T> ConstZero for Vector4<T>
 where
     T: Copy + Zero + ConstZero + PartialEq,
 {
@@ -96,7 +96,7 @@ where
 
 // **** Neg ****
 
-impl<T> Neg for Vector4d<T>
+impl<T> Neg for Vector4<T>
 where
     T: Copy + Neg<Output = T>,
 {
@@ -118,7 +118,7 @@ where
 
 // **** Add ****
 
-impl<T> Add for Vector4d<T>
+impl<T> Add for Vector4<T>
 where
     T: Copy + Add<T, Output = T>,
 {
@@ -135,13 +135,13 @@ where
     /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
-        Vector4d { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z, t: self.t + other.t }
+        Vector4 { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z, t: self.t + other.t }
     }
 }
 
 // **** AddAssign ****
 
-impl<T> AddAssign for Vector4d<T>
+impl<T> AddAssign for Vector4<T>
 where
     T: Copy + Add<T, Output = T>,
 {
@@ -167,7 +167,7 @@ where
 
 // **** MulAdd ****
 
-impl<T> MulAdd<T> for Vector4d<T>
+impl<T> MulAdd<T> for Vector4<T>
 where
     T: Copy + Mul<T, Output = T> + Add<T, Output = T>,
 {
@@ -186,13 +186,13 @@ where
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
-        Vector4d { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z, t: self.t * k + other.t }
+        Vector4 { x: self.x * k + other.x, y: self.y * k + other.y, z: self.z * k + other.z, t: self.t * k + other.t }
     }
 }
 
 // **** MulAddAssign ****
 
-impl<T> MulAddAssign<T> for Vector4d<T>
+impl<T> MulAddAssign<T> for Vector4<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -215,7 +215,7 @@ where
 
 // **** Sub ****
 
-impl<T> Sub for Vector4d<T>
+impl<T> Sub for Vector4<T>
 where
     T: Copy + Add<T, Output = T> + Neg<Output = T>,
 {
@@ -239,7 +239,7 @@ where
 
 // **** SubAssign ****
 
-impl<T> SubAssign for Vector4d<T>
+impl<T> SubAssign for Vector4<T>
 where
     T: Copy + Neg<Output = T> + Add<T, Output = T> + Sub<T, Output = T>,
 {
@@ -260,8 +260,8 @@ where
 
 // **** Scalar Mul ****
 
-impl Mul<Vector4d<f32>> for f32 {
-    type Output = Vector4d<f32>;
+impl Mul<Vector4<f32>> for f32 {
+    type Output = Vector4<f32>;
 
     /// Pre-multiply vector by a scalar.
     /// ```
@@ -272,23 +272,23 @@ impl Mul<Vector4d<f32>> for f32 {
     /// assert_eq!(r, Vector4df32 { x: 4.0, y: 10.0, z: 22.0, t: 34.0 });
     /// ```
     #[inline]
-    fn mul(self, other: Vector4d<f32>) -> Vector4d<f32> {
+    fn mul(self, other: Vector4<f32>) -> Vector4<f32> {
         f32::v4_mul_scalar(other, self)
     }
 }
 
-impl Mul<Vector4d<f64>> for f64 {
-    type Output = Vector4d<f64>;
+impl Mul<Vector4<f64>> for f64 {
+    type Output = Vector4<f64>;
     #[inline]
-    fn mul(self, other: Vector4d<f64>) -> Vector4d<f64> {
-        Vector4d { x: other.x * self, y: other.y * self, z: other.z * self, t: other.t * self }
+    fn mul(self, other: Vector4<f64>) -> Vector4<f64> {
+        Vector4 { x: other.x * self, y: other.y * self, z: other.z * self, t: other.t * self }
     }
 }
 
 // **** Mul Scalar ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Mul<T> for Vector4d<T>
+impl<T> Mul<T> for Vector4<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -309,23 +309,23 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<T, Rhs, Out> Mul<Rhs> for Vector4d<T>
+impl<T, Rhs, Out> Mul<Rhs> for Vector4<T>
 where
     T: Copy + Mul<Rhs, Output = Out>,
     Rhs: Copy,
 {
-    type Output = Vector4d<Out>;
+    type Output = Vector4<Out>;
 
     /// Multiply a vector by a scalar.
     #[inline]
     fn mul(self, rhs: Rhs) -> Self::Output {
-        Vector4d { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, t: self.t * rhs }
+        Vector4 { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, t: self.t * rhs }
     }
 }
 
 // **** MulAssign ****
 
-impl<T> MulAssign<T> for Vector4d<T>
+impl<T> MulAssign<T> for Vector4<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -346,7 +346,7 @@ where
 // **** Mul Elementwise ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Mul<Vector4d<T>> for Vector4d<T>
+impl<T> Mul<Vector4<T>> for Vector4<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -370,7 +370,7 @@ where
 // **** Div by scalar ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Div<T> for Vector4d<T>
+impl<T> Div<T> for Vector4<T>
 where
     T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
@@ -391,21 +391,21 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<T, Rhs, Out> Div<Rhs> for Vector4d<T>
+impl<T, Rhs, Out> Div<Rhs> for Vector4<T>
 where
     T: Copy + Div<Rhs, Output = Out>,
     Rhs: Copy,
 {
-    type Output = Vector4d<Out>;
+    type Output = Vector4<Out>;
 
     /// Divide a vector by a scalar.
     #[inline]
-    fn div(self, rhs: Rhs) -> Vector4d<Out> {
-        Vector4d::<Out> { x: self.x / rhs, y: self.y / rhs, z: self.z / rhs, t: self.t / rhs }
+    fn div(self, rhs: Rhs) -> Vector4<Out> {
+        Vector4::<Out> { x: self.x / rhs, y: self.y / rhs, z: self.z / rhs, t: self.t / rhs }
     }
 }
 
-impl<T> DivAssign<T> for Vector4d<T>
+impl<T> DivAssign<T> for Vector4<T>
 where
     T: Copy + One + Add<T, Output = T> + Div<T, Output = T> + Mul<T, Output = T>,
 {
@@ -427,7 +427,7 @@ where
 // **** Div Elementwise ****
 
 #[cfg(not(feature = "uom"))]
-impl<T> Div<Vector4d<T>> for Vector4d<T>
+impl<T> Div<Vector4<T>> for Vector4<T>
 where
     T: Copy + Div<T, Output = T>,
 {
@@ -444,13 +444,13 @@ where
     /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
-        Vector4d { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z, t: self.t / other.t }
+        Vector4 { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z, t: self.t / other.t }
     }
 }
 
 // **** Index ****
 
-impl<T> Index<usize> for Vector4d<T> {
+impl<T> Index<usize> for Vector4<T> {
     type Output = T;
 
     /// Access vector component by index.
@@ -476,7 +476,7 @@ impl<T> Index<usize> for Vector4d<T> {
 
 // **** IndexMut ****
 
-impl<T> IndexMut<usize> for Vector4d<T> {
+impl<T> IndexMut<usize> for Vector4<T> {
     // Set vector component by index.
     /// ```
     /// # use vqm::Vector4df32;
@@ -501,10 +501,10 @@ impl<T> IndexMut<usize> for Vector4d<T> {
 
 // **** lerp ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy,
-    Vector4d<T>: Mul<T, Output = Vector4d<T>> + Add<Output = Vector4d<T>> + Sub<Output = Vector4d<T>>,
+    Vector4<T>: Mul<T, Output = Vector4<T>> + Add<Output = Vector4<T>> + Sub<Output = Vector4<T>>,
 {
     /// Linear interpolation between two vectors.
     /// Calculates `self * (1 - t) + other * t`.
@@ -525,7 +525,7 @@ where
 
 // **** approx_eq ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: FloatCore,
 {
@@ -544,7 +544,7 @@ where
 
 // **** abs ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Signed,
 {
@@ -579,7 +579,7 @@ where
 
 // **** clamp ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + FloatCore,
 {
@@ -619,7 +619,7 @@ where
 
 // **** dot ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
 {
@@ -640,9 +640,9 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<T> Vector4d<T> {
+impl<T> Vector4<T> {
     /// Calculates the dot product of two vectors.
-    pub fn dot_uom<Rhs, Out>(self, rhs: Vector4d<Rhs>) -> Out
+    pub fn dot_uom<Rhs, Out>(self, rhs: Vector4<Rhs>) -> Out
     where
         T: Mul<Rhs, Output = Out>,
         Out: Add<Output = Out>,
@@ -653,7 +653,7 @@ impl<T> Vector4d<T> {
 
 // **** norm_squared ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T>,
 {
@@ -682,7 +682,7 @@ where
 }
 
 #[cfg(feature = "uom")]
-impl<D, U, V> Vector4d<uom::si::Quantity<D, U, V>>
+impl<D, U, V> Vector4<uom::si::Quantity<D, U, V>>
 where
     D: uom::si::Dimension + ?Sized,
     U: uom::si::Units<V> + ?Sized,
@@ -718,7 +718,7 @@ where
 
     #[inline]
     /// Normalizes the vector, returning a unit vector pointing in the same direction.
-    pub fn normalize_uom<Intermediate>(self) -> Vector4d<uom::si::ratio::Ratio<U, V>>
+    pub fn normalize_uom<Intermediate>(self) -> Vector4<uom::si::ratio::Ratio<U, V>>
     where
         uom::si::Quantity<D, U, V>: Mul<uom::si::Quantity<D, U, V>, Output = Intermediate>,
         Intermediate: Add<Output = Intermediate>,
@@ -730,7 +730,7 @@ where
         let norm = (x * x + y * y + z * z + t * t).sqrt();
         let norm_reciprocal = V::one() / norm;
 
-        Vector4d {
+        Vector4 {
             x: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: x * norm_reciprocal },
             y: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: y * norm_reciprocal },
             z: uom::si::Quantity { dimension: PhantomData, units: PhantomData, value: z * norm_reciprocal },
@@ -741,7 +741,7 @@ where
 
 // **** norm ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
@@ -752,7 +752,7 @@ where
     }
 }
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
 {
@@ -815,7 +815,7 @@ where
     }
 }
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
 {
@@ -828,7 +828,7 @@ where
 
 // **** to_degrees ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + FloatCore,
 {
@@ -861,7 +861,7 @@ where
     }
 }
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Mul<Output = T> + MathConstants,
 {
@@ -897,7 +897,7 @@ where
 
 // **** sum ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Add<Output = T> + Mul<Output = T>,
 {
@@ -926,7 +926,7 @@ where
 
 // **** mean ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + One + Add<Output = T> + Div<Output = T>,
 {
@@ -945,7 +945,7 @@ where
 
 // **** max ****
 
-impl<T> Vector4d<T>
+impl<T> Vector4<T>
 where
     T: Copy + Vector4dMath,
 {
@@ -984,7 +984,7 @@ where
 
 // **** From Tuple ****
 
-impl<T> From<(T, T, T, T)> for Vector4d<T>
+impl<T> From<(T, T, T, T)> for Vector4<T>
 where
     T: Copy,
 {
@@ -1005,7 +1005,7 @@ where
 
 // **** From Array ****
 
-impl<T> From<[T; 4]> for Vector4d<T>
+impl<T> From<[T; 4]> for Vector4<T>
 where
     T: Copy,
 {
@@ -1024,7 +1024,7 @@ where
     }
 }
 
-impl<T> From<Vector4d<T>> for [T; 4] {
+impl<T> From<Vector4<T>> for [T; 4] {
     /// Array from vector.
     /// ```
     /// # use vqm::Vector4df32;
@@ -1037,27 +1037,27 @@ impl<T> From<Vector4d<T>> for [T; 4] {
     /// assert_eq!(b, [2.0, 5.0, 11.0, 17.0]);
     /// ```
     #[inline]
-    fn from(v: Vector4d<T>) -> Self {
+    fn from(v: Vector4<T>) -> Self {
         [v.x, v.y, v.z, v.t]
     }
 }
 
-impl From<[i16; 4]> for Vector4d<f32> {
+impl From<[i16; 4]> for Vector4<f32> {
     #[inline]
     fn from(v: [i16; 4]) -> Self {
         Self { x: f32::from(v[0]), y: f32::from(v[1]), z: f32::from(v[2]), t: f32::from(v[3]) }
     }
 }
 
-impl From<Vector4d<f32>> for [i16; 4] {
+impl From<Vector4<f32>> for [i16; 4] {
     #[inline]
-    fn from(v: Vector4d<f32>) -> Self {
+    fn from(v: Vector4<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         [v.x as i16, v.y as i16, v.z as i16, v.t as i16]
     }
 }
 
-impl From<[i32; 4]> for Vector4d<f32> {
+impl From<[i32; 4]> for Vector4<f32> {
     #[inline]
     fn from(v: [i32; 4]) -> Self {
         #[allow(clippy::cast_precision_loss)]
@@ -1065,9 +1065,9 @@ impl From<[i32; 4]> for Vector4d<f32> {
     }
 }
 
-impl From<Vector4d<f32>> for [i32; 4] {
+impl From<Vector4<f32>> for [i32; 4] {
     #[inline]
-    fn from(v: Vector4d<f32>) -> Self {
+    fn from(v: Vector4<f32>) -> Self {
         #[allow(clippy::cast_possible_truncation)]
         [v.x as i32, v.y as i32, v.z as i32, v.t as i32]
     }
@@ -1075,7 +1075,7 @@ impl From<Vector4d<f32>> for [i32; 4] {
 
 // **** From Vector ****
 
-impl<T> From<Vector2d<T>> for Vector4d<T>
+impl<T> From<Vector2<T>> for Vector4<T>
 where
     T: Copy + Zero,
 {
@@ -1089,12 +1089,12 @@ where
     /// assert_eq!(w, Vector4df32 { x: 3.0, y: 7.0, z: 0.0, t: 0.0 });
     /// ```
     #[inline]
-    fn from(other: Vector2d<T>) -> Self {
+    fn from(other: Vector2<T>) -> Self {
         Self { x: other.x, y: other.y, z: T::zero(), t: T::zero() }
     }
 }
 
-impl<T> From<Vector3d<T>> for Vector4d<T>
+impl<T> From<Vector3<T>> for Vector4<T>
 where
     T: Copy + Zero,
 {
@@ -1108,7 +1108,7 @@ where
     /// assert_eq!(w, Vector4df32 { x: 3.0, y: 7.0, z: 13.0, t: 0.0 });
     /// ```
     #[inline]
-    fn from(other: Vector3d<T>) -> Self {
+    fn from(other: Vector3<T>) -> Self {
         Self { x: other.x, y: other.y, z: other.z, t: T::zero() }
     }
 }

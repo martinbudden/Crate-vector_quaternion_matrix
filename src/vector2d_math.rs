@@ -8,17 +8,17 @@ cfg_if! {
     }
 }
 
-const _: () = assert!(size_of::<Vector2d<f32>>() == 8);
-const _: () = assert!(align_of::<Vector2d<f32>>() == 8);
+const _: () = assert!(size_of::<Vector2<f32>>() == 8);
+const _: () = assert!(align_of::<Vector2<f32>>() == 8);
 
-use crate::Vector2d;
+use crate::Vector2;
 
 // **** From ****
 
 #[cfg(feature = "simd")]
-impl From<Vector2d<f32>> for f32x2 {
+impl From<Vector2<f32>> for f32x2 {
     #[inline(always)]
-    fn from(v: Vector2d<f32>) -> Self {
+    fn from(v: Vector2<f32>) -> Self {
         // SAFETY: assert f32x2 and Vector2d<f32> have same size and alignment
         const _: () = assert!(size_of::<f32x2>() == size_of::<Vector2d<f32>>());
         const _: () = assert!(size_of::<f32x2>() == align_of::<Vector2d<f32>>());
@@ -27,7 +27,7 @@ impl From<Vector2d<f32>> for f32x2 {
 }
 
 #[cfg(feature = "simd")]
-impl From<f32x2> for Vector2d<f32> {
+impl From<f32x2> for Vector2<f32> {
     #[inline(always)]
     fn from(simd: f32x2) -> Self {
         // SAFETY: assert f32x2 and Vector2d<f32> have same size and alignment
@@ -41,26 +41,26 @@ impl From<f32x2> for Vector2d<f32> {
 
 /// Math functions for Vector2d, using **SIMD** accelerations for `f32`.<br>
 pub trait Vector2dMath: Sized {
-    fn v2_neg(this: Vector2d<Self>) -> Vector2d<Self>;
-    fn v2_add(this: Vector2d<Self>, this: Vector2d<Self>) -> Vector2d<Self>;
-    fn v2_mul_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self>;
-    fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self>;
-    fn v2_mul_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self>;
-    fn v2_div_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self>;
-    fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self>;
-    fn v2_norm_squared(this: Vector2d<Self>) -> Self;
-    fn v2_is_normalized(this: Vector2d<Self>) -> bool;
-    fn v2_max(this: Vector2d<Self>) -> Self;
-    fn v2_min(this: Vector2d<Self>) -> Self;
-    fn v2_dot(this: Vector2d<Self>, other: Vector2d<Self>) -> Self;
-    fn v2_cross(this: Vector2d<Self>, other: Vector2d<Self>) -> Self;
+    fn v2_neg(this: Vector2<Self>) -> Vector2<Self>;
+    fn v2_add(this: Vector2<Self>, this: Vector2<Self>) -> Vector2<Self>;
+    fn v2_mul_scalar(this: Vector2<Self>, k: Self) -> Vector2<Self>;
+    fn v2_div_scalar(this: Vector2<Self>, k: Self) -> Vector2<Self>;
+    fn v2_mul_elementwise(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self>;
+    fn v2_div_elementwise(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self>;
+    fn v2_mul_add(this: Vector2<Self>, k: Self, other: Vector2<Self>) -> Vector2<Self>;
+    fn v2_norm_squared(this: Vector2<Self>) -> Self;
+    fn v2_is_normalized(this: Vector2<Self>) -> bool;
+    fn v2_max(this: Vector2<Self>) -> Self;
+    fn v2_min(this: Vector2<Self>) -> Self;
+    fn v2_dot(this: Vector2<Self>, other: Vector2<Self>) -> Self;
+    fn v2_cross(this: Vector2<Self>, other: Vector2<Self>) -> Self;
 }
 
 // **** SIMD-accelerated implementation for f32 ****
 
 impl Vector2dMath for f32 {
     #[inline(always)]
-    fn v2_neg(this: Vector2d<Self>) -> Vector2d<Self> {
+    fn v2_neg(this: Vector2<Self>) -> Vector2<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -69,12 +69,12 @@ impl Vector2dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: -this.x, y: -this.y }
+            Vector2 { x: -this.x, y: -this.y }
         }
     }
 
     #[inline(always)]
-    fn v2_add(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
+    fn v2_add(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -84,12 +84,12 @@ impl Vector2dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: this.x + other.x, y: this.y + other.y }
+            Vector2 { x: this.x + other.x, y: this.y + other.y }
         }
     }
 
     #[inline(always)]
-    fn v2_mul_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
+    fn v2_mul_scalar(this: Vector2<Self>, k: Self) -> Vector2<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -99,17 +99,17 @@ impl Vector2dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: this.x * k, y: this.y * k }
+            Vector2 { x: this.x * k, y: this.y * k }
         }
     }
 
     #[inline(always)]
-    fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
+    fn v2_div_scalar(this: Vector2<Self>, k: Self) -> Vector2<Self> {
         Self::v2_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v2_mul_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
+    fn v2_mul_elementwise(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -118,12 +118,12 @@ impl Vector2dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: this.x * other.x, y: this.y * other.y }
+            Vector2 { x: this.x * other.x, y: this.y * other.y }
         }
     }
 
     #[inline(always)]
-    fn v2_div_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
+    fn v2_div_elementwise(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -132,12 +132,12 @@ impl Vector2dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: this.x / other.x, y: this.y / other.y }
+            Vector2 { x: this.x / other.x, y: this.y / other.y }
         }
     }
 
     #[inline(always)]
-    fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self> {
+    fn v2_mul_add(this: Vector2<Self>, k: Self, other: Vector2<Self>) -> Vector2<Self> {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -149,12 +149,12 @@ impl Vector2dMath for f32 {
         }
         #[cfg(not(feature = "simd"))]
         {
-            Vector2d { x: this.x * k + other.x, y: this.y * k + other.y }
+            Vector2 { x: this.x * k + other.x, y: this.y * k + other.y }
         }
     }
 
     #[inline(always)]
-    fn v2_norm_squared(this: Vector2d<Self>) -> Self {
+    fn v2_norm_squared(this: Vector2<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -168,13 +168,13 @@ impl Vector2dMath for f32 {
     }
 
     #[inline(always)]
-    fn v2_is_normalized(this: Vector2d<Self>) -> bool {
+    fn v2_is_normalized(this: Vector2<Self>) -> bool {
         let norm_squared = Self::v2_norm_squared(this);
         (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
-    fn v2_max(this: Vector2d<Self>) -> Self {
+    fn v2_max(this: Vector2<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -187,7 +187,7 @@ impl Vector2dMath for f32 {
     }
 
     #[inline(always)]
-    fn v2_min(this: Vector2d<Self>) -> Self {
+    fn v2_min(this: Vector2<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -201,7 +201,7 @@ impl Vector2dMath for f32 {
 
     // **** dot ****
     #[inline(always)]
-    fn v2_dot(this: Vector2d<Self>, other: Vector2d<Self>) -> Self {
+    fn v2_dot(this: Vector2<Self>, other: Vector2<Self>) -> Self {
         #[cfg(feature = "simd")]
         {
             let this_simd = f32x2::from(this);
@@ -216,7 +216,7 @@ impl Vector2dMath for f32 {
     }
 
     #[inline(always)]
-    fn v2_cross(this: Vector2d<Self>, other: Vector2d<Self>) -> Self {
+    fn v2_cross(this: Vector2<Self>, other: Vector2<Self>) -> Self {
         this.x * other.y - this.y * other.x
     }
 }
@@ -225,68 +225,68 @@ impl Vector2dMath for f32 {
 
 impl Vector2dMath for f64 {
     #[inline(always)]
-    fn v2_neg(this: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: -this.x, y: -this.y }
+    fn v2_neg(this: Vector2<Self>) -> Vector2<Self> {
+        Vector2 { x: -this.x, y: -this.y }
     }
 
     #[inline(always)]
-    fn v2_add(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x + other.x, y: this.y + other.y }
+    fn v2_add(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self> {
+        Vector2 { x: this.x + other.x, y: this.y + other.y }
     }
 
     #[inline(always)]
-    fn v2_mul_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
-        Vector2d { x: this.x * k, y: this.y * k }
+    fn v2_mul_scalar(this: Vector2<Self>, k: Self) -> Vector2<Self> {
+        Vector2 { x: this.x * k, y: this.y * k }
     }
 
     #[inline(always)]
-    fn v2_div_scalar(this: Vector2d<Self>, k: Self) -> Vector2d<Self> {
+    fn v2_div_scalar(this: Vector2<Self>, k: Self) -> Vector2<Self> {
         Self::v2_mul_scalar(this, 1.0 / k)
     }
 
     #[inline(always)]
-    fn v2_mul_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x * other.x, y: this.y * other.y }
+    fn v2_mul_elementwise(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self> {
+        Vector2 { x: this.x * other.x, y: this.y * other.y }
     }
 
     #[inline(always)]
-    fn v2_div_elementwise(this: Vector2d<Self>, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x / other.x, y: this.y / other.y }
+    fn v2_div_elementwise(this: Vector2<Self>, other: Vector2<Self>) -> Vector2<Self> {
+        Vector2 { x: this.x / other.x, y: this.y / other.y }
     }
 
     #[inline(always)]
-    fn v2_mul_add(this: Vector2d<Self>, k: Self, other: Vector2d<Self>) -> Vector2d<Self> {
-        Vector2d { x: this.x * k + other.x, y: this.y * k + other.y }
+    fn v2_mul_add(this: Vector2<Self>, k: Self, other: Vector2<Self>) -> Vector2<Self> {
+        Vector2 { x: this.x * k + other.x, y: this.y * k + other.y }
     }
 
     #[inline(always)]
-    fn v2_norm_squared(this: Vector2d<Self>) -> Self {
+    fn v2_norm_squared(this: Vector2<Self>) -> Self {
         this.x * this.x + this.y * this.y
     }
 
     #[inline(always)]
-    fn v2_is_normalized(q: Vector2d<Self>) -> bool {
+    fn v2_is_normalized(q: Vector2<Self>) -> bool {
         let norm_squared = Self::v2_norm_squared(q);
         (norm_squared - 1.0).abs() < 4e-6
     }
 
     #[inline(always)]
-    fn v2_max(this: Vector2d<Self>) -> Self {
+    fn v2_max(this: Vector2<Self>) -> Self {
         if this.x > this.y { this.x } else { this.y }
     }
 
     #[inline(always)]
-    fn v2_min(this: Vector2d<Self>) -> Self {
+    fn v2_min(this: Vector2<Self>) -> Self {
         if this.x < this.y { this.x } else { this.y }
     }
 
     #[inline(always)]
-    fn v2_dot(this: Vector2d<Self>, other: Vector2d<Self>) -> Self {
+    fn v2_dot(this: Vector2<Self>, other: Vector2<Self>) -> Self {
         this.x * other.x + this.y * other.y
     }
 
     #[inline(always)]
-    fn v2_cross(this: Vector2d<Self>, other: Vector2d<Self>) -> Self {
+    fn v2_cross(this: Vector2<Self>, other: Vector2<Self>) -> Self {
         this.x * other.y - this.y * other.x
     }
 }
