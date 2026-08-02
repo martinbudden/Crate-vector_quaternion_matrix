@@ -19,9 +19,9 @@ use crate::Vector4;
 impl From<Vector4<f32>> for f32x4 {
     #[inline(always)]
     fn from(this: Vector4<f32>) -> Self {
-        // SAFETY: assert f32x4 and Vector4d<f32> have same size and alignment
-        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector4d<f32>>());
-        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector4d<f32>>());
+        // SAFETY: assert f32x4 and Vector4<f32> have same size and alignment
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector4<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector4<f32>>());
         // The 'filler' 4th float in the SIMD lane will be whatever was in the padding (usually 0.0 if set by Default).
         unsafe { transmute(this) }
     }
@@ -31,17 +31,17 @@ impl From<Vector4<f32>> for f32x4 {
 impl From<f32x4> for Vector4<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
-        // SAFETY: assert f32x4 and Vector4d<f32> have same size and alignment
-        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector4d<f32>>());
-        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector4d<f32>>());
+        // SAFETY: assert f32x4 and Vector4<f32> have same size and alignment
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector4<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector4<f32>>());
         unsafe { transmute(simd) }
     }
 }
 
 // **** Math ****
 
-/// Math functions for Vector4d, using **SIMD** accelerations for `f32`.<br><br>
-pub trait Vector4dMath: Sized {
+/// Math functions for Vector4, using **SIMD** accelerations for `f32`.<br><br>
+pub trait Vector4Math: Sized {
     fn v4_neg(this: Vector4<Self>) -> Vector4<Self>;
     fn v4_add(this: Vector4<Self>, this: Vector4<Self>) -> Vector4<Self>;
     fn v4_mul_scalar(this: Vector4<Self>, k: Self) -> Vector4<Self>;
@@ -58,7 +58,7 @@ pub trait Vector4dMath: Sized {
 
 // **** SIMD-accelerated implementation for f32 ****
 
-impl Vector4dMath for f32 {
+impl Vector4Math for f32 {
     #[inline(always)]
     fn v4_neg(this: Vector4<Self>) -> Vector4<Self> {
         #[cfg(feature = "simd")]
@@ -244,7 +244,7 @@ impl Vector4dMath for f32 {
 
 // **** f64 ****
 
-impl Vector4dMath for f64 {
+impl Vector4Math for f64 {
     #[inline(always)]
     fn v4_neg(this: Vector4<Self>) -> Vector4<Self> {
         Vector4 { x: -this.x, y: -this.y, z: -this.z, t: -this.t }

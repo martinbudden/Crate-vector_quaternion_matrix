@@ -944,7 +944,7 @@ impl<T> Matrix9x9<T>
 where
     T: Copy,
 {
-    /// Returns a row as a Vector3d 3-tuple.
+    /// Returns a row as a Vector3 3-tuple.
     #[inline]
     pub fn row_tuple3d(&self, row_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
         let r = row_index;
@@ -955,7 +955,7 @@ where
         )
     }
 
-    /// Returns a column as a Vector3d 3-tuple.
+    /// Returns a column as a Vector3 3-tuple.
     #[inline]
     pub fn column_tuple3d(&self, col_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
         let offset = col_index * 9;

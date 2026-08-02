@@ -89,9 +89,9 @@ where
 
     /// Matrix from array of row vectors.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
-    /// let m = Matrix2x2f32::from_rows([ Vector2df32::new(2.0, 17.0),
-    ///                                   Vector2df32::new(5.0, 11.0) ]);
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
+    /// let m = Matrix2x2f32::from_rows([ Vector2f32::new(2.0, 17.0),
+    ///                                   Vector2f32::new(5.0, 11.0) ]);
     /// assert_eq!(m, Matrix2x2f32::new([  2.0, 17.0,
     ///                                    5.0, 11.0 ]));
     /// ```
@@ -107,9 +107,9 @@ where
 
     /// Matrix from array of column vectors.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
-    /// let m = Matrix2x2f32::from_columns([ Vector2df32::new(2.0, 17.0),
-    ///                                      Vector2df32::new(5.0, 11.0) ]);
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
+    /// let m = Matrix2x2f32::from_columns([ Vector2f32::new(2.0, 17.0),
+    ///                                      Vector2f32::new(5.0, 11.0) ]);
     /// assert_eq!(m, Matrix2x2f32::new([  2.0,   5.0,
     ///                                   17.0,  11.0 ]));
     /// ```
@@ -280,8 +280,8 @@ where
     }
     /// Create a matrix with the diagonal set to a vector.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
-    /// let m = Matrix2x2f32::from_diagonal_vector(Vector2df32::new(2.0, 3.0));
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
+    /// let m = Matrix2x2f32::from_diagonal_vector(Vector2f32::new(2.0, 3.0));
     /// assert_eq!(m, Matrix2x2f32::new([ 2.0, 0.0,
     ///                                   0.0, 3.0]));
     /// ```
@@ -725,13 +725,13 @@ where
     /// Multiply a vector by a matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// # use vqm::Vector2df32;
+    /// # use vqm::Vector2f32;
     /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
     ///                                  5.0, 11.0]);
-    /// let v = Vector2df32{x:3.0, y:7.0};
+    /// let v = Vector2f32{x:3.0, y:7.0};
     /// let r = m * v;
     ///
-    /// assert_eq!(r, Vector2df32{x:2.0*3.0 + 17.0*7.0, y:5.0*3.0 + 11.0*7.0});
+    /// assert_eq!(r, Vector2f32{x:2.0*3.0 + 17.0*7.0, y:5.0*3.0 + 11.0*7.0});
     /// ```
     #[inline]
     fn mul(self, other: Vector2<T>) -> Vector2<T> {
@@ -749,13 +749,13 @@ where
     /// Pre-multiply a vector by a matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// # use vqm::Vector2df32;
+    /// # use vqm::Vector2f32;
     /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
     ///                                  5.0, 11.0]);
-    /// let v = Vector2df32{x:3.0, y:7.0};
+    /// let v = Vector2f32{x:3.0, y:7.0};
     /// let r = v * m;
     ///
-    /// assert_eq!(r, Vector2df32{x:3.0*2.0 + 7.0*5.0, y:3.0*17.0 + 7.0*11.0});
+    /// assert_eq!(r, Vector2f32{x:3.0*2.0 + 7.0*5.0, y:3.0*17.0 + 7.0*11.0});
     /// ```
     #[inline]
     fn mul(self, other: Matrix2x2<T>) -> Self {
@@ -830,9 +830,9 @@ where
     /// Calculates the outer product of a column vector and a row vector to give a matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// # use vqm::Vector2df32;
-    /// let row = Vector2df32{x:2.0, y:5.0};
-    /// let col = Vector2df32{x:3.0, y:7.0};
+    /// # use vqm::Vector2f32;
+    /// let row = Vector2f32{x:2.0, y:5.0};
+    /// let col = Vector2f32{x:3.0, y:7.0};
     /// let m = Matrix2x2f32::outer_product(col, row);
     /// assert_eq!(m, Matrix2x2f32::new([ 6.0,  15.0,
     ///                                  14.0,  35.0]));
@@ -850,9 +850,9 @@ where
     /// Calculates the outer product with another vector to give a matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// # use vqm::Vector2df32;
-    /// let row = Vector2df32{x:2.0, y:5.0};
-    /// let col = Vector2df32{x:3.0, y:7.0};
+    /// # use vqm::Vector2f32;
+    /// let row = Vector2f32{x:2.0, y:5.0};
+    /// let col = Vector2f32{x:3.0, y:7.0};
     /// let m = col.outer_product(row);
     /// assert_eq!(m, Matrix2x2f32::new([ 6.0,  15.0,
     ///                                  14.0,  35.0]));
@@ -1106,11 +1106,11 @@ where
 {
     /// Set matrix row from a vector.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
     /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
     ///                                  5.0, 11.0]);
-    /// m.set_row(1, Vector2df32::new(7.0, 13.0));
-    /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.row(1));
+    /// m.set_row(1, Vector2f32::new(7.0, 13.0));
+    /// assert_eq!(Vector2f32{ x: 7.0, y: 13.0 }, m.row(1));
     /// ```
     pub fn set_row(&mut self, row: usize, value: Vector2<T>) {
         if row == 0 {
@@ -1124,13 +1124,13 @@ where
 
     /// Return matrix row as a vector.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
     ///                              5.0, 11.0]);
     /// let v = m.row(0);
     ///
-    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 17.0 });
-    /// assert_eq!(m.row(1), Vector2df32{ x: 5.0, y: 11.0 });
+    /// assert_eq!(v, Vector2f32{ x: 2.0, y: 17.0 });
+    /// assert_eq!(m.row(1), Vector2f32{ x: 5.0, y: 11.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector2<T> {
         let r = row.min(1);
@@ -1140,11 +1140,11 @@ where
 
     /// Set matrix column from a vector.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
     /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
     ///                                  5.0, 11.0]);
-    /// m.set_column(1, Vector2df32::new(7.0, 13.0));
-    /// assert_eq!(Vector2df32{ x: 7.0, y: 13.0 }, m.column(1));
+    /// m.set_column(1, Vector2f32::new(7.0, 13.0));
+    /// assert_eq!(Vector2f32{ x: 7.0, y: 13.0 }, m.column(1));
     /// ```
     pub fn set_column(&mut self, column: usize, value: Vector2<T>) {
         if column >= 2 {
@@ -1160,13 +1160,13 @@ where
 
     /// Return matrix column as a vector.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
     ///                              5.0, 11.0]);
     /// let v = m.column(0);
     ///
-    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 5.0 });
-    /// assert_eq!(m.column(1), Vector2df32{ x: 17.0, y: 11.0 });
+    /// assert_eq!(v, Vector2f32{ x: 2.0, y: 5.0 });
+    /// assert_eq!(m.column(1), Vector2f32{ x: 17.0, y: 11.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector2<T> {
         // Branchless clamp: restricts c to 0..=1
@@ -1191,12 +1191,12 @@ where
 
     /// Return matrix diagonal as a vector.
     /// ```
-    /// # use vqm::{Matrix2x2f32,Vector2df32};
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
     ///                              5.0, 11.0]);
     /// let v = m.diagonal_as_vector();
     ///
-    /// assert_eq!(v, Vector2df32{ x: 2.0, y: 11.0 });
+    /// assert_eq!(v, Vector2f32{ x: 2.0, y: 11.0 });
     /// ```
     pub fn diagonal_as_vector(self) -> Vector2<T> {
         Vector2 { x: self.a[Self::M11], y: self.a[Self::M22] }

@@ -5,11 +5,11 @@ use criterion::{BatchSize, Criterion, Throughput, criterion_group, criterion_mai
 use rand::{RngExt, rng};
 use std::hint::black_box;
 
-use vqm::{Quaternionf32, Vector3df32};
+use vqm::{Quaternionf32, Vector3f32};
 
 // see target/criterion/Matrix%20Math/report/index.html for results
 
-// # Replace 'v3d_bench' with the name defined in your Cargo.toml [[bench]] section
+// # Replace 'v3_bench' with the name defined in your Cargo.toml [[bench]] section
 // RUSTFLAGS="-C target-cpu=native" cargo asm --bench vq_bench "mul_add"
 
 #[allow(clippy::too_many_lines)]
@@ -18,14 +18,14 @@ fn bench_vq(c: &mut Criterion) {
 
     _ = group.throughput(Throughput::Elements(1));
 
-    _ = group.bench_function("v3d_add", |b| {
+    _ = group.bench_function("v3_add", |b| {
         b.iter_batched(
             || {
                 // Setup: Generate two random vectors
                 let a1: [f32; 3] = rng().random();
                 let a2: [f32; 3] = rng().random();
-                let v1 = Vector3df32::from(a1);
-                let v2 = Vector3df32::from(a2);
+                let v1 = Vector3f32::from(a1);
+                let v2 = Vector3f32::from(a2);
                 (v1, v2)
             },
             |(v1, v2)| black_box(v1) + black_box(v2),
@@ -33,12 +33,12 @@ fn bench_vq(c: &mut Criterion) {
         );
     });
 
-    _ = group.bench_function("v3d_mul_k", |b| {
+    _ = group.bench_function("v3_mul_k", |b| {
         b.iter_batched(
             || {
                 // Setup: Generate two random vectors
                 let a: [f32; 3] = rng().random();
-                let v = Vector3df32::from(a);
+                let v = Vector3f32::from(a);
                 let k: f32 = rng().random();
                 (v, k)
             },
@@ -47,14 +47,14 @@ fn bench_vq(c: &mut Criterion) {
         );
     });
 
-    _ = group.bench_function("v3d_mul_add_*_+", |b| {
+    _ = group.bench_function("v3_mul_add_*_+", |b| {
         b.iter_batched(
             || {
                 // Setup: Generate two random vectors
                 let a1: [f32; 3] = rng().random();
                 let a2: [f32; 3] = rng().random();
-                let v1 = Vector3df32::from(a1);
-                let v2 = Vector3df32::from(a2);
+                let v1 = Vector3f32::from(a1);
+                let v2 = Vector3f32::from(a2);
                 let k: f32 = rng().random();
                 (v1, v2, k)
             },
@@ -63,14 +63,14 @@ fn bench_vq(c: &mut Criterion) {
         );
     });
 
-    _ = group.bench_function("v3d_mul_add", |b| {
+    _ = group.bench_function("v3_mul_add", |b| {
         b.iter_batched(
             || {
                 // Setup: Generate two random vectors
                 let a1: [f32; 3] = rng().random();
                 let a2: [f32; 3] = rng().random();
-                let v1 = Vector3df32::from(a1);
-                let v2 = Vector3df32::from(a2);
+                let v1 = Vector3f32::from(a1);
+                let v2 = Vector3f32::from(a2);
                 let k: f32 = rng().random();
                 (v1, v2, k)
             },
@@ -83,23 +83,23 @@ fn bench_vq(c: &mut Criterion) {
         );
     });
 
-    _ = group.bench_function("v3d normalize", |b| {
+    _ = group.bench_function("v3 normalize", |b| {
         b.iter_batched(
             || {
                 let a: [f32; 3] = rng().random();
-                Vector3df32::from(a)
+                Vector3f32::from(a)
             },
             |v| black_box(v).normalize(),
             BatchSize::SmallInput,
         );
     });
 
-    _ = group.bench_function("v3d normalize_u", |b| {
+    _ = group.bench_function("v3 normalize_u", |b| {
         b.iter_batched(
             || {
                 loop {
                     let a: [f32; 3] = rng().random();
-                    let v = Vector3df32::from(a);
+                    let v = Vector3f32::from(a);
                     // ensure that v is normalizable.
                     if v.norm_squared() > 4.0 * f32::EPSILON {
                         break v;

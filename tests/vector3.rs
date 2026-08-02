@@ -1,18 +1,18 @@
 use cfg_if::cfg_if;
-use vqm::{Vector3, Vector3df32, Vector3df64};
+use vqm::{Vector3, Vector3f32, Vector3f64};
 
 // **** Align ****
 cfg_if! {
     if #[cfg(feature = "align")] {
-        const _: () = assert!(size_of::<Vector3df32>() == 16);
-        const _: () = assert!(align_of::<Vector3df32>() == 16);
-        const _: () = assert!(size_of::<Vector3df64>() == 32);
-        const _: () = assert!(align_of::<Vector3df64>() == 16);
+        const _: () = assert!(size_of::<Vector3f32>() == 16);
+        const _: () = assert!(align_of::<Vector3f32>() == 16);
+        const _: () = assert!(size_of::<Vector3f64>() == 32);
+        const _: () = assert!(align_of::<Vector3f64>() == 16);
     } else {
-        const _: () = assert!(size_of::<Vector3df32>() == 12);
-        const _: () = assert!(align_of::<Vector3df32>() == 4);
-        const _: () = assert!(size_of::<Vector3df64>() == 24);
-        const _: () = assert!(align_of::<Vector3df64>() == 8);
+        const _: () = assert!(size_of::<Vector3f32>() == 12);
+        const _: () = assert!(align_of::<Vector3f32>() == 4);
+        const _: () = assert!(size_of::<Vector3f64>() == 24);
+        const _: () = assert!(align_of::<Vector3f64>() == 8);
     }
 }
 
@@ -21,7 +21,7 @@ mod tests {
     use super::*;
     use approx::assert_abs_diff_eq;
     use core::mem::{align_of, size_of};
-    use vqm::{Quaternionf32, Vector3df32};
+    use vqm::{Quaternionf32, Vector3f32};
     #[cfg(feature = "serde")]
     use {
         sequential_storage::map::PostcardValue,
@@ -41,13 +41,13 @@ mod tests {
     }
     #[test]
     fn default() {
-        let a: Vector3df32 = Vector3::default();
+        let a: Vector3f32 = Vector3::default();
         assert_eq!(a, Vector3 { x: 0.0, y: 0.0, z: 0.0 });
     }
     #[test]
     fn zero() {
         use num_traits::zero;
-        let _z: Vector3df32 = zero();
+        let _z: Vector3f32 = zero();
         //assert_eq!(a, z);
         //assert!(z.is_zero());
     }
@@ -56,15 +56,15 @@ mod tests {
         // A 3-axis f32 vector is 12 bytes.
         // With align(16), the compiler pads it to 16 bytes.
         #[cfg(feature = "align")]
-        assert_eq!(size_of::<Vector3df32>(), 16);
+        assert_eq!(size_of::<Vector3f32>(), 16);
         #[cfg(not(feature = "align"))]
-        assert_eq!(size_of::<Vector3df32>(), 12);
+        assert_eq!(size_of::<Vector3f32>(), 12);
 
         // This ensures the start of every vector is on a 16-byte boundary
         #[cfg(feature = "align")]
-        assert_eq!(align_of::<Vector3df32>(), 16);
+        assert_eq!(align_of::<Vector3f32>(), 16);
         #[cfg(not(feature = "align"))]
-        assert_eq!(align_of::<Vector3df32>(), 4);
+        assert_eq!(align_of::<Vector3f32>(), 4);
     }
     #[test]
     fn neg_owned() {
@@ -76,7 +76,7 @@ mod tests {
     }
     #[test]
     fn neg() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(-a, Vector3 { x: -2.0, y: -3.0, z: -5.0 });
 
         let b = -a;
@@ -84,13 +84,13 @@ mod tests {
     }
     #[test]
     fn add() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = Vector3 { x: 7.0, y: 11.0, z: 13.0 };
         assert_eq!(a + b, Vector3 { x: 9.0, y: 14.0, z: 18.0 });
     }
     #[test]
     fn add_assign() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = Vector3 { x: 7.0, y: 11.0, z: 13.0 };
         let mut c = a;
         c += b;
@@ -98,14 +98,14 @@ mod tests {
     }
     #[test]
     fn sub() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = Vector3 { x: 7.0, y: 11.0, z: 17.0 };
         let c = a - b;
         assert_eq!(c, Vector3 { x: -5.0, y: -8.0, z: -12.0 });
     }
     #[test]
     fn sub_assign() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = Vector3 { x: 7.0, y: 11.0, z: 17.0 };
         let mut c = a;
         c -= b;
@@ -113,25 +113,25 @@ mod tests {
     }
     #[test]
     fn mul() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a * 2.0, Vector3 { x: 4.0, y: 6.0, z: 10.0 });
         assert_eq!(2.0 * a, Vector3 { x: 4.0, y: 6.0, z: 10.0 });
     }
     #[test]
     fn mul_assign() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
         b *= 2.0;
         assert_eq!(b, Vector3 { x: 4.0, y: 6.0, z: 10.0 });
     }
     #[test]
     fn div() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a / 2.0, Vector3 { x: 1.0, y: 1.5, z: 2.5 });
     }
     #[test]
     fn div_assign() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let mut b = a;
         b /= 2.0;
         assert_eq!(b, Vector3 { x: 1.0, y: 1.5, z: 2.5 });
@@ -144,16 +144,16 @@ mod tests {
         assert_eq!(a, b);
 
         use num_traits::zero;
-        let _z: Vector3df32 = zero();
+        let _z: Vector3f32 = zero();
         //assert!(z.is_zero());
 
-        let c: Vector3df32 = (2.0, 3.0, 5.0).into();
+        let c: Vector3f32 = (2.0, 3.0, 5.0).into();
         assert_eq!(a, c);
         let d = Vector3::from((2.0, 3.0, 5.0));
         assert_eq!(a, d);
-        let e: Vector3df32 = [2.0, 3.0, 5.0].into();
+        let e: Vector3f32 = [2.0, 3.0, 5.0].into();
         assert_eq!(a, e);
-        let f = Vector3df32::from([2.0, 3.0, 5.0]);
+        let f = Vector3f32::from([2.0, 3.0, 5.0]);
         assert_eq!(a, f);
 
         let h = <[f32; 3]>::from(a);
@@ -163,19 +163,19 @@ mod tests {
     }
     #[test]
     fn norm_squared() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.norm_squared(), 38.0);
     }
     #[test]
     fn norm() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.norm(), 38.0_f32.sqrt());
-        let z = Vector3df32 { x: 0.0, y: 0.0, z: 0.0 };
+        let z = Vector3f32 { x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.norm(), 0.0);
     }
     #[test]
     fn normalized_unchecked() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = a / 38.0_f32.sqrt();
         let n = a.normalize_unchecked();
         assert_abs_diff_eq!(n.x, b.x, epsilon = 1e-7);
@@ -187,12 +187,12 @@ mod tests {
     }
     #[test]
     fn abs() {
-        let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
+        let a = Vector3f32 { x: -2.0, y: -3.0, z: -5.0 };
         assert_eq!(a.abs(), Vector3 { x: 2.0, y: 3.0, z: 5.0 });
     }
     #[test]
     fn abs_in_place() {
-        let a = Vector3df32 { x: -2.0, y: -3.0, z: -5.0 };
+        let a = Vector3f32 { x: -2.0, y: -3.0, z: -5.0 };
         let mut b = a;
         b.abs_in_place();
         assert_eq!(b, a.abs());
@@ -213,7 +213,7 @@ mod tests {
     fn degrees_radians() {
         use approx::assert_abs_diff_eq;
         use vqm::MathConstants;
-        let a = Vector3df32 { x: f32::FRAC_PI_2, y: f32::FRAC_PI_4, z: f32::FRAC_PI_6 };
+        let a = Vector3f32 { x: f32::FRAC_PI_2, y: f32::FRAC_PI_4, z: f32::FRAC_PI_6 };
         let b = a.to_degrees();
         assert!((b.z - 30.0).abs() < 2e-6);
         assert_abs_diff_eq!(90.0, b.x, epsilon = 1e-7);
@@ -222,41 +222,41 @@ mod tests {
     }
     #[test]
     fn sum() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.sum(), 10.0);
     }
     #[test]
     fn mean() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.mean(), 10.0 / 3.0);
     }
     #[test]
     fn product() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         assert_eq!(a.product(), 30.0);
     }
     #[test]
     fn dot() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
-        let b = Vector3df32 { x: 7.0, y: 11.0, z: 13.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
+        let b = Vector3f32 { x: 7.0, y: 11.0, z: 13.0 };
         assert_eq!(a.dot(a), 38.0);
         assert_eq!(a.dot(b), 112.0);
         assert_eq!(b.dot(a), 112.0);
         assert_eq!(b.dot(b), 339.0);
-        let v1 = Vector3df32::new(1.0, 2.0, 3.0);
-        let v2 = Vector3df32::new(4.0, 5.0, 6.0);
+        let v1 = Vector3f32::new(1.0, 2.0, 3.0);
+        let v2 = Vector3f32::new(4.0, 5.0, 6.0);
         // (1*4) + (2*5) + (3*6) = 4 + 10 + 18 = 32
         assert_eq!(v1.dot(v2), 32.0);
     }
     #[test]
     fn normalize_unchecked() {
-        let a = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+        let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let a_normalized = a.normalize_unchecked();
         let mut b = a;
         b.normalize_unchecked_in_place();
         //b.normalize_unchecked();
         assert_eq!(b, a_normalized);
-        let z = Vector3df32 { x: 0.0, y: 0.0, z: 0.0 };
+        let z = Vector3f32 { x: 0.0, y: 0.0, z: 0.0 };
         let mut y = z;
         y.normalize_in_place();
         assert_eq!(z, y);
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn quaternion_rotation_90_deg() {
-        let v = Vector3df32::new(1.0, 0.0, 0.0);
+        let v = Vector3f32::new(1.0, 0.0, 0.0);
         let half_angle = core::f32::consts::FRAC_PI_4;
         let q = Quaternionf32 { x: 0.0, y: 0.0, z: half_angle.sin(), w: half_angle.cos() };
 
@@ -278,7 +278,7 @@ mod tests {
 
     #[test]
     fn quaternion_rotation_arbitrary() {
-        let v = Vector3df32::new(1.2, -3.4, 5.6);
+        let v = Vector3f32::new(1.2, -3.4, 5.6);
         let q = Quaternionf32 { x: 0.1, y: 0.2, z: 0.3, w: 0.9273618 };
 
         let _result = v.rotate_by(q);
@@ -292,7 +292,7 @@ mod tests {
     fn rotation_round_trip() {
         use approx::assert_abs_diff_eq;
 
-        let original_v = Vector3df32::new(10.5, -2.0, 44.1);
+        let original_v = Vector3f32::new(10.5, -2.0, 44.1);
         let q = Quaternionf32 { x: 0.1, y: 0.2, z: 0.3, w: 0.9273618 };
 
         // Forward to World Frame
@@ -307,8 +307,8 @@ mod tests {
         assert_abs_diff_eq!(body_v.z, original_v.z, epsilon = 1e-5);
     }
     #[test]
-    fn vector3df32_array_i16() {
-        let v = Vector3df32::from([2.1, 3.8, 5.2]);
+    fn vector3f32_array_i16() {
+        let v = Vector3f32::from([2.1, 3.8, 5.2]);
 
         let a = <[i16; 3]>::from(v);
         let b: [i16; 3] = v.into();

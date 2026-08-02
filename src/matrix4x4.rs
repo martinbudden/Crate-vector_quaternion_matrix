@@ -132,11 +132,11 @@ where
 
     /// Matrix from array of row vectors.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
-    /// let m = Matrix4x4f32::from_rows([ Vector4df32::new( 2.0, 17.0, 59.0, 127.0),
-    ///                                   Vector4df32::new( 5.0, 11.0, 47.0, 109.0),
-    ///                                   Vector4df32::new(23.0, 31.0, 41.0, 103.0),
-    ///                                   Vector4df32::new(67.0, 73.0, 83.0,  97.0) ]);
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
+    /// let m = Matrix4x4f32::from_rows([ Vector4f32::new( 2.0, 17.0, 59.0, 127.0),
+    ///                                   Vector4f32::new( 5.0, 11.0, 47.0, 109.0),
+    ///                                   Vector4f32::new(23.0, 31.0, 41.0, 103.0),
+    ///                                   Vector4f32::new(67.0, 73.0, 83.0,  97.0) ]);
     /// assert_eq!(m, Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                                    5.0, 11.0, 47.0, 109.0,
     ///                                   23.0, 31.0, 41.0, 103.0,
@@ -156,11 +156,11 @@ where
 
     /// Matrix from array of column vectors.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
-    /// let m = Matrix4x4f32::from_columns([ Vector4df32::new( 2.0, 17.0, 59.0, 127.0),
-    ///                                      Vector4df32::new( 5.0, 11.0, 47.0, 109.0),
-    ///                                      Vector4df32::new(23.0, 31.0, 41.0, 103.0),
-    ///                                      Vector4df32::new(67.0, 73.0, 83.0,  97.0) ]);
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
+    /// let m = Matrix4x4f32::from_columns([ Vector4f32::new( 2.0, 17.0, 59.0, 127.0),
+    ///                                      Vector4f32::new( 5.0, 11.0, 47.0, 109.0),
+    ///                                      Vector4f32::new(23.0, 31.0, 41.0, 103.0),
+    ///                                      Vector4f32::new(67.0, 73.0, 83.0,  97.0) ]);
     /// assert_eq!(m, Matrix4x4f32::new([  2.0,   5.0,  23.0,  67.0,
     ///                                   17.0,  11.0,  31.0,  73.0,
     ///                                   59.0,  47.0,  41.0,  83.0,
@@ -367,8 +367,8 @@ where
     }
     /// Create a matrix with the diagonal set to a vector.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
-    /// let m = Matrix4x4f32::from_diagonal_vector(Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
+    /// let m = Matrix4x4f32::from_diagonal_vector(Vector4f32::new(2.0, 3.0, 5.0, 7.0));
     /// assert_eq!(m, Matrix4x4f32::new([ 2.0, 0.0, 0.0, 0.0,
     ///                                   0.0, 3.0, 0.0, 0.0,
     ///                                   0.0, 0.0, 5.0, 0.0,
@@ -884,14 +884,14 @@ where
     /// Multiply a vector by a matrix.
     /// ```
     /// # use vqm::Matrix4x4f32;
-    /// # use vqm::Vector4df32;
+    /// # use vqm::Vector4f32;
     /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                              5.0, 11.0, 47.0, 109.0,
     ///                             23.0, 31.0, 41.0, 103.0,
     ///                             67.0, 73.0, 83.0,  97.0]);
-    /// let v = Vector4df32{x:3.0, y:7.0, z:13.0, t:17.0};
+    /// let v = Vector4f32{x:3.0, y:7.0, z:13.0, t:17.0};
     /// let r = m * v;
-    /// /// assert_eq!(r, Vector4df32{x:3051.0, y:2556.0, z:2570.0, t:3440.0});
+    /// /// assert_eq!(r, Vector4f32{x:3051.0, y:2556.0, z:2570.0, t:3440.0});
     /// ```
     #[inline]
     fn mul(self, other: Vector4<T>) -> Vector4<T> {
@@ -908,15 +908,15 @@ where
 
     /// Pre-multiply a vector by a matrix.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
     /// let m = Matrix4x4f32::new([  2.0,   3.0,   5.0,   7.0,
     ///                             11.0,  13.0,  17.0,  19.0,
     ///                             23.0,  29.0,  31.0,  37.0,
     ///                             41.0,  43.0,  47.0,  53.0]);
-    /// let v = Vector4df32{x:3.0, y:7.0,  z:13.0, t:17.0};
+    /// let v = Vector4f32{x:3.0, y:7.0,  z:13.0, t:17.0};
     /// let r = v * m;
     ///
-    /// assert_eq!(r, Vector4df32{x:3.0*2.0 + 7.0*11.0 + 13.0*23.0 + 17.0*41.0,
+    /// assert_eq!(r, Vector4f32{x:3.0*2.0 + 7.0*11.0 + 13.0*23.0 + 17.0*41.0,
     ///                           y:3.0*3.0 + 7.0*13.0 + 13.0*29.0 + 17.0*43.0,
     ///                           z:3.0*5.0 + 7.0*17.0 + 13.0*31.0 + 17.0*47.0,
     ///                           t:3.0*7.0 + 7.0*19.0 + 13.0*37.0 + 17.0*53.0});
@@ -1036,9 +1036,9 @@ where
     /// Calculates the outer product of a column vector and a row vector to give a matrix.
     /// ```
     /// # use vqm::Matrix4x4f32;
-    /// # use vqm::Vector4df32;
-    /// let row = Vector4df32{x:2.0, y:5.0, z:11.0, t:17.0};
-    /// let col = Vector4df32{x:3.0, y:7.0, z:13.0, t:19.0};
+    /// # use vqm::Vector4f32;
+    /// let row = Vector4f32{x:2.0, y:5.0, z:11.0, t:17.0};
+    /// let col = Vector4f32{x:3.0, y:7.0, z:13.0, t:19.0};
     /// let m = Matrix4x4f32::outer_product(col, row);
     /// assert_eq!(m, Matrix4x4f32::new([ 6.0,  15.0,  33.0, 51.0,
     ///                                  14.0,  35.0,  77.0, 119.0,
@@ -1058,9 +1058,9 @@ where
     /// Calculates the outer product with another vector to give a matrix.
     /// ```
     /// # use vqm::Matrix4x4f32;
-    /// # use vqm::Vector4df32;
-    /// let row = Vector4df32{x:2.0, y:5.0, z:11.0, t:17.0};
-    /// let col = Vector4df32{x:3.0, y:7.0, z:13.0, t:19.0};
+    /// # use vqm::Vector4f32;
+    /// let row = Vector4f32{x:2.0, y:5.0, z:11.0, t:17.0};
+    /// let col = Vector4f32{x:3.0, y:7.0, z:13.0, t:19.0};
     /// let m = col.outer_product(row);
     /// assert_eq!(m, Matrix4x4f32::new([ 6.0,  15.0,  33.0,  51.0,
     ///                                  14.0,  35.0,  77.0, 119.0,
@@ -1410,13 +1410,13 @@ where
 {
     /// Set matrix row from a vector.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
     /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                                  5.0, 11.0, 47.0, 109.0,
     ///                                 23.0, 31.0, 41.0, 103.0,
     ///                                 67.0, 73.0, 83.0,  97.0]);
-    /// m.set_row(1, Vector4df32::new(7.0, 13.0, 19.0, 29.0));
-    /// assert_eq!(Vector4df32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.row(1));
+    /// m.set_row(1, Vector4f32::new(7.0, 13.0, 19.0, 29.0));
+    /// assert_eq!(Vector4f32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.row(1));
     /// ```
     pub fn set_row(&mut self, row: usize, value: Vector4<T>) {
         if row >= 4 {
@@ -1430,17 +1430,17 @@ where
 
     /// Return matrix row as a vector.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
     /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                              5.0, 11.0, 47.0, 109.0,
     ///                             23.0, 31.0, 41.0, 103.0,
     ///                             67.0, 73.0, 83.0,  97.0]);
     /// let v = m.row(0);
     ///
-    /// assert_eq!(v, Vector4df32{ x: 2.0, y: 17.0, z: 59.0, t:127.0 });
-    /// assert_eq!(m.row(1), Vector4df32{ x: 5.0, y: 11.0, z: 47.0, t:109.0 });
-    /// assert_eq!(m.row(2), Vector4df32{ x: 23.0, y: 31.0, z: 41.0, t:103.0 });
-    /// assert_eq!(m.row(3), Vector4df32{ x: 67.0, y: 73.0, z: 83.0, t:97.0 });
+    /// assert_eq!(v, Vector4f32{ x: 2.0, y: 17.0, z: 59.0, t:127.0 });
+    /// assert_eq!(m.row(1), Vector4f32{ x: 5.0, y: 11.0, z: 47.0, t:109.0 });
+    /// assert_eq!(m.row(2), Vector4f32{ x: 23.0, y: 31.0, z: 41.0, t:103.0 });
+    /// assert_eq!(m.row(3), Vector4f32{ x: 67.0, y: 73.0, z: 83.0, t:97.0 });
     /// ```
     pub fn row(self, row: usize) -> Vector4<T> {
         let r = row.min(3);
@@ -1457,13 +1457,13 @@ where
 
     /// Set matrix column from a vector.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
     /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                                  5.0, 11.0, 47.0, 109.0,
     ///                                 23.0, 31.0, 41.0, 103.0,
     ///                                 67.0, 73.0, 83.0,  97.0]);
-    /// m.set_column(1, Vector4df32::new(7.0, 13.0, 19.0, 29.0));
-    /// assert_eq!(Vector4df32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.column(1));
+    /// m.set_column(1, Vector4f32::new(7.0, 13.0, 19.0, 29.0));
+    /// assert_eq!(Vector4f32{ x: 7.0, y: 13.0, z: 19.0, t: 29.0 }, m.column(1));
     /// ```
     pub fn set_column(&mut self, column: usize, value: Vector4<T>) {
         if column >= 4 {
@@ -1481,17 +1481,17 @@ where
 
     /// Return matrix column as a vector.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
     /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                              5.0, 11.0, 47.0, 109.0,
     ///                             23.0, 31.0, 41.0, 103.0,
     ///                             67.0, 73.0, 83.0,  97.0]);
     /// let v = m.column(0);
     ///
-    /// assert_eq!(v, Vector4df32{ x: 2.0, y: 5.0, z: 23.0, t: 67.0 });
-    /// assert_eq!(m.column(1), Vector4df32{ x: 17.0, y: 11.0, z: 31.0, t: 73.0 });
-    /// assert_eq!(m.column(2), Vector4df32{ x: 59.0, y: 47.0, z: 41.0, t: 83.0 });
-    /// assert_eq!(m.column(3), Vector4df32{ x: 127.0, y: 109.0, z: 103.0, t: 97.0 });
+    /// assert_eq!(v, Vector4f32{ x: 2.0, y: 5.0, z: 23.0, t: 67.0 });
+    /// assert_eq!(m.column(1), Vector4f32{ x: 17.0, y: 11.0, z: 31.0, t: 73.0 });
+    /// assert_eq!(m.column(2), Vector4f32{ x: 59.0, y: 47.0, z: 41.0, t: 83.0 });
+    /// assert_eq!(m.column(3), Vector4f32{ x: 127.0, y: 109.0, z: 103.0, t: 97.0 });
     /// ```
     pub fn column(self, column: usize) -> Vector4<T> {
         // Branchless clamp: restricts r to 0..=3
@@ -1518,7 +1518,7 @@ where
 
     /// Return matrix diagonal as a vector.
     /// ```
-    /// # use vqm::{Matrix4x4f32,Vector4df32};
+    /// # use vqm::{Matrix4x4f32,Vector4f32};
     ///
     /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                              5.0, 11.0, 47.0, 109.0,
@@ -1526,7 +1526,7 @@ where
     ///                             67.0, 73.0, 83.0,  97.0]);
     /// let v = m.diagonal_as_vector();
     ///
-    /// assert_eq!(v, Vector4df32{ x: 2.0, y: 11.0, z: 41.0, t: 97.0 });
+    /// assert_eq!(v, Vector4f32{ x: 2.0, y: 11.0, z: 41.0, t: 97.0 });
     /// ```
     pub fn diagonal_as_vector(self) -> Vector4<T> {
         Vector4 { x: self.a[Self::M11], y: self.a[Self::M22], z: self.a[Self::M33], t: self.a[Self::M44] }

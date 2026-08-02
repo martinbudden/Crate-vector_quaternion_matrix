@@ -8,18 +8,18 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, SqrtMethods, Vector2, Vector3, vector4d_math::Vector4dMath};
+use crate::{MathConstants, SqrtMethods, Vector2, Vector3, vector4_math::Vector4Math};
 
 /// 4-dimensional `{x, y, z, t}` vector of `f32` values<br>
-pub type Vector4df32 = Vector4<f32>;
+pub type Vector4f32 = Vector4<f32>;
 /// 4-dimensional `{x, y, z, t}` vector of `f64` values<br><br>
-pub type Vector4df64 = Vector4<f64>;
+pub type Vector4f64 = Vector4<f64>;
 
 // **** Define ****
 
-/// `Vector4d<T>`: 3D vector of type `T`.<br>
-/// Aliases `Vector4df32` and `Vector4df64` are provided.<br>
-/// `Vector4df32` uses **SIMD** accelerations implemented in `Vector4dMath`.<br><br>
+/// `Vector4<T>`: 3D vector of type `T`.<br>
+/// Aliases `Vector4f32` and `Vector4f64` are provided.<br>
+/// `Vector4f32` uses **SIMD** accelerations implemented in `Vector4Math`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}, t:{t}}}"))]
@@ -44,9 +44,9 @@ where
 {
     /// Create a vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0,  3.0, 7.0, 11.0);
-    /// assert_eq!(v, Vector4df32 { x:2.0, y:3.0, z: 7.0, t: 11.0 });
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0,  3.0, 7.0, 11.0);
+    /// assert_eq!(v, Vector4f32 { x:2.0, y:3.0, z: 7.0, t: 11.0 });
     /// ```
     #[inline]
     pub const fn new(x: T, y: T, z: T, t: T) -> Self {
@@ -62,11 +62,11 @@ where
 {
     /// Zero vector.
     /// ```
-    /// # use vqm::Vector4df32;
+    /// # use vqm::Vector4f32;
     /// # use num_traits::{zero,Zero};
-    /// let z: Vector4df32 = zero();
+    /// let z: Vector4f32 = zero();
     /// assert!(z.is_zero());
-    /// assert_eq!(z, Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
+    /// assert_eq!(z, Vector4f32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
     /// ```
     #[inline]
     fn zero() -> Self {
@@ -81,11 +81,11 @@ where
 
 /// Const zero vector.
 /// ```
-/// # use vqm::Vector4df32;
+/// # use vqm::Vector4f32;
 /// # use num_traits::{zero,Zero,ConstZero};
-/// let z = Vector4df32::ZERO;
+/// let z = Vector4f32::ZERO;
 /// assert!(z.is_zero());
-/// assert_eq!(z, Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
+/// assert_eq!(z, Vector4f32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 });
 /// ```
 impl<T> ConstZero for Vector4<T>
 where
@@ -104,11 +104,11 @@ where
 
     /// Negate vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 };
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32 { x: 2.0, y: 3.0, z: 5.0, t: 7.0 };
     /// let r = -v;
     ///
-    /// assert_eq!(r, Vector4df32 { x: -2.0, y: -3.0, z: -5.0, t: -7.0 });
+    /// assert_eq!(r, Vector4f32 { x: -2.0, y: -3.0, z: -5.0, t: -7.0 });
     /// ```
     #[inline]
     fn neg(self) -> Self {
@@ -126,12 +126,12 @@ where
 
     /// Add two vectors.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-    /// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// # use vqm::Vector4f32;
+    /// let u = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
+    /// let v = Vector4f32::new(3.0, 7.0, 13.0, 19.0);
     /// let r = u + v;
     ///
-    /// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
+    /// assert_eq!(r, Vector4f32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
     /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
@@ -147,15 +147,15 @@ where
 {
     /// Add one vector to another.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut r = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-    /// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// # use vqm::Vector4f32;
+    /// let mut r = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
+    /// let u = Vector4f32::new(3.0, 7.0, 13.0, 19.0);
     /// r += u;
     ///
-    /// assert_eq!(r, Vector4df32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
+    /// assert_eq!(r, Vector4f32 { x: 5.0, y: 12.0, z: 24.0, t: 36.0 });
     ///
     /// # use num_traits::zero;
-    /// let z: Vector4df32 = zero();
+    /// let z: Vector4f32 = zero();
     /// let r = u + z;
     /// assert_eq!(r, u);
     /// ```
@@ -175,14 +175,14 @@ where
 
     /// Multiply vector by constant and add another vector.
     /// ```
-    /// # use vqm::Vector4df32;
+    /// # use vqm::Vector4f32;
     /// # use num_traits::MulAdd;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-    /// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
+    /// let w = Vector4f32::new(3.0, 7.0, 13.0, 19.0);
     /// let k = 23.0;
     /// let r = v.mul_add(k, w);
     ///
-    /// assert_eq!(r, Vector4df32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
+    /// assert_eq!(r, Vector4f32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
@@ -198,14 +198,14 @@ where
 {
     /// Multiply vector by constant and add another vector in place.
     /// ```
-    /// # use vqm::Vector4df32;
+    /// # use vqm::Vector4f32;
     /// # use num_traits::MulAddAssign;
-    /// let mut v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-    /// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// let mut v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
+    /// let w = Vector4f32::new(3.0, 7.0, 13.0, 19.0);
     /// let k = 23.0;
     /// v.mul_add_assign(k, w);
     ///
-    /// assert_eq!(v, Vector4df32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
+    /// assert_eq!(v, Vector4f32 { x: 49.0, y: 122.0, z: 266.0, t: 410.0 });
     /// ```
     #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
@@ -223,12 +223,12 @@ where
 
     /// Subtract two vectors.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 13.0, 17.0);
-    /// let w = Vector4df32::new(3.0, 7.0, 11.0, 23.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 13.0, 17.0);
+    /// let w = Vector4f32::new(3.0, 7.0, 11.0, 23.0);
     /// let r = v - w;
     ///
-    /// assert_eq!(r, Vector4df32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
+    /// assert_eq!(r, Vector4f32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
     /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
@@ -245,12 +245,12 @@ where
 {
     /// Subtract one vector from another.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut r = Vector4df32::new(2.0, 5.0, 13.0, 17.0);
-    /// let     v = Vector4df32::new(3.0, 7.0, 11.0, 23.0);
+    /// # use vqm::Vector4f32;
+    /// let mut r = Vector4f32::new(2.0, 5.0, 13.0, 17.0);
+    /// let     v = Vector4f32::new(3.0, 7.0, 11.0, 23.0);
     /// r -= v;
     ///
-    /// assert_eq!(r, Vector4df32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
+    /// assert_eq!(r, Vector4f32 { x: -1.0, y: -2.0, z: 2.0, t: -6.0 });
     /// ```
     #[inline]
     fn sub_assign(&mut self, other: Self) {
@@ -265,11 +265,11 @@ impl Mul<Vector4<f32>> for f32 {
 
     /// Pre-multiply vector by a scalar.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
     /// let r = 2.0 * v;
     ///
-    /// assert_eq!(r, Vector4df32 { x: 4.0, y: 10.0, z: 22.0, t: 34.0 });
+    /// assert_eq!(r, Vector4f32 { x: 4.0, y: 10.0, z: 22.0, t: 34.0 });
     /// ```
     #[inline]
     fn mul(self, other: Vector4<f32>) -> Vector4<f32> {
@@ -296,11 +296,11 @@ where
 
     /// Multiply vector by a scalar.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     /// let r = v * 2.0;
     ///
-    /// assert_eq!(r, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
+    /// assert_eq!(r, Vector4f32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
     /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
@@ -331,11 +331,11 @@ where
 {
     /// In-place multiply a vector by a scalar.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let mut v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     /// v *= 2.0;
     ///
-    /// assert_eq!(v, Vector4df32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
+    /// assert_eq!(v, Vector4f32 { x: 4.0, y: 6.0, z: 10.0, t: 14.0 });
     /// ```
     #[inline]
     fn mul_assign(&mut self, k: T) {
@@ -354,12 +354,12 @@ where
 
     /// Elementwise multiply a vector by another vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-    /// let u = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
+    /// let u = Vector4f32::new(3.0, 7.0, 13.0, 19.0);
     /// let r = v * u;
     ///
-    /// assert_eq!(r, Vector4df32 { x: 6.0, y: 35.0, z: 143.0, t: 323.0 });
+    /// assert_eq!(r, Vector4f32 { x: 6.0, y: 35.0, z: 143.0, t: 323.0 });
     /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
@@ -378,11 +378,11 @@ where
 
     /// Divide a vector by a scalar.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     /// let r = v / 2.0;
     ///
-    /// assert_eq!(r, Vector4df32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
+    /// assert_eq!(r, Vector4f32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
     /// ```
     #[inline]
     fn div(self, k: T) -> Self {
@@ -411,11 +411,11 @@ where
 {
     /// In-place divide a vector by a scalar.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let mut v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     /// v /= 2.0;
     ///
-    /// assert_eq!(v, Vector4df32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
+    /// assert_eq!(v, Vector4f32 { x: 1.0, y: 1.5, z: 2.5, t: 3.5 });
     /// ```
     #[inline]
     fn div_assign(&mut self, k: T) {
@@ -435,12 +435,12 @@ where
 
     /// Elementwise divide a vector by another vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
-    /// let u = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(3.0, 7.0, 13.0, 19.0);
+    /// let u = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
     /// let r = v / u;
     ///
-    /// assert_eq!(r, Vector4df32 { x: 1.5, y: 1.4, z: 13.0 / 11.0, t: 19.0 / 17.0 });
+    /// assert_eq!(r, Vector4f32 { x: 1.5, y: 1.4, z: 13.0 / 11.0, t: 19.0 / 17.0 });
     /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
@@ -455,8 +455,8 @@ impl<T> Index<usize> for Vector4<T> {
 
     /// Access vector component by index.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     ///
     /// assert_eq!(v[0], 2.0);
     /// assert_eq!(v[1], 3.0);
@@ -479,14 +479,14 @@ impl<T> Index<usize> for Vector4<T> {
 impl<T> IndexMut<usize> for Vector4<T> {
     // Set vector component by index.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let mut v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     /// v[0] = 7.0;
     /// v[1] = 11.0;
     /// v[2] = 13.0;
     /// v[3] = 17.0;
     ///
-    /// assert_eq!(v, Vector4df32 { x:7.0, y:11.0, z:13.0, t: 17.0 });
+    /// assert_eq!(v, Vector4f32 { x:7.0, y:11.0, z:13.0, t: 17.0 });
     /// ```
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
@@ -509,12 +509,12 @@ where
     /// Linear interpolation between two vectors.
     /// Calculates `self * (1 - t) + other * t`.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let u = Vector4df32::new(2.0, 5.0, 11.0, 13.0);
-    /// let v = Vector4df32::new(3.0, 7.0, 17.0, 23.0);
+    /// # use vqm::Vector4f32;
+    /// let u = Vector4f32::new(2.0, 5.0, 11.0, 13.0);
+    /// let v = Vector4f32::new(3.0, 7.0, 17.0, 23.0);
     /// let w = u.lerp(v, 0.25);
     ///
-    /// assert_eq!(w, Vector4df32::new(2.25, 5.5, 12.5, 15.5));
+    /// assert_eq!(w, Vector4f32::new(2.25, 5.5, 12.5, 15.5));
     /// ```
     #[inline]
     #[must_use]
@@ -550,11 +550,11 @@ where
 {
     /// Return a copy of the vector with all components set to their absolute values.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, -3.0, -5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, -3.0, -5.0, 7.0);
     /// let u = v.abs();
     ///
-    /// assert_eq!(u, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// assert_eq!(u, Vector4f32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
     #[inline]
     #[must_use]
@@ -564,11 +564,11 @@ where
 
     /// Set all components of the vector to their absolute values.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut v = Vector4df32::new(2.0, -3.0, -5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let mut v = Vector4f32::new(2.0, -3.0, -5.0, 7.0);
     /// v.abs_in_place();
     ///
-    /// assert_eq!(v, Vector4df32::new(2.0, 3.0, 5.0, 7.0));
+    /// assert_eq!(v, Vector4f32::new(2.0, 3.0, 5.0, 7.0));
     /// ```
     #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
@@ -585,11 +585,11 @@ where
 {
     /// Return a copy of the vector with all components clamped to the specified range.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 7.0, 11.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 3.0, 7.0, 11.0);
     /// let u = v.clamp(2.5, 7.5);
     ///
-    /// assert_eq!(u, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
+    /// assert_eq!(u, Vector4f32::new(2.5, 3.0, 7.0, 7.5));
     /// ```
     #[inline]
     #[must_use]
@@ -604,11 +604,11 @@ where
 
     /// Clamp all components of the vector to the specified range.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut v = Vector4df32::new(2.0, 3.0, 7.0, 11.0);
+    /// # use vqm::Vector4f32;
+    /// let mut v = Vector4f32::new(2.0, 3.0, 7.0, 11.0);
     /// v.clamp_in_place(2.5, 7.5);
     ///
-    /// assert_eq!(v, Vector4df32::new(2.5, 3.0, 7.0, 7.5));
+    /// assert_eq!(v, Vector4f32::new(2.5, 3.0, 7.0, 7.5));
     /// ```
     #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
@@ -625,9 +625,9 @@ where
 {
     /// Vector dot product.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
-    /// let w = Vector4df32::new(3.0, 7.0, 13.0, 19.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
+    /// let w = Vector4f32::new(3.0, 7.0, 13.0, 19.0);
     ///
     /// let x = v.dot(w);
     ///
@@ -659,8 +659,8 @@ where
 {
     /// Return square of Euclidean norm.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
     /// assert_eq!(439.0, v.norm_squared());
     /// ```
     #[inline]
@@ -670,9 +670,9 @@ where
 
     /// Return distance between two points, squared.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 13.0);
-    /// let w = Vector4df32::new(3.0, 7.0, 17.0, 23.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 13.0);
+    /// let w = Vector4f32::new(3.0, 7.0, 17.0, 23.0);
     /// assert_eq!(141.0, v.distance_squared(w));
     /// ```
     #[inline]
@@ -758,10 +758,10 @@ where
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(0.0, 0.0, 0.0, 0.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(0.0, 0.0, 0.0, 0.0);
     /// let n = v.normalize();
-    /// assert_eq!(Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 }, n);
+    /// assert_eq!(Vector4f32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 }, n);
     /// ```
     #[inline]
     #[must_use]
@@ -776,10 +776,10 @@ where
 
     /// Normalize the vector in place, checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut v = Vector4df32::new(0.0, 0.0, 0.0, 0.0);
+    /// # use vqm::Vector4f32;
+    /// let mut v = Vector4f32::new(0.0, 0.0, 0.0, 0.0);
     /// v.normalize_in_place();
-    /// assert_eq!(Vector4df32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 }, v);
+    /// assert_eq!(Vector4f32 { x: 0.0, y: 0.0, z: 0.0, t: 0.0 }, v);
     /// ```
     #[inline]
     pub fn normalize_in_place(&mut self) -> &mut Self {
@@ -789,10 +789,10 @@ where
 
     /// Return normalized form of the vector, not checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     /// let n = v.normalize_unchecked();
-    /// assert_eq!(Vector4df32 { x: 0.21442251, y: 0.32163376, z: 0.5360563, t: 0.7504788 }, n);
+    /// assert_eq!(Vector4f32 { x: 0.21442251, y: 0.32163376, z: 0.5360563, t: 0.7504788 }, n);
     /// ```
     #[inline]
     #[must_use]
@@ -803,10 +803,10 @@ where
 
     /// Normalize the vector in place, not checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let mut v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
+    /// # use vqm::Vector4f32;
+    /// let mut v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
     /// v.normalize_unchecked_in_place();
-    /// assert_eq!(Vector4df32 { x: 0.21442251, y: 0.32163376, z: 0.5360563, t: 0.7504788 }, v);
+    /// assert_eq!(Vector4f32 { x: 0.21442251, y: 0.32163376, z: 0.5360563, t: 0.7504788 }, v);
     /// ```
     #[inline]
     pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {
@@ -834,8 +834,8 @@ where
 {
     /// Convert the vector to degrees, assuming it is in radians.
     /// ```
-    /// # use vqm::{Vector4df32, MathConstants};
-    /// let v = Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8);
+    /// # use vqm::{Vector4f32, MathConstants};
+    /// let v = Vector4f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8);
     /// let w = v.to_degrees();
     /// assert!((w.x - 90.0).abs() < 2e-6);
     /// assert!((w.y - 45.0).abs() < 2e-6);
@@ -850,9 +850,9 @@ where
 
     /// Convert the vector to radians, assuming it is in degrees.
     /// ```
-    /// # use vqm::{Vector4df32, MathConstants};
-    /// let v = Vector4df32::new(90.0, 45.0, 30.0, 22.5);
-    /// assert_eq!(Vector4df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8), v.to_radians());
+    /// # use vqm::{Vector4f32, MathConstants};
+    /// let v = Vector4f32::new(90.0, 45.0, 30.0, 22.5);
+    /// assert_eq!(Vector4f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8), v.to_radians());
     /// ```
     #[inline]
     #[must_use]
@@ -867,9 +867,9 @@ where
 {
     /// Convert the vector to meters per second squared, assuming it is in earth gravity units.
     /// ```
-    /// # use vqm::{Vector4df32, MathConstants};
-    /// let v = Vector4df32::new(1.0, 2.0, 3.0, 4.0);
-    /// assert_eq!(Vector4df32::new(9.806_65, 19.613_3, 29.419_95, 39.226_6), v.g_to_mps2());
+    /// # use vqm::{Vector4f32, MathConstants};
+    /// let v = Vector4f32::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_eq!(Vector4f32::new(9.806_65, 19.613_3, 29.419_95, 39.226_6), v.g_to_mps2());
     /// ```
     #[inline]
     #[must_use]
@@ -879,9 +879,9 @@ where
 
     /// Convert the vector to earth gravity units, assuming it is in meters per second squared.
     /// ```
-    /// # use vqm::{Vector4df32, MathConstants};
-    /// let v = Vector4df32::new(9.806_65, 19.613_3, 29.419_95, 39.226_6);
-    /// assert_eq!(Vector4df32::new(1.0, 2.0, 3.0, 4.0), v.mps2_to_g());
+    /// # use vqm::{Vector4f32, MathConstants};
+    /// let v = Vector4f32::new(9.806_65, 19.613_3, 29.419_95, 39.226_6);
+    /// assert_eq!(Vector4f32::new(1.0, 2.0, 3.0, 4.0), v.mps2_to_g());
     /// ```
     #[inline]
     #[must_use]
@@ -903,8 +903,8 @@ where
 {
     /// Return the sum of all components of the vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
     /// assert_eq!(35.0, v.sum());
     /// ```
     #[inline]
@@ -914,8 +914,8 @@ where
 
     /// Return the product of all components of the vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
     /// assert_eq!(1870.0, v.product());
     /// ```
     #[inline]
@@ -932,8 +932,8 @@ where
 {
     /// Return the mean of all components of the vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 5.0, 11.0, 17.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 5.0, 11.0, 17.0);
     /// assert_eq!(8.75, v.mean());
     /// ```
     #[inline]
@@ -947,14 +947,14 @@ where
 
 impl<T> Vector4<T>
 where
-    T: Copy + Vector4dMath,
+    T: Copy + Vector4Math,
 {
     /// Return the max element in the vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-    /// let w = Vector4df32::new(3.0, 5.0, 7.0, 2.0);
-    /// let x = Vector4df32::new(5.0, 7.0, 3.0, 2.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
+    /// let w = Vector4f32::new(3.0, 5.0, 7.0, 2.0);
+    /// let x = Vector4f32::new(5.0, 7.0, 3.0, 2.0);
     /// assert_eq!(7.0, v.max());
     /// assert_eq!(7.0, w.max());
     /// assert_eq!(7.0, x.max());
@@ -966,10 +966,10 @@ where
 
     /// Return the max element in the vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::new(2.0, 3.0, 5.0, 7.0);
-    /// let w = Vector4df32::new(3.0, 5.0, 7.0, 2.0);
-    /// let x = Vector4df32::new(5.0, 7.0, 3.0, 2.0);
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::new(2.0, 3.0, 5.0, 7.0);
+    /// let w = Vector4f32::new(3.0, 5.0, 7.0, 2.0);
+    /// let x = Vector4f32::new(5.0, 7.0, 3.0, 2.0);
     /// assert_eq!(2.0, v.min());
     /// assert_eq!(2.0, w.min());
     /// assert_eq!(2.0, x.min());
@@ -990,12 +990,12 @@ where
 {
     /// Vector from tuple.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::from((2.0, 5.0, 11.0, 17.0));
-    /// let w: Vector4df32 = (3.0, 7.0, 13.0, 19.0).into();
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::from((2.0, 5.0, 11.0, 17.0));
+    /// let w: Vector4f32 = (3.0, 7.0, 13.0, 19.0).into();
     ///
-    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 5.0, z: 11.0, t: 17.0 });
-    /// assert_eq!(w, Vector4df32 { x: 3.0, y: 7.0, z: 13.0, t: 19.0 });
+    /// assert_eq!(v, Vector4f32 { x: 2.0, y: 5.0, z: 11.0, t: 17.0 });
+    /// assert_eq!(w, Vector4f32 { x: 3.0, y: 7.0, z: 13.0, t: 19.0 });
     /// ```
     #[inline]
     fn from((x, y, z, t): (T, T, T, T)) -> Self {
@@ -1011,12 +1011,12 @@ where
 {
     /// Vector from array.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32::from([2.0, 5.0, 11.0, 17.0]);
-    /// let w: Vector4df32 = [3.0, 7.0, 13.0, 19.0].into();
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32::from([2.0, 5.0, 11.0, 17.0]);
+    /// let w: Vector4f32 = [3.0, 7.0, 13.0, 19.0].into();
     ///
-    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 5.0, z: 11.0, t: 17.0 });
-    /// assert_eq!(w, Vector4df32 { x: 3.0, y: 7.0, z: 13.0, t: 19.0 });
+    /// assert_eq!(v, Vector4f32 { x: 2.0, y: 5.0, z: 11.0, t: 17.0 });
+    /// assert_eq!(w, Vector4f32 { x: 3.0, y: 7.0, z: 13.0, t: 19.0 });
     /// ```
     #[inline]
     fn from(v: [T; 4]) -> Self {
@@ -1027,8 +1027,8 @@ where
 impl<T> From<Vector4<T>> for [T; 4] {
     /// Array from vector.
     /// ```
-    /// # use vqm::Vector4df32;
-    /// let v = Vector4df32 { x: 2.0, y: 5.0, z: 11.0, t: 17.0 };
+    /// # use vqm::Vector4f32;
+    /// let v = Vector4f32 { x: 2.0, y: 5.0, z: 11.0, t: 17.0 };
     ///
     /// let a = <[f32; 4]>::from(v);
     /// let b: [f32; 4] = v.into();
@@ -1079,14 +1079,14 @@ impl<T> From<Vector2<T>> for Vector4<T>
 where
     T: Copy + Zero,
 {
-    /// Vector4d from Vector2d.
+    /// Vector4 from Vector2.
     /// ```
-    /// # use vqm::{Vector2df32,Vector4df32};
-    /// let v = Vector4df32::from(Vector2df32 { x: 2.0, y: 5.0 });
-    /// let w: Vector4df32 = Vector2df32 { x: 3.0, y: 7.0 }.into();
+    /// # use vqm::{Vector2f32,Vector4f32};
+    /// let v = Vector4f32::from(Vector2f32 { x: 2.0, y: 5.0 });
+    /// let w: Vector4f32 = Vector2f32 { x: 3.0, y: 7.0 }.into();
     ///
-    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 5.0, z: 0.0, t: 0.0 });
-    /// assert_eq!(w, Vector4df32 { x: 3.0, y: 7.0, z: 0.0, t: 0.0 });
+    /// assert_eq!(v, Vector4f32 { x: 2.0, y: 5.0, z: 0.0, t: 0.0 });
+    /// assert_eq!(w, Vector4f32 { x: 3.0, y: 7.0, z: 0.0, t: 0.0 });
     /// ```
     #[inline]
     fn from(other: Vector2<T>) -> Self {
@@ -1098,14 +1098,14 @@ impl<T> From<Vector3<T>> for Vector4<T>
 where
     T: Copy + Zero,
 {
-    /// Vector4d from Vector3d.
+    /// Vector4 from Vector3.
     /// ```
-    /// # use vqm::{Vector3df32,Vector4df32};
-    /// let v = Vector4df32::from(Vector3df32 { x: 2.0, y: 5.0, z: 11.0 });
-    /// let w: Vector4df32 = Vector3df32 { x: 3.0, y: 7.0, z: 13.0 }.into();
+    /// # use vqm::{Vector3f32,Vector4f32};
+    /// let v = Vector4f32::from(Vector3f32 { x: 2.0, y: 5.0, z: 11.0 });
+    /// let w: Vector4f32 = Vector3f32 { x: 3.0, y: 7.0, z: 13.0 }.into();
     ///
-    /// assert_eq!(v, Vector4df32 { x: 2.0, y: 5.0, z: 11.0, t: 0.0 });
-    /// assert_eq!(w, Vector4df32 { x: 3.0, y: 7.0, z: 13.0, t: 0.0 });
+    /// assert_eq!(v, Vector4f32 { x: 2.0, y: 5.0, z: 11.0, t: 0.0 });
+    /// assert_eq!(w, Vector4f32 { x: 3.0, y: 7.0, z: 13.0, t: 0.0 });
     /// ```
     #[inline]
     fn from(other: Vector3<T>) -> Self {

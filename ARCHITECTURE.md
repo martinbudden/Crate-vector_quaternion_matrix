@@ -31,7 +31,7 @@ My previous C++ library had shown this was possible (even without SIMD).
 
 This is more peformant.
 
-Most of the calculations are performed on `Vector3df32` and `Quaternionf32` types.
+Most of the calculations are performed on `Vector3f32` and `Quaternionf32` types.
 
 If these are aligned they are 16-byte values and fit comfortably into the CPUs floating point registers.
 What's more, if calculations are chained, then the intermediate values can be retained in the CPU registers,
@@ -44,11 +44,11 @@ The largest item this library may contain is an `Matrix4x4f64` which is 128 byte
 
 ### Use generics
 
-For the main processing loop `Vector3df32` and `Quaternionf32` was required.
+For the main processing loop `Vector3f32` and `Quaternionf32` was required.
 
-To support reading from an Inertial Measurement Unit (IMU), `Vector3di16` was required.
+To support reading from an Inertial Measurement Unit (IMU), `Vector3i16` was required.
 
-Initially I started implementing `Vector3df32` and `Vector3di16` as separate types,
+Initially I started implementing `Vector3f32` and `Vector3i16` as separate types,
 but during implementation and especially when I started adding SIMD support it became
 clear that using generics would make for a simpler implementation.
 
@@ -58,7 +58,7 @@ My experience is that libraries that heavily rely on code generation are difficu
 
 Using boilerplate makes things harder for the developer of the library, but easier for the user of the library.
 
-There is significant boilerplating between (eg) `Vector2d`, `Vector3d`, `Vector4d`, and `Quaternion`,
+There is significant boilerplating between (eg) `Vector2`, `Vector3`, `Vector4`, and `Quaternion`,
 but this is manageable and not excessive.
 
 ### Follow standards
@@ -79,12 +79,12 @@ Several functions (eg `normalize`, `clamp`, `transpose`, `adjugate`, and `invers
 The convention used is that the `_in_place` suffix is used for the "in-place" form.
 
 ```rust
-# use vqm::Vector3df32;
+# use vqm::Vector3f32;
 // return form:
-    let v = Vector3df32::new(2.0, 3.0, 5.0);
+    let v = Vector3f32::new(2.0, 3.0, 5.0);
     let n = v.normalize();
 // in-place form:
-    let mut v = Vector3df32::new(2.0, 3.0, 5.0);
+    let mut v = Vector3f32::new(2.0, 3.0, 5.0);
     v.normalize_in_place();
 ```
 

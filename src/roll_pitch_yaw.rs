@@ -42,7 +42,7 @@ where
         Self { roll, pitch }
     }
 
-    /// Create a `RollPitch` from a `Vector2d` assuming the North East Down (NED) convention.
+    /// Create a `RollPitch` from a `Vector2` assuming the North East Down (NED) convention.
     #[inline]
     pub fn from_vector_ned(v: Vector2<T>) -> Self {
         Self { roll: v.y, pitch: v.x }
@@ -116,7 +116,7 @@ where
         Self { roll, pitch, yaw }
     }
 
-    /// Create a `RollPitchYaw` from a `Vector3d` assuming the North East Down (NED) convention.
+    /// Create a `RollPitchYaw` from a `Vector3` assuming the North East Down (NED) convention.
     #[inline]
     pub fn from_vector_ned(v: Vector3<T>) -> Self {
         Self { roll: v.y, pitch: v.x, yaw: -v.z }

@@ -28,6 +28,7 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Changed
 
+- renamed `Vector2d` to `Vector2`, `Vector3d` to `Vector3`, and `Vector4d` to `Vector4`.
 - changed matrices to use column-major storage.
 - changed to use feature `align` rather than `no_align`.
 - renamed matrix `fill` constructor to `from_element`.

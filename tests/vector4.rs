@@ -1,10 +1,10 @@
-use vqm::{Vector4, Vector4df32, Vector4df64};
+use vqm::{Vector4, Vector4f32, Vector4f64};
 
-const _: () = assert!(size_of::<Vector4df32>() == 16);
-const _: () = assert!(align_of::<Vector4df32>() == 16);
+const _: () = assert!(size_of::<Vector4f32>() == 16);
+const _: () = assert!(align_of::<Vector4f32>() == 16);
 
-const _: () = assert!(size_of::<Vector4df64>() == 32);
-const _: () = assert!(align_of::<Vector4df64>() == 16);
+const _: () = assert!(size_of::<Vector4f64>() == 32);
+const _: () = assert!(align_of::<Vector4f64>() == 16);
 
 #[cfg(test)]
 mod tests {
@@ -29,13 +29,13 @@ mod tests {
     }
     #[test]
     fn default() {
-        let a: Vector4df32 = Vector4df32::default();
-        assert_eq!(Vector4df32::zero(), a);
+        let a: Vector4f32 = Vector4f32::default();
+        assert_eq!(Vector4f32::zero(), a);
     }
     #[test]
     fn zero() {
         use num_traits::{Zero, zero};
-        let z: Vector4df32 = zero();
+        let z: Vector4f32 = zero();
         assert!(z.is_zero());
     }
 }

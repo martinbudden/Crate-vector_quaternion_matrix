@@ -1,10 +1,10 @@
-use vqm::{Vector2, Vector2df32, Vector2df64};
+use vqm::{Vector2, Vector2f32, Vector2f64};
 
-const _: () = assert!(size_of::<Vector2df32>() == 8);
-const _: () = assert!(align_of::<Vector2df32>() == 8);
+const _: () = assert!(size_of::<Vector2f32>() == 8);
+const _: () = assert!(align_of::<Vector2f32>() == 8);
 
-const _: () = assert!(size_of::<Vector2df64>() == 16);
-const _: () = assert!(align_of::<Vector2df64>() == 8);
+const _: () = assert!(size_of::<Vector2f64>() == 16);
+const _: () = assert!(align_of::<Vector2f64>() == 8);
 
 #[cfg(test)]
 mod tests {
@@ -28,14 +28,14 @@ mod tests {
     }
     #[test]
     fn default() {
-        let a: Vector2df32 = Vector2df32::default();
+        let a: Vector2f32 = Vector2f32::default();
         assert_eq!(a, Vector2 { x: 0.0, y: 0.0 });
     }
     #[test]
     fn zero() {
         use num_traits::zero;
-        //let z: Vector2df32 = Vector2df32::zero();
-        let _z: Vector2df32 = zero();
+        //let z: Vector2f32 = Vector2f32::zero();
+        let _z: Vector2f32 = zero();
         //assert!(z.is_zero());
     }
     #[test]
@@ -45,7 +45,7 @@ mod tests {
         assert_eq!(neg_v.x, -1.0);
         assert_eq!(neg_v.y, 2.0);
 
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         assert_eq!(-a, Vector2 { x: -2.0, y: -3.0 });
 
         let b = -a;
@@ -53,13 +53,13 @@ mod tests {
     }
     #[test]
     fn add() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let b = Vector2 { x: 7.0, y: 11.0 };
         assert_eq!(a + b, Vector2 { x: 9.0, y: 14.0 });
     }
     #[test]
     fn add_assign() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let b = Vector2 { x: 7.0, y: 11.0 };
         let mut c = a;
         c += b;
@@ -67,14 +67,14 @@ mod tests {
     }
     #[test]
     fn sub() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let b = Vector2 { x: 7.0, y: 11.0 };
         let c = a - b;
         assert_eq!(c, Vector2 { x: -5.0, y: -8.0 });
     }
     #[test]
     fn sub_assign() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let b = Vector2 { x: 7.0, y: 11.0 };
         let mut c = a;
         c -= b;
@@ -82,25 +82,25 @@ mod tests {
     }
     #[test]
     fn mul() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         assert_eq!(a * 2.0, Vector2 { x: 4.0, y: 6.0 });
         assert_eq!(2.0 * a, Vector2 { x: 4.0, y: 6.0 });
     }
     #[test]
     fn mul_assign() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let mut b = a;
         b *= 2.0;
         assert_eq!(b, Vector2 { x: 4.0, y: 6.0 });
     }
     #[test]
     fn div() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         assert_eq!(a / 2.0, Vector2 { x: 1.0, y: 1.5 });
     }
     #[test]
     fn div_assign() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let mut b = a;
         b /= 2.0;
         assert_eq!(b, Vector2 { x: 1.0, y: 1.5 });
@@ -113,16 +113,16 @@ mod tests {
         assert_eq!(a, b);
 
         use num_traits::zero;
-        let _z: Vector2df32 = zero();
+        let _z: Vector2f32 = zero();
         //assert!(z.is_zero());
 
-        let c: Vector2df32 = (2.0, 3.0).into();
+        let c: Vector2f32 = (2.0, 3.0).into();
         assert_eq!(a, c);
         let d = Vector2::from((2.0, 3.0));
         assert_eq!(a, d);
-        let e: Vector2df32 = [2.0, 3.0].into();
+        let e: Vector2f32 = [2.0, 3.0].into();
         assert_eq!(a, e);
-        let f = Vector2df32::from([2.0, 3.0]);
+        let f = Vector2f32::from([2.0, 3.0]);
         assert_eq!(a, f);
 
         let h = <[f32; 2]>::from(a);
@@ -132,7 +132,7 @@ mod tests {
     }
     #[test]
     fn dot() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let b = Vector2 { x: 7.0, y: 11.0 };
         assert_eq!(a.dot(a), 13.0);
         assert_eq!(a.dot(b), 47.0);
@@ -141,7 +141,7 @@ mod tests {
     }
     #[test]
     fn norm_squared() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         assert_eq!(a.norm_squared(), 13.0);
     }
     #[test]
@@ -161,24 +161,24 @@ mod tests {
     }
     #[test]
     fn normalize_unchecked() {
-        let a = Vector2df32 { x: 2.0, y: 3.0 };
+        let a = Vector2f32 { x: 2.0, y: 3.0 };
         let a_normalized = a.normalize_unchecked();
         let mut b: Vector2<f32> = a;
         b.normalize_unchecked_in_place();
         assert_eq!(b, a_normalized);
-        let z = Vector2df32 { x: 0.0, y: 0.0 };
+        let z = Vector2f32 { x: 0.0, y: 0.0 };
         let mut y = z;
         y.normalize_in_place();
         assert_eq!(z, y);
     }
     #[test]
     fn absolute() {
-        let a = Vector2df32 { x: -2.0, y: -3.0 };
+        let a = Vector2f32 { x: -2.0, y: -3.0 };
         assert_eq!(a.abs(), Vector2 { x: 2.0, y: 3.0 });
     }
     #[test]
     fn abs() {
-        let a = Vector2df32 { x: -2.0, y: -3.0 };
+        let a = Vector2f32 { x: -2.0, y: -3.0 };
         let mut b = a;
         b.abs_in_place();
         assert_eq!(b, a.abs());

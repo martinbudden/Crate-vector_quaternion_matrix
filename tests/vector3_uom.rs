@@ -9,44 +9,44 @@ mod tests {
 
     /*#[test]
     fn default() {
-        let a: Vector3d<Length::new<meter>> = Vector3d::<Length::new<meter>>::default();
+        let a: Vector3<Length::new<meter>> = Vector3::<Length::new<meter>>::default();
         let zero_meters = Length::new::<meter>(0.0);
-        assert_eq!(a, Vector3d { x: zero_meters, y: zero_meters, z: zero_meters });
+        assert_eq!(a, Vector3 { x: zero_meters, y: zero_meters, z: zero_meters });
     }*/
     #[test]
     fn neg() {
-        let a = Vector3d { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
+        let a = Vector3 { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
         assert_eq!(
             -a,
-            Vector3d { x: -Length::new::<meter>(2.0), y: -Length::new::<meter>(5.0), z: -Length::new::<meter>(11.0) }
+            Vector3 { x: -Length::new::<meter>(2.0), y: -Length::new::<meter>(5.0), z: -Length::new::<meter>(11.0) }
         );
 
         let b = -a;
         assert_eq!(
             b,
-            Vector3d { x: -Length::new::<meter>(2.0), y: -Length::new::<meter>(5.0), z: -Length::new::<meter>(11.0) }
+            Vector3 { x: -Length::new::<meter>(2.0), y: -Length::new::<meter>(5.0), z: -Length::new::<meter>(11.0) }
         );
     }
     #[test]
     fn add() {
-        let a = Vector3d { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
-        let b = Vector3d { x: Length::new::<meter>(3.0), y: Length::new::<meter>(7.0), z: Length::new::<meter>(13.0) };
+        let a = Vector3 { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
+        let b = Vector3 { x: Length::new::<meter>(3.0), y: Length::new::<meter>(7.0), z: Length::new::<meter>(13.0) };
         let c = a + b;
 
         assert_eq!(
             c,
-            Vector3d { x: Length::new::<meter>(5.0), y: Length::new::<meter>(12.0), z: Length::new::<meter>(24.0) }
+            Vector3 { x: Length::new::<meter>(5.0), y: Length::new::<meter>(12.0), z: Length::new::<meter>(24.0) }
         );
     }
     #[test]
     fn mul_scalar() {
-        let a = Vector3d { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
+        let a = Vector3 { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
         let k = Length::new::<meter>(3.0);
         let b = a * k;
 
         assert_eq!(
             b,
-            Vector3d {
+            Vector3 {
                 x: Area::new::<square_meter>(6.0),
                 y: Area::new::<square_meter>(15.0),
                 z: Area::new::<square_meter>(33.0)
@@ -55,13 +55,13 @@ mod tests {
     }
     #[test]
     fn div_scalar() {
-        let a = Vector3d { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
+        let a = Vector3 { x: Length::new::<meter>(2.0), y: Length::new::<meter>(5.0), z: Length::new::<meter>(11.0) };
         let k = Length::new::<meter>(4.0);
         let b = a / k;
 
         assert_eq!(
             b,
-            Vector3d { x: Ratio::new::<ratio>(0.5), y: Ratio::new::<ratio>(1.25), z: Ratio::new::<ratio>(2.75) }
+            Vector3 { x: Ratio::new::<ratio>(0.5), y: Ratio::new::<ratio>(1.25), z: Ratio::new::<ratio>(2.75) }
         );
         let t = Time::new::<second>(4.0);
         let c = a / t;
@@ -69,7 +69,7 @@ mod tests {
         // The assertions must use Velocity and meter_per_second
         assert_eq!(
             c,
-            Vector3d {
+            Vector3 {
                 x: Velocity::new::<meter_per_second>(0.5),
                 y: Velocity::new::<meter_per_second>(1.25),
                 z: Velocity::new::<meter_per_second>(2.75)

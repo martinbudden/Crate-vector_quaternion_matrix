@@ -19,9 +19,9 @@ use crate::Vector2;
 impl From<Vector2<f32>> for f32x2 {
     #[inline(always)]
     fn from(v: Vector2<f32>) -> Self {
-        // SAFETY: assert f32x2 and Vector2d<f32> have same size and alignment
-        const _: () = assert!(size_of::<f32x2>() == size_of::<Vector2d<f32>>());
-        const _: () = assert!(size_of::<f32x2>() == align_of::<Vector2d<f32>>());
+        // SAFETY: assert f32x2 and Vector2<f32> have same size and alignment
+        const _: () = assert!(size_of::<f32x2>() == size_of::<Vector2<f32>>());
+        const _: () = assert!(size_of::<f32x2>() == align_of::<Vector2<f32>>());
         unsafe { transmute(v) }
     }
 }
@@ -30,17 +30,17 @@ impl From<Vector2<f32>> for f32x2 {
 impl From<f32x2> for Vector2<f32> {
     #[inline(always)]
     fn from(simd: f32x2) -> Self {
-        // SAFETY: assert f32x2 and Vector2d<f32> have same size and alignment
-        const _: () = assert!(size_of::<f32x2>() == size_of::<Vector2d<f32>>());
-        const _: () = assert!(size_of::<f32x2>() == align_of::<Vector2d<f32>>());
+        // SAFETY: assert f32x2 and Vector2<f32> have same size and alignment
+        const _: () = assert!(size_of::<f32x2>() == size_of::<Vector2<f32>>());
+        const _: () = assert!(size_of::<f32x2>() == align_of::<Vector2<f32>>());
         unsafe { transmute(simd) }
     }
 }
 
 // **** Math ****
 
-/// Math functions for Vector2d, using **SIMD** accelerations for `f32`.<br>
-pub trait Vector2dMath: Sized {
+/// Math functions for Vector2, using **SIMD** accelerations for `f32`.<br>
+pub trait Vector2Math: Sized {
     fn v2_neg(this: Vector2<Self>) -> Vector2<Self>;
     fn v2_add(this: Vector2<Self>, this: Vector2<Self>) -> Vector2<Self>;
     fn v2_mul_scalar(this: Vector2<Self>, k: Self) -> Vector2<Self>;
@@ -58,7 +58,7 @@ pub trait Vector2dMath: Sized {
 
 // **** SIMD-accelerated implementation for f32 ****
 
-impl Vector2dMath for f32 {
+impl Vector2Math for f32 {
     #[inline(always)]
     fn v2_neg(this: Vector2<Self>) -> Vector2<Self> {
         #[cfg(feature = "simd")]
@@ -223,7 +223,7 @@ impl Vector2dMath for f32 {
 
 // **** f64 ****
 
-impl Vector2dMath for f64 {
+impl Vector2Math for f64 {
     #[inline(always)]
     fn v2_neg(this: Vector2<Self>) -> Vector2<Self> {
         Vector2 { x: -this.x, y: -this.y }

@@ -1,8 +1,8 @@
 use core::{error::Error, fmt};
 
-use crate::Vector3df32;
+use crate::Vector3f32;
 
-/// The error type returned when a slice is too short to parse to a `Vector3df32`.
+/// The error type returned when a slice is too short to parse to a `Vector3f32`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SliceTooShortError;
 
@@ -16,13 +16,13 @@ impl fmt::Display for SliceTooShortError {
 /// Implement the standard Error trait.
 impl Error for SliceTooShortError {}
 
-impl Vector3df32 {
-    /// Creates a Vector3df32 from a 6-byte little-endian byte array.
+impl Vector3f32 {
+    /// Creates a Vector3f32 from a 6-byte little-endian byte array.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
-    /// let v = Vector3df32::from_le_bytes_6(bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
+    /// let v = Vector3f32::from_le_bytes_6(bytes);
+    /// assert_eq!(Vector3f32 { x: 1.0, y: 256.0, z: 42.0 }, v);
     /// ```
     #[inline]
     #[must_use]
@@ -33,12 +33,12 @@ impl Vector3df32 {
         Self { x: x as f32, y: y as f32, z: z as f32 }
     }
 
-    /// Creates a Vector3df32 from a little-endian byte slice.
+    /// Creates a Vector3f32 from a little-endian byte slice.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00];
-    /// let v = Vector3df32::from_le_slice_6(&bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
+    /// let v = Vector3f32::from_le_slice_6(&bytes);
+    /// assert_eq!(Vector3f32 { x: 1.0, y: 256.0, z: 42.0 }, v);
     /// ```
     /// # Panics
     /// Panics if `slice.len() < 6`.
@@ -52,12 +52,12 @@ impl Vector3df32 {
         Self { x: f32::from(x), y: f32::from(y), z: f32::from(z) }
     }
 
-    /// Creates a `Vector3df32` from a little-endian byte slice.
+    /// Creates a `Vector3f32` from a little-endian byte slice.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// let bytes = [0x01, 0x00, 0x00, 0x01, 0x2A, 0x00, 0x23, 0x45, 0x56, 0x78, 0x9a, 0xbc];
-    /// let v = Vector3df32::try_from_le_slice_6(&bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v.expect("REASON"));
+    /// let v = Vector3f32::try_from_le_slice_6(&bytes);
+    /// assert_eq!(Vector3f32 { x: 1.0, y: 256.0, z: 42.0 }, v.expect("REASON"));
     /// ```
     /// # Errors
     /// Returns an [`SliceTooShortError`] if the provided `slice` contains fewer than 6 bytes.
@@ -74,10 +74,10 @@ impl Vector3df32 {
 
     /// Creates a Vector3f32 from a 6-byte big-endian byte array.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
-    /// let v = Vector3df32::from_be_bytes_6(bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
+    /// let v = Vector3f32::from_be_bytes_6(bytes);
+    /// assert_eq!(Vector3f32 { x: 1.0, y: 256.0, z: 42.0 }, v);
     /// ```
     #[inline]
     #[must_use]
@@ -88,12 +88,12 @@ impl Vector3df32 {
         Self { x: x as f32, y: y as f32, z: z as f32 }
     }
 
-    /// Creates a Vector3df32 from a big-endian byte slice.
+    /// Creates a Vector3f32 from a big-endian byte slice.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
-    /// let v = Vector3df32::from_be_slice_6(&bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v);
+    /// let v = Vector3f32::from_be_slice_6(&bytes);
+    /// assert_eq!(Vector3f32 { x: 1.0, y: 256.0, z: 42.0 }, v);
     /// ```
     /// # Panics
     /// Panics if `slice.len() < 6`.
@@ -107,12 +107,12 @@ impl Vector3df32 {
         Self { x: f32::from(x), y: f32::from(y), z: f32::from(z) }
     }
 
-    /// Creates a `Vector3df32` from a big-endian byte slice.
+    /// Creates a `Vector3f32` from a big-endian byte slice.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// let bytes = [0x00, 0x01, 0x01, 0x00, 0x00, 0x2A];
-    /// let v = Vector3df32::try_from_be_slice_6(&bytes);
-    /// assert_eq!(Vector3df32 { x: 1.0, y: 256.0, z: 42.0 }, v.expect("REASON"));
+    /// let v = Vector3f32::try_from_be_slice_6(&bytes);
+    /// assert_eq!(Vector3f32 { x: 1.0, y: 256.0, z: 42.0 }, v.expect("REASON"));
     /// ```
     /// # Errors
     /// Returns an [`SliceTooShortError`] if the provided `slice` contains fewer than 6 bytes.

@@ -23,15 +23,15 @@ mod math_constants;
 mod math_methods;
 mod sqrt_methods;
 
-mod vector2d;
-mod vector2d_math;
+mod vector2;
+mod vector2_math;
 
-mod vector3d;
-mod vector3d_buf;
-mod vector3d_math;
+mod vector3;
+mod vector3_buf;
+mod vector3_math;
 
-mod vector4d;
-mod vector4d_math;
+mod vector4;
+mod vector4_math;
 
 mod matrix2x2;
 mod matrix2x2_math;
@@ -56,12 +56,12 @@ pub use math_methods::TrigonometricMethods;
 pub use math_methods::{cos_approx, sin_approx, sin_cos_approx};
 pub use sqrt_methods::SqrtMethods;
 
-pub use vector2d::{Vector2, Vector2df32, Vector2df64};
+pub use vector2::{Vector2, Vector2f32, Vector2f64};
 
-pub use vector3d::{Vector3, Vector3df32, Vector3df64};
-pub use vector3d_buf::SliceTooShortError;
+pub use vector3::{Vector3, Vector3f32, Vector3f64};
+pub use vector3_buf::SliceTooShortError;
 
-pub use vector4d::{Vector4, Vector4df32, Vector4df64};
+pub use vector4::{Vector4, Vector4f32, Vector4f64};
 
 pub use quaternion::{Quaternion, Quaternionf32, Quaternionf64};
 pub use quaternion_math::QuaternionMath;

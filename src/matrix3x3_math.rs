@@ -100,7 +100,7 @@ impl Matrix3x3Math for f32 {
     }
 
     /*#[inline(always)]
-    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3d<Self>) -> Vector3d<Self> {
+    fn m3x3_mul_vector(this: Matrix3x3<Self>, other: Vector3<Self>) -> Vector3<Self> {
         // Map the 16-byte aligned vector into a uniform 4-element array.
         // The 4th element is zeroed out so it contributes nothing to the dot products.
         let v = [other.x, other.y, other.z, 0.0];
@@ -127,7 +127,7 @@ impl Matrix3x3Math for f32 {
             z += r3[ii] * v[ii];
         }
 
-        Vector3d { x, y, z }
+        Vector3 { x, y, z }
     }*/
 
     #[rustfmt::skip]
@@ -147,7 +147,7 @@ impl Matrix3x3Math for f32 {
         {
             // By taking ownership of the value, Rust guarantees no other pointer
             // can modify these values during our calculation loop.
-            // let row_simd = unsafe { *(&row as *const Vector3df32 as *const f32x4) };
+            // let row_simd = unsafe { *(&row as *const Vector3f32 as *const f32x4) };
             let col_simd = f32x4::from_array([col.x, col.y, col.z, 0.0]);
 
             let row_x = f32x4::splat(row.x);

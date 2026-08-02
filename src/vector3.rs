@@ -8,18 +8,18 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2, vector3d_math::Vector3dMath};
+use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2, vector3_math::Vector3Math};
 
 /// 3-dimensional `{x, y, z}` vector of `f32` values<br>
-pub type Vector3df32 = Vector3<f32>;
+pub type Vector3f32 = Vector3<f32>;
 /// 3-dimensional `{x, y, z}` vector of `f64` values<br><br>
-pub type Vector3df64 = Vector3<f64>;
+pub type Vector3f64 = Vector3<f64>;
 
 // **** Define ****
 
-/// `Vector3d<T>`: 3D vector of type `T`.<br>
-/// Aliases `Vector3df32` and `Vector2df64` are provided.<br>
-/// `Vector3df32` uses **SIMD** accelerations implemented in `vector3d_math`.<br><br>
+/// `Vector3<T>`: 3D vector of type `T`.<br>
+/// Aliases `Vector3f32` and `Vector2f64` are provided.<br>
+/// `Vector3f32` uses **SIMD** accelerations implemented in `vector3_math`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}}}"))]
@@ -46,9 +46,9 @@ where
 {
     /// Create a vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0,  3.0, 7.0);
-    /// assert_eq!(v, Vector3df32 { x:2.0, y:3.0, z: 7.0 });
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0,  3.0, 7.0);
+    /// assert_eq!(v, Vector3f32 { x:2.0, y:3.0, z: 7.0 });
     /// ```
     #[inline]
     pub const fn new(x: T, y: T, z: T) -> Self {
@@ -64,11 +64,11 @@ where
 {
     /// Zero vector.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// # use num_traits::{zero,Zero};
-    /// let z: Vector3df32 = zero();
+    /// let z: Vector3f32 = zero();
     /// assert!(z.is_zero());
-    /// assert_eq!(z, Vector3df32 { x: 0.0, y: 0.0, z: 0.0 });
+    /// assert_eq!(z, Vector3f32 { x: 0.0, y: 0.0, z: 0.0 });
     /// ```
     #[inline]
     fn zero() -> Self {
@@ -83,11 +83,11 @@ where
 
 /// Const zero vector.
 /// ```
-/// # use vqm::Vector3df32;
+/// # use vqm::Vector3f32;
 /// # use num_traits::{zero,Zero,ConstZero};
-/// let z = Vector3df32::ZERO;
+/// let z = Vector3f32::ZERO;
 /// assert!(z.is_zero());
-/// assert_eq!(z, Vector3df32 { x: 0.0, y: 0.0, z: 0.0 });
+/// assert_eq!(z, Vector3f32 { x: 0.0, y: 0.0, z: 0.0 });
 /// ```
 impl<T> ConstZero for Vector3<T>
 where
@@ -106,11 +106,11 @@ where
 
     /// Negate vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32 { x: 2.0, y: 3.0, z: 5.0 };
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
     /// let r = -v;
     ///
-    /// assert_eq!(r, Vector3df32 { x: -2.0, y: -3.0, z: -5.0 });
+    /// assert_eq!(r, Vector3f32 { x: -2.0, y: -3.0, z: -5.0 });
     /// ```
     #[inline]
     fn neg(self) -> Self {
@@ -128,12 +128,12 @@ where
 
     /// Add two vectors.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let u = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let v = Vector3df32::new(3.0, 7.0, 13.0);
+    /// # use vqm::Vector3f32;
+    /// let u = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let v = Vector3f32::new(3.0, 7.0, 13.0);
     /// let r = u + v;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 5.0, y: 12.0, z: 24.0 });
+    /// assert_eq!(r, Vector3f32 { x: 5.0, y: 12.0, z: 24.0 });
     /// ```
     #[inline]
     fn add(self, other: Self) -> Self {
@@ -149,15 +149,15 @@ where
 {
     /// Add one vector to another.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut r = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let u = Vector3df32::new(3.0, 7.0, 13.0);
+    /// # use vqm::Vector3f32;
+    /// let mut r = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let u = Vector3f32::new(3.0, 7.0, 13.0);
     /// r += u;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 5.0, y: 12.0, z: 24.0 });
+    /// assert_eq!(r, Vector3f32 { x: 5.0, y: 12.0, z: 24.0 });
     ///
     /// # use num_traits::zero;
-    /// let z: Vector3df32 = zero();
+    /// let z: Vector3f32 = zero();
     /// let r = u + z;
     /// assert_eq!(r, u);
     /// ```
@@ -177,14 +177,14 @@ where
 
     /// Multiply vector by constant and add another vector.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// # use num_traits::MulAdd;
-    /// let mut v = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let w = Vector3df32::new(3.0, 7.0, 13.0);
+    /// let mut v = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let w = Vector3f32::new(3.0, 7.0, 13.0);
     /// let k = 23.0;
     /// let r = v.mul_add(k, w);
     ///
-    /// assert_eq!(r, Vector3df32 { x: 49.0, y: 122.0, z: 266.0 });
+    /// assert_eq!(r, Vector3f32 { x: 49.0, y: 122.0, z: 266.0 });
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
@@ -200,14 +200,14 @@ where
 {
     /// Multiply vector by constant and add another vector in place.
     /// ```
-    /// # use vqm::Vector3df32;
+    /// # use vqm::Vector3f32;
     /// # use num_traits::MulAddAssign;
-    /// let mut v = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let w = Vector3df32::new(3.0, 7.0, 13.0);
+    /// let mut v = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let w = Vector3f32::new(3.0, 7.0, 13.0);
     /// let k = 23.0;
     /// v.mul_add_assign(k, w);
     ///
-    /// assert_eq!(v, Vector3df32 { x: 49.0, y: 122.0, z: 266.0 });
+    /// assert_eq!(v, Vector3f32 { x: 49.0, y: 122.0, z: 266.0 });
     /// ```
     #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
@@ -225,12 +225,12 @@ where
 
     /// Subtract two vectors.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let u = Vector3df32::new(2.0, 5.0, 13.0);
-    /// let v = Vector3df32::new(3.0, 7.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let u = Vector3f32::new(2.0, 5.0, 13.0);
+    /// let v = Vector3f32::new(3.0, 7.0, 11.0);
     /// let r = u - v;
     ///
-    /// assert_eq!(r, Vector3df32 { x: -1.0, y: -2.0, z: 2.0 });
+    /// assert_eq!(r, Vector3f32 { x: -1.0, y: -2.0, z: 2.0 });
     /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
@@ -247,12 +247,12 @@ where
 {
     /// Subtract one vector from another.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut r = Vector3df32::new(2.0, 5.0, 13.0);
-    /// let     v = Vector3df32::new(3.0, 7.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let mut r = Vector3f32::new(2.0, 5.0, 13.0);
+    /// let     v = Vector3f32::new(3.0, 7.0, 11.0);
     /// r -= v;
     ///
-    /// assert_eq!(r, Vector3df32 { x: -1.0, y: -2.0, z: 2.0 });
+    /// assert_eq!(r, Vector3f32 { x: -1.0, y: -2.0, z: 2.0 });
     /// ```
     #[inline]
     fn sub_assign(&mut self, other: Self) {
@@ -267,11 +267,11 @@ impl Mul<Vector3<f32>> for f32 {
 
     /// Pre-multiply vector by a scalar.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     /// let r = 2.0 * v;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 4.0, y: 10.0, z: 22.0 });
+    /// assert_eq!(r, Vector3f32 { x: 4.0, y: 10.0, z: 22.0 });
     /// ```
     #[inline]
     fn mul(self, other: Vector3<f32>) -> Vector3<f32> {
@@ -294,17 +294,17 @@ impl Mul<Vector3<f64>> for f64 {
 impl<T> Mul<T> for Vector3<T>
 where
     T: Copy + Add<T, Output = T> + Mul<T, Output = T>,
-    // #[cfg(feature = "simd")] T: crate::Vector3dMath, placeholder code for when this feature becomes stable
+    // #[cfg(feature = "simd")] T: crate::Vector3Math, placeholder code for when this feature becomes stable
 {
     type Output = Self;
 
     /// Multiply vector by a scalar.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     /// let r = v * 2.0;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 4.0, y: 10.0, z: 22.0 });
+    /// assert_eq!(r, Vector3f32 { x: 4.0, y: 10.0, z: 22.0 });
     /// ```
     #[inline]
     fn mul(self, k: T) -> Self {
@@ -341,11 +341,11 @@ where
 {
     /// In-place multiply a vector by a scalar.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let mut v = Vector3f32::new(2.0, 5.0, 11.0);
     /// v *= 2.0;
     ///
-    /// assert_eq!(v, Vector3df32 { x: 4.0, y: 10.0, z: 22.0 });
+    /// assert_eq!(v, Vector3f32 { x: 4.0, y: 10.0, z: 22.0 });
     /// ```
     #[inline]
     fn mul_assign(&mut self, k: T) {
@@ -364,12 +364,12 @@ where
 
     /// Elementwise multiply a vector by another vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let u = Vector3df32::new(3.0, 7.0, 13.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let u = Vector3f32::new(3.0, 7.0, 13.0);
     /// let r = v * u;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 6.0, y: 35.0, z: 143.0 });
+    /// assert_eq!(r, Vector3f32 { x: 6.0, y: 35.0, z: 143.0 });
     /// ```
     #[inline]
     fn mul(self, other: Self) -> Self {
@@ -388,11 +388,11 @@ where
 
     /// Divide a vector by a scalar.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 3.0, 5.0);
     /// let r = v / 2.0;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 1.0, y: 1.5, z: 2.5 });
+    /// assert_eq!(r, Vector3f32 { x: 1.0, y: 1.5, z: 2.5 });
     /// ```
     #[inline]
     fn div(self, k: T) -> Self {
@@ -421,11 +421,11 @@ where
 {
     /// In-place divide a vector by a scalar.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, 3.0, 5.0);
+    /// # use vqm::Vector3f32;
+    /// let mut v = Vector3f32::new(2.0, 3.0, 5.0);
     /// v /= 2.0;
     ///
-    /// assert_eq!(v, Vector3df32 { x: 1.0, y: 1.5, z: 2.5 });
+    /// assert_eq!(v, Vector3f32 { x: 1.0, y: 1.5, z: 2.5 });
     /// ```
     #[inline]
     fn div_assign(&mut self, k: T) {
@@ -445,12 +445,12 @@ where
 
     /// Elementwise divide a vector by another vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(3.0, 7.0, 13.0);
-    /// let u = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(3.0, 7.0, 13.0);
+    /// let u = Vector3f32::new(2.0, 5.0, 11.0);
     /// let r = v / u;
     ///
-    /// assert_eq!(r, Vector3df32 { x: 1.5, y: 1.4, z: 13.0 / 11.0 });
+    /// assert_eq!(r, Vector3f32 { x: 1.5, y: 1.4, z: 13.0 / 11.0 });
     /// ```
     #[inline]
     fn div(self, other: Self) -> Self {
@@ -465,8 +465,8 @@ impl<T> Index<usize> for Vector3<T> {
 
     /// Access vector component by index.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     ///
     /// assert_eq!(v[0], 2.0);
     /// assert_eq!(v[1], 5.0);
@@ -488,13 +488,13 @@ impl<T> Index<usize> for Vector3<T> {
 impl<T> IndexMut<usize> for Vector3<T> {
     // Set vector component by index.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let mut v = Vector3f32::new(2.0, 5.0, 11.0);
     /// v[0] = 3.0;
     /// v[1] = 7.0;
     /// v[2] = 13.0;
     ///
-    /// assert_eq!(v, Vector3df32 { x:3.0, y:7.0, z:13.0 });
+    /// assert_eq!(v, Vector3f32 { x:3.0, y:7.0, z:13.0 });
     /// ```
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut T {
@@ -517,12 +517,12 @@ where
     /// Linear interpolation between two vectors.
     /// Calculates `self * (1 - t) + other * t`.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let u = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let v = Vector3df32::new(3.0, 7.0, 17.0);
+    /// # use vqm::Vector3f32;
+    /// let u = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let v = Vector3f32::new(3.0, 7.0, 17.0);
     /// let w = u.lerp(v, 0.25);
     ///
-    /// assert_eq!(w, Vector3df32::new(2.25, 5.5, 12.5));
+    /// assert_eq!(w, Vector3f32::new(2.25, 5.5, 12.5));
     /// ```
     #[inline]
     #[must_use]
@@ -557,11 +557,11 @@ where
 {
     /// Return a copy of the vector with all components set to their absolute values.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, -5.0, -11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, -5.0, -11.0);
     /// let u = v.abs();
     ///
-    /// assert_eq!(u, Vector3df32::new(2.0, 5.0, 11.0));
+    /// assert_eq!(u, Vector3f32::new(2.0, 5.0, 11.0));
     /// ```
     #[inline]
     #[must_use]
@@ -571,11 +571,11 @@ where
 
     /// Set all components of the vector to their absolute values.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, -5.0, -11.0);
+    /// # use vqm::Vector3f32;
+    /// let mut v = Vector3f32::new(2.0, -5.0, -11.0);
     /// v.abs_in_place();
     ///
-    /// assert_eq!(v, Vector3df32::new(2.0, 5.0, 11.0));
+    /// assert_eq!(v, Vector3f32::new(2.0, 5.0, 11.0));
     /// ```
     #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
@@ -592,11 +592,11 @@ where
 {
     /// Return a copy of the vector with all components clamped to the specified range.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     /// let u = v.clamp(2.5, 7.5);
     ///
-    /// assert_eq!(u, Vector3df32::new(2.5, 5.0, 7.5));
+    /// assert_eq!(u, Vector3f32::new(2.5, 5.0, 7.5));
     /// ```
     #[inline]
     #[must_use]
@@ -606,11 +606,11 @@ where
 
     /// Clamp all components of the vector to the specified range.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let mut v = Vector3f32::new(2.0, 5.0, 11.0);
     /// v.clamp_in_place(2.5, 7.5);
     ///
-    /// assert_eq!(v, Vector3df32::new(2.5, 5.0, 7.5));
+    /// assert_eq!(v, Vector3f32::new(2.5, 5.0, 7.5));
     /// ```
     #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
@@ -627,9 +627,9 @@ where
 {
     /// Vector dot product.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let w = Vector3df32::new(3.0, 7.0, 13.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let w = Vector3f32::new(3.0, 7.0, 13.0);
     ///
     /// let x = v.dot(w);
     ///
@@ -653,17 +653,17 @@ impl<T> Vector3<T> {
     /// ```
     /// # use uom::si::f32::{Length, Force, Energy};
     /// # use uom::si::{length::meter,force::newton,energy::joule};
-    /// # use vqm::Vector3d;
+    /// # use vqm::Vector3;
     ///
     /// // Create a displacement vector (Length)
-    /// let displacement = Vector3d {
+    /// let displacement = Vector3 {
     ///     x: Length::new::<meter>(2.0),
     ///     y: Length::new::<meter>(3.0),
     ///     z: Length::new::<meter>(4.0),
     /// };
     ///
     /// // Create a constant pushing force vector (Force)
-    /// let force = Vector3d {
+    /// let force = Vector3 {
     ///     x: Force::new::<newton>(10.0),
     ///     y: Force::new::<newton>(5.0),
     ///     z: Force::new::<newton>(0.0),
@@ -691,13 +691,13 @@ where
 {
     /// Vector cross product.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let w = Vector3df32::new(3.0, 7.0, 13.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let w = Vector3f32::new(3.0, 7.0, 13.0);
     ///
     /// let x = v.cross(w);
     ///
-    /// assert_eq!(x, Vector3df32::new(-12.0, 7.0, -1.0));
+    /// assert_eq!(x, Vector3f32::new(-12.0, 7.0, -1.0));
     /// ```
     #[inline]
     #[must_use]
@@ -722,20 +722,20 @@ impl<T> Vector3<T> {
     /// ```
     /// # use uom::si::f32::{Length, Area};
     /// # use uom::si::{length::meter,area::square_meter};
-    /// # use vqm::Vector3d;
+    /// # use vqm::Vector3;
     ///
-    /// let a = Vector3d {
+    /// let a = Vector3 {
     ///     x: Length::new::<meter>(2.0),
     ///     y: Length::new::<meter>(5.0),
     ///     z: Length::new::<meter>(11.0),
     /// };
-    /// let b = Vector3d {
+    /// let b = Vector3 {
     ///     x: Length::new::<meter>(3.0),
     ///     y: Length::new::<meter>(7.0),
     ///     z: Length::new::<meter>(13.0),
     /// };
     /// // Length * Length results in Area
-    /// let area_vector: Vector3d<Area> = a.cross_uom(b);
+    /// let area_vector: Vector3<Area> = a.cross_uom(b);
     /// assert_eq!(area_vector.x, Area::new::<square_meter>(-12.0));
     /// assert_eq!(area_vector.y, Area::new::<square_meter>(7.0));
     /// assert_eq!(area_vector.z, Area::new::<square_meter>(-1.0));
@@ -763,8 +763,8 @@ where
 {
     /// Return square of Euclidean norm.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     /// assert_eq!(150.0, v.norm_squared());
     /// ```
     #[inline]
@@ -774,9 +774,9 @@ where
 
     /// Return distance between two points, squared.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
-    /// let w = Vector3df32::new(3.0, 7.0, 17.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
+    /// let w = Vector3f32::new(3.0, 7.0, 17.0);
     /// assert_eq!(41.0, v.distance_squared(w));
     /// ```
     #[inline]
@@ -809,9 +809,9 @@ where
     /// ```
     /// # use uom::si::f32::{Length, Area};
     /// # use uom::si::{length::meter,area::square_meter};
-    /// # use vqm::Vector3d;
+    /// # use vqm::Vector3;
     ///
-    /// let v = Vector3d {
+    /// let v = Vector3 {
     ///     x: Length::new::<meter>(3.0),
     ///     y: Length::new::<meter>(4.0),
     ///     z: Length::new::<meter>(12.0),
@@ -842,15 +842,15 @@ where
     /// ```
     /// # use uom::si::f32::{Length, Ratio};
     /// # use uom::si::{length::meter,ratio::ratio};
-    /// # use vqm::Vector3d;
+    /// # use vqm::Vector3;
     ///
-    /// let v = Vector3d {
+    /// let v = Vector3 {
     ///     x: Length::new::<meter>(3.0),
     ///     y: Length::new::<meter>(4.0),
     ///     z: Length::new::<meter>(12.0),
     /// };
     ///
-    /// let unit_vector: Vector3d<Ratio> = v.normalize_uom();
+    /// let unit_vector: Vector3<Ratio> = v.normalize_uom();
     ///
     /// assert!((unit_vector.x - Ratio::new::<ratio>(3.0 / 13.0)).value.abs() < 1e-7);
     /// assert!((unit_vector.y - Ratio::new::<ratio>(4.0 / 13.0)).value.abs() < 1e-7);
@@ -894,10 +894,10 @@ where
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(0.0, 0.0, 0.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(0.0, 0.0, 0.0);
     /// let n = v.normalize();
-    /// assert_eq!(Vector3df32 { x: 0.0, y: 0.0, z: 0.0 }, n);
+    /// assert_eq!(Vector3f32 { x: 0.0, y: 0.0, z: 0.0 }, n);
     /// ```
     #[inline]
     #[must_use]
@@ -912,10 +912,10 @@ where
 
     /// Normalize the vector in place, checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(0.0, 0.0, 0.0);
+    /// # use vqm::Vector3f32;
+    /// let mut v = Vector3f32::new(0.0, 0.0, 0.0);
     /// v.normalize_in_place();
-    /// assert_eq!(Vector3df32 { x: 0.0, y: 0.0, z: 0.0 }, v);
+    /// assert_eq!(Vector3f32 { x: 0.0, y: 0.0, z: 0.0 }, v);
     /// ```
     #[inline]
     pub fn normalize_in_place(&mut self) -> &mut Self {
@@ -925,10 +925,10 @@ where
 
     /// Return normalized form of the vector, not checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(1.0, 4.0, 8.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(1.0, 4.0, 8.0);
     /// let n = v.normalize_unchecked();
-    /// assert_eq!(Vector3df32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, n);
+    /// assert_eq!(Vector3f32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, n);
     /// ```
     #[inline]
     #[must_use]
@@ -939,10 +939,10 @@ where
 
     /// Normalize the vector in place, not checking if the norm is zero.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let mut v = Vector3df32::new(1.0, 4.0, 8.0);
+    /// # use vqm::Vector3f32;
+    /// let mut v = Vector3f32::new(1.0, 4.0, 8.0);
     /// v.normalize_unchecked_in_place();
-    /// assert_eq!(Vector3df32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, v);
+    /// assert_eq!(Vector3f32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, v);
     /// ```
     #[inline]
     pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {
@@ -970,8 +970,8 @@ where
 {
     /// Convert the vector to degrees, assuming it is in radians.
     /// ```
-    /// # use vqm::{Vector3df32, MathConstants};
-    /// let v = Vector3df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6);
+    /// # use vqm::{Vector3f32, MathConstants};
+    /// let v = Vector3f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6);
     /// let w = v.to_degrees();
     /// assert!((w.x - 90.0).abs() < 2e-6);
     /// assert!((w.y - 45.0).abs() < 2e-6);
@@ -985,9 +985,9 @@ where
 
     /// Convert the vector to radians, assuming it is in degrees.
     /// ```
-    /// # use vqm::{Vector3df32, MathConstants};
-    /// let v = Vector3df32::new(90.0, 45.0, 30.0);
-    /// assert_eq!(Vector3df32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6), v.to_radians());
+    /// # use vqm::{Vector3f32, MathConstants};
+    /// let v = Vector3f32::new(90.0, 45.0, 30.0);
+    /// assert_eq!(Vector3f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6), v.to_radians());
     /// ```
     #[inline]
     #[must_use]
@@ -1002,9 +1002,9 @@ where
 {
     /// Convert the vector to meters per second squared, assuming it is in earth gravity units.
     /// ```
-    /// # use vqm::{Vector3df32, MathConstants};
-    /// let v = Vector3df32::new(1.0, 2.0, 3.0);
-    /// assert_eq!(Vector3df32::new(9.806_65, 19.613_3, 29.419_95), v.g_to_mps2());
+    /// # use vqm::{Vector3f32, MathConstants};
+    /// let v = Vector3f32::new(1.0, 2.0, 3.0);
+    /// assert_eq!(Vector3f32::new(9.806_65, 19.613_3, 29.419_95), v.g_to_mps2());
     /// ```
     #[inline]
     #[must_use]
@@ -1014,9 +1014,9 @@ where
 
     /// Convert the vector to earth gravity units, assuming it is in meters per second squared.
     /// ```
-    /// # use vqm::{Vector3df32, MathConstants};
-    /// let v = Vector3df32::new(9.806_65, 19.613_3, 29.419_95);
-    /// assert_eq!(Vector3df32::new(1.0, 2.0, 3.0), v.mps2_to_g());
+    /// # use vqm::{Vector3f32, MathConstants};
+    /// let v = Vector3f32::new(9.806_65, 19.613_3, 29.419_95);
+    /// assert_eq!(Vector3f32::new(1.0, 2.0, 3.0), v.mps2_to_g());
     /// ```
     #[inline]
     #[must_use]
@@ -1033,8 +1033,8 @@ where
 {
     /// Return the sum of all components of the vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     /// assert_eq!(18.0, v.sum());
     /// ```
     #[inline]
@@ -1044,8 +1044,8 @@ where
 
     /// Return the product of all components of the vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     /// assert_eq!(110.0, v.product());
     /// ```
     #[inline]
@@ -1062,8 +1062,8 @@ where
 {
     /// Return the mean of all components of the vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 5.0, 11.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 5.0, 11.0);
     /// assert_eq!(6.0, v.mean());
     /// ```
     #[inline]
@@ -1077,14 +1077,14 @@ where
 
 impl<T> Vector3<T>
 where
-    T: Copy + Vector3dMath,
+    T: Copy + Vector3Math,
 {
     /// Return the max element in the vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// let w = Vector3df32::new(3.0, 5.0, 2.0);
-    /// let x = Vector3df32::new(5.0, 3.0, 2.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3f32::new(3.0, 5.0, 2.0);
+    /// let x = Vector3f32::new(5.0, 3.0, 2.0);
     /// assert_eq!(5.0, v.max());
     /// assert_eq!(5.0, w.max());
     /// assert_eq!(5.0, x.max());
@@ -1096,10 +1096,10 @@ where
 
     /// Return the min element in the vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::new(2.0, 3.0, 5.0);
-    /// let w = Vector3df32::new(3.0, 5.0, 2.0);
-    /// let x = Vector3df32::new(5.0, 3.0, 2.0);
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::new(2.0, 3.0, 5.0);
+    /// let w = Vector3f32::new(3.0, 5.0, 2.0);
+    /// let x = Vector3f32::new(5.0, 3.0, 2.0);
     /// assert_eq!(2.0, v.min());
     /// assert_eq!(2.0, w.min());
     /// assert_eq!(2.0, x.min());
@@ -1112,7 +1112,7 @@ where
 
 impl<T> Vector3<T>
 where
-    T: Copy + Zero + One + Sub<Output = T> + Vector3dMath + SqrtMethods + QuaternionMath,
+    T: Copy + Zero + One + Sub<Output = T> + Vector3Math + SqrtMethods + QuaternionMath,
 {
     #[inline]
     #[must_use]
@@ -1144,12 +1144,12 @@ where
 impl<T> From<(T, T, T)> for Vector3<T> {
     /// Vector from tuple.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::from((2.0, 5.0, 11.0));
-    /// let w: Vector3df32 = (3.0, 7.0, 13.0).into();
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::from((2.0, 5.0, 11.0));
+    /// let w: Vector3f32 = (3.0, 7.0, 13.0).into();
     ///
-    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 5.0, z: 11.0 });
-    /// assert_eq!(w, Vector3df32 { x: 3.0, y: 7.0, z: 13.0 });
+    /// assert_eq!(v, Vector3f32 { x: 2.0, y: 5.0, z: 11.0 });
+    /// assert_eq!(w, Vector3f32 { x: 3.0, y: 7.0, z: 13.0 });
     /// ```
     #[inline]
     fn from((x, y, z): (T, T, T)) -> Self {
@@ -1165,12 +1165,12 @@ where
 {
     /// Vector from array.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32::from([2.0, 5.0, 11.0]);
-    /// let w: Vector3df32 = [3.0, 7.0, 13.0].into();
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32::from([2.0, 5.0, 11.0]);
+    /// let w: Vector3f32 = [3.0, 7.0, 13.0].into();
     ///
-    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 5.0, z: 11.0 });
-    /// assert_eq!(w, Vector3df32 { x: 3.0, y: 7.0, z: 13.0 });
+    /// assert_eq!(v, Vector3f32 { x: 2.0, y: 5.0, z: 11.0 });
+    /// assert_eq!(w, Vector3f32 { x: 3.0, y: 7.0, z: 13.0 });
     /// ```
     #[inline]
     fn from(v: [T; 3]) -> Self {
@@ -1181,8 +1181,8 @@ where
 impl<T> From<Vector3<T>> for [T; 3] {
     /// Array from vector.
     /// ```
-    /// # use vqm::Vector3df32;
-    /// let v = Vector3df32 { x: 2.0, y: 5.0, z: 11.0 };
+    /// # use vqm::Vector3f32;
+    /// let v = Vector3f32 { x: 2.0, y: 5.0, z: 11.0 };
     ///
     /// let a = <[f32; 3]>::from(v);
     /// let b: [f32; 3] = v.into();
@@ -1233,14 +1233,14 @@ impl<T> From<Vector2<T>> for Vector3<T>
 where
     T: Copy + Zero,
 {
-    /// Vector3d from Vector2d.
+    /// Vector3 from Vector2.
     /// ```
-    /// # use vqm::{Vector2df32,Vector3df32};
-    /// let v = Vector3df32::from(Vector2df32 { x: 2.0, y: 5.0 });
-    /// let w: Vector3df32 = Vector2df32 { x: 3.0, y: 7.0 }.into();
+    /// # use vqm::{Vector2f32,Vector3f32};
+    /// let v = Vector3f32::from(Vector2f32 { x: 2.0, y: 5.0 });
+    /// let w: Vector3f32 = Vector2f32 { x: 3.0, y: 7.0 }.into();
     ///
-    /// assert_eq!(v, Vector3df32 { x: 2.0, y: 5.0, z: 0.0 });
-    /// assert_eq!(w, Vector3df32 { x: 3.0, y: 7.0, z: 0.0 });
+    /// assert_eq!(v, Vector3f32 { x: 2.0, y: 5.0, z: 0.0 });
+    /// assert_eq!(w, Vector3f32 { x: 3.0, y: 7.0, z: 0.0 });
     /// ```
     #[inline]
     fn from(other: Vector2<T>) -> Self {
@@ -1252,14 +1252,14 @@ impl<T> From<Vector3<T>> for Vector2<T>
 where
     T: Copy + Zero,
 {
-    /// Vector2d from Vector3d, discarding z value.
+    /// Vector2 from Vector3, discarding z value.
     /// ```
-    /// # use vqm::{Vector2df32,Vector3df32};
-    /// let v: Vector2df32 = Vector3df32 { x: 2.0, y: 5.0, z: 11.0 }.into();
-    /// let u = Vector2df32::from(Vector3df32{ x: 3.0, y: 7.0, z: 13.0 });
+    /// # use vqm::{Vector2f32,Vector3f32};
+    /// let v: Vector2f32 = Vector3f32 { x: 2.0, y: 5.0, z: 11.0 }.into();
+    /// let u = Vector2f32::from(Vector3f32{ x: 3.0, y: 7.0, z: 13.0 });
     ///
-    /// assert_eq!(v, Vector2df32 { x: 2.0, y: 5.0 });
-    /// assert_eq!(u, Vector2df32 { x: 3.0, y: 7.0 });
+    /// assert_eq!(v, Vector2f32 { x: 2.0, y: 5.0 });
+    /// assert_eq!(u, Vector2f32 { x: 3.0, y: 7.0 });
     /// ```
     #[inline]
     fn from(v: Vector3<T>) -> Self {

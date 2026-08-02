@@ -6,11 +6,11 @@ cfg_if! {
         use core::mem::transmute;
         use core::simd::{f32x4,num::SimdFloat,simd_swizzle};
         // must be aligned if using SIMD
-        const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
-        const _: () = assert!(align_of::<Vector3d<f32>>() == 16);
+        const _: () = assert!(size_of::<Vector3<f32>>() == 16);
+        const _: () = assert!(align_of::<Vector3<f32>>() == 16);
     } else if #[cfg(feature = "align")] {
-        const _: () = assert!(size_of::<Vector3d<f32>>() == 16);
-        const _: () = assert!(align_of::<Vector3d<f32>>() == 16);
+        const _: () = assert!(size_of::<Vector3<f32>>() == 16);
+        const _: () = assert!(align_of::<Vector3<f32>>() == 16);
     } else {
         const _: () = assert!(size_of::<Vector3<f32>>() == 12);
         const _: () = assert!(align_of::<Vector3<f32>>() == 4);
@@ -25,9 +25,9 @@ use crate::Vector3;
 impl From<Vector3<f32>> for f32x4 {
     #[inline(always)]
     fn from(this: Vector3<f32>) -> Self {
-        // SAFETY: assert f32x4 and Vector3d<f32> have same size and alignment
-        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector3d<f32>>());
-        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector3d<f32>>());
+        // SAFETY: assert f32x4 and Vector3<f32> have same size and alignment
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector3<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector3<f32>>());
         // The 'filler' 4th float in the SIMD lane will be whatever was in the padding (usually 0.0 if set by Default).
         unsafe { transmute(this) }
     }
@@ -37,17 +37,17 @@ impl From<Vector3<f32>> for f32x4 {
 impl From<f32x4> for Vector3<f32> {
     #[inline(always)]
     fn from(simd: f32x4) -> Self {
-        // SAFETY: assert f32x4 and Vector3d<f32> have same size and alignment
-        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector3d<f32>>());
-        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector3d<f32>>());
+        // SAFETY: assert f32x4 and Vector3<f32> have same size and alignment
+        const _: () = assert!(size_of::<f32x4>() == size_of::<Vector3<f32>>());
+        const _: () = assert!(size_of::<f32x4>() == align_of::<Vector3<f32>>());
         unsafe { transmute(simd) }
     }
 }
 
 // **** Math ****
 
-/// Math functions for Vector3d, using **SIMD** accelerations for `f32`.<br>
-pub trait Vector3dMath: Sized {
+/// Math functions for Vector3, using **SIMD** accelerations for `f32`.<br>
+pub trait Vector3Math: Sized {
     fn v3_neg(this: Vector3<Self>) -> Vector3<Self>;
     fn v3_add(this: Vector3<Self>, this: Vector3<Self>) -> Vector3<Self>;
     fn v3_mul_scalar(this: Vector3<Self>, k: Self) -> Vector3<Self>;
@@ -65,7 +65,7 @@ pub trait Vector3dMath: Sized {
 
 // **** SIMD-accelerated implementation for f32 ****
 
-impl Vector3dMath for f32 {
+impl Vector3Math for f32 {
     #[inline(always)]
     fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
         #[cfg(feature = "simd")]
@@ -253,7 +253,7 @@ impl Vector3dMath for f32 {
             // Result = (a_yzx * b_zxy) - (a_zxy * b_yzx)
             let ret_simd = this_yzx * other_zxy - this_zxy * other_yzx;
 
-            // Transmute back to our Vector3d struct
+            // Transmute back to our Vector3 struct
             ret_simd.into()
         }
         #[cfg(not(feature = "simd"))]
@@ -269,7 +269,7 @@ impl Vector3dMath for f32 {
 
 // **** f64 ****
 
-impl Vector3dMath for f64 {
+impl Vector3Math for f64 {
     #[inline(always)]
     fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
         Vector3 { x: -this.x, y: -this.y, z: -this.z }
@@ -350,7 +350,7 @@ impl Vector3dMath for f64 {
     }
 }
 
-impl Vector3dMath for i16 {
+impl Vector3Math for i16 {
     #[inline(always)]
     fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
         Vector3 { x: -this.x, y: -this.y, z: -this.z }
@@ -432,7 +432,7 @@ impl Vector3dMath for i16 {
     }
 }
 
-impl Vector3dMath for i32 {
+impl Vector3Math for i32 {
     #[inline(always)]
     fn v3_neg(this: Vector3<Self>) -> Vector3<Self> {
         Vector3 { x: -this.x, y: -this.y, z: -this.z }
