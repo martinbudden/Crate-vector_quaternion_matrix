@@ -17,6 +17,12 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ## [Unreleased]
 
+### Deprecated
+
+At some point [0.1.0] to [0.1.13] will be [YANKED]
+
+## [0.1.14] - 2026-08-04
+
 ### Added
 
 - column iterators to matrices.
@@ -34,14 +40,6 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 - renamed matrix `fill` constructor to `from_element`.
 
 ### Removed
-
-### Deprecated
-
-At some point [0.1.0] to [0.1.10] will be [YANKED]
-
-### Fixed
-
-### Security
 
 ## [0.1.13] - 2026-07-04
 
