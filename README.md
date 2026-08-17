@@ -64,7 +64,7 @@ A small selection from what is available:
     let j = h.try_inverse();
 
     // multiplication of a vector by a matrix
-    let v = p * a;
+    let v = m * a;
 
     let q = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
     let r = Quaternionf32::new(11.0, 13.0, 17.0, 23.0);
