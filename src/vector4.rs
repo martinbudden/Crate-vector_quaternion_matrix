@@ -4,6 +4,7 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign,
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
+    postcard::experimental::max_size::MaxSize,
     sequential_storage::map::PostcardValue,
     serde::{Deserialize, Serialize},
 };
@@ -23,7 +24,7 @@ pub type Vector4f64 = Vector4<f64>;
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}, t:{t}}}"))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize, MaxSize))]
 #[repr(C, align(16))]
 #[allow(missing_docs)]
 pub struct Vector4<T> {

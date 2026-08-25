@@ -6,6 +6,7 @@ use core::slice::{ChunksExact, ChunksExactMut, Iter, IterMut};
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
+    postcard::experimental::max_size::MaxSize,
     sequential_storage::map::PostcardValue,
     serde::{Deserialize, Serialize},
 };
@@ -26,7 +27,7 @@ pub type Matrix2x2f64 = Matrix2x2<f64>;
 /// That is the element `m[row][col]` is at array position `[col * 2 + row]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", allow(clippy::unsafe_derive_deserialize))]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize, MaxSize))]
 #[repr(C, align(16))]
 pub struct Matrix2x2<T> {
     // Flattened 2x2 matrix: 4 elements in column-major order

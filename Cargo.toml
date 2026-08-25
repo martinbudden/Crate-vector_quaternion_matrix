@@ -36,8 +36,8 @@ simd = []
 [dependencies]
 # Marked optional so they aren't compiled unless requested
 libm = { version = "0.2.16", optional = true }
-serde = { version = "1.0.228", default-features = false, features = ["derive"], optional = true }
-postcard = { version = "1.1.3", default-features = false, features = ["embedded-io"], optional = true }
+serde = { version = "1.0.229", default-features = false, features = ["derive"], optional = true }
+postcard = { version = "1.1.3", default-features = false, features = ["embedded-io", "experimental-derive"], optional = true }
 sequential-storage = { version = "8.0.1", features = ["postcard"], optional = true }
 derive_more = { version = "2.1.1", default-features = false, features = ["display"], optional = true }
 uom = { version = "0.38.0", default-features = false, features = ["si", "f32"], optional = true } # so autoconvert, in particular,  is disabled

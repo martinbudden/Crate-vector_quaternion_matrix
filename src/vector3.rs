@@ -4,6 +4,7 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign,
 use num_traits::{ConstZero, MulAdd, MulAddAssign, One, Signed, Zero, float::FloatCore};
 #[cfg(feature = "serde")]
 use {
+    postcard::experimental::max_size::MaxSize,
     sequential_storage::map::PostcardValue,
     serde::{Deserialize, Serialize},
 };
@@ -24,7 +25,7 @@ pub type Vector3f64 = Vector3<f64>;
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}}}"))]
 // Conditionally derive serde traits
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize, MaxSize))]
 // Conditionally apply alignment based on "align" feature
 #[cfg_attr(feature = "align", repr(C, align(16)))]
 #[cfg_attr(not(feature = "align"), repr(C))]
