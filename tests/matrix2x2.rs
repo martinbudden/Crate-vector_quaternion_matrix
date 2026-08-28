@@ -10,7 +10,7 @@ const _: () = assert!(size_of::<Matrix2x2<f64>>() == 32);
 const _: () = assert!(align_of::<Matrix2x2<f64>>() == 16);
 
 #[cfg(test)]
-mod tests {
+mod test_traits {
     use super::*;
     #[cfg(feature = "serde")]
     use {
@@ -19,7 +19,6 @@ mod tests {
         serde::{Deserialize, Serialize},
     };
 
-    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + MaxSize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}
@@ -30,6 +29,12 @@ mod tests {
         #[cfg(feature = "serde")]
         is_config::<Matrix2x2<f32>>();
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
     #[test]
     fn m2x2_default() {
         let a: Matrix2x2<f32> = Matrix2x2f32::default();

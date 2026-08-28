@@ -175,12 +175,12 @@ where
 }
 
 #[cfg(test)]
-mod tests {
+mod test_traits {
     use super::*;
+
     #[cfg(feature = "serde")]
     use serde::{Deserialize, Serialize};
 
-    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + MaxSize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}

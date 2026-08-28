@@ -25,3 +25,9 @@ rustflags = [
 [alias]
 # Run using: 'cargo test-serde'
 test-serde = "test --features serde"
+
+# Run using: 'cargo test-serde'
+test-uom = "test --features serde uom"
+
+# Run using: 'rustup run nightly cargo check-simd'
+check-simd = "check --features simd,align"

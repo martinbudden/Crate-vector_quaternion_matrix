@@ -112,18 +112,22 @@ const _: () = {
 };
 
 #[cfg(test)]
-mod tests {
-    use vqm::Matrix3x3f32;
-
+mod test_traits {
     use super::*;
 
-    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
 
     #[test]
     fn normal_types() {
         is_full::<Matrix9x9<f32>>();
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use vqm::Matrix3x3f32;
+    use super::*;
+
     #[rustfmt::skip]
     #[test]
     fn extract_9x3_array() {

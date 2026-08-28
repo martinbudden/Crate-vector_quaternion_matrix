@@ -17,11 +17,9 @@ cfg_if! {
 }
 
 #[cfg(test)]
-mod tests {
+mod test_traits {
     use super::*;
-    use approx::assert_abs_diff_eq;
-    use core::mem::{align_of, size_of};
-    use vqm::{Quaternionf32, Vector3f32};
+
     #[cfg(feature = "serde")]
     use {
         postcard::experimental::max_size::MaxSize,
@@ -29,7 +27,6 @@ mod tests {
         serde::{Deserialize, Serialize},
     };
 
-    fn _is_normal<T: Sized + Send + Sync + Unpin>() {}
     fn is_full<T: Sized + Send + Sync + Unpin + Copy + Clone + Default + PartialEq>() {}
     #[cfg(feature = "serde")]
     fn is_config<T: Serialize + MaxSize + for<'a> Deserialize<'a> + for<'a> PostcardValue<'a>>() {}
@@ -40,6 +37,14 @@ mod tests {
         #[cfg(feature = "serde")]
         is_config::<Vector3<f32>>();
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use approx::assert_abs_diff_eq;
+    use core::mem::{align_of, size_of};
+    use vqm::{Quaternionf32, Vector3f32};
     #[test]
     fn default() {
         let a: Vector3f32 = Vector3::default();
