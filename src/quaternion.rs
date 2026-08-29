@@ -1248,10 +1248,7 @@ where
 
 // **** From Array ****
 
-impl<T> From<[T; 4]> for Quaternion<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<[T; 4]> for Quaternion<T> {
     /// Quaternion from array.
     /// ```
     /// # use vqm::Quaternionf32;
@@ -1288,7 +1285,7 @@ impl<T> From<Quaternion<T>> for [T; 4] {
 
 impl<T> From<(T, T)> for Quaternion<T>
 where
-    T: Copy + TrigonometricMethods + FloatCore,
+    T: TrigonometricMethods + FloatCore,
 {
     #[inline]
     fn from((roll_radians, pitch_radians): (T, T)) -> Self {
@@ -1298,7 +1295,7 @@ where
 
 impl<T> From<(T, T, T)> for Quaternion<T>
 where
-    T: Copy + TrigonometricMethods + FloatCore,
+    T: TrigonometricMethods + FloatCore,
 {
     #[inline]
     fn from((roll_radians, pitch_radians, yaw_radians): (T, T, T)) -> Self {

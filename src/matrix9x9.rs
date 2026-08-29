@@ -1535,10 +1535,7 @@ impl<T> DoubleEndedIterator for Matrix9x9ColumnsMut<'_, T> {
 
 // **** From Array ****
 
-impl<T> From<[T; 81]> for Matrix9x9<T>
-where
-    T: Copy,
-{
+impl<T> From<[T; 81]> for Matrix9x9<T> {
     /// Matrix from 1D array.
     #[inline]
     fn from(input: [T; 81]) -> Self {
@@ -1546,10 +1543,7 @@ where
     }
 }
 
-impl<T> From<Matrix9x9<T>> for Matrix2x2<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<Matrix9x9<T>> for Matrix2x2<T> {
     /// Matrix2x2 from Matrix9x9. Takes top left of m9x9, discarding other values.
     #[rustfmt::skip]
     #[inline]
@@ -1561,10 +1555,7 @@ where
     }
 }
 
-impl<T> From<Matrix9x9<T>> for Matrix3x3<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<Matrix9x9<T>> for Matrix3x3<T> {
     /// Matrix3x3 from Matrix9x9. Takes top left of m9x9, discarding other values.
     #[rustfmt::skip]
     #[inline]
@@ -1577,10 +1568,7 @@ where
     }
 }
 
-impl<T> From<Matrix9x9<T>> for Matrix4x4<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<Matrix9x9<T>> for Matrix4x4<T> {
     /// Matrix4x4 from Matrix9x9. Takes top left of m9x9, discarding other values.
     #[rustfmt::skip]
     #[inline]

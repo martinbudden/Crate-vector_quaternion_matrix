@@ -1954,10 +1954,7 @@ impl<T> DoubleEndedIterator for Matrix3x3ColumnsMut<'_, T> {
 
 // **** From Matrix ****
 
-impl<T> From<Matrix2x2<T>> for Matrix3x3<T>
-where
-    T: Copy + Zero,
-{
+impl<T: Copy + Zero> From<Matrix2x2<T>> for Matrix3x3<T> {
     /// Matrix3x3 from Matrix2x2.
     /// ```
     /// # use vqm::{Matrix2x2f32,Matrix3x3f32};
@@ -1983,10 +1980,7 @@ where
     }
 }
 
-impl<T> From<Matrix3x3<T>> for Matrix2x2<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<Matrix3x3<T>> for Matrix2x2<T> {
     /// Matrix2x2 from Matrix3x3. Takes top left of m3x3, discarding other values.
     /// ```
     /// # use vqm::{Matrix2x2f32,Matrix3x3f32};

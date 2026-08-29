@@ -985,10 +985,7 @@ where
 
 // **** From Tuple ****
 
-impl<T> From<(T, T, T, T)> for Vector4<T>
-where
-    T: Copy,
-{
+impl<T> From<(T, T, T, T)> for Vector4<T> {
     /// Vector from tuple.
     /// ```
     /// # use vqm::Vector4f32;
@@ -1006,10 +1003,7 @@ where
 
 // **** From Array ****
 
-impl<T> From<[T; 4]> for Vector4<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<[T; 4]> for Vector4<T> {
     /// Vector from array.
     /// ```
     /// # use vqm::Vector4f32;
@@ -1076,10 +1070,7 @@ impl From<Vector4<f32>> for [i32; 4] {
 
 // **** From Vector ****
 
-impl<T> From<Vector2<T>> for Vector4<T>
-where
-    T: Copy + Zero,
-{
+impl<T: Zero> From<Vector2<T>> for Vector4<T> {
     /// Vector4 from Vector2.
     /// ```
     /// # use vqm::{Vector2f32,Vector4f32};
@@ -1095,10 +1086,7 @@ where
     }
 }
 
-impl<T> From<Vector3<T>> for Vector4<T>
-where
-    T: Copy + Zero,
-{
+impl<T: Zero> From<Vector3<T>> for Vector4<T> {
     /// Vector4 from Vector3.
     /// ```
     /// # use vqm::{Vector3f32,Vector4f32};

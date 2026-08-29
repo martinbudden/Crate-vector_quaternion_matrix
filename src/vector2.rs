@@ -1066,10 +1066,7 @@ impl<T> From<(T, T)> for Vector2<T> {
 
 // **** From Array ****
 
-impl<T> From<[T; 2]> for Vector2<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<[T; 2]> for Vector2<T> {
     /// Vector from array.
     /// ```
     /// # use vqm::Vector2f32;

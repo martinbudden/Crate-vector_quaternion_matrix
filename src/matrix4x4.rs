@@ -2150,10 +2150,7 @@ impl<T> DoubleEndedIterator for Matrix4x4ColumnsMut<'_, T> {
 
 // **** From Matrix ****
 
-impl<T> From<Matrix2x2<T>> for Matrix4x4<T>
-where
-    T: Copy + Zero,
-{
+impl<T: Copy + Zero> From<Matrix2x2<T>> for Matrix4x4<T> {
     /// Matrix4x4 from Matrix2x2.
     /// ```
     /// # use vqm::{Matrix2x2f32,Matrix4x4f32};
@@ -2181,10 +2178,7 @@ where
     }
 }
 
-impl<T> From<Matrix4x4<T>> for Matrix2x2<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<Matrix4x4<T>> for Matrix2x2<T> {
     /// Matrix2x2 from Matrix4x4. Takes top left of m4x4, discarding other values.
     /// ```
     /// # use vqm::{Matrix2x2f32,Matrix4x4f32};
@@ -2206,10 +2200,7 @@ where
     }
 }
 
-impl<T> From<Matrix3x3<T>> for Matrix4x4<T>
-where
-    T: Copy + Zero,
-{
+impl<T: Copy + Zero> From<Matrix3x3<T>> for Matrix4x4<T> {
     /// Matrix4x4 from Matrix3x3.
     /// ```
     /// # use vqm::{Matrix3x3f32, Matrix4x4f32};
@@ -2234,10 +2225,7 @@ where
     }
 }
 
-impl<T> From<Matrix4x4<T>> for Matrix3x3<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<Matrix4x4<T>> for Matrix3x3<T> {
     /// Matrix3x3 from Matrix4x4. Takes top left of m4x4, discarding other values.
     /// ```
     /// # use vqm::{Matrix3x3f32,Matrix4x4f32};

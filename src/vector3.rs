@@ -1160,10 +1160,7 @@ impl<T> From<(T, T, T)> for Vector3<T> {
 
 // **** From Array ****
 
-impl<T> From<[T; 3]> for Vector3<T>
-where
-    T: Copy,
-{
+impl<T: Copy> From<[T; 3]> for Vector3<T> {
     /// Vector from array.
     /// ```
     /// # use vqm::Vector3f32;
@@ -1230,10 +1227,7 @@ impl From<Vector3<f32>> for [i32; 3] {
 
 // **** From Vector ****
 
-impl<T> From<Vector2<T>> for Vector3<T>
-where
-    T: Copy + Zero,
-{
+impl<T: Zero> From<Vector2<T>> for Vector3<T> {
     /// Vector3 from Vector2.
     /// ```
     /// # use vqm::{Vector2f32,Vector3f32};
@@ -1249,10 +1243,7 @@ where
     }
 }
 
-impl<T> From<Vector3<T>> for Vector2<T>
-where
-    T: Copy + Zero,
-{
+impl<T> From<Vector3<T>> for Vector2<T> {
     /// Vector2 from Vector3, discarding z value.
     /// ```
     /// # use vqm::{Vector2f32,Vector3f32};
