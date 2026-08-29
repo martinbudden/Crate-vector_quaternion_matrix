@@ -23,6 +23,7 @@ Each type has versions for `f32` and `f64`. So we have:
 6. 3x3 matrices: `Matrix3x3f32`, `Matrix3x3f64`
 7. 4x4 matrices: `Matrix4x4f32`, `Matrix4x4f64`
 8. 9x9 matrices: `Matrix9x9f32`, `Matrix9x9f64` - partial implementation with special functions for Kalman filters.
+9. 9x9 matrices: `Matrix9f32`, `Matrix9f64` - 9x9 matrix stored as nine 3x3 matrices, another partial implementation with special functions for Kalman filters.
 
 (Under the hood, types are implemented using generics, so `Vector3f32` is actually `Vector3<f32>`,
 but that is transparent to the user.)
@@ -130,6 +131,10 @@ ie `T:PI`.
 **SIMD** support can be enabled with the `simd` feature.
 
 It is currently experimental and many of the implementations are naive "placeholder" implementations to be optimized at a later date.
+
+Currently most embedded processors (eg Arm Cortex M series) don't directly support **SIMD**, so it is of limited use for embedded applications.
+However, that may change: so the placeholder implementation serves as proof of concept an ensures that future implementations are possible.
+
 These placeholder implementations may be slower than the non-SIMD code, so if you used SIMD make sure you benchmark to show
 that you are indeed getting a performance improvement.
 
@@ -145,6 +150,49 @@ This can be invoked using `rustup`, eg:
 ```sh
 rustup run nightly cargo build --features "simd align" --target thumbv8m.main-none-eabi
 ```
+
+## Usage by other crates
+
+`vqm` is used by a number of other Rust crates, in particular:
+
+1. [signal-filters](https://crates.io/crates/signal-filters)
+   `BiquadFilters` and `PT` filters are templated and provide vector implementations for parallel filtering of values on all axes.
+2. [sensor-fusion](https://crates.io/crates/sensor-fusion) - extensively uses vectors, quaternions, and matrices for sensor fusion filters
+3. [motor-mixers](https://crates.io/crates/motor-mixers) - uses `Vector3f32` and `BiquadFilterVector3f32` in notch filters to filter
+   IMU data based on motor RPM.
+4. [imu-sensors](https://crates.io/crates/imu-sensors) - uses `Vector3f32` to return scaled gyro and acceleration readings from the IMU.
+5. [protoflight](https://crates.io/crates/protoflight) - extensive use of vectors and quaternions.
+
+## Why another vector/linear algebra/math related crate?
+
+There are currently a number of Rust crates that support vector math, quaternions, an matrices. The most notable being
+[nalgebra](https://crates.io/crates/nalgebra), [glam](https://crates.io/crates/glam), [vek](https://crates.io/crates/vek),
+and [ultraviolet](https://crates.io/crates/ultraviolet).
+
+nalgebra is a general purpose linear algebra crate. The others are more focused on graphics and game maths.
+
+In graphics and gaming the requirement is generally to be able to do a relatively small number of operations on a
+relatively large number of vectors in a given time slice. The graphics/game focused crates optimize for this
+(ultraviolet in particular uses  "SoA" (Structure of Arrays) rather than "AoS" (Array of Structs) layout to this end).
+
+In embedded applications the requirement is often to do a relatively large number of operations on a relatively small number
+of vectors. This means that ultraviolet is not really suited for embedded, and although glam or vek could be used
+they would not be playing to their strengths.
+
+This leaves nalgebra. It certainly could be used: even though it is a large library only the bits used would be included
+in an application, so it would not cause code bloat.
+
+However I did not really want my code to be dependent on such a large library, so I decided to port my existing C++ vector
+library to Rust. ("How hard could it be" - well harder than I thought, but ok).
+
+I decided to take a generic approach from the start (because I wanted to support both `f32` and `f62`) and that decision
+has paid unexpected dividends:
+
+1. During the development of version `0.1.13` I realized my generic approach would enable
+   Units of Measurement([uom](https://crates.io/crates/uom)) almost "for free" so I added support for it.
+1. During the development of version `0.1.15` I realized my generic approach would allow the straightforward
+   implementation of a 9x9 matrix as an array of 9 3x3 matrices. I knew this would greatly simplify the
+   position Kalman filter I was writing, so I added support for this a the `Matrix9` type.
 
 ## Architecture
 

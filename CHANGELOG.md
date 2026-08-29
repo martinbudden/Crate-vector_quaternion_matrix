@@ -21,6 +21,17 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 At some point [0.1.0] to [0.1.13] will be [YANKED]
 
+## [0.1.15] - 2026-09-xx
+
+### Added
+
+- `Matrix9` a 9x9 matrix implemented as a flat array of nine 3x3 matrices.
+- support for `postcard` `MaxSize`.
+
+### Changed
+
+- updated to `sequential-storage` `8.0.1`.
+
 ## [0.1.14] - 2026-08-04
 
 ### Added
@@ -38,8 +49,6 @@ At some point [0.1.0] to [0.1.13] will be [YANKED]
 - changed matrices to use column-major storage.
 - changed to use feature `align` rather than `no_align`.
 - renamed matrix `fill` constructor to `from_element`.
-
-### Removed
 
 ## [0.1.13] - 2026-07-04
 
