@@ -1455,6 +1455,19 @@ where
             }
         }
     }
+    /// Return matrix row as a tuple.
+    pub fn row_tuple(self, row: usize) -> (T, T, T, T) {
+        let r = row.min(3);
+        // Made safe because c is clamped to 0..=3, so c + 12 <= 15
+        unsafe {
+            (
+                *self.a.get_unchecked(r),
+                *self.a.get_unchecked(r + 4),
+                *self.a.get_unchecked(r + 8),
+                *self.a.get_unchecked(r + 12),
+            )
+        }
+    }
 
     /// Set matrix column from a vector.
     /// ```
@@ -1499,6 +1512,14 @@ where
         let base = column.min(3) * 4;
         let chunk = &self.a[base..];
         Vector4 { x: chunk[0], y: chunk[1], z: chunk[2], t: chunk[3] }
+    }
+
+    /// Return matrix column as a tuple.
+    pub fn column_tuple(self, column: usize) -> (T, T, T, T) {
+        // Branchless clamp: restricts r to 0..=3
+        let base = column.min(3) * 4;
+        let chunk = &self.a[base..];
+        (chunk[0], chunk[1], chunk[2], chunk[3])
     }
 
     /// Return matrix diagonal as an array.

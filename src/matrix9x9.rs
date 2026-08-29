@@ -200,10 +200,35 @@ where
     }
 
     /// Matrix from 1D row array.
+    ///```
+    /// # use vqm::Matrix9x9f32;
+    /// let m = Matrix9x9f32::from_row_array([
+    ///    1.0,  2.0,  3.0,  4.0,  5.0,  6.0,  7.0,  8.0,  9.0,
+    ///   10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+    ///   19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0,
+    ///   28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0,
+    ///   37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0,
+    ///   46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0, 54.0,
+    ///   55.0, 56.0, 57.0, 58.0, 59.0, 60.0, 61.0, 62.0, 63.0,
+    ///   64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0, 72.0,
+    ///   73.0, 74.0, 75.0, 76.0, 77.0, 78.0, 79.0, 80.0, 81.0,
+    /// ]);
+    /// let mut n = Matrix9x9f32::from_column_array([
+    ///    1.0,  2.0,  3.0,  4.0,  5.0,  6.0,  7.0,  8.0,  9.0,
+    ///   10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+    ///   19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0,
+    ///   28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0,
+    ///   37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0,
+    ///   46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0, 54.0,
+    ///   55.0, 56.0, 57.0, 58.0, 59.0, 60.0, 61.0, 62.0, 63.0,
+    ///   64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0, 72.0,
+    ///   73.0, 74.0, 75.0, 76.0, 77.0, 78.0, 79.0, 80.0, 81.0,
+    /// ]);
+    /// assert_eq!(m, n.transpose());
+    ///```
     pub fn from_row_array(a: [T; 81]) -> Self {
         // Initialize the output array with the first element of the input
         let mut column_major = [a[0]; 81];
-
         for r in 0..9 {
             for c in 0..9 {
                 let row_idx = r * 9 + c;
@@ -211,7 +236,6 @@ where
                 column_major[col_idx] = a[row_idx];
             }
         }
-
         Self { a: column_major }
     }
 
@@ -419,6 +443,7 @@ where
         ],
     };
 }
+
 impl<T> Matrix9x9<T>
 where
     T: Copy + Zero + One,
@@ -438,6 +463,23 @@ where
             m.a[ii * 9 + ii] = T::one();
         }
         m
+    }
+}
+
+impl<T> Matrix9x9<T>
+where
+    T: Copy + FloatCore,
+    Matrix9x9<T>: One + Sub<Output = Matrix9x9<T>>,
+{
+    /// Return true if matrix is near identity.
+    /// ```
+    /// # use vqm::Matrix9x9f32;
+    /// # use num_traits::One;
+    /// let i = Matrix9x9f32::one();
+    /// assert!(i.is_near_identity(1e-5));
+    /// ```
+    pub fn is_near_identity(self, epsilon: T) -> bool {
+        (self - Matrix9x9::<T>::one()).is_near_zero(epsilon)
     }
 }
 
@@ -759,6 +801,54 @@ where
     }
 }
 
+// **** Outer Product ****
+
+impl<T> Matrix9x9<T>
+where
+    T: Copy + Mul<Output = T>,
+    Matrix9x9<T>: Zero,
+{
+    /// Calculates the outer product of two 9-element states for COLUMN-MAJOR matrices (Cortex-M Edition).
+    #[inline]
+    pub fn outer_product(
+        col_a: Vector3<T>,
+        col_b: Vector3<T>,
+        col_c: Vector3<T>,
+        row_a: Vector3<T>,
+        row_b: Vector3<T>,
+        row_c: Vector3<T>,
+    ) -> Matrix9x9<T> {
+        // Flatten row elements (scalar weights)
+        let r = [row_a.x, row_a.y, row_a.z, row_b.x, row_b.y, row_b.z, row_c.x, row_c.y, row_c.z];
+
+        // Flatten column entries natively without any artificial 4-lane padding
+        let c = [col_a.x, col_a.y, col_a.z, col_b.x, col_b.y, col_b.z, col_c.x, col_c.y, col_c.z];
+
+        let mut ret = <Matrix9x9<T>>::zero();
+
+        // Process each column.
+        // With the slice copies removed, the compiler can assign the entire `c` array
+        // to CPU/FPU registers and stream them directly out to the matrix memory.
+        for (c_idx, &scalar) in r.iter().enumerate().take(9) {
+            let ret_col = &mut ret[c_idx * 9..(c_idx + 1) * 9];
+
+            // Direct scalar assignment. LLVM unrolls this perfectly and generates
+            // branchless, pipelined single-cycle hardware float multiplications.
+            ret_col[0] = c[0] * scalar;
+            ret_col[1] = c[1] * scalar;
+            ret_col[2] = c[2] * scalar;
+            ret_col[3] = c[3] * scalar;
+            ret_col[4] = c[4] * scalar;
+            ret_col[5] = c[5] * scalar;
+            ret_col[6] = c[6] * scalar;
+            ret_col[7] = c[7] * scalar;
+            ret_col[8] = c[8] * scalar;
+        }
+
+        ret
+    }
+}
+
 // **** Div ****
 
 impl<T> Div<T> for Matrix9x9<T>
@@ -946,7 +1036,7 @@ where
 {
     /// Returns a row as a Vector3 3-tuple.
     #[inline]
-    pub fn row_tuple3d(&self, row_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
+    pub fn row_tuple_vector(&self, row_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
         let r = row_index;
         (
             Vector3 { x: self.a[r], y: self.a[r + 9], z: self.a[r + 18] },
@@ -957,7 +1047,7 @@ where
 
     /// Returns a column as a Vector3 3-tuple.
     #[inline]
-    pub fn column_tuple3d(&self, col_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
+    pub fn column_tuple_vector(&self, col_index: usize) -> (Vector3<T>, Vector3<T>, Vector3<T>) {
         let offset = col_index * 9;
         (
             Vector3 { x: self.a[offset], y: self.a[offset + 1], z: self.a[offset + 2] },
@@ -1080,7 +1170,7 @@ where
     #[inline]
     #[must_use]
     pub fn transpose(&mut self) -> Self {
-        // In-place transpose of the 8x8 submatrix
+        // In-place transpose of the 9x9 submatrix
         // LLVM easily vectorizes this because the bounds and strides are power-of-two friendly
         for ii in 0..8 {
             for jj in (ii + 1)..8 {
@@ -1293,14 +1383,14 @@ where
             // Collect the strided elements for the current column
             [
                 self.a[c],
-                self.a[c + 4],
-                self.a[c + 8],
-                self.a[c + 12],
-                self.a[c + 16],
-                self.a[c + 20],
-                self.a[c + 24],
-                self.a[c + 28],
-                self.a[c + 32],
+                self.a[c + 9],
+                self.a[c + 18],
+                self.a[c + 27],
+                self.a[c + 36],
+                self.a[c + 45],
+                self.a[c + 54],
+                self.a[c + 63],
+                self.a[c + 72],
             ]
         })
     }

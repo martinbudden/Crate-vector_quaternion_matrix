@@ -643,7 +643,7 @@ where
 {
     type Output = Self;
 
-    /// Multiply vector by constant and add another vector.
+    /// Multiply matrix by constant and add another matrix.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// # use num_traits::MulAdd;
@@ -1300,6 +1300,14 @@ where
         }
     }
 
+    /// Returns a row as a tuple.
+    #[inline]
+    pub fn row_tuple(&self, row: usize) -> (T, T, T) {
+        let r = row.min(2);
+        // Made safe because c is clamped to 0..=2, so c + 6 <= 8
+        unsafe { (*self.a.get_unchecked(r), *self.a.get_unchecked(r + 3), *self.a.get_unchecked(r + 6)) }
+    }
+
     /// Set matrix column from a vector.
     /// ```
     /// # use vqm::{Matrix3x3f32,Vector3f32};
@@ -1339,6 +1347,13 @@ where
         let base = column.min(2) * 3;
         let chunk = &self.a[base..];
         Vector3 { x: chunk[0], y: chunk[1], z: chunk[2] }
+    }
+
+    /// Returns a column as a tuple.
+    #[inline]
+    pub fn column_tuple(&self, col_index: usize) -> (T, T, T) {
+        let offset = col_index * 3;
+        (self.a[offset], self.a[offset + 3], self.a[offset + 6])
     }
 
     /// Return matrix diagonal as an array.
@@ -1905,7 +1920,7 @@ impl<T> DoubleEndedIterator for Matrix3x3Columns<'_, T> {
     }
 }
 
-/// A custom iterator over the mutable columns of a 3x3 matrix.
+/// A custom iterator over the mutable columns of the matrix.
 #[derive(Debug, Default)]
 pub struct Matrix3x3ColumnsMut<'a, T> {
     inner: IterMut<'a, [T; 3]>,

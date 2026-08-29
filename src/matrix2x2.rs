@@ -545,7 +545,7 @@ where
 {
     type Output = Self;
 
-    /// Multiply vector by constant and add another vector.
+    /// Multiply matrix by constant and add another matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// # use num_traits::MulAdd;
@@ -571,7 +571,7 @@ impl<T> MulAddAssign<T> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    /// Multiply vector by constant and add another vector in place.
+    /// Multiply matrix by constant and add another matrix in place.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// # use num_traits::MulAddAssign;
@@ -1139,6 +1139,14 @@ where
         unsafe { Vector2 { x: *self.a.get_unchecked(r), y: *self.a.get_unchecked(r + 2) } }
     }
 
+    /// Returns a row as tuple.
+    #[inline]
+    pub fn row_tuple(&self, row: usize) -> (T, T) {
+        let r = row.min(1);
+        // Made safe because r is clamped to 0..=1, so r + 2 <= 3
+        unsafe { (*self.a.get_unchecked(r), *self.a.get_unchecked(r + 2)) }
+    }
+
     /// Set matrix column from a vector.
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2f32};
@@ -1174,6 +1182,15 @@ where
         let base = column.min(1) * 2;
         let chunk = &self.a[base..];
         Vector2 { x: chunk[0], y: chunk[1] }
+    }
+
+    /// Returns a column as a tuple.
+    #[inline]
+    pub fn column_tuple(self, column: usize) -> (T, T) {
+        // Branchless clamp: restricts c to 0..=1
+        let base = column.min(1) * 2;
+        let chunk = &self.a[base..];
+        (chunk[0], chunk[1])
     }
 
     /// Return matrix diagonal as a array.

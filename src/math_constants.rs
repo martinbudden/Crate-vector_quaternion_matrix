@@ -65,6 +65,12 @@ pub trait MathConstants {
     const TEN: Self;
     const ELEVEN: Self;
     const TWELVE: Self;
+    const SIXTEEN: Self;
+    const TWENTY_FIVE: Self;
+    const SIXTY_FOUR: Self;
+    const EIGHTY_ONE: Self;
+    const TWO_FIFTY_SIX: Self;
+    const SIX_TWENTY_FIVE: Self;
 }
 
 impl MathConstants for f32 {
@@ -116,6 +122,12 @@ impl MathConstants for f32 {
     const TEN: Self = 10.0;
     const ELEVEN: Self = 11.0;
     const TWELVE: Self = 12.0;
+    const SIXTEEN: Self = 16.0;
+    const TWENTY_FIVE: Self = 25.0;
+    const SIXTY_FOUR: Self = 64.0;
+    const EIGHTY_ONE: Self = 81.0;
+    const TWO_FIFTY_SIX: Self = 256.0;
+    const SIX_TWENTY_FIVE: Self = 625.0;
 }
 
 impl MathConstants for f64 {
@@ -166,6 +178,12 @@ impl MathConstants for f64 {
     const TEN: Self = 10.0;
     const ELEVEN: Self = 11.0;
     const TWELVE: Self = 12.0;
+    const SIXTEEN: Self = 16.0;
+    const TWENTY_FIVE: Self = 25.0;
+    const SIXTY_FOUR: Self = 64.0;
+    const EIGHTY_ONE: Self = 81.0;
+    const TWO_FIFTY_SIX: Self = 256.0;
+    const SIX_TWENTY_FIVE: Self = 625.0;
 }
 
 #[cfg(test)]
