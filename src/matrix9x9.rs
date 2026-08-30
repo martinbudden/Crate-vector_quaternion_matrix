@@ -651,7 +651,7 @@ where
 impl Mul<Matrix9x9<f32>> for f32 {
     type Output = Matrix9x9<f32>;
 
-    /// Pre-multiply a matrix by a constant.
+    /// Pre-multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9x9f32;
     /// let m = Matrix9x9f32::from_element(2.0);
@@ -668,7 +668,7 @@ impl Mul<Matrix9x9<f32>> for f32 {
 impl Mul<Matrix9x9<f64>> for f64 {
     type Output = Matrix9x9<f64>;
 
-    /// Pre-multiply a matrix by a constant.
+    /// Pre-multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9x9f32;
     /// let m = Matrix9x9f32::from_element(2.0);
@@ -682,7 +682,7 @@ impl Mul<Matrix9x9<f64>> for f64 {
     }
 }
 
-// **** Mul ****
+// **** Mul Scalar ****
 
 impl<T> Mul<T> for Matrix9x9<T>
 where
@@ -690,7 +690,7 @@ where
 {
     type Output = Self;
 
-    /// Multiply a matrix by a constant.
+    /// Multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9x9f32;
     /// let m = Matrix9x9f32::from_element(2.0);
@@ -710,7 +710,7 @@ impl<T> MulAssign<T> for Matrix9x9<T>
 where
     T: Copy + Matrix9x9Math,
 {
-    /// In-place multiply a matrix by a constant.
+    /// In-place multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9x9f32;
     /// let mut m = Matrix9x9f32::from_element(2.0);
@@ -723,6 +723,8 @@ where
         *self = *self * other;
     }
 }
+
+// **** Mul ****
 
 impl<T> Mul<Matrix9x9<T>> for Matrix9x9<T>
 where
@@ -857,7 +859,7 @@ where
 {
     type Output = Self;
 
-    /// Divide a matrix by a constant.
+    /// Divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9x9f32;
     /// let m = Matrix9x9f32::from_element(2.0);
@@ -877,7 +879,7 @@ impl<T> DivAssign<T> for Matrix9x9<T>
 where
     T: Copy + Matrix9x9Math,
 {
-    /// In-place divide a matrix by a constant.
+    /// In-place divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9x9f32;
     /// let mut m = Matrix9x9f32::from_element(2.0);
@@ -1252,8 +1254,8 @@ where
         let half = T::one() / (T::one() + T::one());
 
         // --- Column 1 Cross-terms ---
-        self.a[9] = (self.a[9] + self.a[1]) * half;
-        self.a[1] = self.a[9];
+        self.a[Self::M12] = (self.a[Self::M12] + self.a[Self::M21]) * half;
+        self.a[Self::M21] = self.a[Self::M12];
 
         // --- Column 2 Cross-terms ---
         self.a[18] = (self.a[18] + self.a[2]) * half;

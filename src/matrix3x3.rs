@@ -757,7 +757,7 @@ where
 impl Mul<Matrix3x3<f32>> for f32 {
     type Output = Matrix3x3<f32>;
 
-    /// Pre-multiply a matrix by a constant.
+    /// Pre-multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
@@ -784,7 +784,7 @@ impl Mul<Matrix3x3<f64>> for f64 {
     }
 }
 
-// **** Mul ****
+// **** Mul Scalar ****
 
 impl<T> Mul<T> for Matrix3x3<T>
 where
@@ -792,7 +792,7 @@ where
 {
     type Output = Self;
 
-    /// Multiply a matrix by a constant.
+    /// Multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
@@ -816,7 +816,7 @@ impl<T> MulAssign<T> for Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
 {
-    /// In-place multiply a matrix by a constant.
+    /// In-place multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let mut m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
@@ -882,6 +882,8 @@ where
     }
 }
 
+// **** Mul ****
+
 impl<T> Mul<Matrix3x3<T>> for Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
@@ -915,6 +917,85 @@ where
     #[inline]
     fn mul(self, other: Self) -> Self {
         T::m3x3_mul(self, other)
+    }
+}
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + One + FloatCore,
+{
+    /// Multiply by a diagonal matrix.
+    /// ```
+    /// # use vqm::Matrix3x3f32;
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
+    /// let n = Matrix3x3f32::new([  3.0,  0.0,  0.0,
+    ///                              0.0, 13.0,  0.0,
+    ///                              0.0,  0.0, 43.0]);
+    /// let r = m.mul_diag(n);
+    /// let s = m * n;
+    ///
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, Matrix3x3f32::new([  6.0, 221.0, 2537.0,
+    ///                                   15.0, 143.0, 2021.0,
+    ///                                   69.0, 403.0, 1763.0]));
+    /// ```
+    #[must_use]
+    pub fn mul_diag(self, other: Self) -> Self {
+        let ret = [
+            self.a[Self::M11] * other.a[Self::M11],
+            self.a[Self::M21] * other.a[Self::M11],
+            self.a[Self::M31] * other.a[Self::M11],
+            self.a[Self::M12] * other.a[Self::M22],
+            self.a[Self::M22] * other.a[Self::M22],
+            self.a[Self::M32] * other.a[Self::M22],
+            self.a[Self::M13] * other.a[Self::M33],
+            self.a[Self::M23] * other.a[Self::M33],
+            self.a[Self::M33] * other.a[Self::M33],
+        ];
+        Self { a: ret }
+    }
+}
+
+impl<T> Matrix3x3<T>
+where
+    T: Copy + One + FloatCore,
+{
+    /// Multiply by a vector that represents a diagonal matrix.
+    /// ```
+    /// # use vqm::{Matrix3x3f32, Vector3f32};
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
+    /// let v = Vector3f32 { x: 3.0, y: 13.0, z: 43.0 };
+    /// let n = Matrix3x3f32::new([  v.x,  0.0,  0.0,
+    ///                              0.0,  v.y,  0.0,
+    ///                              0.0,  0.0,  v.z]);
+    /// let r = m.mul_diag_vector(v);
+    /// let s = m * n;
+    /// let t = m.mul_diag(n);
+    ///
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, t);
+    /// assert_eq!(r, Matrix3x3f32::new([  6.0, 221.0, 2537.0,
+    ///                                   15.0, 143.0, 2021.0,
+    ///                                   69.0, 403.0, 1763.0]));
+    /// ```
+    #[must_use]
+    pub fn mul_diag_vector(self, other: Vector3<T>) -> Self {
+        let ret = [
+            self.a[Self::M11] * other.x,
+            self.a[Self::M21] * other.x,
+            self.a[Self::M31] * other.x,
+            self.a[Self::M12] * other.y,
+            self.a[Self::M22] * other.y,
+            self.a[Self::M32] * other.y,
+            self.a[Self::M13] * other.z,
+            self.a[Self::M23] * other.z,
+            self.a[Self::M33] * other.z,
+        ];
+        Self { a: ret }
     }
 }
 
@@ -997,7 +1078,7 @@ where
 {
     type Output = Self;
 
-    /// Divide a matrix by a constant.
+    /// Divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
@@ -1021,7 +1102,7 @@ impl<T> DivAssign<T> for Matrix3x3<T>
 where
     T: Copy + Matrix3x3Math,
 {
-    /// In-place divide a matrix by a constant.
+    /// In-place divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix3x3f32;
     /// let mut m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
@@ -1951,6 +2032,16 @@ impl<T> DoubleEndedIterator for Matrix3x3ColumnsMut<'_, T> {
 }
 
 // **** From ****
+
+// **** From Array ****
+
+impl<T> From<[T; 9]> for Matrix3x3<T> {
+    /// Matrix from 1D array.
+    #[inline]
+    fn from(input: [T; 9]) -> Self {
+        Self { a: input }
+    }
+}
 
 // **** From Matrix ****
 

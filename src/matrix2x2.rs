@@ -647,7 +647,7 @@ where
 impl Mul<Matrix2x2<f32>> for f32 {
     type Output = Matrix2x2<f32>;
 
-    /// Pre-multiply a matrix by a constant.
+    /// Pre-multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
@@ -671,7 +671,7 @@ impl Mul<Matrix2x2<f64>> for f64 {
     }
 }
 
-// **** Mul ****
+// **** Mul Scalar ****
 
 impl<T> Mul<T> for Matrix2x2<T>
 where
@@ -679,7 +679,7 @@ where
 {
     type Output = Self;
 
-    /// Multiply a matrix by a constant.
+    /// Multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
@@ -701,7 +701,7 @@ impl<T> MulAssign<T> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    /// In-place multiply a matrix by a constant.
+    /// In-place multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
@@ -764,6 +764,8 @@ where
     }
 }
 
+// **** Mul ****
+
 impl<T> Mul<Matrix2x2<T>> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
@@ -794,6 +796,69 @@ where
     #[inline]
     fn mul(self, other: Self) -> Self {
         T::m2x2_mul(self, other)
+    }
+}
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + One + FloatCore,
+{
+    /// Multiply by a diagonal matrix.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
+    /// let n = Matrix2x2f32::new([  3.0,  0.0,
+    ///                              0.0, 13.0]);
+    /// let r = m.mul_diag(n);
+    /// let s = m * n;
+    ///
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, Matrix2x2f32::new([  6.0, 221.0,
+    ///                                   15.0, 143.0]));
+    /// ```
+    #[must_use]
+    pub fn mul_diag(self, other: Self) -> Self {
+        let ret = [
+            self.a[Self::M11] * other.a[Self::M11],
+            self.a[Self::M21] * other.a[Self::M11],
+            self.a[Self::M12] * other.a[Self::M22],
+            self.a[Self::M22] * other.a[Self::M22],
+        ];
+        Self { a: ret }
+    }
+}
+
+impl<T> Matrix2x2<T>
+where
+    T: Copy + One + FloatCore,
+{
+    /// Multiply by a vector that represents a diagonal matrix.
+    /// ```
+    /// # use vqm::{Matrix2x2f32, Vector2f32};
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
+    /// let v = Vector2f32 { x: 3.0, y: 13.0 };
+    /// let n = Matrix2x2f32::new([  v.x, 0.0,
+    ///                              0.0, v.y]);
+    /// let r = m.mul_diag_vector(v);
+    /// let s = m * n;
+    /// let t = m.mul_diag(n);
+    ///
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, t);
+    /// assert_eq!(r, Matrix2x2f32::new([  6.0, 221.0,
+    ///                                   15.0, 143.0]));
+    /// ```
+    #[must_use]
+    pub fn mul_diag_vector(self, other: Vector2<T>) -> Self {
+        let ret = [
+            self.a[Self::M11] * other.x,
+            self.a[Self::M21] * other.x,
+            self.a[Self::M12] * other.y,
+            self.a[Self::M22] * other.y,
+        ];
+        Self { a: ret }
     }
 }
 
@@ -872,7 +937,7 @@ where
 {
     type Output = Self;
 
-    /// Divide a matrix by a constant.
+    /// Divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
@@ -894,7 +959,7 @@ impl<T> DivAssign<T> for Matrix2x2<T>
 where
     T: Copy + Matrix2x2Math,
 {
-    /// In-place divide a matrix by a constant.
+    /// In-place divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix2x2f32;
     /// let mut m = Matrix2x2f32::new([  2.0, 17.0,

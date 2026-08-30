@@ -99,6 +99,7 @@ where
     pub fn from_element(value: T) -> Self {
         Self { a: [Matrix3x3::<T>::from_element(value); 9] }
     }
+
     /// Matrix from 1D row array.
     #[inline]
     pub const fn from_row_array(a: [Matrix3x3<T>; 9]) -> Self {
@@ -492,7 +493,7 @@ where
 impl Mul<Matrix9<f32>> for f32 {
     type Output = Matrix9<f32>;
 
-    /// Pre-multiply a matrix by a constant.
+    /// Pre-multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9f32;
     /// let m = Matrix9f32::from_element(2.0);
@@ -513,7 +514,7 @@ impl Mul<Matrix9<f32>> for f32 {
 impl Mul<Matrix9<f64>> for f64 {
     type Output = Matrix9<f64>;
 
-    /// Pre-multiply a matrix by a constant.
+    /// Pre-multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9f32;
     /// let m = Matrix9f32::from_element(2.0);
@@ -531,7 +532,7 @@ impl Mul<Matrix9<f64>> for f64 {
     }
 }
 
-// **** Mul ****
+// **** Mul Scalar ****
 
 impl<T> Mul<T> for Matrix9<T>
 where
@@ -540,7 +541,7 @@ where
 {
     type Output = Self;
 
-    /// Multiply a matrix by a constant.
+    /// Multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9f32;
     /// let m = Matrix9f32::from_element(2.0);
@@ -565,7 +566,7 @@ where
     T: Copy + Matrix9x9Math,
     Matrix3x3<T>: Mul<T, Output = Matrix3x3<T>>,
 {
-    /// In-place multiply a matrix by a constant.
+    /// In-place multiply a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9f32;
     /// let mut m = Matrix9f32::from_element(2.0);
@@ -578,6 +579,8 @@ where
         *self = *self * other;
     }
 }
+
+// **** Mul ****
 
 impl<T> Mul<Matrix9<T>> for Matrix9<T>
 where
@@ -635,7 +638,7 @@ where
 {
     type Output = Self;
 
-    /// Divide a matrix by a constant.
+    /// Divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9f32;
     /// let m = Matrix9f32::from_element(2.0);
@@ -657,7 +660,7 @@ where
     T: Copy + One + Div,
     Matrix9<T>: Div<T, Output = Matrix9<T>>,
 {
-    /// In-place divide a matrix by a constant.
+    /// In-place divide a matrix by a scalar.
     /// ```
     /// # use vqm::Matrix9f32;
     /// let mut m = Matrix9f32::from_element(2.0);
@@ -995,6 +998,10 @@ where
     pub fn enforce_symmetry(&mut self) {
         let half = T::one() / (T::one() + T::one());
 
+        self.a[Self::M11].enforce_symmetry();
+        self.a[Self::M22].enforce_symmetry();
+        self.a[Self::M33].enforce_symmetry();
+
         self.a[Self::M12] = (self.a[Self::M12] + self.a[Self::M21]) * half;
         self.a[Self::M21] = self.a[Self::M12];
 
@@ -1105,7 +1112,7 @@ impl<T: Copy> core::iter::FusedIterator for Matrix9Columns<'_, T> {}
 // **** From Matrix ****
 
 impl<T: Copy> From<Matrix9<T>> for Matrix2x2<T> {
-    /// Matrix2x2 from Matrix9x9. Takes top left of m9x9, discarding other values.
+    /// Matrix2x2 from Matrix9. Takes top left of m9, discarding other values.
     #[rustfmt::skip]
     #[inline]
     fn from(m: Matrix9<T>) -> Self {
@@ -1117,7 +1124,7 @@ impl<T: Copy> From<Matrix9<T>> for Matrix2x2<T> {
 }
 
 impl<T: Copy> From<Matrix9<T>> for Matrix3x3<T> {
-    /// Matrix3x3 from Matrix9x9. Takes top left of m9x9, discarding other values.
+    /// Matrix3x3 from Matrix9. Takes top left of m9, discarding other values.
     #[rustfmt::skip]
     #[inline]
     fn from(m: Matrix9<T>) -> Self {
@@ -1130,15 +1137,16 @@ impl<T: Copy> From<Matrix9<T>> for Matrix3x3<T> {
 }
 
 impl<T: Copy> From<Matrix9<T>> for Matrix4x4<T> {
-    /// Matrix4x4 from Matrix9x9. Takes top left of m9x9, discarding other values.
+    /// Matrix4x4 from Matrix9. Takes top left of m9, discarding other values.
     #[rustfmt::skip]
     #[inline]
     fn from(m: Matrix9<T>) -> Self {
         Self { a: [
-            m.a[0].a[0], m.a[0].a[3], m.a[0].a[6], m.a[3].a[0],
-            m.a[0].a[1], m.a[0].a[4], m.a[0].a[7], m.a[3].a[1],
-            m.a[0].a[2], m.a[0].a[5], m.a[0].a[8], m.a[3].a[2],
-            m.a[1].a[0], m.a[1].a[3], m.a[1].a[6], m.a[4].a[0],
+            m.a[0].a[0], m.a[0].a[3], m.a[0].a[6],    m.a[3].a[0],
+            m.a[0].a[1], m.a[0].a[4], m.a[0].a[7],    m.a[3].a[1],
+            m.a[0].a[2], m.a[0].a[5], m.a[0].a[8],    m.a[3].a[2],
+
+            m.a[1].a[0], m.a[1].a[3], m.a[1].a[6],    m.a[4].a[0],
         ] }
     }
 }
@@ -1183,12 +1191,8 @@ impl<T: Copy> From<Matrix9x9<T>> for Matrix9<T> {
 }
 
 impl<T: Copy> From<[Matrix3x3<T>; 9]> for Matrix9<T> {
-    /// Matrix4x4 from Matrix9x9. Takes top left of m9x9, discarding other values.
-    #[rustfmt::skip]
     #[inline]
-    fn from(m: [Matrix3x3<T>;9]) -> Self {
-        Self { a: [
-            m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8],
-        ] }
+    fn from(m: [Matrix3x3<T>; 9]) -> Self {
+        Self { a: [m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]] }
     }
 }
