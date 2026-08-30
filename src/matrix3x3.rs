@@ -956,12 +956,7 @@ where
         ];
         Self { a: ret }
     }
-}
 
-impl<T> Matrix3x3<T>
-where
-    T: Copy + One + FloatCore,
-{
     /// Multiply by a vector that represents a diagonal matrix.
     /// ```
     /// # use vqm::{Matrix3x3f32, Vector3f32};
@@ -994,6 +989,42 @@ where
             self.a[Self::M13] * other.z,
             self.a[Self::M23] * other.z,
             self.a[Self::M33] * other.z,
+        ];
+        Self { a: ret }
+    }
+
+    /// Multiply by an array that represents a diagonal matrix.
+    /// ```
+    /// # use vqm::{Matrix3x3f32, Vector3f32};
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
+    /// let a = [3.0, 13.0, 43.0 ];
+    /// let n = Matrix3x3f32::new([  a[0], 0.0,  0.0,
+    ///                              0.0,  a[1], 0.0,
+    ///                              0.0,  0.0,  a[2]]);
+    /// let r = m.mul_diag_array(a);
+    /// let s = m * n;
+    /// let t = m.mul_diag(n);
+    ///
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, t);
+    /// assert_eq!(r, Matrix3x3f32::new([  6.0, 221.0, 2537.0,
+    ///                                   15.0, 143.0, 2021.0,
+    ///                                   69.0, 403.0, 1763.0]));
+    /// ```
+    #[must_use]
+    pub fn mul_diag_array(self, other: [T; 3]) -> Self {
+        let ret = [
+            self.a[Self::M11] * other[0],
+            self.a[Self::M21] * other[0],
+            self.a[Self::M31] * other[0],
+            self.a[Self::M12] * other[1],
+            self.a[Self::M22] * other[1],
+            self.a[Self::M32] * other[1],
+            self.a[Self::M13] * other[2],
+            self.a[Self::M23] * other[2],
+            self.a[Self::M33] * other[2],
         ];
         Self { a: ret }
     }

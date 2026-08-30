@@ -1028,12 +1028,7 @@ where
         ];
         Self { a: ret }
     }
-}
 
-impl<T> Matrix4x4<T>
-where
-    T: Copy + One + FloatCore,
-{
     /// Multiply by a vector that represents a diagonal matrix.
     /// ```
     /// # use vqm::{Matrix4x4f32, Vector4f32};
@@ -1072,6 +1067,48 @@ where
             self.a[Self::M24] * other.t,
             self.a[Self::M34] * other.t,
             self.a[Self::M44] * other.t,
+        ];
+        Self { a: ret }
+    }
+
+    /// Multiply by a vector that represents a diagonal matrix.
+    /// ```
+    /// # use vqm::{Matrix4x4f32};
+    /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                              5.0, 11.0, 47.0, 109.0,
+    ///                             23.0, 31.0, 41.0, 103.0,
+    ///                             67.0, 73.0, 83.0,  97.0]);
+    /// let a = [ 3.0, 13.0, 43.0, 101.0 ];
+    /// let n = Matrix4x4f32::new([  a[0], 0.0,  0.0,  0.0,
+    ///                              0.0,  a[1], 0.0,  0.0,
+    ///                              0.0,  0.0,  a[2], 0.0,
+    ///                              0.0,  0.0,  0.0,  a[3]]);
+    /// let r = m.mul_diag_array(a);
+    /// let s = m * n;
+    /// let t = m.mul_diag(n);
+    ///
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, t);
+    /// ```
+    #[must_use]
+    pub fn mul_diag_array(self, other: [T; 4]) -> Self {
+        let ret = [
+            self.a[Self::M11] * other[0],
+            self.a[Self::M21] * other[0],
+            self.a[Self::M31] * other[0],
+            self.a[Self::M41] * other[0],
+            self.a[Self::M12] * other[1],
+            self.a[Self::M22] * other[1],
+            self.a[Self::M32] * other[1],
+            self.a[Self::M42] * other[1],
+            self.a[Self::M13] * other[2],
+            self.a[Self::M23] * other[2],
+            self.a[Self::M33] * other[2],
+            self.a[Self::M43] * other[2],
+            self.a[Self::M14] * other[3],
+            self.a[Self::M24] * other[3],
+            self.a[Self::M34] * other[3],
+            self.a[Self::M44] * other[3],
         ];
         Self { a: ret }
     }

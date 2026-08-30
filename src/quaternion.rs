@@ -757,7 +757,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + One + QuaternionMath + Div<T, Output = T> + Neg<Output = T>,
+    T: Copy + One + Zero + QuaternionMath + Div<T, Output = T> + Neg<Output = T>,
 {
     // Return the inverse of the quaternion.
     /// ```
@@ -773,8 +773,42 @@ where
     #[inline]
     #[must_use]
     pub fn inverse(self) -> Self {
-        let r = T::one() / self.norm_squared();
-        Self { w: self.w * r, x: -self.x * r, y: -self.y * r, z: -self.z * r }
+        let n = self.norm_squared();
+        if n.is_zero() {
+            Self { w: T::one(), x: T::zero(), y: T::zero(), z: T::zero() }
+        } else {
+            let r = T::one() / n;
+            Self { w: self.w * r, x: -self.x * r, y: -self.y * r, z: -self.z * r }
+        }
+    }
+    /// Inverts this quaternion if it is not zero.
+    /// # Example
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// let q = Quaternionf32::new(1.0, 2.0, 3.0, 4.0);
+    /// let q_inv = q.try_inverse().unwrap_or_default();
+    /// let r = q * q_inv;
+    ///
+    /// assert_eq!(1.0, r.w);
+    /// assert!(r.x.abs() < 1e-7);
+    /// assert!(r.y.abs() < 1e-7);
+    /// assert!(r.z.abs() < 1e-7);
+    ///
+    /// let z = Quaternionf32::new(0.0, 0.0, 0.0, 0.0);
+    /// let z_inv = z.try_inverse();
+    ///
+    /// assert!(z_inv.is_none());
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn try_inverse(&self) -> Option<Self> {
+        let n = self.norm_squared();
+        if n.is_zero() {
+            None
+        } else {
+            let r = T::one() / n;
+            Some(Self { w: self.w * r, x: -self.x * r, y: -self.y * r, z: -self.z * r })
+        }
     }
 }
 

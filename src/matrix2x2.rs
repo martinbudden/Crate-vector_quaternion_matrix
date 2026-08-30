@@ -827,12 +827,7 @@ where
         ];
         Self { a: ret }
     }
-}
 
-impl<T> Matrix2x2<T>
-where
-    T: Copy + One + FloatCore,
-{
     /// Multiply by a vector that represents a diagonal matrix.
     /// ```
     /// # use vqm::{Matrix2x2f32, Vector2f32};
@@ -857,6 +852,35 @@ where
             self.a[Self::M21] * other.x,
             self.a[Self::M12] * other.y,
             self.a[Self::M22] * other.y,
+        ];
+        Self { a: ret }
+    }
+
+    /// Multiply by an array that represents a diagonal matrix.
+    /// # Example
+    /// ```
+    /// # use vqm::{Matrix2x2f32};
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
+    /// let a = [ 3.0, 13.0 ];
+    /// let n = Matrix2x2f32::new([  a[0], 0.0,
+    ///                              0.0, a[1]]);
+    /// let r = m.mul_diag_array(a);
+    /// let s = m * n;
+    /// let t = m.mul_diag(n);
+    ///
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, t);
+    /// assert_eq!(r, Matrix2x2f32::new([  6.0, 221.0,
+    ///                                   15.0, 143.0]));
+    /// ```
+    #[must_use]
+    pub fn mul_diag_array(self, other: [T; 2]) -> Self {
+        let ret = [
+            self.a[Self::M11] * other[0],
+            self.a[Self::M21] * other[0],
+            self.a[Self::M12] * other[1],
+            self.a[Self::M22] * other[1],
         ];
         Self { a: ret }
     }

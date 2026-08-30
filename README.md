@@ -108,7 +108,19 @@ but it will not automatically convert between different units.
     assert_eq!(e, Vector3 { x: Velocity::new::<meter_per_second>(0.5), y: Velocity::new::<meter_per_second>(1.25), z: Velocity::new::<meter_per_second>(2.75)})
 ```
 
-## Robotics support
+## Specializations
+
+`vqm` includes a number of specializations that you might not find in your typical linear algebra/graphics/math library.
+
+A specialization may be considered for inclusion in `vqm` if it provides useful functionality to a library that uses `vqm`.
+
+A specialization generally won't be considered for inclusion to support a single application.
+
+## Bare metal (that is `no_std` and no `libm`)
+
+`vqm` includes implementations for square root and trigonometric functions that allow it to run without `std` and `libm`.
+
+### Robotics support
 
 `vqm` has additional functionality specifically to support robotics applications. This includes:
 
@@ -116,7 +128,7 @@ but it will not automatically convert between different units.
 2. `RollPitch` and `RollPitchYaw` structs.
 3. Quaternion utility functions such as `cos_tilt` and `gravity`.
 
-## Mathematical methods and constants
+### Mathematical methods and constants
 
 This crate also provides implementations of the trigonometric methods normally provided by the standard library, namely:
 `sin`, `cos`, `sin_cos`, `tan`, `asin`, `acos`, `atan2`. The are provided in `method_call` syntax, ie `x.sin()`.
@@ -130,11 +142,11 @@ ie `T:PI`.
 
 **SIMD** support can be enabled with the `simd` feature.
 
-It is currently experimental and many of the implementations are naive "placeholder" implementations to be optimized at a later date.
+Currently most microcontrollers (eg Arm Cortex M series) don't directly support **SIMD**, so it is of limited use for embedded applications.
 
-Currently most embedded processors (eg Arm Cortex M series) don't directly support **SIMD**, so it is of limited use for embedded applications.
-However, that may change: so the placeholder implementation serves as proof of concept an ensures that future implementations are possible.
+However, that may change: so the placeholder implementation serves as proof of concept and future proofing: it ensures that future implementations are possible.
 
+For that reason many of the implementations are naive "placeholder" implementations.
 These placeholder implementations may be slower than the non-SIMD code, so if you used SIMD make sure you benchmark to show
 that you are indeed getting a performance improvement.
 

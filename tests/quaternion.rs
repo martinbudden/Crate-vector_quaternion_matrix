@@ -45,6 +45,26 @@ mod tests {
         assert!(i.is_one());
     }
     #[test]
+    fn inv() {
+        let q = Quaternionf32::new(1.0, 2.0, 3.0, 4.0);
+
+        let Some(q_inv) = q.try_inverse() else {
+            panic!("zero quaternion");
+        };
+        let r = q * q_inv;
+        assert_eq!(1.0, r.w);
+        assert!(r.x.abs() < 1e-7);
+        assert!(r.y.abs() < 1e-7);
+        assert!(r.z.abs() < 1e-7);
+
+        let q_inv = q.try_inverse().unwrap_or_default();
+        let r = q * q_inv;
+        assert_eq!(1.0, r.w);
+        assert!(r.x.abs() < 1e-7);
+        assert!(r.y.abs() < 1e-7);
+        assert!(r.z.abs() < 1e-7);
+    }
+    #[test]
     fn from() {
         let a = Quaternionf32::from((0.0, 0.0, 0.0));
         let b = Quaternionf32::from_roll_pitch_yaw_radians(0.0, 0.0, 0.0);
