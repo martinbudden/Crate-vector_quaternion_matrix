@@ -19,7 +19,9 @@ categories = [
 rustc_version = "0.4.1"
 
 [features]
+#default = []
 default = ["libm"]
+#default = ["libm", "std"]
 #default = ["libm", "simd", "align"]
 #default = ["libm", "serde", "uom"]
 #default = ["std"]

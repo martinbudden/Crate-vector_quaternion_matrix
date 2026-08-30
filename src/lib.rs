@@ -54,7 +54,7 @@ pub use math_methods::TrigonometricMethods;
 
 // The trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use.
 #[doc(hidden)]
-pub use math_methods::{cos_approx, sin_approx, sin_cos_approx};
+pub use math_methods::{cos_approx_f32, sin_approx_f32, sin_cos_approx_f32};
 pub use sqrt_methods::SqrtMethods;
 
 pub use vector2::{Vector2, Vector2f32, Vector2f64};
