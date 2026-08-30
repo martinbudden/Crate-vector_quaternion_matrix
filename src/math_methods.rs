@@ -485,30 +485,34 @@ pub fn atan2_approx_f64(x: f64, y: f64) -> f64 {
 #[must_use]
 #[allow(clippy::panic)]
 pub fn atan2_approx_f32(y: f32, x: f32) -> f32 {
-    if x > 0.0 {
-        if y > x {
-            // abs(y) > abs(x)
-            return core::f32::consts::FRAC_PI_2 - atan_quadrant(x / y);
-        }
-        if y < 0.0 {
-            if -y > x {
-                return -core::f32::consts::FRAC_PI_2 - atan_quadrant(x / y);
-            }
-            return atan_quadrant(y / x);
-        }
-        // x > 0.0, y >= x
-        return atan_quadrant(y / x);
+    if x == 0.0 && y == 0.0 {
+        return 0.0;
     }
-    if -y > -x {
-        return -core::f32::consts::FRAC_PI_2 - atan_quadrant(x / y);
+
+    let abs_y = y.abs();
+    let abs_x = x.abs();
+
+    // Octant reduction
+    let (ratio, offset, sign) = if abs_y > abs_x {
+        // Octant 2: FRAC_PI_2 - atan(x/y)
+        (abs_x / abs_y, core::f32::consts::FRAC_PI_2, -1.0)
+    } else {
+        // Octant 1: 0.0 + atan(y/x)
+        (abs_y / abs_x, 0.0, 1.0)
+    };
+
+    // Calculate core first-quadrant angle cleanly
+    let mut angle = offset + (sign * atan_quadrant(ratio));
+
+    // Map back to the correct quadrant based on original signs
+    if x < 0.0 {
+        angle = core::f32::consts::PI - angle;
     }
     if y < 0.0 {
-        return -core::f32::consts::PI + atan_quadrant(y / x);
+        angle = -angle;
     }
-    if y > -x {
-        return core::f32::consts::FRAC_PI_2 - atan_quadrant(x / y);
-    }
-    core::f32::consts::PI + atan_quadrant(y / x)
+
+    angle
 }
 
 #[cfg(test)]
@@ -661,8 +665,10 @@ mod tests {
     #[cfg(feature = "libm")]
     #[test]
     fn atan2_approx() {
+        assert_abs_diff_eq!(atan2_approx_f32(0.0, 0.0), libm::atan2f(0.0, 0.0), epsilon = 7.0e-5);
+
         assert_abs_diff_eq!(atan2_approx_f32(0.0, 1.0), libm::atan2f(0.0, 1.0), epsilon = 7.0e-5);
-        assert_abs_diff_eq!(atan2_approx_f32(0.1, 1.0), libm::atan2f(0.1, 1.0), epsilon = 7.0e-5);
+        assert_abs_diff_eq!(atan2_approx_f32(0.1, 1.0), libm::atan2f(0.1, 1.0), epsilon = 7.0e-5); // 0.09966865
         assert_abs_diff_eq!(atan2_approx_f32(0.5, 1.0), libm::atan2f(0.5, 1.0), epsilon = 8.0e-5); // 0.4636476
         assert_abs_diff_eq!(atan2_approx_f32(1.0, 1.0), libm::atan2f(1.0, 1.0), epsilon = 8.2e-5); // 0.7853982, PI/4
         assert_abs_diff_eq!(atan2_approx_f32(2.0, 1.0), libm::atan2f(2.0, 1.0), epsilon = 8.0e-5); // 1.1071488
