@@ -32,7 +32,6 @@ test-uom = "test --features serde uom"
 # Run using: 'rustup run nightly cargo check-simd'
 check-simd = "check --features simd,align"
 
-# Run using: 'rustup run nightly cargo check-simd'
 check-none = [ "check", "--no-default-features"]
 check-libm = [ "check", "--no-default-features", "--features", "libm"]
 check-std = [ "check", "--no-default-features", "--features", "std"]

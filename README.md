@@ -93,6 +93,8 @@ Units of measurement support can be enabled with the `uom` feature.
 By default the `autoconvert` feature is off, so `uom` will check that incorrect units are not inadvertently used,
 but it will not automatically convert between different units.
 
+Note: the `libm` feature must enabled to use the `uom` feature.
+
 ```rust
     use vqm::Vector3;
     use uom::si::f32::{Area, Length, Ratio, Time, Velocity};

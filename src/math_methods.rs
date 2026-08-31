@@ -2,21 +2,14 @@
 
 use cfg_if::cfg_if;
 
-#[cfg(all(
-    all(not(feature = "std"), not(feature = "libm")),
-    not(any(feature = "std", all(not(feature = "std"), feature = "libm")))
-))]
-use crate::{
-    math_approximations::tan_approx_f64,
-    sqrt_approximations::{sqrt_reciprocal_f32, sqrt_reciprocal_f64},
-};
 #[allow(unused)]
 use crate::{
     math_approximations::{
-        atan2_approx_f32, atan2_approx_f64, cos_approx_f32, cos_approx_f64, sin_approx_f32, sin_approx_f64,
-        sin_cos_approx_f32, sin_cos_approx_f64, tan_approx_f32,
+        atan2_approx_f32, atan2_approx_f64, cos_approx_f32, cos_approx_f64, exp_approx_f32, exp_approx_f64,
+        ln_approx_f32, ln_approx_f64, powf_approx_f32, powf_approx_f64, sin_approx_f32, sin_approx_f64,
+        sin_cos_approx_f32, sin_cos_approx_f64, tan_approx_f32, tan_approx_f64,
     },
-    sqrt_approximations::{sqrt_f32, sqrt_f64},
+    sqrt_approximations::{sqrt_f32, sqrt_f64, sqrt_reciprocal_f32, sqrt_reciprocal_f64},
 };
 
 // The form x.fn() is called method call syntax.
@@ -42,6 +35,9 @@ use crate::{
 // x.sin_cos()
 // x.sin(), x.cos(), x.tan()
 // x.asin(), x.acos(), x.atan(), x.atan2()
+// x.exp()
+// x.ln()
+// x.powf()
 // and additionally x.sqrt_reciprocal()
 //
 // So the following are unprovided
@@ -73,6 +69,12 @@ pub trait MathMethods: Sized {
     fn sqrt(self) -> Self;
     #[must_use]
     fn sqrt_reciprocal(self) -> Self;
+    #[must_use]
+    fn exp(self) -> Self;
+    #[must_use]
+    fn ln(self) -> Self;
+    #[must_use]
+    fn powf(self, e: Self) -> Self;
 }
 
 cfg_if! {
@@ -119,6 +121,18 @@ cfg_if! {
             fn sqrt_reciprocal(self) -> f32 {
                 1.0 / self.sqrt()
             }
+            #[inline(always)]
+            fn exp(self) -> Self {
+                self.exp()
+            }
+            #[inline(always)]
+            fn ln(self) -> Self {
+                self.ln()
+            }
+            #[inline(always)]
+            fn powf(self, e: Self) -> Self {
+                self.powf(e)
+            }
         }
         impl MathMethods for f64 {
             #[inline(always)]
@@ -160,6 +174,18 @@ cfg_if! {
             #[inline(always)]
             fn sqrt_reciprocal(self) -> f64 {
                 1.0 / self.sqrt()
+            }
+            #[inline(always)]
+            fn exp(self) -> Self {
+                self.exp()
+            }
+            #[inline(always)]
+            fn ln(self) -> Self {
+                self.ln()
+            }
+            #[inline(always)]
+            fn powf(self, e:Self) -> Self {
+                self.powf(e)
             }
         }
     } else if #[cfg(all(not(feature = "std"), feature = "libm"))] {
@@ -216,6 +242,18 @@ cfg_if! {
                 #[cfg(not(all(target_arch = "arm", target_feature = "vfp2")))]
                 { 1.0 / libm::sqrtf(self) }
             }
+            #[inline(always)]
+            fn exp(self) -> Self {
+                libm::expf(self)
+            }
+            #[inline(always)]
+            fn ln(self) -> Self {
+                libm::logf(self)
+            }
+            #[inline(always)]
+            fn powf(self, e: Self) -> Self {
+                libm::powf(self, e)
+            }
         }
         impl MathMethods for f64 {
             #[inline(always)]
@@ -259,6 +297,18 @@ cfg_if! {
             fn sqrt_reciprocal(self) -> f64 {
                 1.0 / libm::sqrt(self)
             }
+            #[inline(always)]
+            fn exp(self) -> Self {
+                libm::exp(self)
+            }
+            #[inline(always)]
+            fn ln(self) -> Self {
+                libm::log(self)
+            }
+            #[inline(always)]
+            fn powf(self, e: Self) -> Self {
+                libm::pow(self, e)
+            }
         }
     } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
         impl MathMethods for f32 {
@@ -293,6 +343,18 @@ cfg_if! {
             fn sqrt_reciprocal(self) -> f32 {
                 sqrt_reciprocal_f32(self)
             }
+            #[inline(always)]
+            fn exp(self) -> Self {
+                exp_approx_f32(self)
+            }
+            #[inline(always)]
+            fn ln(self) -> Self {
+                ln_approx_f32(self)
+            }
+            #[inline(always)]
+            fn powf(self, e: Self) -> Self {
+                powf_approx_f32(self, e)
+            }
         }
         impl MathMethods for f64 {
             fn sin_cos(self) -> (Self, Self) {
@@ -325,6 +387,18 @@ cfg_if! {
             }
             fn sqrt_reciprocal(self) -> f64 {
                 sqrt_reciprocal_f64(self)
+            }
+            #[inline(always)]
+            fn exp(self) -> Self {
+                exp_approx_f64(self)
+            }
+            #[inline(always)]
+            fn ln(self) -> Self {
+                ln_approx_f64(self)
+            }
+            #[inline(always)]
+            fn powf(self, e: Self) -> Self {
+                powf_approx_f64(self, e)
             }
         }
     }
