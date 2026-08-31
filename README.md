@@ -126,7 +126,15 @@ A specialization generally won't be considered for inclusion to support a single
 
 1. `Vector3f32` functions to load from a `[u8; 6]`.
 2. `RollPitch` and `RollPitchYaw` structs.
-3. Quaternion utility functions such as `cos_tilt` and `gravity`.
+3. `to_radians` and `to_degrees` convenience functions for vectors and `RollPitch` and `RollPitchYaw` structs.
+4. Quaternion utility functions such as `cos_tilt` and `gravity`.
+
+### Kalman filters
+
+`vqm` has additional functionality specifically to support Kalman filters. This includes:
+
+1. `Matrix9` - a 9x9 matrix implemented as an array of 9 `Matrix3x3`s.
+2. `Matrix3x3::mul_diag_vector` - multiplies a matrix by a vector which is treated as a diagonal matrix.
 
 ### Mathematical methods and constants
 
@@ -181,17 +189,17 @@ There are currently a number of Rust crates that support vector math, quaternion
 [nalgebra](https://crates.io/crates/nalgebra), [glam](https://crates.io/crates/glam), [vek](https://crates.io/crates/vek),
 and [ultraviolet](https://crates.io/crates/ultraviolet).
 
-nalgebra is a general purpose linear algebra crate. The others are more focused on graphics and game maths.
+`nalgebra` is a general purpose linear algebra crate. The others are more focused on graphics and game maths.
 
 In graphics and gaming the requirement is generally to be able to do a relatively small number of operations on a
 relatively large number of vectors in a given time slice. The graphics/game focused crates optimize for this
-(ultraviolet in particular uses  "SoA" (Structure of Arrays) rather than "AoS" (Array of Structs) layout to this end).
+(`ultraviolet` in particular uses  `SoA` (Structure of Arrays) rather than `AoS` (Array of Structs) layout to this end).
 
 In embedded applications the requirement is often to do a relatively large number of operations on a relatively small number
-of vectors. This means that ultraviolet is not really suited for embedded, and although glam or vek could be used
+of vectors. This means that `ultraviolet` is not really suited for embedded, and although `glam` or `vek` could be used
 they would not be playing to their strengths.
 
-This leaves nalgebra. It certainly could be used: even though it is a large library only the bits used would be included
+This leaves `nalgebra`. It certainly could be used: even though it is a large library only the bits used would be included
 in an application, so it would not cause code bloat.
 
 However I did not really want my code to be dependent on such a large library, so I decided to port my existing C++ vector
