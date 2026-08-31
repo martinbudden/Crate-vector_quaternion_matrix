@@ -9,7 +9,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::math_methods::TrigonometricMethods;
+use crate::math_methods::MathMethods;
 use crate::sqrt_methods::SqrtMethods;
 use crate::{QuaternionMath, Vector3};
 
@@ -998,7 +998,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + FloatCore + TrigonometricMethods,
+    T: Copy + FloatCore + MathMethods,
 {
     /// Rotate about the x-axis,
     /// equivalent to *= Quaternion(cos(theta/2), sin(theta/2), 0, 0).
@@ -1212,7 +1212,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + TrigonometricMethods + FloatCore,
+    T: Copy + MathMethods + FloatCore,
 {
     #[inline]
     pub fn calculate_roll_degrees(self) -> T {
@@ -1319,7 +1319,7 @@ impl<T> From<Quaternion<T>> for [T; 4] {
 
 impl<T> From<(T, T)> for Quaternion<T>
 where
-    T: TrigonometricMethods + FloatCore,
+    T: MathMethods + FloatCore,
 {
     #[inline]
     fn from((roll_radians, pitch_radians): (T, T)) -> Self {
@@ -1329,7 +1329,7 @@ where
 
 impl<T> From<(T, T, T)> for Quaternion<T>
 where
-    T: TrigonometricMethods + FloatCore,
+    T: MathMethods + FloatCore,
 {
     #[inline]
     fn from((roll_radians, pitch_radians, yaw_radians): (T, T, T)) -> Self {

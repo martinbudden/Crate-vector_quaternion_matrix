@@ -40,7 +40,7 @@ use crate::sqrt_methods::{sqrt_f32, sqrt_f64};
 
 /// `no_std` implementations of trigonometric functions in method call syntax<br>
 /// eg `x.sin()`, `x.cos()` etc.<br><br>
-pub trait TrigonometricMethods: Sized {
+pub trait MathMethods: Sized {
     fn sin_cos(self) -> (Self, Self);
     #[must_use]
     fn sin(self) -> Self;
@@ -61,7 +61,7 @@ pub trait TrigonometricMethods: Sized {
 cfg_if! {
     if #[cfg(feature = "std")] {
         // Use the hardware-linked math methods in Standard Library
-        impl TrigonometricMethods for f32 {
+        impl MathMethods for f32 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
                 self.sin_cos()
@@ -95,7 +95,7 @@ cfg_if! {
                 self.atan()
             }
         }
-        impl TrigonometricMethods for f64 {
+        impl MathMethods for f64 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
                 self.sin_cos()
@@ -130,7 +130,7 @@ cfg_if! {
             }
         }
     } else if #[cfg(all(not(feature = "std"), feature = "libm"))] {
-        impl TrigonometricMethods for f32 {
+        impl MathMethods for f32 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
                 libm::sincosf(self)
@@ -165,7 +165,7 @@ cfg_if! {
                 libm::atanf(self)
             }
         }
-        impl TrigonometricMethods for f64 {
+        impl MathMethods for f64 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
                 libm::sincos(self)
@@ -201,7 +201,7 @@ cfg_if! {
             }
         }
     } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
-        impl TrigonometricMethods for f32 {
+        impl MathMethods for f32 {
             fn sin_cos(self) -> (Self, Self) {
                 sin_cos_approx_f32(self)
             }
@@ -228,7 +228,7 @@ cfg_if! {
                 atan2_approx_f32(self, 1.0)
             }
         }
-        impl TrigonometricMethods for f64 {
+        impl MathMethods for f64 {
             fn sin_cos(self) -> (Self, Self) {
                 sin_cos_approx_f64(self)
             }
@@ -239,7 +239,7 @@ cfg_if! {
                 cos_approx_f64(self)
             }
             fn tan(self) -> Self {
-                tan_approx_f64(self);
+                tan_approx_f64(self)
             }
             fn asin(self) -> Self {
                 atan2_approx_f64(self, sqrt_f64(1.0 - self*self))

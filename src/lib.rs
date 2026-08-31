@@ -50,7 +50,7 @@ mod quaternion_math;
 mod roll_pitch_yaw;
 
 pub use math_constants::MathConstants;
-pub use math_methods::TrigonometricMethods;
+pub use math_methods::MathMethods;
 
 // The trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use.
 #[doc(hidden)]

@@ -7,7 +7,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Quaternion, TrigonometricMethods, Vector2, Vector3};
+use crate::{MathConstants, Quaternion, MathMethods, Vector2, Vector3};
 
 /// `RollPitchYaw` `struct { roll: f32, pitch: f32, yaw: f32 }`<br>
 pub type RollPitchYawf32 = RollPitchYaw<f32>;
@@ -84,7 +84,7 @@ where
 
 impl<T> From<RollPitch<T>> for Quaternion<T>
 where
-    T: Copy + TrigonometricMethods + FloatCore,
+    T: Copy + MathMethods + FloatCore,
 {
     #[inline]
     fn from(angles: RollPitch<T>) -> Self {
@@ -166,7 +166,7 @@ where
 
 impl<T> From<RollPitchYaw<T>> for Quaternion<T>
 where
-    T: Copy + TrigonometricMethods + FloatCore,
+    T: Copy + MathMethods + FloatCore,
 {
     #[inline]
     fn from(angles: RollPitchYaw<T>) -> Self {
