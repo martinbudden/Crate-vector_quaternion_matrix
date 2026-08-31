@@ -40,7 +40,7 @@ impl From<f32x4> for Vector4<f32> {
 
 // **** Math ****
 
-/// Math functions for Vector4, using **SIMD** accelerations for `f32`.<br><br>
+/// Math functions for Vector4.<br><br>
 pub trait Vector4Math: Sized {
     fn v4_neg(this: Vector4<Self>) -> Vector4<Self>;
     fn v4_add(this: Vector4<Self>, this: Vector4<Self>) -> Vector4<Self>;

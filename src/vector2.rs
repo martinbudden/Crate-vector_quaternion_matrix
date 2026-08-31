@@ -9,7 +9,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, SqrtMethods, vector2_math::Vector2Math};
+use crate::{MathConstants, MathMethods, vector2_math::Vector2Math};
 
 /// 2-dimensional `{x, y}` vector of `f32` values<br>
 pub type Vector2f32 = Vector2<f32>;
@@ -19,8 +19,7 @@ pub type Vector2f64 = Vector2<f64>;
 // **** Define ****
 
 /// `Vector2<T>`: 2D vector of type `T`.<br>
-/// Aliases `Vector2f32` and `Vector2f64` are provided.<br>
-/// `Vector2f32` uses **SIMD** accelerations implemented in `Vector2Math`.<br><br>
+/// Aliases `Vector2f32` and `Vector2f64` are provided.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}}}"))]
@@ -821,7 +820,7 @@ where
 
 impl<T> Vector2<T>
 where
-    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + MathMethods,
 {
     /// Return Euclidean norm.
     #[inline]
@@ -832,7 +831,7 @@ where
 
 impl<T> Vector2<T>
 where
-    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + MathMethods,
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
@@ -895,7 +894,7 @@ where
 
 impl<T> Vector2<T>
 where
-    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + MathMethods,
 {
     /// Return distance between two points.
     #[inline]

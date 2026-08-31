@@ -39,7 +39,7 @@ impl From<f32x2> for Vector2<f32> {
 
 // **** Math ****
 
-/// Math functions for Vector2, using **SIMD** accelerations for `f32`.<br>
+/// Math functions for Vector2.<br>
 pub trait Vector2Math: Sized {
     fn v2_neg(this: Vector2<Self>) -> Vector2<Self>;
     fn v2_add(this: Vector2<Self>, this: Vector2<Self>) -> Vector2<Self>;

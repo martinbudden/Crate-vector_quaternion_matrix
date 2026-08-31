@@ -22,7 +22,6 @@ pub type Matrix2x2f64 = Matrix2x2<f64>;
 
 /// `Matrix2x2<T>`: 2x2 Matrix of type `T`.<br>
 /// Aliases `Matrix2x2f32` and `Matrix2x2f64` are provided.<br>
-/// `Matrix2x2f32` uses **SIMD** accelerations implemented in `Matrix2x2Math`.<br>
 /// Internal implementation is using a flattened 1-dimensional array: an array of 4 elements stored in column-major order.
 /// That is the element `m[row][col]` is at array position `[col * 2 + row]`.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]

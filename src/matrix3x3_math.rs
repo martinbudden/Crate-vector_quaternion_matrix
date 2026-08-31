@@ -33,7 +33,7 @@ const M33: usize = 8;
 
 // **** Math ****
 
-/// Math functions for Matrix3x3, using **SIMD** accelerations for `f32`.<br>
+/// Math functions for Matrix3x3.<br>
 pub trait Matrix3x3Math: Sized {
     fn m3x3_neg(this: Matrix3x3<Self>) -> Matrix3x3<Self>;
     fn m3x3_abs(this: Matrix3x3<Self>) -> Matrix3x3<Self>;

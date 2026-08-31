@@ -11,7 +11,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Matrix2x2, Matrix3x3Math, Quaternion, QuaternionMath, SqrtMethods, Vector3};
+use crate::{MathConstants, MathMethods, Matrix2x2, Matrix3x3Math, Quaternion, QuaternionMath, Vector3};
 
 /// 3x3 matrix of `f32` values<br>
 pub type Matrix3x3f32 = Matrix3x3<f32>;
@@ -2154,7 +2154,7 @@ where
 
 impl<T> From<Matrix3x3<T>> for Quaternion<T>
 where
-    T: Copy + One + FloatCore + SqrtMethods + QuaternionMath,
+    T: Copy + One + FloatCore + MathMethods + QuaternionMath,
 {
     /// Create quaternion from a rotation matrix.
     ///

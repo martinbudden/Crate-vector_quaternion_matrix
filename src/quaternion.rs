@@ -10,7 +10,6 @@ use {
 };
 
 use crate::math_methods::MathMethods;
-use crate::sqrt_methods::SqrtMethods;
 use crate::{QuaternionMath, Vector3};
 
 /// Quaternion of `f32` values<br>
@@ -21,8 +20,7 @@ pub type Quaternionf64 = Quaternion<f64>;
 // **** Define ****
 
 /// `Quaternion<T>`: quaternion type `T`.<br>
-/// Aliases `Quaternion32` and `Quaternionf64` are provided.<br>
-/// `Quaternionf32` uses **SIMD** accelerations implemented in `QuaternionMath`.<br><br>
+/// Aliases `Quaternion32` and `Quaternionf64` are provided.<br><br>
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("Q{{w:{w}, x:{x}, y:{y}, z:{z}}}"))]
@@ -664,7 +662,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + SqrtMethods + QuaternionMath,
+    T: Copy + MathMethods + QuaternionMath,
 {
     /// Return Euclidean norm.
     #[inline]
@@ -675,7 +673,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + Zero + PartialEq + SqrtMethods + QuaternionMath,
+    T: Copy + Zero + PartialEq + MathMethods + QuaternionMath,
 {
     /// Return normalized form of the quaternion, checking if the magnitude is zero.
     /// ```
@@ -878,7 +876,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + FloatCore + SqrtMethods,
+    T: Copy + FloatCore + MathMethods,
 {
     pub fn rotate(self, v: &Vector3<T>) -> Vector3<T> {
         let two: T = T::one() + T::one();
@@ -963,7 +961,7 @@ where
 
 impl<T> Quaternion<T>
 where
-    T: Copy + FloatCore + SqrtMethods,
+    T: Copy + FloatCore + MathMethods,
 {
     /// clip `sin(roll_angle)` to +/-1.0 when roll angle outside range [-90 degrees, 90 degrees].
     pub fn sin_roll_clipped(self) -> T {

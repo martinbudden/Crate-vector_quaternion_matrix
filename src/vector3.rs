@@ -9,7 +9,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, Quaternion, QuaternionMath, SqrtMethods, Vector2, vector3_math::Vector3Math};
+use crate::{MathConstants, MathMethods, Quaternion, QuaternionMath, Vector2, vector3_math::Vector3Math};
 
 /// 3-dimensional `{x, y, z}` vector of `f32` values<br>
 pub type Vector3f32 = Vector3<f32>;
@@ -19,8 +19,7 @@ pub type Vector3f64 = Vector3<f64>;
 // **** Define ****
 
 /// `Vector3<T>`: 3D vector of type `T`.<br>
-/// Aliases `Vector3f32` and `Vector2f64` are provided.<br>
-/// `Vector3f32` uses **SIMD** accelerations implemented in `vector3_math`.<br><br>
+/// Aliases `Vector3f32` and `Vector2f64` are provided.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}}}"))]
@@ -880,7 +879,7 @@ where
 
 impl<T> Vector3<T>
 where
-    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + MathMethods,
 {
     /// Return Euclidean norm.
     #[inline]
@@ -891,7 +890,7 @@ where
 
 impl<T> Vector3<T>
 where
-    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + MathMethods,
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
@@ -954,7 +953,7 @@ where
 
 impl<T> Vector3<T>
 where
-    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + MathMethods,
 {
     /// Return distance between two points.
     #[inline]
@@ -1115,7 +1114,7 @@ where
 
 impl<T> Vector3<T>
 where
-    T: Copy + Zero + One + Sub<Output = T> + Vector3Math + SqrtMethods + QuaternionMath,
+    T: Copy + Zero + One + Sub<Output = T> + Vector3Math + MathMethods + QuaternionMath,
 {
     #[inline]
     #[must_use]

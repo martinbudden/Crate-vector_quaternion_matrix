@@ -9,7 +9,7 @@ use {
     serde::{Deserialize, Serialize},
 };
 
-use crate::{MathConstants, SqrtMethods, Vector2, Vector3, vector4_math::Vector4Math};
+use crate::{MathConstants, MathMethods, Vector2, Vector3, vector4_math::Vector4Math};
 
 /// 4-dimensional `{x, y, z, t}` vector of `f32` values<br>
 pub type Vector4f32 = Vector4<f32>;
@@ -19,8 +19,7 @@ pub type Vector4f64 = Vector4<f64>;
 // **** Define ****
 
 /// `Vector4<T>`: 3D vector of type `T`.<br>
-/// Aliases `Vector4f32` and `Vector4f64` are provided.<br>
-/// `Vector4f32` uses **SIMD** accelerations implemented in `Vector4Math`.<br><br>
+/// Aliases `Vector4f32` and `Vector4f64` are provided.<br><br>
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
 #[cfg_attr(feature = "std", display("V{{x:{x}, y:{y}, z:{z}, t:{t}}}"))]
@@ -744,7 +743,7 @@ where
 
 impl<T> Vector4<T>
 where
-    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
+    T: Copy + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + MathMethods,
 {
     /// Return Euclidean norm.
     #[inline]
@@ -755,7 +754,7 @@ where
 
 impl<T> Vector4<T>
 where
-    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + SqrtMethods,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + PartialEq + MathMethods,
 {
     /// Return normalized form of the vector, checking if the norm is zero.
     /// ```
@@ -818,7 +817,7 @@ where
 
 impl<T> Vector4<T>
 where
-    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + SqrtMethods,
+    T: Copy + Zero + Neg<Output = T> + Add<Output = T> + Mul<T, Output = T> + MathMethods,
 {
     /// Return distance between two points.
     #[inline]

@@ -46,7 +46,7 @@ impl From<f32x4> for Matrix2x2<f32> {
 
 // **** Math ****
 
-/// Math functions for Matrix2x2, using **SIMD** accelerations for `f32`.
+/// Math functions for Matrix2x2.
 pub trait Matrix2x2Math: Sized {
     fn m2x2_neg(this: Matrix2x2<Self>) -> Matrix2x2<Self>;
     fn m2x2_abs(this: Matrix2x2<Self>) -> Matrix2x2<Self>;

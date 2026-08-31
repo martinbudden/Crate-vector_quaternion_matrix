@@ -46,7 +46,7 @@ impl From<f32x4> for Vector3<f32> {
 
 // **** Math ****
 
-/// Math functions for Vector3, using **SIMD** accelerations for `f32`.<br>
+/// Math functions for Vector3.<br>
 pub trait Vector3Math: Sized {
     fn v3_neg(this: Vector3<Self>) -> Vector3<Self>;
     fn v3_add(this: Vector3<Self>, this: Vector3<Self>) -> Vector3<Self>;

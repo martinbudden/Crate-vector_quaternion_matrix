@@ -1,92 +1,5 @@
 #![allow(clippy::inline_always)]
 
-use cfg_if::cfg_if;
-
-/// `no_std` implementations of `sqrt` and `sqrt_reciprocal` in  method call syntax<br>
-/// ie `x.sqrt()`, `x.sqrt_reciprocal()`.
-#[allow(missing_docs)]
-pub trait SqrtMethods: Sized {
-    #[must_use]
-    fn sqrt(self) -> Self;
-    #[must_use]
-    fn sqrt_reciprocal(self) -> Self;
-}
-
-cfg_if! {
-    if #[cfg(feature = "std")] {
-        // Use the hardware-linked math methods in Standard Library
-        impl SqrtMethods for f32 {
-            #[inline(always)]
-            fn sqrt(self) -> f32 {
-                self.sqrt()
-            }
-            #[inline(always)]
-            fn sqrt_reciprocal(self) -> f32 {
-                1.0 / self.sqrt()
-            }
-        }
-        impl SqrtMethods for f64 {
-            #[inline(always)]
-            fn sqrt(self) -> f64 {
-                self.sqrt()
-            }
-            #[inline(always)]
-            fn sqrt_reciprocal(self) -> f64 {
-                1.0 / self.sqrt()
-            }
-        }
-    } else if #[cfg(all(not(feature = "std"), feature = "libm"))] {
-        impl SqrtMethods for f32 {
-            #[inline(always)]
-            fn sqrt(self) -> f32 {
-                // Use hardware ASM for ARM chips with an FPU
-                #[cfg(all(target_arch = "arm", target_feature = "vfp2"))]
-                { sqrt_reciprocal_f32(self) }
-                // Fallback for non-ARM, non-FPU target
-                #[cfg(not(all(target_arch = "arm", target_feature = "vfp2")))]
-                { libm::sqrtf(self) }
-            }
-            #[inline(always)]
-            fn sqrt_reciprocal(self) -> f32 {
-                // Use hardware ASM for ARM chips with an FPU
-                #[cfg(all(target_arch = "arm", target_feature = "vfp2"))]
-                { sqrt_reciprocal_f32(self) }
-
-                // Fallback for non-ARM, non-FPU target
-                #[cfg(not(all(target_arch = "arm", target_feature = "vfp2")))]
-                { 1.0 / libm::sqrtf(self) }
-            }
-        }
-        impl SqrtMethods for f64 {
-            #[inline(always)]
-            fn sqrt(self) -> f64 {
-                libm::sqrt(self)
-            }
-            #[inline(always)]
-            fn sqrt_reciprocal(self) -> f64 {
-                1.0 / libm::sqrt(self)
-            }
-        }
-    } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
-        impl SqrtMethods for f32 {
-            fn sqrt(self) -> f32 {
-                sqrt_f32(self)
-            }
-            fn sqrt_reciprocal(self) -> f32 {
-                sqrt_reciprocal_f32(self)
-            }
-        }
-        impl SqrtMethods for f64 {
-            fn sqrt(self) -> f64 {
-                sqrt_f64(self)
-            }
-            fn sqrt_reciprocal(self) -> f64 {
-                sqrt_reciprocal_f64(self)
-            }
-        }
-    }
-}
-
 #[allow(unused)]
 #[inline(always)]
 pub fn sqrt_f32(x: f32) -> f32 {
@@ -199,7 +112,6 @@ mod tests {
     fn sqrt_reciprocal() {
         assert_eq!(quake_sqrt_reciprocal_approx_f32(4.0), 0.499_154_06);
         assert_eq!(sqrt_reciprocal_approx_f32(4.0), 0.500_059_37);
-        assert_eq!(4.0.sqrt_reciprocal(), 0.5);
     }
     #[cfg(feature = "libm")]
     #[test]

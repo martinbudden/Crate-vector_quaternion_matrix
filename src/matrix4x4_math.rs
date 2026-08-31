@@ -25,7 +25,7 @@ const M44: usize = 15;
 
 // **** Math ****
 
-/// Math functions for Matrix4x4, using **SIMD** accelerations for `f32`.<br>
+/// Math functions for Matrix4x4.<br>
 pub trait Matrix4x4Math: Sized {
     fn m4x4_neg(this: Matrix4x4<Self>) -> Matrix4x4<Self>;
     fn m4x4_abs(this: Matrix4x4<Self>) -> Matrix4x4<Self>;

@@ -39,7 +39,7 @@ impl From<f32x4> for Quaternion<f32> {
 
 // **** Math ****
 
-/// Math functions for Quaternion, using **SIMD** accelerations for `f32`.<br><br>
+/// Math functions for Quaternion.<br><br>
 #[allow(missing_docs)]
 pub trait QuaternionMath: Sized {
     fn q_neg(this: Quaternion<Self>) -> Quaternion<Self>;

@@ -19,9 +19,10 @@
 #![warn(unused_results)]
 #![warn(clippy::pedantic, clippy::doc_paragraphs_missing_punctuation)]
 
+mod math_approximations;
 mod math_constants;
 mod math_methods;
-mod sqrt_methods;
+mod sqrt_approximations;
 
 mod vector2;
 mod vector2_math;
@@ -54,8 +55,7 @@ pub use math_methods::MathMethods;
 
 // The trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use.
 #[doc(hidden)]
-pub use math_methods::{cos_approx_f32, sin_approx_f32, sin_cos_approx_f32};
-pub use sqrt_methods::SqrtMethods;
+pub use math_approximations::{cos_approx_f32, sin_approx_f32, sin_cos_approx_f32}; // needed for benchmarks
 
 pub use vector2::{Vector2, Vector2f32, Vector2f64};
 
