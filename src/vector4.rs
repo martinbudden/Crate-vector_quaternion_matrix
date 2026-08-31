@@ -835,8 +835,9 @@ where
 {
     /// Convert the vector to degrees, assuming it is in radians.
     /// ```
-    /// # use vqm::{Vector4f32, MathConstants};
-    /// let v = Vector4f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8);
+    /// # use vqm::Vector4f32;
+    /// # use core::f32::consts::{FRAC_PI_2, FRAC_PI_4, FRAC_PI_6, FRAC_PI_8};
+    /// let v = Vector4f32::new(FRAC_PI_2, FRAC_PI_4, FRAC_PI_6, FRAC_PI_8);
     /// let w = v.to_degrees();
     /// assert!((w.x - 90.0).abs() < 2e-6);
     /// assert!((w.y - 45.0).abs() < 2e-6);
@@ -851,9 +852,10 @@ where
 
     /// Convert the vector to radians, assuming it is in degrees.
     /// ```
-    /// # use vqm::{Vector4f32, MathConstants};
+    /// # use vqm::Vector4f32;
+    /// # use core::f32::consts::{FRAC_PI_2, FRAC_PI_4, FRAC_PI_6, FRAC_PI_8};
     /// let v = Vector4f32::new(90.0, 45.0, 30.0, 22.5);
-    /// assert_eq!(Vector4f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4, f32::FRAC_PI_6, f32::FRAC_PI_8), v.to_radians());
+    /// assert_eq!(Vector4f32::new(FRAC_PI_2, FRAC_PI_4, FRAC_PI_6, FRAC_PI_8), v.to_radians());
     /// ```
     #[inline]
     #[must_use]

@@ -133,15 +133,15 @@ cfg_if! {
         impl TrigonometricMethods for f32 {
             #[inline(always)]
             fn sin_cos(self) -> (Self, Self) {
-                sin_cos_approx_f32(self)
+                libm::sincosf(self)
             }
             #[inline(always)]
             fn sin(self) -> Self {
-                sin_approx_f32(self)
+                libm::sinf(self)
             }
             #[inline(always)]
             fn cos(self) -> Self {
-                cos_approx_f32(self)
+                libm::cosf(self)
             }
             #[inline(always)]
             fn tan(self) -> Self {
@@ -212,8 +212,7 @@ cfg_if! {
                 cos_approx_f32(self)
             }
             fn tan(self) -> Self {
-                let (sin, cos) = sin_cos_approx_f32(self);
-                sin / cos
+                tan_approx_f32(self)
             }
             fn asin(self) -> Self {
                 atan2_approx_f32(self, sqrt_f32(1.0 - self*self))
@@ -240,8 +239,7 @@ cfg_if! {
                 cos_approx_f64(self)
             }
             fn tan(self) -> Self {
-                let (sin, cos) = sin_cos_approx_f64(self);
-                sin / cos
+                tan_approx_f64(self);
             }
             fn asin(self) -> Self {
                 atan2_approx_f64(self, sqrt_f64(1.0 - self*self))
@@ -465,6 +463,20 @@ pub fn sin_cos_approx_f64(x: f64) -> (f64, f64) {
     let r = t - q; // remainder in range [-0.5, 0.5]
     #[allow(clippy::cast_possible_truncation)]
     sin_cos_quadrant(r, q as i32)
+}
+
+#[allow(unused)]
+#[must_use]
+pub fn tan_approx_f32(x: f32) -> f32 {
+    let (sin, cos) = sin_cos_approx_f32(x);
+    sin / cos
+}
+
+#[allow(unused)]
+#[must_use]
+pub fn tan_approx_f64(x: f64) -> f64 {
+    let (sin, cos) = sin_cos_approx_f64(x);
+    sin / cos
 }
 
 /// Arctangent of y/x (f64).

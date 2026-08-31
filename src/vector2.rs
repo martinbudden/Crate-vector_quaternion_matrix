@@ -912,8 +912,9 @@ where
 {
     /// Convert the vector to degrees, assuming it is in radians.
     /// ```
-    /// # use vqm::{Vector2f32, MathConstants};
-    /// let v = Vector2f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4);
+    /// # use vqm::Vector2f32;
+    /// # use core::f32::consts::{FRAC_PI_2, FRAC_PI_4};
+    /// let v = Vector2f32::new(FRAC_PI_2, FRAC_PI_4);
     /// assert_eq!(Vector2f32::new(90.0, 45.0), v.to_degrees());
     /// ```
     #[inline]
@@ -925,8 +926,9 @@ where
     /// Convert the vector to radians, assuming it is in degrees.
     /// ```
     /// # use vqm::{Vector2f32, MathConstants};
+    /// # use core::f32::consts::{FRAC_PI_2, FRAC_PI_4};
     /// let v = Vector2f32::new(90.0, 45.0);
-    /// assert_eq!(Vector2f32::new(f32::FRAC_PI_2, f32::FRAC_PI_4), v.to_radians());
+    /// assert_eq!(Vector2f32::new(FRAC_PI_2, FRAC_PI_4), v.to_radians());
     /// ```
     #[inline]
     #[must_use]

@@ -4,44 +4,6 @@
 pub trait MathConstants {
     const EPSILON: Self;
 
-    /// Archimedes’ constant (π).
-    const PI: Self;
-    /// The full circle constant (τ = 2π).
-    const TAU: Self;
-    const E: Self; // Euler’s number (e).
-    /// Natural logarithm of 2.
-    const LN_2: Self;
-    /// Natural logarithm of 10.
-    const LN_10: Self;
-    // Logarithm of e
-    const LOG2_E: Self;
-    const LOG10_E: Self;
-    // Logarithms of 10
-    const LOG2_10: Self;
-    const LOG10_2: Self;
-    /// Reciprocals of π: 1/π.
-    const FRAC_1_PI: Self;
-    /// 2/π.
-    const FRAC_2_PI: Self;
-    const FRAC_2_SQRT_PI: Self;
-    // Fractions of π
-    /// π/2.
-    const FRAC_PI_2: Self;
-    /// π/3.
-    const FRAC_PI_3: Self;
-    /// π/4.
-    const FRAC_PI_4: Self;
-    /// π/6.
-    const FRAC_PI_6: Self;
-    /// π/8.
-    const FRAC_PI_8: Self;
-    // Square roots
-    const SQRT_2: Self;
-    // const SQRT_3: Self;
-    const FRAC_1_SQRT_2: Self;
-    // const PHI: Self; // The golden ratio (φ)
-    // const EGAMMA: Self; // Euler-Mascheroni constant (γ)
-
     const RADIANS_TO_DEGREES: Self;
     const DEGREES_TO_RADIANS: Self;
 
@@ -49,9 +11,6 @@ pub trait MathConstants {
     const G0: Self;
     /// Reciprocal of standard acceleration of earth gravity.
     const G0_RECIPROCAL: Self;
-
-    const FILTER_PT2_CUTOFF_CORRECTION: Self;
-    const FILTER_PT3_CUTOFF_CORRECTION: Self;
 
     const HALF: Self;
     const TWO: Self;
@@ -76,39 +35,11 @@ pub trait MathConstants {
 impl MathConstants for f32 {
     const EPSILON: Self = f32::EPSILON;
 
-    /// Archimedes’ constant (π).
-    const PI: Self = core::f32::consts::PI;
-    const TAU: Self = core::f32::consts::TAU;
-    const E: Self = core::f32::consts::E;
-    const LN_2: Self = core::f32::consts::LN_2;
-    const LN_10: Self = core::f32::consts::LN_10;
-    const LOG2_E: Self = core::f32::consts::LOG2_E;
-    const LOG10_E: Self = core::f32::consts::LOG10_E;
-    const LOG2_10: Self = core::f32::consts::LOG2_10;
-    const LOG10_2: Self = core::f32::consts::LOG10_2;
-    const FRAC_1_PI: Self = core::f32::consts::FRAC_1_PI;
-    const FRAC_2_PI: Self = core::f32::consts::FRAC_2_PI;
-    const FRAC_2_SQRT_PI: Self = core::f32::consts::FRAC_2_SQRT_PI;
-    const FRAC_PI_2: Self = core::f32::consts::FRAC_PI_2;
-    const FRAC_PI_3: Self = core::f32::consts::FRAC_PI_3;
-    const FRAC_PI_4: Self = core::f32::consts::FRAC_PI_4;
-    const FRAC_PI_6: Self = core::f32::consts::FRAC_PI_6;
-    const FRAC_PI_8: Self = core::f32::consts::FRAC_PI_8;
-    const SQRT_2: Self = core::f32::consts::SQRT_2;
-    // const SQRT_3: Self = core::f32::consts::SQRT_3;
-    const FRAC_1_SQRT_2: Self = core::f32::consts::FRAC_1_SQRT_2;
-    // const PHI: Self = core::f32::consts::PHI;
-    // const EGAMMA: Self = core::f32::consts::EGAMMA;
-
-    const RADIANS_TO_DEGREES: f32 = 180.0 / Self::PI;
-    const DEGREES_TO_RADIANS: f32 = Self::PI / 180.0;
+    const RADIANS_TO_DEGREES: f32 = 180.0 / core::f32::consts::PI;
+    const DEGREES_TO_RADIANS: f32 = core::f32::consts::PI / 180.0;
 
     const G0: Self = 9.806_65;
     const G0_RECIPROCAL: Self = 1.0 / 9.806_65;
-
-    // FilterPt<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
-    const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;
-    const FILTER_PT3_CUTOFF_CORRECTION: Self = 1.961_459_177;
 
     const HALF: Self = 0.5;
     const TWO: Self = 2.0;
@@ -133,38 +64,11 @@ impl MathConstants for f32 {
 impl MathConstants for f64 {
     const EPSILON: Self = f64::EPSILON;
 
-    const PI: Self = core::f64::consts::PI;
-    const TAU: Self = core::f64::consts::TAU;
-    const E: Self = core::f64::consts::E;
-    const LN_2: Self = core::f64::consts::LN_2;
-    const LN_10: Self = core::f64::consts::LN_10;
-    const LOG2_E: Self = core::f64::consts::LOG2_E;
-    const LOG10_E: Self = core::f64::consts::LOG10_E;
-    const LOG2_10: Self = core::f64::consts::LOG2_10;
-    const LOG10_2: Self = core::f64::consts::LOG10_2;
-    const FRAC_1_PI: Self = core::f64::consts::FRAC_1_PI;
-    const FRAC_2_PI: Self = core::f64::consts::FRAC_2_PI;
-    const FRAC_2_SQRT_PI: Self = core::f64::consts::FRAC_2_SQRT_PI;
-    const FRAC_PI_2: Self = core::f64::consts::FRAC_PI_2;
-    const FRAC_PI_3: Self = core::f64::consts::FRAC_PI_3;
-    const FRAC_PI_4: Self = core::f64::consts::FRAC_PI_4;
-    const FRAC_PI_6: Self = core::f64::consts::FRAC_PI_6;
-    const FRAC_PI_8: Self = core::f64::consts::FRAC_PI_8;
-    const SQRT_2: Self = core::f64::consts::SQRT_2;
-    // const SQRT_3: Self = core::f64::consts::SQRT_3;
-    const FRAC_1_SQRT_2: Self = core::f64::consts::FRAC_1_SQRT_2;
-    // const PHI: Self = core::f64::consts::PHI;
-    // const EGAMMA: Self = core::f64::consts::EGAMMA;
-
-    const RADIANS_TO_DEGREES: f64 = 180.0 / Self::PI;
-    const DEGREES_TO_RADIANS: f64 = Self::PI / 180.0;
+    const RADIANS_TO_DEGREES: f64 = 180.0 / core::f64::consts::PI;
+    const DEGREES_TO_RADIANS: f64 = core::f64::consts::PI / 180.0;
 
     const G0: Self = 9.806_65;
     const G0_RECIPROCAL: Self = 1.0 / 9.806_65;
-
-    // FilterPt<n> cutoff correction = 1/sqrt(2^(1/n) - 1)
-    const FILTER_PT2_CUTOFF_CORRECTION: Self = 1.553_773_974;
-    const FILTER_PT3_CUTOFF_CORRECTION: Self = 1.961_459_177;
 
     const HALF: Self = 0.5;
     const TWO: Self = 2.0;
@@ -199,9 +103,6 @@ mod tests {
     where
         F: Copy + MathConstants,
     {
-        fn pi() -> F {
-            F::PI
-        }
         fn half() -> F {
             F::HALF
         }
@@ -214,13 +115,11 @@ mod tests {
 
     #[test]
     fn f32() {
-        assert_eq!(core::f32::consts::PI, Testf32::pi());
         assert_eq!(0.5, Testf32::half());
         assert_eq!(2.0, Testf32::two());
     }
     #[test]
     fn f64() {
-        assert_eq!(core::f64::consts::PI, Testf64::pi());
         assert_eq!(0.5, Testf64::half());
         assert_eq!(2.0, Testf64::two());
     }

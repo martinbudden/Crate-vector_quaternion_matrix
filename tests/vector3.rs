@@ -43,6 +43,7 @@ mod test_traits {
 mod tests {
     use super::*;
     use approx::assert_abs_diff_eq;
+    use core::f32::consts::{FRAC_PI_2, FRAC_PI_4, FRAC_PI_6};
     use core::mem::{align_of, size_of};
     use vqm::{Quaternionf32, Vector3f32};
     #[test]
@@ -218,8 +219,7 @@ mod tests {
     #[test]
     fn degrees_radians() {
         use approx::assert_abs_diff_eq;
-        use vqm::MathConstants;
-        let a = Vector3f32 { x: f32::FRAC_PI_2, y: f32::FRAC_PI_4, z: f32::FRAC_PI_6 };
+        let a = Vector3f32 { x: FRAC_PI_2, y: FRAC_PI_4, z: FRAC_PI_6 };
         let b = a.to_degrees();
         assert!((b.z - 30.0).abs() < 2e-6);
         assert_abs_diff_eq!(90.0, b.x, epsilon = 1e-7);
