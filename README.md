@@ -25,6 +25,10 @@ Each type has versions for `f32` and `f64`. So we have:
 8. 9x9 matrices: `Matrix9x9f32`, `Matrix9x9f64` - partial implementation with special functions for Kalman filters.
 9. 9x9 matrices: `Matrix9f32`, `Matrix9f64` - 9x9 matrix stored as nine 3x3 matrices, another partial implementation with special functions for Kalman filters.
 
+Quaternions are implemented using the Hamilton convention.
+
+Matrix elements are stored in a one-dimensional array, stored in column-major order.
+
 (Under the hood, types are implemented using generics, so `Vector3f32` is actually `Vector3<f32>`,
 but that is transparent to the user.)
 
