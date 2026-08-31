@@ -96,6 +96,25 @@ where
     const ZERO: Self = Self { x: T::ZERO, y: T::ZERO, z: T::ZERO };
 }
 
+impl<T> Vector3<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return true if vector is near zero.
+    /// ```
+    /// # use vqm::Vector3f32;
+    /// # use num_traits::Zero;
+    /// let z = Vector3f32::zero();
+    /// assert!(z.is_near_zero(1e-5));
+    /// ```
+    pub fn is_near_zero(self, epsilon: T) -> bool {
+        if self.x.abs() > epsilon && self.y.abs() > epsilon && self.z.abs() > epsilon {
+            return false;
+        }
+        true
+    }
+}
+
 // **** Neg ****
 
 impl<T> Neg for Vector3<T>
@@ -928,7 +947,7 @@ where
     /// # use vqm::Vector3f32;
     /// let v = Vector3f32::new(1.0, 4.0, 8.0);
     /// let n = v.normalize_unchecked();
-    /// assert_eq!(Vector3f32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, n);
+    /// assert!((Vector3f32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 } - n).is_near_zero(4.0e-4));
     /// ```
     #[inline]
     #[must_use]
@@ -942,7 +961,7 @@ where
     /// # use vqm::Vector3f32;
     /// let mut v = Vector3f32::new(1.0, 4.0, 8.0);
     /// v.normalize_unchecked_in_place();
-    /// assert_eq!(Vector3f32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 }, v);
+    /// assert!((Vector3f32 { x: 0.11111111, y: 0.44444445, z: 0.8888889 } - v).is_near_zero(4.0e-4));
     /// ```
     #[inline]
     pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {

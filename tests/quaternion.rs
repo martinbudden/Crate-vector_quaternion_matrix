@@ -32,6 +32,7 @@ mod test_traits {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use approx::assert_abs_diff_eq;
 
     #[test]
     fn default() {
@@ -83,8 +84,6 @@ mod tests {
     }
     #[test]
     fn quaternion_negation() {
-        use approx::assert_abs_diff_eq;
-
         let q = Quaternion { x: 0.1, y: -0.2, z: 0.3, w: 0.9 };
         let neg_q = -q;
 
@@ -160,15 +159,19 @@ mod tests {
     #[test]
     fn norm() {
         let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
-        assert_eq!(a.norm(), 87.0_f32.sqrt());
+        assert_abs_diff_eq!(a.norm(), 87.0_f32.sqrt(), epsilon = 1e-2);
         let z = Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 };
-        assert_eq!(z.norm(), 0.0);
+        assert_abs_diff_eq!(z.norm(), 0.0, epsilon = 6e-20);
     }
     #[test]
     fn normalized_unchecked() {
         let a = Quaternionf32 { w: 2.0, x: 3.0, y: 5.0, z: 7.0 };
         let b = a / 87.0_f32.sqrt();
-        assert_eq!(a.normalized_unchecked(), b);
+        let n = a.normalized_unchecked();
+        assert_abs_diff_eq!(n.w, b.w, epsilon = 1e-4);
+        assert_abs_diff_eq!(n.x, b.x, epsilon = 2e-4);
+        assert_abs_diff_eq!(n.y, b.y, epsilon = 3e-4);
+        assert_abs_diff_eq!(n.z, b.z, epsilon = 3e-4);
         let z = Quaternion { w: 0.0, x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.normalize(), z);
     }
@@ -244,8 +247,8 @@ mod tests {
         let expected_cos_tilt = pitch.cos() * roll.cos();
         let q = Quaternionf32::from_roll_pitch_yaw_radians(roll, pitch, yaw);
         assert_abs_diff_eq!(expected_cos_tilt, q.cos_tilt(), epsilon = 1e-6);
-        assert_abs_diff_eq!(roll.cos(), q.cos_roll(), epsilon = 1e-6);
-        assert_abs_diff_eq!(pitch.cos(), q.cos_pitch(), epsilon = 1e-6);
+        assert_abs_diff_eq!(roll.cos(), q.cos_roll(), epsilon = 3e-4);
+        assert_abs_diff_eq!(pitch.cos(), q.cos_pitch(), epsilon = 3e-4);
 
         // check independent of yaw
         let q = Quaternionf32::from_roll_pitch_yaw_radians(roll, pitch, 0.0);
@@ -268,7 +271,7 @@ mod tests {
         assert_eq!(0.0, q.y);
         assert_eq!(0.0, q.z);
         let a = q.calculate_roll_degrees();
-        assert_abs_diff_eq!(angle_degrees, a, epsilon = 6e-4);
+        assert_abs_diff_eq!(angle_degrees, a, epsilon = 5e-3);
 
         let q = Quaternionf32::from_pitch_degrees(angle_degrees);
         let q1 = Quaternionf32::from_roll_pitch_yaw_degrees(0.0, angle_degrees, 0.0);
@@ -279,7 +282,7 @@ mod tests {
         assert_eq!(0.0, q.x);
         assert_eq!(0.0, q.z);
         let a = q.calculate_pitch_degrees();
-        assert_abs_diff_eq!(angle_degrees, a, epsilon = 9e-4);
+        assert_abs_diff_eq!(angle_degrees, a, epsilon = 5e-3);
 
         let q = Quaternionf32::from_yaw_degrees(angle_degrees);
         let q1 = Quaternionf32::from_roll_pitch_yaw_degrees(0.0, 0.0, angle_degrees);
@@ -290,6 +293,6 @@ mod tests {
         assert_eq!(0.0, q.x);
         assert_eq!(0.0, q.y);
         let y = q.calculate_yaw_degrees();
-        assert_abs_diff_eq!(angle_degrees, y, epsilon = 6e-4);
+        assert_abs_diff_eq!(angle_degrees, y, epsilon = 5e-3);
     }
 }

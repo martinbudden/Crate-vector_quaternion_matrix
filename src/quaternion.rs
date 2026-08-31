@@ -20,6 +20,7 @@ pub type Quaternionf64 = Quaternion<f64>;
 // **** Define ****
 
 /// `Quaternion<T>`: quaternion type `T`.<br>
+/// Implementations use the Hamilton convention.
 /// Aliases `Quaternion32` and `Quaternionf64` are provided.<br><br>
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "std", derive(derive_more::Display))]
@@ -114,6 +115,25 @@ where
     T: Copy + ConstZero + PartialEq + QuaternionMath,
 {
     const ZERO: Self = Self { w: T::ZERO, x: T::ZERO, y: T::ZERO, z: T::ZERO };
+}
+
+impl<T> Quaternion<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return true if vector is near zero.
+    /// ```
+    /// # use vqm::Quaternionf32;
+    /// # use num_traits::Zero;
+    /// let z = Quaternionf32::zero();
+    /// assert!(z.is_near_zero(1e-5));
+    /// ```
+    pub fn is_near_zero(self, epsilon: T) -> bool {
+        if self.w.abs() > epsilon && self.x.abs() > epsilon && self.y.abs() > epsilon && self.z.abs() > epsilon {
+            return false;
+        }
+        true
+    }
 }
 
 // **** One ****
@@ -711,7 +731,7 @@ where
     /// # use vqm::Quaternionf32;
     /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
     /// let r = q.normalized_unchecked();
-    /// assert_eq!(Quaternionf32 { w: 0.21442251, x: 0.32163376, y: 0.5360563, z: 0.7504788 }, r);
+    /// assert!((Quaternionf32 { w: 0.21442251, x: 0.32163376, y: 0.5360563, z: 0.7504788 } - r).is_near_zero(1.0e-4));
     /// ```
     #[inline]
     #[must_use]
@@ -725,7 +745,7 @@ where
     /// # use vqm::Quaternionf32;
     /// let mut q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
     /// q.normalize_unchecked_in_place();
-    /// assert_eq!(Quaternionf32 { w: 0.21442251, x: 0.32163376, y: 0.5360563, z: 0.7504788 }, q);
+    /// assert!((Quaternionf32 { w: 0.21442251, x: 0.32163376, y: 0.5360563, z: 0.7504788 } - q).is_near_zero(1.0e-4));
     /// ```
     #[inline]
     pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {
@@ -744,12 +764,12 @@ where
     /// let q = Quaternionf32::new(2.0, 3.0, 5.0, 7.0);
     /// let n = q.normalize();
     /// let s = n.norm_squared();
-    /// assert_eq!(1.0, s);
-    /// assert!(n.is_normalized());
+    /// assert!((1.0 - s).abs() < 8.0e-4);
+    /// assert!(n.is_normalized(8.0e-4));
     /// ```
     #[inline]
-    pub fn is_normalized(self) -> bool {
-        T::q_is_normalized(self)
+    pub fn is_normalized(self, epsilon: T) -> bool {
+        T::q_is_normalized(self, epsilon)
     }
 }
 

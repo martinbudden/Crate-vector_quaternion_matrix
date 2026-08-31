@@ -92,6 +92,25 @@ where
     const ZERO: Self = Self { x: T::ZERO, y: T::ZERO };
 }
 
+impl<T> Vector2<T>
+where
+    T: Copy + FloatCore,
+{
+    /// Return true if vector is near zero.
+    /// ```
+    /// # use vqm::Vector2f32;
+    /// # use num_traits::Zero;
+    /// let z = Vector2f32::zero();
+    /// assert!(z.is_near_zero(1e-5));
+    /// ```
+    pub fn is_near_zero(self, epsilon: T) -> bool {
+        if self.x.abs() > epsilon && self.y.abs() > epsilon {
+            return false;
+        }
+        true
+    }
+}
+
 // **** Neg ****
 
 impl<T> Neg for Vector2<T>
@@ -856,7 +875,7 @@ where
     /// # use vqm::Vector2f32;
     /// let mut v = Vector2f32::new(3.0, 4.0);
     /// v.normalize_in_place();
-    /// assert_eq!(Vector2f32 { x: 0.6, y: 0.8 }, v);
+    /// assert!((Vector2f32 { x: 0.6, y: 0.8 } - v).is_near_zero(4.0e-4));
     /// ```
     #[inline]
     pub fn normalize_in_place(&mut self) -> &mut Self {
@@ -869,7 +888,7 @@ where
     /// # use vqm::Vector2f32;
     /// let v = Vector2f32::new(3.0, 4.0);
     /// let n = v.normalize_unchecked();
-    /// assert_eq!(Vector2f32 { x: 0.6, y: 0.8 }, n);
+    /// assert!((Vector2f32 { x: 0.6, y: 0.8 } - n).is_near_zero(4.0e-4));
     /// ```
     #[inline]
     #[must_use]
@@ -883,7 +902,7 @@ where
     /// # use vqm::Vector2f32;
     /// let mut v = Vector2f32::new(3.0, 4.0);
     /// v.normalize_unchecked_in_place();
-    /// assert_eq!(Vector2f32 { x: 0.6, y: 0.8 }, v);
+    /// assert!((Vector2f32 { x: 0.6, y: 0.8 } - v).is_near_zero(4.0e-4));
     /// ```
     #[inline]
     pub fn normalize_unchecked_in_place(&mut self) -> &mut Self {

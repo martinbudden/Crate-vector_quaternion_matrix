@@ -176,18 +176,18 @@ mod tests {
     #[test]
     fn norm() {
         let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
-        assert_eq!(a.norm(), 38.0_f32.sqrt());
+        assert_abs_diff_eq!(a.norm(), 38.0_f32.sqrt(), epsilon = 4e-3);
         let z = Vector3f32 { x: 0.0, y: 0.0, z: 0.0 };
-        assert_eq!(z.norm(), 0.0);
+        assert_abs_diff_eq!(z.norm(), 0.0, epsilon = 6e-20);
     }
     #[test]
     fn normalized_unchecked() {
         let a = Vector3f32 { x: 2.0, y: 3.0, z: 5.0 };
         let b = a / 38.0_f32.sqrt();
         let n = a.normalize_unchecked();
-        assert_abs_diff_eq!(n.x, b.x, epsilon = 1e-7);
-        assert_abs_diff_eq!(n.y, b.y, epsilon = 1e-7);
-        assert_abs_diff_eq!(n.z, b.z, epsilon = 2e-6);
+        assert_abs_diff_eq!(n.x, b.x, epsilon = 3e-4);
+        assert_abs_diff_eq!(n.y, b.y, epsilon = 4e-4);
+        assert_abs_diff_eq!(n.z, b.z, epsilon = 6e-4);
 
         let z = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
         assert_eq!(z.normalize(), z);

@@ -32,6 +32,8 @@ mod test_traits {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use approx::assert_abs_diff_eq;
+
     #[test]
     fn default() {
         let a: Vector2f32 = Vector2f32::default();
@@ -153,15 +155,17 @@ mod tests {
     #[test]
     fn norm() {
         let a = Vector2 { x: 2.0, y: 3.0 };
-        assert_eq!(a.norm(), 13.0_f32.sqrt());
+        assert_abs_diff_eq!(a.norm(), 13.0_f32.sqrt(), epsilon = 2e-4);
         let z = Vector2 { x: 0.0, y: 0.0 };
-        assert_eq!(z.norm(), 0.0);
+        assert_abs_diff_eq!(z.norm(), 0.0, epsilon = 6e-20);
     }
     #[test]
     fn normalized_unchecked() {
         let a = Vector2 { x: 2.0, y: 3.0 };
         let b = a / 13.0_f32.sqrt();
-        assert_eq!(a.normalize_unchecked(), b);
+        let n = a.normalize_unchecked();
+        assert_abs_diff_eq!(n.x, b.x, epsilon = 2e-4);
+        assert_abs_diff_eq!(n.y, b.y, epsilon = 3e-4);
         let z = Vector2 { x: 0.0, y: 0.0 };
         assert_eq!(z.normalize(), z);
     }

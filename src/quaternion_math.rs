@@ -48,7 +48,7 @@ pub trait QuaternionMath: Sized {
     fn q_div_scalar(this: Quaternion<Self>, a: Self) -> Quaternion<Self>;
     fn q_mul_add(this: Quaternion<Self>, k: Self, other: Quaternion<Self>) -> Quaternion<Self>;
     fn q_norm_squared(this: Quaternion<Self>) -> Self;
-    fn q_is_normalized(this: Quaternion<Self>) -> bool;
+    fn q_is_normalized(this: Quaternion<Self>, epsilon: Self) -> bool;
     fn q_mul(other: Quaternion<Self>, other: Quaternion<Self>) -> Quaternion<Self>;
     fn q_conjugate(this: Quaternion<Self>) -> Quaternion<Self>;
     fn q_dot(this: Quaternion<Self>, other: Quaternion<Self>) -> Self;
@@ -164,9 +164,9 @@ impl QuaternionMath for f32 {
     }
 
     #[inline(always)]
-    fn q_is_normalized(this: Quaternion<Self>) -> bool {
+    fn q_is_normalized(this: Quaternion<Self>, epsilon: Self) -> bool {
         let norm_squared = Self::q_norm_squared(this);
-        (norm_squared - 1.0).abs() < 4e-6
+        (norm_squared - 1.0).abs() < epsilon
     }
 
     #[inline(always)]
@@ -250,9 +250,9 @@ impl QuaternionMath for f64 {
     }
 
     #[inline(always)]
-    fn q_is_normalized(this: Quaternion<Self>) -> bool {
+    fn q_is_normalized(this: Quaternion<Self>, epsilon: Self) -> bool {
         let norm_squared = Self::q_norm_squared(this);
-        (norm_squared - 1.0).abs() < 4e-6
+        (norm_squared - 1.0).abs() < epsilon
     }
 
     #[inline(always)]
