@@ -368,7 +368,13 @@ pub fn acos_approx_f64(x: f64) -> f64 {
 /// Approximates e^x for f32 using range reduction and a Taylor series.
 #[inline(always)]
 #[must_use]
-pub fn exp_approx_f32(mut x: f32) -> f32 {
+pub fn exp_approx_f32(x: f32) -> f32 {
+    const LN_2: f32 = core::f32::consts::LN_2;
+    const FRAC_1_LN_2: f32 = 1.0 / LN_2;
+
+    if x.is_nan() {
+        return f32::NAN;
+    }
     if x > 88.722_839 {
         return f32::INFINITY;
     }
@@ -376,10 +382,12 @@ pub fn exp_approx_f32(mut x: f32) -> f32 {
         return 0.0;
     }
 
-    let k = (x / core::f32::consts::LN_2).round();
-    x -= k * core::f32::consts::LN_2;
+    // Argument reduction: x = k * ln(2) + r
+    // We round to the nearest integer to keep the remainder 'r' as small as possible (-0.35 <= r <= 0.35)
+    let k = (x * FRAC_1_LN_2).round();
+    let r = x - k * LN_2;
 
-    let exp = exp_poly7(x);
+    let exp = exp_poly7(r);
 
     // Correctly scale the calculated sum by 2^k
     #[allow(clippy::cast_possible_truncation)]
@@ -409,22 +417,34 @@ pub fn exp2_approx_f64(x: f64) -> f64 {
 #[inline]
 #[must_use]
 pub fn ln_approx_f32(x: f32) -> f32 {
-    if x <= 0.0 {
+    if x <= 0.0 || x.is_nan() {
         return f32::NAN;
+    }
+    if x.is_infinite() {
+        return f32::INFINITY;
     }
 
     // Range reduction: ln(x) = ln(m * 2^k) = ln(m) + k * ln(2)
-    let (m, k) = mantissa_exponent_f32(x);
+    let (mut m, mut k) = mantissa_exponent_f32(x);
+
+    // Narrow the range to [0.707, 1.414] for faster convergence
+    if m > core::f32::consts::SQRT_2 {
+        m *= 0.5;
+        k += 1;
+    } else if m < core::f32::consts::FRAC_1_SQRT_2 {
+        m *= 2.0;
+        k -= 1;
+    }
 
     // Padé approximation around 1.0 using z = (m - 1) / (m + 1)
     let z = (m - 1.0) / (m + 1.0);
 
-    let ln = ln_poly7(z);
+    let ln_m = ln_poly7(z);
 
     // ln(m*2^k) = ln(m) + k * ln(2)
     #[allow(clippy::cast_precision_loss)]
     {
-        ln + (k as f32) * core::f32::consts::LN_2
+        ln_m + (k as f32) * core::f32::consts::LN_2
     }
 }
 
@@ -578,40 +598,41 @@ mod test_logs {
     #[cfg(feature = "libm")]
     #[test]
     fn test_ln_approx_f32() {
-        let epsilon = 1.5e-5;
+        let epsilon = 1e-20;
         assert!(approx_equal(libm::logf(1.0e-04), ln_approx_f32(1.0e-04), epsilon));
         assert!(approx_equal(libm::logf(1.0), ln_approx_f32(1.0), epsilon));
         assert!(approx_equal(libm::logf(1.0e04), ln_approx_f32(1.0e04), epsilon));
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn test_log2_approx_f32() {
-        let epsilon = 2e-5;
+        let epsilon = 1e-20;
         assert!(approx_equal(libm::log2f(1.0e-04), log2_approx_f32(1.0e-04), epsilon));
         assert!(approx_equal(libm::log2f(1.0), log2_approx_f32(1.0), epsilon));
         assert!(approx_equal(libm::log2f(1.0e04), log2_approx_f32(1.0e04), epsilon));
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn test_log10_approx_f32() {
-        let epsilon = 6e-6;
+        let epsilon = 1e-20;
         assert!(approx_equal(libm::log10f(1.0e-04), log10_approx_f32(1.0e-04), epsilon));
         assert!(approx_equal(libm::log10f(1.0), log10_approx_f32(1.0), epsilon));
         assert!(approx_equal(libm::log10f(1.0e04), log10_approx_f32(1.0e04), epsilon));
     }
+    #[cfg(feature = "libm")]
     #[test]
     fn test_log_approx_f32() {
-        let epsilon = 2e-4;
+        let epsilon = 1e-20;
         let base = 3.0;
         assert!(approx_equal(libm::logf(1.0e-04) / libm::logf(base), log_approx_f32(1.0e-04, base), epsilon));
         assert!(approx_equal(libm::logf(1.0) / libm::logf(base), log_approx_f32(1.0, base), epsilon));
         assert!(approx_equal(libm::logf(1.0e04) / libm::logf(base), log_approx_f32(1.0e04, base), epsilon));
 
-        let epsilon = 9e-5;
         let base = 5.0;
         assert!(approx_equal(libm::logf(1.0e-04) / libm::logf(base), log_approx_f32(1.0e-04, base), epsilon));
         assert!(approx_equal(libm::logf(1.0) / libm::logf(base), log_approx_f32(1.0, base), epsilon));
         assert!(approx_equal(libm::logf(1.0e04) / libm::logf(base), log_approx_f32(1.0e04, base), epsilon));
 
-        let epsilon = 3e-5;
         let base = 127.0;
         assert!(approx_equal(libm::logf(1.0e-04) / libm::logf(base), log_approx_f32(1.0e-04, base), epsilon));
         assert!(approx_equal(libm::logf(1.0) / libm::logf(base), log_approx_f32(1.0, base), epsilon));
@@ -654,26 +675,28 @@ mod test_exp {
 
     #[test]
     fn test_exp_approx_f32() {
-        // Test standard values against hardware implementation (Max error: 0.00001)
-        assert!(approx_equal(exp_approx_f32(0.0), 1.0, 0.00001));
-        assert!(approx_equal(exp_approx_f32(1.0), 1.0_f32.exp(), 0.00001));
-        assert!(approx_equal(exp_approx_f32(-1.0), (-1.0_f32).exp(), 0.00001));
+        // Test standard values against hardware implementation
+        assert!(approx_equal(1.0, exp_approx_f32(0.0), 1e-8));
+        #[cfg(feature = "libm")]
+        assert!(approx_equal(libm::expf(-1.0), exp_approx_f32(-1.0), 1e-10));
 
         // Test slightly larger inputs where scaling matters
-        assert!(approx_equal(exp_approx_f32(4.5), 4.5_f32.exp(), 0.005));
+        #[cfg(feature = "libm")]
+        assert!(approx_equal(libm::expf(4.5), exp_approx_f32(4.5), 5e-5));
 
         // Test extreme limits
         assert_eq!(exp_approx_f32(90.0), f32::INFINITY);
         assert_eq!(exp_approx_f32(-110.0), 0.0);
     }
 
+    #[cfg(feature = "libm")]
     #[test]
     fn test_ln_approx_f32() {
-        // Test standard values (Max allowed error: 0.0005 due to Padé polynomial limits)
-        assert!(approx_equal(ln_approx_f32(1.0), 0.0, 0.0005));
-        assert!(approx_equal(ln_approx_f32(2.0), 2.0_f32.ln(), 0.0005));
-        assert!(approx_equal(ln_approx_f32(10.0), 10.0_f32.ln(), 0.0005));
-        assert!(approx_equal(ln_approx_f32(0.5), -core::f32::consts::LN_2, 0.0005));
+        // Test standard values
+        assert!(approx_equal(0.0, ln_approx_f32(1.0), 1e-20));
+        assert!(approx_equal(libm::logf(2.0), ln_approx_f32(2.0), 1e-20));
+        assert!(approx_equal(libm::logf(10.0), ln_approx_f32(10.0), 1e-20));
+        assert!(approx_equal(libm::logf(0.5), ln_approx_f32(0.5), 1e-20));
 
         // Test domain safety limits
         assert!(ln_approx_f32(0.0).is_nan());

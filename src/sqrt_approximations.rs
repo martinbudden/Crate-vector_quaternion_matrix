@@ -108,6 +108,7 @@ mod tests {
     #![allow(clippy::float_cmp)]
     use super::*;
 
+    #[cfg(feature = "libm")]
     fn approx_equal(a: f32, b: f32, epsilon: f32) -> bool {
         if a.is_nan() && b.is_nan() {
             return true;
