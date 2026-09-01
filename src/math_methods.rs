@@ -2,16 +2,6 @@
 
 use cfg_if::cfg_if;
 
-#[allow(unused)]
-use crate::{
-    math_approximations::{
-        atan2_approx_f32, atan2_approx_f64, cos_approx_f32, cos_approx_f64, exp_approx_f32, exp_approx_f64,
-        ln_approx_f32, ln_approx_f64, powf_approx_f32, powf_approx_f64, sin_approx_f32, sin_approx_f64,
-        sin_cos_approx_f32, sin_cos_approx_f64, tan_approx_f32, tan_approx_f64,
-    },
-    sqrt_approximations::{sqrt_f32, sqrt_f64, sqrt_reciprocal_f32, sqrt_reciprocal_f64},
-};
-
 // The form x.fn() is called method call syntax.
 // The form fn(x) is called function call syntax.
 
@@ -35,19 +25,17 @@ use crate::{
 // x.sin_cos()
 // x.sin(), x.cos(), x.tan()
 // x.asin(), x.acos(), x.atan(), x.atan2()
-// x.exp()
-// x.ln()
+// x.exp(), x.exp2()
+// x.ln(), x.log2(), x.log10(), x.log()
 // x.powf()
 // and additionally x.sqrt_reciprocal()
 //
 // So the following are unprovided
-// x.exp(), x.exp2(), x.exp_m1()
-// x.ln(), x.log2(), x.log10(), x.log()
-// x.powf(), x.powi()
+// x.exp_m1()
 // x.ln_1p()
 // x.hypot()
 
-/// `no_std` implementations of math functions in method call syntax<br>
+/// `no_std` implementations of `std` math functions in method call syntax<br>
 /// eg `x.sin()`, `x.cos()` etc.<br><br>
 pub trait MathMethods: Sized {
     fn sin_cos(self) -> (Self, Self);
@@ -72,7 +60,15 @@ pub trait MathMethods: Sized {
     #[must_use]
     fn exp(self) -> Self;
     #[must_use]
+    fn exp2(self) -> Self;
+    #[must_use]
     fn ln(self) -> Self;
+    #[must_use]
+    fn log2(self) -> Self;
+    #[must_use]
+    fn log10(self) -> Self;
+    #[must_use]
+    fn log(self, base: Self) -> Self;
     #[must_use]
     fn powf(self, e: Self) -> Self;
 }
@@ -126,8 +122,24 @@ cfg_if! {
                 self.exp()
             }
             #[inline(always)]
+            fn exp2(self) -> Self {
+                self.exp2()
+            }
+            #[inline(always)]
             fn ln(self) -> Self {
                 self.ln()
+            }
+            #[inline(always)]
+            fn log2(self) -> Self {
+                self.log2()
+            }
+            #[inline(always)]
+            fn log10(self) -> Self {
+                self.log10()
+            }
+            #[inline(always)]
+            fn log(self, base: Self) -> Self {
+                self.log(base)
             }
             #[inline(always)]
             fn powf(self, e: Self) -> Self {
@@ -180,8 +192,24 @@ cfg_if! {
                 self.exp()
             }
             #[inline(always)]
+            fn exp2(self) -> Self {
+                self.exp2()
+            }
+            #[inline(always)]
             fn ln(self) -> Self {
                 self.ln()
+            }
+            #[inline(always)]
+            fn log2(self) -> Self {
+                self.log2()
+            }
+            #[inline(always)]
+            fn log10(self) -> Self {
+                self.log10()
+            }
+            #[inline(always)]
+            fn log(self, base: Self) -> Self {
+                self.log(base)
             }
             #[inline(always)]
             fn powf(self, e:Self) -> Self {
@@ -247,8 +275,24 @@ cfg_if! {
                 libm::expf(self)
             }
             #[inline(always)]
+            fn exp2(self) -> Self {
+                libm::exp2f(self)
+            }
+            #[inline(always)]
             fn ln(self) -> Self {
                 libm::logf(self)
+            }
+            #[inline(always)]
+            fn log2(self) -> Self {
+                libm::log2f(self)
+            }
+            #[inline(always)]
+            fn log10(self) -> Self {
+                libm::log10f(self)
+            }
+            #[inline(always)]
+            fn log(self, base: Self) -> Self {
+                libm::logf(self) / libm::logf(base)
             }
             #[inline(always)]
             fn powf(self, e: Self) -> Self {
@@ -302,8 +346,24 @@ cfg_if! {
                 libm::exp(self)
             }
             #[inline(always)]
+            fn exp2(self) -> Self {
+                libm::exp2(self)
+            }
+            #[inline(always)]
             fn ln(self) -> Self {
                 libm::log(self)
+            }
+            #[inline(always)]
+            fn log2(self) -> Self {
+                libm::log2(self)
+            }
+            #[inline(always)]
+            fn log10(self) -> Self {
+                libm::log10(self)
+            }
+            #[inline(always)]
+            fn log(self, base: Self) -> Self {
+                libm::log(self) / libm::log(base)
             }
             #[inline(always)]
             fn powf(self, e: Self) -> Self {
@@ -313,92 +373,124 @@ cfg_if! {
     } else if #[cfg(all(not(feature = "std"), not(feature = "libm")))] {
         impl MathMethods for f32 {
             fn sin_cos(self) -> (Self, Self) {
-                sin_cos_approx_f32(self)
+                super::math_approximations::sin_cos_approx_f32(self)
             }
             fn sin(self) -> Self {
-                sin_approx_f32(self)
+                super::math_approximations::sin_approx_f32(self)
             }
             fn cos(self) -> Self {
-                cos_approx_f32(self)
+                super::math_approximations::cos_approx_f32(self)
             }
             fn tan(self) -> Self {
-                tan_approx_f32(self)
+                super::math_approximations::tan_approx_f32(self)
             }
             fn asin(self) -> Self {
-                atan2_approx_f32(self, sqrt_f32(1.0 - self*self))
+                super::math_approximations::asin_approx_f32(self)
             }
             fn acos(self) -> Self {
-                atan2_approx_f32(sqrt_f32(1.0 - self*self), self)
+                super::math_approximations::acos_approx_f32(self)
             }
             // note: atan2(x, y) = x.atan2(y)
             fn atan2(self, y: Self) -> Self {
-                atan2_approx_f32(self, y)
+                super::math_approximations::atan2_approx_f32(self, y)
             }
             fn atan(self) -> Self {
-                atan2_approx_f32(self, 1.0)
+                super::math_approximations::atan2_approx_f32(self, 1.0)
             }
             fn sqrt(self) -> f32 {
-                sqrt_f32(self)
+                super::sqrt_approximations::sqrt_f32(self)
             }
             fn sqrt_reciprocal(self) -> f32 {
-                sqrt_reciprocal_f32(self)
+                super::sqrt_approximations::sqrt_reciprocal_f32(self)
             }
             #[inline(always)]
             fn exp(self) -> Self {
-                exp_approx_f32(self)
+                super::math_approximations::exp_approx_f32(self)
+            }
+            #[inline(always)]
+            fn exp2(self) -> Self {
+                super::math_approximations::exp2_approx_f32(self)
             }
             #[inline(always)]
             fn ln(self) -> Self {
-                ln_approx_f32(self)
+                super::math_approximations::ln_approx_f32(self)
+            }
+            #[inline(always)]
+            fn log2(self) -> Self {
+                super::math_approximations::log2_approx_f32(self)
+            }
+            #[inline(always)]
+            fn log10(self) -> Self {
+                super::math_approximations::log10_approx_f32(self)
+            }
+            #[inline(always)]
+            fn log(self, base: Self) -> Self {
+                super::math_approximations::log_approx_f32(self, base)
             }
             #[inline(always)]
             fn powf(self, e: Self) -> Self {
-                powf_approx_f32(self, e)
+                super::math_approximations::powf_approx_f32(self, e)
             }
         }
         impl MathMethods for f64 {
             fn sin_cos(self) -> (Self, Self) {
-                sin_cos_approx_f64(self)
+                super::math_approximations::sin_cos_approx_f64(self)
             }
             fn sin(self) -> Self {
-                sin_approx_f64(self)
+                super::math_approximations::sin_approx_f64(self)
             }
             fn cos(self) -> Self {
-                cos_approx_f64(self)
+                super::math_approximations::cos_approx_f64(self)
             }
             fn tan(self) -> Self {
-                tan_approx_f64(self)
+                super::math_approximations::tan_approx_f64(self)
             }
             fn asin(self) -> Self {
-                atan2_approx_f64(self, sqrt_f64(1.0 - self*self))
+                super::math_approximations::asin_approx_f64(self)
             }
             fn acos(self) -> Self {
-                atan2_approx_f64(sqrt_f64(1.0 - self*self), self)
+                super::math_approximations::acos_approx_f64(self)
             }
             // note: atan2(x, y) = x.atan2(y)
             fn atan2(self, y: Self) -> Self {
-                atan2_approx_f64(self, y)
+                super::math_approximations::atan2_approx_f64(self, y)
             }
             fn atan(self) -> Self {
-                atan2_approx_f64(self, 1.0)
+                super::math_approximations::atan2_approx_f64(self, 1.0)
             }
             fn sqrt(self) -> f64 {
-                sqrt_f64(self)
+                super::sqrt_approximations::sqrt_f64(self)
             }
             fn sqrt_reciprocal(self) -> f64 {
-                sqrt_reciprocal_f64(self)
+                super::sqrt_approximations::sqrt_reciprocal_f64(self)
             }
             #[inline(always)]
             fn exp(self) -> Self {
-                exp_approx_f64(self)
+                super::math_approximations::exp_approx_f64(self)
+            }
+            #[inline(always)]
+            fn exp2(self) -> Self {
+                super::math_approximations::exp2_approx_f64(self)
             }
             #[inline(always)]
             fn ln(self) -> Self {
-                ln_approx_f64(self)
+                super::math_approximations::ln_approx_f64(self)
+            }
+            #[inline(always)]
+            fn log2(self) -> Self {
+                super::math_approximations::log2_approx_f64(self)
+            }
+            #[inline(always)]
+            fn log10(self) -> Self {
+                super::math_approximations::log10_approx_f64(self)
+            }
+            #[inline(always)]
+            fn log(self, base: Self) -> Self {
+                super::math_approximations::log_approx_f64(self, base)
             }
             #[inline(always)]
             fn powf(self, e: Self) -> Self {
-                powf_approx_f64(self, e)
+                super::math_approximations::powf_approx_f64(self, e)
             }
         }
     }

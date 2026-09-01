@@ -19,12 +19,12 @@ categories = [
 rustc_version = "0.4.1"
 
 [features]
-default = []
-#default = ["libm"]
+#default = []
+default = ["libm"]
+#default = ["std"]
 #default = ["libm", "std"]
 #default = ["libm", "simd", "align"]
 #default = ["libm", "serde", "uom"]
-#default = ["std"]
 #default = ["std", "serde"]
 std = ["num-traits/std", "derive_more/std"]
 libm = ["dep:libm", "num-traits/libm"]

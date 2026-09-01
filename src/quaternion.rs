@@ -568,6 +568,25 @@ where
     }
 }
 
+// **** approx_eq ****
+
+impl<T> Quaternion<T>
+where
+    T: FloatCore,
+{
+    /// Compare two quaternions with a tolerance.
+    #[inline]
+    pub fn approx_eq(&self, other: &Self, epsilon: T) -> bool
+    where
+        T: FloatCore,
+    {
+        (self.w - other.w).abs() <= epsilon
+            && (self.x - other.x).abs() <= epsilon
+            && (self.y - other.y).abs() <= epsilon
+            && (self.z - other.z).abs() <= epsilon
+    }
+}
+
 // **** abs ****
 
 impl<T> Quaternion<T>

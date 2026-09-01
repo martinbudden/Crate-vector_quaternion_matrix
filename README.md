@@ -4,7 +4,7 @@ A **vector**, **quaternion**, and **matrix** (**VQM**) library targeted at embed
 (In particular stabilized vehicles including self-balancing robots and aircraft).
 
 This crate is `no_std`, that it does not link to the standard library and so does not depend on an operating system
-and uses no allocation. This means it is suitable for embedded system.
+and uses no allocation. This means it is suitable for embedded systems.
 
 ## Overview
 
@@ -31,6 +31,22 @@ Matrix elements are stored in a one-dimensional array, stored in column-major or
 
 (Under the hood, types are implemented using generics, so `Vector3f32` is actually `Vector3<f32>`,
 but that is transparent to the user.)
+
+This crate also provides fast safe approximations to the following methods, when built with no `std` and no `libm`.
+
+* `x.sin_cos()`, `x.sin()`, `x.cos()`, `x.tan()`
+* `x.asin()` , `x.acos()`, `x.atan()`, `x.atan2()`
+* `x.exp()`, `x.exp2()`
+* `x.ln()`, `x.log2()`, `x.log10()`, `x.log()`
+* `x.powf()`
+* `x.sqrt()`, and additionally `x.sqrt_reciprocal()`
+
+The approximations are typically calculated using range mapping and [Padé approximants](https://en.wikipedia.org/wiki/Pad%C3%A9_approximant).
+They are generally accurate to 4 or 5 decimal places, depending on the function.
+
+The `sqrt` functions will directly us inline assembly (eg `vsqrt.f32` and `vrsqrt.f32`) if the target architecture supports it,
+otherwise they use [Pizer’s optimization](https://pizer.wordpress.com/2008/10/12/fast-inverse-square-root/)
+of the famous [Quake inverse square root](https://en.wikipedia.org/wiki/Fast_inverse_square_root).
 
 ## Examples
 

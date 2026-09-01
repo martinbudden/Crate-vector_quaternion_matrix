@@ -23,11 +23,14 @@ rustflags = [
 # target = "thumbv8m.main-none-eabihf"
 
 [alias]
-# Run using: 'cargo test-serde'
+# Run using: 'cargo test-libm'
+test-libm = "test --features libm"
+
+test-none = [ "test", "--no-default-features"]
+
 test-serde = "test --features serde"
 
-# Run using: 'cargo test-serde'
-test-uom = "test --features serde uom"
+test-uom = [ "test", "--no-default-features", "--features", "serde, uom, libm"]
 
 # Run using: 'rustup run nightly cargo check-simd'
 check-simd = "check --features simd,align"

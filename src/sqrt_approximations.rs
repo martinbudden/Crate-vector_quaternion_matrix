@@ -108,10 +108,27 @@ mod tests {
     #![allow(clippy::float_cmp)]
     use super::*;
 
+    fn approx_equal(a: f32, b: f32, epsilon: f32) -> bool {
+        if a.is_nan() && b.is_nan() {
+            return true;
+        }
+        if a.is_infinite() && b.is_infinite() {
+            return a.is_sign_positive() == b.is_sign_positive();
+        }
+        (a - b).abs() <= epsilon
+    }
+
     #[test]
-    fn sqrt_reciprocal() {
+    fn sqrt_reciprocal_quake() {
         assert_eq!(quake_sqrt_reciprocal_approx_f32(4.0), 0.499_154_06);
         assert_eq!(sqrt_reciprocal_approx_f32(4.0), 0.500_059_37);
+    }
+    #[cfg(feature = "libm")]
+    #[test]
+    fn sqrt_reciprocal() {
+        assert!(approx_equal(1.0 / libm::sqrtf(127.0), sqrt_reciprocal_approx_f32(127.0), 5e-5));
+        assert!(approx_equal(1.0 / libm::sqrtf(4.0), sqrt_reciprocal_approx_f32(4.0), 6e-5));
+        assert!(approx_equal(1.0 / libm::sqrtf(0.5), sqrt_reciprocal_approx_f32(0.5), 7e-4));
     }
     #[cfg(feature = "libm")]
     #[test]

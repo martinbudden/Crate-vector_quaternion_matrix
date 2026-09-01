@@ -2,7 +2,7 @@
 #![allow(clippy::inline_always)]
 #![allow(clippy::excessive_precision)]
 
-use core::{f32::consts::LN_2, ops::Neg};
+use core::ops::Neg;
 use num_traits::{Num, float::FloatCore};
 // see [Optimized Trigonometric Functions on TI Arm Cores](https://www.ti.com/lit/an/sprad27a/sprad27a.pdf)
 // for explanation of range mapping and coefficients
@@ -41,6 +41,7 @@ trait LnCoefficients {
     const LN_C1: Self;
     const LN_C3: Self;
     const LN_C5: Self;
+    const LN_C7: Self;
 }
 
 // sin4 (5.60E-07): x * (0.9999949932098388671875 + x2*(-0.166601598262786865234375 + x2*8.12153331935405731201171875e-3))
@@ -114,12 +115,14 @@ impl LnCoefficients for f32 {
     const LN_C1: Self = 2.0;
     const LN_C3: Self = 2.0 / 3.0;
     const LN_C5: Self = 2.0 / 5.0;
+    const LN_C7: Self = 2.0 / 7.0;
 }
 
 impl LnCoefficients for f64 {
     const LN_C1: Self = 2.0;
     const LN_C3: Self = 2.0 / 3.0;
     const LN_C5: Self = 2.0 / 5.0;
+    const LN_C7: Self = 2.0 / 7.0;
 }
 
 #[inline(always)]
@@ -168,8 +171,18 @@ where
     r * (T::LN_C1 + r2 * (T::LN_C3 + r2 * T::LN_C5))
 }
 
+#[inline(always)]
+fn ln_poly7<T>(r: T) -> T
+where
+    T: Copy + Num + LnCoefficients,
+{
+    let r2 = r * r;
+    r * (T::LN_C1 + r2 * (T::LN_C3 + r2 * (T::LN_C5 + r2 * T::LN_C7)))
+}
+
 // For sin/cos quadrant helper functions:
 // 2 least significant bits of q are quadrant index, ie [0, 1, 2, 3].
+#[inline]
 fn sin_quadrant<T>(r: T, q: i32) -> T
 where
     T: Copy + Num + Neg<Output = T> + Sin5Coefficients + Cos6Coefficients,
@@ -184,6 +197,7 @@ where
     if q & 2 == 0 { cos } else { -cos }
 }
 
+#[inline]
 fn cos_quadrant<T>(r: T, q: i32) -> T
 where
     T: Copy + Num + Neg<Output = T> + Sin5Coefficients + Cos6Coefficients,
@@ -198,6 +212,7 @@ where
     if q & 2 == 0 { -sin } else { sin }
 }
 
+#[inline]
 fn sin_cos_quadrant<T>(r: T, q: i32) -> (T, T)
 where
     T: Copy + Num + Neg<Output = T> + Sin5Coefficients + Cos6Coefficients,
@@ -211,6 +226,7 @@ where
     if q & 2 == 0 { sin_cos } else { (-sin_cos.0, -sin_cos.1) }
 }
 
+#[inline(always)]
 #[must_use]
 pub fn sin_approx_f32(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
@@ -220,6 +236,7 @@ pub fn sin_approx_f32(x: f32) -> f32 {
     sin_quadrant(r, q as i32)
 }
 
+#[inline(always)]
 #[must_use]
 pub fn sin_approx_f64(x: f64) -> f64 {
     let t = x * core::f64::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
@@ -229,6 +246,7 @@ pub fn sin_approx_f64(x: f64) -> f64 {
     sin_quadrant(r, q as i32)
 }
 
+#[inline(always)]
 #[must_use]
 pub fn cos_approx_f32(x: f32) -> f32 {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
@@ -238,6 +256,7 @@ pub fn cos_approx_f32(x: f32) -> f32 {
     cos_quadrant(r, q as i32)
 }
 
+#[inline(always)]
 #[must_use]
 pub fn cos_approx_f64(x: f64) -> f64 {
     let t = x * core::f64::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
@@ -247,6 +266,7 @@ pub fn cos_approx_f64(x: f64) -> f64 {
     cos_quadrant(r, q as i32)
 }
 
+#[inline(always)]
 #[must_use]
 pub fn sin_cos_approx_f32(x: f32) -> (f32, f32) {
     let t = x * core::f32::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
@@ -256,6 +276,7 @@ pub fn sin_cos_approx_f32(x: f32) -> (f32, f32) {
     sin_cos_quadrant(r, q as i32)
 }
 
+#[inline(always)]
 #[must_use]
 pub fn sin_cos_approx_f64(x: f64) -> (f64, f64) {
     let t = x * core::f64::consts::FRAC_2_PI; // so remainder will be scaled from range [-PI/4, PI/4] ([-45, 45] degrees) to [-0.5, 0.5]
@@ -265,12 +286,14 @@ pub fn sin_cos_approx_f64(x: f64) -> (f64, f64) {
     sin_cos_quadrant(r, q as i32)
 }
 
+#[inline(always)]
 #[must_use]
 pub fn tan_approx_f32(x: f32) -> f32 {
     let (sin, cos) = sin_cos_approx_f32(x);
     sin / cos
 }
 
+#[inline(always)]
 #[must_use]
 pub fn tan_approx_f64(x: f64) -> f64 {
     let (sin, cos) = sin_cos_approx_f64(x);
@@ -278,6 +301,7 @@ pub fn tan_approx_f64(x: f64) -> f64 {
 }
 
 /// Arctangent of y/x (f32).
+#[inline(always)]
 #[must_use]
 pub fn atan2_approx_f32(y: f32, x: f32) -> f32 {
     if x == 0.0 && y == 0.0 {
@@ -310,13 +334,39 @@ pub fn atan2_approx_f32(y: f32, x: f32) -> f32 {
     angle
 }
 
+#[inline(always)]
 #[must_use]
 pub fn atan2_approx_f64(y: f64, x: f64) -> f64 {
     #[allow(clippy::cast_possible_truncation)]
     f64::from(atan2_approx_f32(y as f32, x as f32))
 }
 
+#[inline(always)]
+#[must_use]
+pub fn asin_approx_f32(x: f32) -> f32 {
+    atan2_approx_f32(x, super::sqrt_approximations::sqrt_f32(1.0 - x * x))
+}
+
+#[inline(always)]
+#[must_use]
+pub fn asin_approx_f64(x: f64) -> f64 {
+    atan2_approx_f64(x, super::sqrt_approximations::sqrt_f64(1.0 - x * x))
+}
+
+#[inline(always)]
+#[must_use]
+pub fn acos_approx_f32(x: f32) -> f32 {
+    atan2_approx_f32(super::sqrt_approximations::sqrt_f32(1.0 - x * x), x)
+}
+
+#[inline(always)]
+#[must_use]
+pub fn acos_approx_f64(x: f64) -> f64 {
+    atan2_approx_f64(super::sqrt_approximations::sqrt_f64(1.0 - x * x), x)
+}
+
 /// Approximates e^x for f32 using range reduction and a Taylor series.
+#[inline(always)]
 #[must_use]
 pub fn exp_approx_f32(mut x: f32) -> f32 {
     if x > 88.722_839 {
@@ -326,8 +376,8 @@ pub fn exp_approx_f32(mut x: f32) -> f32 {
         return 0.0;
     }
 
-    let k = (x / LN_2).round();
-    x -= k * LN_2;
+    let k = (x / core::f32::consts::LN_2).round();
+    x -= k * core::f32::consts::LN_2;
 
     let exp = exp_poly7(x);
 
@@ -336,13 +386,27 @@ pub fn exp_approx_f32(mut x: f32) -> f32 {
     scale_binary_f32(exp, k as i32)
 }
 
+#[inline(always)]
 #[must_use]
 pub fn exp_approx_f64(x: f64) -> f64 {
     #[allow(clippy::cast_possible_truncation)]
     f64::from(exp_approx_f32(x as f32))
 }
 
+#[inline(always)]
+#[must_use]
+pub fn exp2_approx_f32(x: f32) -> f32 {
+    exp_approx_f32(x * core::f32::consts::LN_2)
+}
+
+#[inline(always)]
+#[must_use]
+pub fn exp2_approx_f64(x: f64) -> f64 {
+    exp_approx_f64(x * core::f64::consts::LN_2)
+}
+
 /// Approximates ln(x) for f32 using range reduction and a Padé approximation.
+#[inline]
 #[must_use]
 pub fn ln_approx_f32(x: f32) -> f32 {
     if x <= 0.0 {
@@ -355,21 +419,59 @@ pub fn ln_approx_f32(x: f32) -> f32 {
     // Padé approximation around 1.0 using z = (m - 1) / (m + 1)
     let z = (m - 1.0) / (m + 1.0);
 
-    let ln = ln_poly5(z);
+    let ln = ln_poly7(z);
 
     // ln(m*2^k) = ln(m) + k * ln(2)
     #[allow(clippy::cast_precision_loss)]
     {
-        ln + (k as f32) * LN_2
+        ln + (k as f32) * core::f32::consts::LN_2
     }
 }
 
+#[inline(always)]
 #[must_use]
 pub fn ln_approx_f64(x: f64) -> f64 {
     #[allow(clippy::cast_possible_truncation)]
     f64::from(ln_approx_f32(x as f32))
 }
 
+#[inline(always)]
+#[must_use]
+pub fn log2_approx_f32(x: f32) -> f32 {
+    ln_approx_f32(x) * core::f32::consts::LOG2_E
+}
+
+#[inline(always)]
+#[must_use]
+pub fn log2_approx_f64(x: f64) -> f64 {
+    ln_approx_f64(x) * core::f64::consts::LOG2_E
+}
+
+#[inline(always)]
+#[must_use]
+pub fn log10_approx_f32(x: f32) -> f32 {
+    ln_approx_f32(x) * core::f32::consts::LOG10_E
+}
+
+#[inline(always)]
+#[must_use]
+pub fn log10_approx_f64(x: f64) -> f64 {
+    ln_approx_f64(x) * core::f64::consts::LOG10_E
+}
+
+#[inline(always)]
+#[must_use]
+pub fn log_approx_f32(x: f32, base: f32) -> f32 {
+    ln_approx_f32(x) / ln_approx_f32(base)
+}
+
+#[inline(always)]
+#[must_use]
+pub fn log_approx_f64(x: f64, base: f64) -> f64 {
+    ln_approx_f64(x) / ln_approx_f64(base)
+}
+
+#[inline]
 #[must_use]
 pub fn powf_approx_f32(base: f32, exponent: f32) -> f32 {
     if exponent == 0.0 {
@@ -390,6 +492,7 @@ pub fn powf_approx_f32(base: f32, exponent: f32) -> f32 {
     exp_approx_f32(exponent * ln_approx_f32(base))
 }
 
+#[inline(always)]
 #[must_use]
 pub fn powf_approx_f64(base: f64, exponent: f64) -> f64 {
     #[allow(clippy::cast_possible_truncation)]
@@ -397,6 +500,7 @@ pub fn powf_approx_f64(base: f64, exponent: f64) -> f64 {
 }
 
 /// Takes x and returns (mantissa, exponent) with mantissa in the range [0.5, 1.0) or [-1.0, -0.5) for negative numbers.
+#[inline]
 fn mantissa_exponent_f32(x: f32) -> (f32, i32) {
     if x == 0.0 {
         return (0.0, 0);
@@ -414,6 +518,7 @@ fn mantissa_exponent_f32(x: f32) -> (f32, i32) {
 }
 
 /// Returns x * 2^k.
+#[inline]
 fn scale_binary_f32(x: f32, k: i32) -> f32 {
     if x == 0.0 || x.is_nan() || x.is_infinite() {
         return x;
@@ -456,7 +561,65 @@ fn scale_binary_f32(x: f32, k: i32) -> f32 {
 }
 
 #[cfg(test)]
-mod test_exps {
+mod test_logs {
+    #![allow(clippy::float_cmp)]
+    use super::*; // Brings your custom functions into scope
+
+    fn approx_equal(a: f32, b: f32, epsilon: f32) -> bool {
+        if a.is_nan() && b.is_nan() {
+            return true;
+        }
+        if a.is_infinite() && b.is_infinite() {
+            return a.is_sign_positive() == b.is_sign_positive();
+        }
+        (a - b).abs() <= epsilon
+    }
+
+    #[cfg(feature = "libm")]
+    #[test]
+    fn test_ln_approx_f32() {
+        let epsilon = 1.5e-5;
+        assert!(approx_equal(libm::logf(1.0e-04), ln_approx_f32(1.0e-04), epsilon));
+        assert!(approx_equal(libm::logf(1.0), ln_approx_f32(1.0), epsilon));
+        assert!(approx_equal(libm::logf(1.0e04), ln_approx_f32(1.0e04), epsilon));
+    }
+    #[test]
+    fn test_log2_approx_f32() {
+        let epsilon = 2e-5;
+        assert!(approx_equal(libm::log2f(1.0e-04), log2_approx_f32(1.0e-04), epsilon));
+        assert!(approx_equal(libm::log2f(1.0), log2_approx_f32(1.0), epsilon));
+        assert!(approx_equal(libm::log2f(1.0e04), log2_approx_f32(1.0e04), epsilon));
+    }
+    #[test]
+    fn test_log10_approx_f32() {
+        let epsilon = 6e-6;
+        assert!(approx_equal(libm::log10f(1.0e-04), log10_approx_f32(1.0e-04), epsilon));
+        assert!(approx_equal(libm::log10f(1.0), log10_approx_f32(1.0), epsilon));
+        assert!(approx_equal(libm::log10f(1.0e04), log10_approx_f32(1.0e04), epsilon));
+    }
+    #[test]
+    fn test_log_approx_f32() {
+        let epsilon = 2e-4;
+        let base = 3.0;
+        assert!(approx_equal(libm::logf(1.0e-04) / libm::logf(base), log_approx_f32(1.0e-04, base), epsilon));
+        assert!(approx_equal(libm::logf(1.0) / libm::logf(base), log_approx_f32(1.0, base), epsilon));
+        assert!(approx_equal(libm::logf(1.0e04) / libm::logf(base), log_approx_f32(1.0e04, base), epsilon));
+
+        let epsilon = 9e-5;
+        let base = 5.0;
+        assert!(approx_equal(libm::logf(1.0e-04) / libm::logf(base), log_approx_f32(1.0e-04, base), epsilon));
+        assert!(approx_equal(libm::logf(1.0) / libm::logf(base), log_approx_f32(1.0, base), epsilon));
+        assert!(approx_equal(libm::logf(1.0e04) / libm::logf(base), log_approx_f32(1.0e04, base), epsilon));
+
+        let epsilon = 3e-5;
+        let base = 127.0;
+        assert!(approx_equal(libm::logf(1.0e-04) / libm::logf(base), log_approx_f32(1.0e-04, base), epsilon));
+        assert!(approx_equal(libm::logf(1.0) / libm::logf(base), log_approx_f32(1.0, base), epsilon));
+        assert!(approx_equal(libm::logf(1.0e04) / libm::logf(base), log_approx_f32(1.0e04, base), epsilon));
+    }
+}
+#[cfg(test)]
+mod test_exp {
     #![allow(clippy::float_cmp)]
     use super::*; // Brings your custom functions into scope
 
@@ -472,7 +635,7 @@ mod test_exps {
     }
 
     #[test]
-    fn test_scalbn_f32() {
+    fn test_scale_binary_f32() {
         // Test standard powers of 2 multiplication
         assert_eq!(scale_binary_f32(1.0, 3), 8.0); // 1 * 2^3 = 8
         assert_eq!(scale_binary_f32(1.5, 2), 6.0); // 1.5 * 2^2 = 6
@@ -510,7 +673,7 @@ mod test_exps {
         assert!(approx_equal(ln_approx_f32(1.0), 0.0, 0.0005));
         assert!(approx_equal(ln_approx_f32(2.0), 2.0_f32.ln(), 0.0005));
         assert!(approx_equal(ln_approx_f32(10.0), 10.0_f32.ln(), 0.0005));
-        assert!(approx_equal(ln_approx_f32(0.5), -LN_2, 0.0005));
+        assert!(approx_equal(ln_approx_f32(0.5), -core::f32::consts::LN_2, 0.0005));
 
         // Test domain safety limits
         assert!(ln_approx_f32(0.0).is_nan());
