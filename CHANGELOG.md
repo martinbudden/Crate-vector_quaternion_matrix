@@ -19,18 +19,28 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 ### Deprecated
 
-At some point [0.1.0] to [0.1.13] will be [YANKED]
+At some point [0.1.0] to [0.1.14] will be [YANKED]
 
-## [0.1.15] - 2026-09-xx
+## [0.1.15] - 2026-09-01
 
 ### Added
 
 - `Matrix9` a 9x9 matrix implemented as a flat array of nine 3x3 matrices.
 - support for `postcard` `MaxSize`.
+- matrix multiply by a diagonal matrix, and by a vector or array that represents a diagonal matrix.
+- `asin`, `acos(`, `atan`,`atan2`, `exp`, `exp2`, `ln`, `log2`,`log10`, `log`, and `powf` approximations.
+- `is_near_zero` functions to vectors and quaternion.
 
 ### Changed
 
 - updated to `sequential-storage` `8.0.1`.
+- improved `sin` and `cos` approximations.
+- renamed `TrigonometricMethods` to `MathMethods` and included `SqrtMethods`.
+
+### Removed
+
+- `core` and `num-traits` consts from `MathConstants`
+- `SqrtMethods`, now included in `MathMethods`.
 
 ## [0.1.14] - 2026-08-04
 
