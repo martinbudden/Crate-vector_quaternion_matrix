@@ -5,7 +5,7 @@ use core::ops::{
 };
 use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::FloatCore};
 
-use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix3x3Math, Matrix4x4, Matrix9x9, Matrix9x9Math, Vector3};
+use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix3x3Math, Matrix4x4, Matrix9x9, Matrix9x9Math};
 
 /// 9x9 matrix of `f32` values<br>
 pub type Matrix9f32 = Matrix9<f32>;
@@ -607,28 +607,6 @@ where
     }
 }
 
-// **** Outer Product ****
-
-impl<T> Matrix9<T>
-where
-    T: Copy + Zero + PartialEq + Mul<Output = T> + Matrix9x9Math,
-    Matrix9<T>: Zero,
-{
-    /// Calculates the outer product of two 9-element states for COLUMN-MAJOR matrices (Cortex-M Edition).
-    #[inline]
-    pub fn outer_product(
-        col_a: Vector3<T>,
-        col_b: Vector3<T>,
-        col_c: Vector3<T>,
-        row_a: Vector3<T>,
-        row_b: Vector3<T>,
-        row_c: Vector3<T>,
-    ) -> Matrix9<T> {
-        let m9x9 = Matrix9x9::outer_product(col_a, col_b, col_c, row_a, row_b, row_c);
-        Matrix9::from(m9x9)
-    }
-}
-
 // **** Div ****
 
 impl<T> Div<T> for Matrix9<T>
@@ -998,18 +976,23 @@ where
     pub fn enforce_symmetry(&mut self) {
         let half = T::one() / (T::one() + T::one());
 
+        // Enforce internal 3x3 symmetry on the main diagonal blocks
         self.a[Self::M11].enforce_symmetry();
         self.a[Self::M22].enforce_symmetry();
         self.a[Self::M33].enforce_symmetry();
 
-        self.a[Self::M12] = (self.a[Self::M12] + self.a[Self::M21]) * half;
-        self.a[Self::M21] = self.a[Self::M12];
+        // Average and cross-mirror the off-diagonal blocks with their transposes
+        let m12_symmetric = (self.a[Self::M12] + self.a[Self::M21].transpose()) * half;
+        self.a[Self::M12] = m12_symmetric;
+        self.a[Self::M21] = m12_symmetric.transpose();
 
-        self.a[Self::M13] = (self.a[Self::M13] + self.a[Self::M31]) * half;
-        self.a[Self::M31] = self.a[Self::M13];
+        let m13_symmetric = (self.a[Self::M13] + self.a[Self::M31].transpose()) * half;
+        self.a[Self::M13] = m13_symmetric;
+        self.a[Self::M31] = m13_symmetric.transpose();
 
-        self.a[Self::M23] = (self.a[Self::M23] + self.a[Self::M32]) * half;
-        self.a[Self::M32] = self.a[Self::M23];
+        let m23_symmetric = (self.a[Self::M23] + self.a[Self::M32].transpose()) * half;
+        self.a[Self::M23] = m23_symmetric;
+        self.a[Self::M32] = m23_symmetric.transpose();
     }
 }
 
