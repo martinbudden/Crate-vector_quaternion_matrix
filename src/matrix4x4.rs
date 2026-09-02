@@ -642,6 +642,122 @@ where
     }
 }
 
+impl<T> Matrix4x4<T>
+where
+    T: Copy + One + FloatCore + AddAssign,
+{
+    /// Add a diagonal matrix in-place.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                                  5.0, 11.0, 47.0, 109.0,
+    ///                                 23.0, 31.0, 41.0, 103.0,
+    ///                             67.0, 73.0, 83.0,  97.0]);
+    /// let n = Matrix4x4f32::new([  3.0,  0.0,  0.0,  0.0,
+    ///                              0.0, 13.0,  0.0,  0.0,
+    ///                              0.0,  0.0, 43.0,  0.0,
+    ///                              0.0,  0.0,  0.0, 101.0]);
+    /// let p = m + n;
+    /// m.add_diag(n);
+    ///
+    /// assert_eq!(m, p);
+    /// assert_eq!(m, Matrix4x4f32::new([  5.0, 17.0, 59.0, 127.0,
+    ///                                    5.0, 24.0, 47.0, 109.0,
+    ///                                   23.0, 31.0, 84.0, 103.0,
+    ///                                   67.0, 73.0, 83.0, 198.0]));
+    /// ```
+    pub fn add_diag(&mut self, other: Self) {
+        self.a[Self::M11] += other.a[Self::M11];
+        self.a[Self::M22] += other.a[Self::M22];
+        self.a[Self::M33] += other.a[Self::M33];
+        self.a[Self::M44] += other.a[Self::M44];
+    }
+
+    /// Add a scalar that represents a diagonal matrix, in-place.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                                  5.0, 11.0, 47.0, 109.0,
+    ///                                 23.0, 31.0, 41.0, 103.0,
+    ///                                 67.0, 73.0, 83.0,  97.0]);
+    /// let s = 3.0;
+    /// let n = Matrix4x4f32::new([  s,  0.0,  0.0,  0.0,
+    ///                              0.0,  s,  0.0,  0.0,
+    ///                              0.0,  0.0,  s,  0.0,
+    ///                              0.0,  0.0,  0.0,  s]);
+    /// let p = m + n;
+    /// m.add_diag_scalar(s);
+    ///
+    /// assert_eq!(m, p);
+    /// assert_eq!(m, Matrix4x4f32::new([  5.0, 17.0, 59.0, 127.0,
+    ///                                    5.0, 14.0, 47.0, 109.0,
+    ///                                   23.0, 31.0, 44.0, 103.0,
+    ///                                   67.0, 73.0, 83.0, 100.0]));
+    /// ```
+    pub fn add_diag_scalar(&mut self, other: T) {
+        self.a[Self::M11] += other;
+        self.a[Self::M22] += other;
+        self.a[Self::M33] += other;
+        self.a[Self::M44] += other;
+    }
+
+    /// Add a vector that represents a diagonal matrix, in-place.
+    /// ```
+    /// # use vqm::{Matrix4x4f32, Vector4f32};
+    /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                                  5.0, 11.0, 47.0, 109.0,
+    ///                                 23.0, 31.0, 41.0, 103.0,
+    ///                                 67.0, 73.0, 83.0,  97.0]);
+    /// let v = Vector4f32 { x: 3.0, y: 13.0, z: 43.0, t: 101.0 };
+    /// let n = Matrix4x4f32::new([  v.x,  0.0,  0.0,  0.0,
+    ///                              0.0,  v.y,  0.0,  0.0,
+    ///                              0.0,  0.0,  v.z,  0.0,
+    ///                              0.0,  0.0,  0.0,  v.t]);
+    /// let p = m + n;
+    /// m.add_diag_vector(v);
+    ///
+    /// assert_eq!(m, p);
+    /// assert_eq!(m, Matrix4x4f32::new([  5.0, 17.0, 59.0, 127.0,
+    ///                                    5.0, 24.0, 47.0, 109.0,
+    ///                                   23.0, 31.0, 84.0, 103.0,
+    ///                                   67.0, 73.0, 83.0, 198.0]));
+    /// ```
+    pub fn add_diag_vector(&mut self, other: Vector4<T>) {
+        self.a[Self::M11] += other.x;
+        self.a[Self::M22] += other.y;
+        self.a[Self::M33] += other.z;
+        self.a[Self::M44] += other.t;
+    }
+
+    /// Add an array that represents a diagonal matrix, in-place.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                                  5.0, 11.0, 47.0, 109.0,
+    ///                                 23.0, 31.0, 41.0, 103.0,
+    ///                             67.0, 73.0, 83.0,  97.0]);
+    /// let a = [3.0, 13.0, 43.0, 101.0 ];
+    /// let n = Matrix4x4f32::new([  a[0], 0.0,  0.0,  0.0,
+    ///                              0.0,  a[1], 0.0,  0.0,
+    ///                              0.0,  0.0,  a[2], 0.0,
+    ///                              0.0,  0.0,  0.0,  a[3]]);
+    /// let s = m + n;
+    /// m.add_diag_array(a);
+    ///
+    /// assert_eq!(m, s);
+    /// assert_eq!(m, Matrix4x4f32::new([  5.0, 17.0, 59.0, 127.0,
+    ///                                    5.0, 24.0, 47.0, 109.0,
+    ///                                   23.0, 31.0, 84.0, 103.0,
+    ///                                   67.0, 73.0, 83.0, 198.0]));
+    /// ```
+    pub fn add_diag_array(&mut self, other: [T; 4]) {
+        self.a[Self::M11] += other[0];
+        self.a[Self::M22] += other[1];
+        self.a[Self::M33] += other[2];
+        self.a[Self::M44] += other[3];
+    }
+}
+
 // **** AddAssign ****
 
 impl<T> AddAssign for Matrix4x4<T>
@@ -1073,7 +1189,7 @@ where
 
     /// Multiply by a vector that represents a diagonal matrix.
     /// ```
-    /// # use vqm::{Matrix4x4f32};
+    /// # use vqm::Matrix4x4f32;
     /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
     ///                              5.0, 11.0, 47.0, 109.0,
     ///                             23.0, 31.0, 41.0, 103.0,

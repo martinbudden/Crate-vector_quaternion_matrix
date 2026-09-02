@@ -512,6 +512,90 @@ where
     }
 }
 
+impl<T> Matrix2x2<T>
+where
+    T: Copy + One + FloatCore + AddAssign,
+{
+    /// Add a diagonal matrix in-place.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                                  5.0, 11.0]);
+    /// let n = Matrix2x2f32::new([  3.0,  0.0,
+    ///                              0.0, 13.0]);
+    /// let s = m + n;
+    /// m.add_diag(n);
+    ///
+    /// assert_eq!(m, s);
+    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    ///                                    5.0, 24.0]));
+    /// ```
+    pub fn add_diag(&mut self, other: Self) {
+        self.a[Self::M11] += other.a[Self::M11];
+        self.a[Self::M22] += other.a[Self::M22];
+    }
+
+    /// Add a scalar that represents a diagonal matrix, in-place.
+    /// ```
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
+    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                                  5.0, 11.0]);
+    /// let s = 3.0;
+    /// let n = Matrix2x2f32::new([  3.0,  0.0,
+    ///                              0.0,  3.0]);
+    /// let p = m + n;
+    /// m.add_diag_scalar(s);
+    ///
+    /// assert_eq!(m, p);
+    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    ///                                    5.0, 14.0]));
+    /// ```
+    pub fn add_diag_scalar(&mut self, other: T) {
+        self.a[Self::M11] += other;
+        self.a[Self::M22] += other;
+    }
+
+    /// Add a vector that represents a diagonal matrix, in-place.
+    /// ```
+    /// # use vqm::{Matrix2x2f32,Vector2f32};
+    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                                  5.0, 11.0]);
+    /// let v = Vector2f32{x:3.0, y:13.0};
+    /// let n = Matrix2x2f32::new([  3.0,  0.0,
+    ///                              0.0, 13.0]);
+    /// let p = m + n;
+    /// m.add_diag_vector(v);
+    ///
+    /// assert_eq!(m, p);
+    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    ///                                    5.0, 24.0]));
+    /// ```
+    pub fn add_diag_vector(&mut self, other: Vector2<T>) {
+        self.a[Self::M11] += other.x;
+        self.a[Self::M22] += other.y;
+    }
+
+    /// Add an array that represents a diagonal matrix, in-place.
+    /// ```
+    /// # use vqm::Matrix2x2f32;
+    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                                  5.0, 11.0]);
+    /// let a = [3.0, 13.0 ];
+    /// let n = Matrix2x2f32::new([  a[0], 0.0,
+    ///                              0.0,  a[1]]);
+    /// let p = m + n;
+    /// m.add_diag_array(a);
+    ///
+    /// assert_eq!(m, p);
+    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    ///                                    5.0, 24.0]));
+    /// ```
+    pub fn add_diag_array(&mut self, other: [T; 2]) {
+        self.a[Self::M11] += other[0];
+        self.a[Self::M22] += other[1];
+    }
+}
+
 // **** AddAssign ****
 
 impl<T> AddAssign for Matrix2x2<T>
@@ -858,7 +942,7 @@ where
     /// Multiply by an array that represents a diagonal matrix.
     /// # Example
     /// ```
-    /// # use vqm::{Matrix2x2f32};
+    /// # use vqm::Matrix2x2f32;
     /// let m = Matrix2x2f32::new([  2.0, 17.0,
     ///                              5.0, 11.0]);
     /// let a = [ 3.0, 13.0 ];
