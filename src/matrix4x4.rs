@@ -2126,38 +2126,6 @@ where
         *self = self.adjugate().0;
         self
     }
-    /// Return the inverse of this matrix. Does not check if the determinant is non-zero before inverting.
-    /// ```
-    /// # use vqm::Matrix4x4f32;
-    /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
-    ///                              5.0, 11.0, 47.0, 109.0,
-    ///                             23.0, 31.0, 41.0, 103.0,
-    ///                             67.0, 73.0, 83.0,  97.0]);
-    /// let n = m.inverse();
-    ///
-    /// ```
-    #[inline]
-    #[must_use]
-    pub fn inverse(self) -> Self {
-        let (adjugate, determinant) = T::m4x4_adjugate(self);
-        adjugate / determinant
-    }
-
-    /// Invert this matrix, in-place. Does not check if the determinant is non-zero before inverting.
-    /// ```
-    /// # use vqm::Matrix4x4f32;
-    /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
-    ///                                  5.0, 11.0, 47.0, 109.0,
-    ///                                 23.0, 31.0, 41.0, 103.0,
-    ///                                 67.0, 73.0, 83.0,  97.0]);
-    /// m.invert_in_place();
-    /// ```
-    #[inline]
-    pub fn invert_in_place(&mut self) -> &mut Self {
-        let (adjugate, determinant) = T::m4x4_adjugate(*self);
-        *self = adjugate / determinant;
-        self
-    }
 
     /// Matrix determinant.
     /// ```
@@ -2190,6 +2158,50 @@ where
     #[inline]
     pub fn trace(self) -> T {
         T::m4x4_trace(self)
+    }
+}
+
+impl<T> Matrix4x4<T>
+where
+    T: Copy + Matrix4x4Math + FloatCore + MathConstants,
+{
+    /// Return the inverse of this matrix. Returns self if the determinant is zero.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                              5.0, 11.0, 47.0, 109.0,
+    ///                             23.0, 31.0, 41.0, 103.0,
+    ///                             67.0, 73.0, 83.0,  97.0]);
+    /// let n = m.inverse();
+    ///
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn inverse(self) -> Self {
+        let (adjugate, determinant) = T::m4x4_adjugate(self);
+        if determinant.abs() < T::EPSILON {
+            return self;
+        }
+        adjugate / determinant
+    }
+
+    /// Invert this matrix, in-place. Returns self if the determinant is zero.
+    /// ```
+    /// # use vqm::Matrix4x4f32;
+    /// let mut m = Matrix4x4f32::new([  2.0, 17.0, 59.0, 127.0,
+    ///                                  5.0, 11.0, 47.0, 109.0,
+    ///                                 23.0, 31.0, 41.0, 103.0,
+    ///                                 67.0, 73.0, 83.0,  97.0]);
+    /// m.invert_in_place();
+    /// ```
+    #[inline]
+    pub fn invert_in_place(&mut self) -> &mut Self {
+        let (adjugate, determinant) = T::m4x4_adjugate(*self);
+        if determinant.abs() < T::EPSILON {
+            return self;
+        }       
+        *self = adjugate / determinant;
+        self
     }
 }
 
