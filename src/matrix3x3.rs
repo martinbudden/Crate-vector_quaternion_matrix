@@ -612,99 +612,111 @@ impl<T> Matrix3x3<T>
 where
     T: Copy + One + FloatCore + AddAssign,
 {
-    /// Add a diagonal matrix in-place.
+    /// Add a diagonal matrix.
     /// ```
     /// # use vqm::Matrix3x3f32;
-    /// let mut m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
-    ///                                  5.0, 11.0, 47.0,
-    ///                                 23.0, 31.0, 41.0]);
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                              23.0, 31.0, 41.0]);
     /// let n = Matrix3x3f32::new([  3.0,  0.0,  0.0,
     ///                              0.0, 13.0,  0.0,
     ///                              0.0,  0.0, 43.0]);
     /// let p = m + n;
-    /// m.add_diag(n);
+    /// let r = m.add_diagonal(n);
     ///
-    /// assert_eq!(m, p);
-    /// assert_eq!(m, Matrix3x3f32::new([  5.0, 17.0, 59.0,
+    /// assert_eq!(r, p);
+    /// assert_eq!(r, Matrix3x3f32::new([  5.0, 17.0, 59.0,
     ///                                    5.0, 24.0, 47.0,
     ///                                   23.0, 31.0, 84.0]));
     /// ```
-    pub fn add_diag(&mut self, other: Self) {
-        self.a[Self::M11] += other.a[Self::M11];
-        self.a[Self::M22] += other.a[Self::M22];
-        self.a[Self::M33] += other.a[Self::M33];
+    #[must_use]
+    pub fn add_diagonal(self, other: Self) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other.a[Self::M11];
+        ret[Self::M22] += other.a[Self::M22];
+        ret[Self::M33] += other.a[Self::M33];
+        Self { a: ret }
     }
 
-    /// Add a scalar that represents a diagonal matrix, in-place.
+    /// Add a scalar that represents a diagonal matrix.
     /// ```
     /// # use vqm::{Matrix3x3f32, Vector3f32};
-    /// let mut m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
-    ///                                  5.0, 11.0, 47.0,
-    ///                                 23.0, 31.0, 41.0]);
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
     /// let s = 3.0;
     /// let n = Matrix3x3f32::new([  s,  0.0,  0.0,
     ///                              0.0,  s,  0.0,
     ///                              0.0,  0.0,  s]);
     /// let p = m + n;
-    /// m.add_diag_scalar(s);
+    /// let r = m.add_diagonal_scalar(s);
     ///
-    /// assert_eq!(m, p);
-    /// assert_eq!(m, Matrix3x3f32::new([  5.0, 17.0, 59.0,
+    /// assert_eq!(r, p);
+    /// assert_eq!(r, Matrix3x3f32::new([  5.0, 17.0, 59.0,
     ///                                    5.0, 14.0, 47.0,
     ///                                   23.0, 31.0, 44.0]));
     /// ```
-    pub fn add_diag_scalar(&mut self, other: T) {
-        self.a[Self::M11] += other;
-        self.a[Self::M22] += other;
-        self.a[Self::M33] += other;
+    #[must_use]
+    pub fn add_diagonal_scalar(self, other: T) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other;
+        ret[Self::M22] += other;
+        ret[Self::M33] += other;
+        Self { a: ret }
     }
 
-    /// Add a vector that represents a diagonal matrix, in-place.
+    /// Add a vector that represents a diagonal matrix.
     /// ```
     /// # use vqm::{Matrix3x3f32, Vector3f32};
-    /// let mut m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
-    ///                                  5.0, 11.0, 47.0,
-    ///                                 23.0, 31.0, 41.0]);
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
     /// let v = Vector3f32 { x: 3.0, y: 13.0, z: 43.0 };
     /// let n = Matrix3x3f32::new([  v.x,  0.0,  0.0,
     ///                              0.0,  v.y,  0.0,
     ///                              0.0,  0.0,  v.z]);
     /// let p = m + n;
-    /// m.add_diag_vector(v);
+    /// let r = m.add_diagonal_vector(v);
     ///
-    /// assert_eq!(m, p);
-    /// assert_eq!(m, Matrix3x3f32::new([  5.0, 17.0, 59.0,
+    /// assert_eq!(r, p);
+    /// assert_eq!(r, Matrix3x3f32::new([  5.0, 17.0, 59.0,
     ///                                    5.0, 24.0, 47.0,
     ///                                   23.0, 31.0, 84.0]));
     /// ```
-    pub fn add_diag_vector(&mut self, other: Vector3<T>) {
-        self.a[Self::M11] += other.x;
-        self.a[Self::M22] += other.y;
-        self.a[Self::M33] += other.z;
+    #[must_use]
+    pub fn add_diagonal_vector(self, other: Vector3<T>) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other.x;
+        ret[Self::M22] += other.y;
+        ret[Self::M33] += other.z;
+        Self { a: ret }
     }
 
-    /// Add an array that represents a diagonal matrix, in-place.
+    /// Add an array that represents a diagonal matrix.
     /// ```
     /// # use vqm::Matrix3x3f32;
-    /// let mut m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
-    ///                                  5.0, 11.0, 47.0,
-    ///                                 23.0, 31.0, 41.0]);
+    /// let m = Matrix3x3f32::new([  2.0, 17.0, 59.0,
+    ///                              5.0, 11.0, 47.0,
+    ///                             23.0, 31.0, 41.0]);
     /// let a = [3.0, 13.0, 43.0 ];
     /// let n = Matrix3x3f32::new([  a[0], 0.0,  0.0,
     ///                              0.0,  a[1], 0.0,
     ///                              0.0,  0.0,  a[2]]);
     /// let p = m + n;
-    /// m.add_diag_array(a);
+    /// let r = m.add_diagonal_array(a);
     ///
-    /// assert_eq!(m, p);
-    /// assert_eq!(m, Matrix3x3f32::new([  5.0, 17.0, 59.0,
+    /// assert_eq!(r, p);
+    /// assert_eq!(r, Matrix3x3f32::new([  5.0, 17.0, 59.0,
     ///                                    5.0, 24.0, 47.0,
     ///                                   23.0, 31.0, 84.0]));
     /// ```
-    pub fn add_diag_array(&mut self, other: [T; 3]) {
-        self.a[Self::M11] += other[0];
-        self.a[Self::M22] += other[1];
-        self.a[Self::M33] += other[2];
+    #[must_use]
+    pub fn add_diagonal_array(self, other: [T; 3]) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other[0];
+        ret[Self::M22] += other[1];
+        ret[Self::M33] += other[2];
+        Self { a: ret }
     }
 }
 
@@ -1033,7 +1045,7 @@ where
     /// let n = Matrix3x3f32::new([  3.0,  0.0,  0.0,
     ///                              0.0, 13.0,  0.0,
     ///                              0.0,  0.0, 43.0]);
-    /// let r = m.mul_diag(n);
+    /// let r = m.mul_diagonal(n);
     /// let s = m * n;
     ///
     /// assert_eq!(r, s);
@@ -1042,7 +1054,7 @@ where
     ///                                   69.0, 403.0, 1763.0]));
     /// ```
     #[must_use]
-    pub fn mul_diag(self, other: Self) -> Self {
+    pub fn mul_diagonal(self, other: Self) -> Self {
         let ret = [
             self.a[Self::M11] * other.a[Self::M11],
             self.a[Self::M21] * other.a[Self::M11],
@@ -1067,9 +1079,9 @@ where
     /// let n = Matrix3x3f32::new([  v.x,  0.0,  0.0,
     ///                              0.0,  v.y,  0.0,
     ///                              0.0,  0.0,  v.z]);
-    /// let r = m.mul_diag_vector(v);
+    /// let r = m.mul_diagonal_vector(v);
     /// let s = m * n;
-    /// let t = m.mul_diag(n);
+    /// let t = m.mul_diagonal(n);
     ///
     /// assert_eq!(r, s);
     /// assert_eq!(r, t);
@@ -1078,7 +1090,7 @@ where
     ///                                   69.0, 403.0, 1763.0]));
     /// ```
     #[must_use]
-    pub fn mul_diag_vector(self, other: Vector3<T>) -> Self {
+    pub fn mul_diagonal_vector(self, other: Vector3<T>) -> Self {
         let ret = [
             self.a[Self::M11] * other.x,
             self.a[Self::M21] * other.x,
@@ -1103,9 +1115,9 @@ where
     /// let n = Matrix3x3f32::new([  a[0], 0.0,  0.0,
     ///                              0.0,  a[1], 0.0,
     ///                              0.0,  0.0,  a[2]]);
-    /// let r = m.mul_diag_array(a);
+    /// let r = m.mul_diagonal_array(a);
     /// let s = m * n;
-    /// let t = m.mul_diag(n);
+    /// let t = m.mul_diagonal(n);
     ///
     /// assert_eq!(r, s);
     /// assert_eq!(r, t);
@@ -1114,7 +1126,7 @@ where
     ///                                   69.0, 403.0, 1763.0]));
     /// ```
     #[must_use]
-    pub fn mul_diag_array(self, other: [T; 3]) -> Self {
+    pub fn mul_diagonal_array(self, other: [T; 3]) -> Self {
         let ret = [
             self.a[Self::M11] * other[0],
             self.a[Self::M21] * other[0],

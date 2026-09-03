@@ -516,83 +516,95 @@ impl<T> Matrix2x2<T>
 where
     T: Copy + One + FloatCore + AddAssign,
 {
-    /// Add a diagonal matrix in-place.
+    /// Add a diagonal matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
-    ///                                  5.0, 11.0]);
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
     /// let n = Matrix2x2f32::new([  3.0,  0.0,
     ///                              0.0, 13.0]);
     /// let s = m + n;
-    /// m.add_diag(n);
+    /// let r = m.add_diagonal(n);
     ///
-    /// assert_eq!(m, s);
-    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    /// assert_eq!(r, s);
+    /// assert_eq!(r, Matrix2x2f32::new([  5.0, 17.0,
     ///                                    5.0, 24.0]));
     /// ```
-    pub fn add_diag(&mut self, other: Self) {
-        self.a[Self::M11] += other.a[Self::M11];
-        self.a[Self::M22] += other.a[Self::M22];
+    #[must_use]
+    pub fn add_diagonal(self, other: Self) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other.a[Self::M11];
+        ret[Self::M22] += other.a[Self::M22];
+        Self { a: ret }
     }
 
-    /// Add a scalar that represents a diagonal matrix, in-place.
+    /// Add a scalar that represents a diagonal matrix.
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2f32};
-    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
-    ///                                  5.0, 11.0]);
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
     /// let s = 3.0;
     /// let n = Matrix2x2f32::new([  3.0,  0.0,
     ///                              0.0,  3.0]);
     /// let p = m + n;
-    /// m.add_diag_scalar(s);
+    /// let r = m.add_diagonal_scalar(s);
     ///
-    /// assert_eq!(m, p);
-    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    /// assert_eq!(r, p);
+    /// assert_eq!(r, Matrix2x2f32::new([  5.0, 17.0,
     ///                                    5.0, 14.0]));
     /// ```
-    pub fn add_diag_scalar(&mut self, other: T) {
-        self.a[Self::M11] += other;
-        self.a[Self::M22] += other;
+    #[must_use]
+    pub fn add_diagonal_scalar(self, other: T) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other;
+        ret[Self::M22] += other;
+        Self { a: ret }
     }
 
-    /// Add a vector that represents a diagonal matrix, in-place.
+    /// Add a vector that represents a diagonal matrix.
     /// ```
     /// # use vqm::{Matrix2x2f32,Vector2f32};
-    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
-    ///                                  5.0, 11.0]);
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
     /// let v = Vector2f32{x:3.0, y:13.0};
     /// let n = Matrix2x2f32::new([  3.0,  0.0,
     ///                              0.0, 13.0]);
     /// let p = m + n;
-    /// m.add_diag_vector(v);
+    /// let r = m.add_diagonal_vector(v);
     ///
-    /// assert_eq!(m, p);
-    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    /// assert_eq!(r, p);
+    /// assert_eq!(r, Matrix2x2f32::new([  5.0, 17.0,
     ///                                    5.0, 24.0]));
     /// ```
-    pub fn add_diag_vector(&mut self, other: Vector2<T>) {
-        self.a[Self::M11] += other.x;
-        self.a[Self::M22] += other.y;
+    #[must_use]
+    pub fn add_diagonal_vector(self, other: Vector2<T>) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other.x;
+        ret[Self::M22] += other.y;
+        Self { a: ret }
     }
 
-    /// Add an array that represents a diagonal matrix, in-place.
+    /// Add an array that represents a diagonal matrix.
     /// ```
     /// # use vqm::Matrix2x2f32;
-    /// let mut m = Matrix2x2f32::new([  2.0, 17.0,
-    ///                                  5.0, 11.0]);
+    /// let m = Matrix2x2f32::new([  2.0, 17.0,
+    ///                              5.0, 11.0]);
     /// let a = [3.0, 13.0 ];
     /// let n = Matrix2x2f32::new([  a[0], 0.0,
     ///                              0.0,  a[1]]);
     /// let p = m + n;
-    /// m.add_diag_array(a);
+    /// let r = m.add_diagonal_array(a);
     ///
-    /// assert_eq!(m, p);
-    /// assert_eq!(m, Matrix2x2f32::new([  5.0, 17.0,
+    /// assert_eq!(r, p);
+    /// assert_eq!(r, Matrix2x2f32::new([  5.0, 17.0,
     ///                                    5.0, 24.0]));
     /// ```
-    pub fn add_diag_array(&mut self, other: [T; 2]) {
-        self.a[Self::M11] += other[0];
-        self.a[Self::M22] += other[1];
+    #[must_use]
+    pub fn add_diagonal_array(self, other: [T; 2]) -> Self {
+        let mut ret = self.a;
+        ret[Self::M11] += other[0];
+        ret[Self::M22] += other[1];
+        Self { a: ret }
     }
 }
 
@@ -893,7 +905,7 @@ where
     ///                              5.0, 11.0]);
     /// let n = Matrix2x2f32::new([  3.0,  0.0,
     ///                              0.0, 13.0]);
-    /// let r = m.mul_diag(n);
+    /// let r = m.mul_diagonal(n);
     /// let s = m * n;
     ///
     /// assert_eq!(r, s);
@@ -901,7 +913,7 @@ where
     ///                                   15.0, 143.0]));
     /// ```
     #[must_use]
-    pub fn mul_diag(self, other: Self) -> Self {
+    pub fn mul_diagonal(self, other: Self) -> Self {
         let ret = [
             self.a[Self::M11] * other.a[Self::M11],
             self.a[Self::M21] * other.a[Self::M11],
@@ -919,9 +931,9 @@ where
     /// let v = Vector2f32 { x: 3.0, y: 13.0 };
     /// let n = Matrix2x2f32::new([  v.x, 0.0,
     ///                              0.0, v.y]);
-    /// let r = m.mul_diag_vector(v);
+    /// let r = m.mul_diagonal_vector(v);
     /// let s = m * n;
-    /// let t = m.mul_diag(n);
+    /// let t = m.mul_diagonal(n);
     ///
     /// assert_eq!(r, s);
     /// assert_eq!(r, t);
@@ -929,7 +941,7 @@ where
     ///                                   15.0, 143.0]));
     /// ```
     #[must_use]
-    pub fn mul_diag_vector(self, other: Vector2<T>) -> Self {
+    pub fn mul_diagonal_vector(self, other: Vector2<T>) -> Self {
         let ret = [
             self.a[Self::M11] * other.x,
             self.a[Self::M21] * other.x,
@@ -948,9 +960,9 @@ where
     /// let a = [ 3.0, 13.0 ];
     /// let n = Matrix2x2f32::new([  a[0], 0.0,
     ///                              0.0, a[1]]);
-    /// let r = m.mul_diag_array(a);
+    /// let r = m.mul_diagonal_array(a);
     /// let s = m * n;
-    /// let t = m.mul_diag(n);
+    /// let t = m.mul_diagonal(n);
     ///
     /// assert_eq!(r, s);
     /// assert_eq!(r, t);
@@ -958,7 +970,7 @@ where
     ///                                   15.0, 143.0]));
     /// ```
     #[must_use]
-    pub fn mul_diag_array(self, other: [T; 2]) -> Self {
+    pub fn mul_diagonal_array(self, other: [T; 2]) -> Self {
         let ret = [
             self.a[Self::M11] * other[0],
             self.a[Self::M21] * other[0],

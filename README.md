@@ -156,7 +156,8 @@ A specialization generally won't be considered for inclusion to support a single
 `vqm` has additional functionality specifically to support Kalman filters. This includes:
 
 1. `Matrix9` - a 9x9 matrix implemented as an array of 9 `Matrix3x3`s.
-2. `Matrix3x3::mul_diag_vector` - multiplies a matrix by a vector which is treated as a diagonal matrix.
+2. `Matrix3x3::mul_diagonal_vector` - multiplies vector which is treated as a diagonal matrix by a matrix.
+3. `Matrix3x3::add_diagonal_vector` - adds a vector which is treated as a diagonal matrix to a matrix.
 
 ## SIMD support
 
