@@ -2199,7 +2199,7 @@ where
         let (adjugate, determinant) = T::m4x4_adjugate(*self);
         if determinant.abs() < T::EPSILON {
             return self;
-        }       
+        }
         *self = adjugate / determinant;
         self
     }

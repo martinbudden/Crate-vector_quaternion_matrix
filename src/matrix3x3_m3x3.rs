@@ -7,27 +7,27 @@ use num_traits::{ConstOne, ConstZero, MulAdd, MulAddAssign, One, Zero, float::Fl
 
 use crate::{MathConstants, Matrix2x2, Matrix3x3, Matrix3x3Math, Matrix4x4, Matrix9x9, Matrix9x9Math};
 
-/// 9x9 matrix of `f32` values<br>
-pub type Matrix9f32 = Matrix9<f32>;
-/// 9x9 matrix of `f64` values<br><br>
-pub type Matrix9f64 = Matrix9<f64>;
+/// 3x3 matrix of `Matrix3x3f32` values<br>
+pub type Matrix3x3xM3x3f32 = Matrix3x3xM3x3<f32>;
+/// 3x3 matrix of `Matrix3x3f64` values<br><br>
+pub type Matrix3x3xM3x3f64 = Matrix3x3xM3x3<f64>;
 
 // **** Define ****
 
-/// `Matrix9<T>`: 9x9 Matrix of type `T`.<br>
+/// `Matrix3x3xM3x3<T>`: 3x3 Matrix of type `Matrix3x3<T>`.<br>
 /// Provided to support Kalman filter matrix math and so not all functions are provided.<br>
 /// In particular matrix by matrix multiply, determinant, adjugate, and inverse are not provided.<br>
 /// Functions to extract and utilize 3x3 sub-matrices are provided.<br>
-/// Aliases `Matrix9f32` and `Matrix9f64` are provided.<br>
-/// Internal implementation is a flat array of `Matrix3x3`.
+/// Aliases `Matrix3x3xM3x3f32` and `Matrix3x3xM3x3f64` are provided.<br>
+/// Internal implementation is a flat array of nine `Matrix3x3`s.
 #[derive(Clone, Copy, PartialEq)]
 #[repr(C)]
-pub struct Matrix9<T> {
+pub struct Matrix3x3xM3x3<T> {
     // Flattened array of Matrix3x3: 9 elements in column-major order
     pub(crate) a: [Matrix3x3<T>; 9],
 }
 
-impl<T> Default for Matrix9<T>
+impl<T> Default for Matrix3x3xM3x3<T>
 where
     T: Copy + Zero,
     Matrix3x3<T>: Zero,
@@ -37,7 +37,7 @@ where
     }
 }
 
-impl<T: fmt::Debug> fmt::Debug for Matrix9<T> {
+impl<T: fmt::Debug> fmt::Debug for Matrix3x3xM3x3<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "Matrix9x9 [")?; // Start the struct block wrapper
         // Loop over rows using Deref slice chunking behavior.
@@ -52,7 +52,7 @@ impl<T: fmt::Debug> fmt::Debug for Matrix9<T> {
 
 /// Constants to index matrix elements.
 #[allow(missing_docs)]
-impl<T> Matrix9<T> {
+impl<T> Matrix3x3xM3x3<T> {
     pub const SIZE: usize = 9;
     pub const ROW_COUNT: usize = 3;
     pub const COL_COUNT: usize = 3;
@@ -72,7 +72,7 @@ impl<T> Matrix9<T> {
 
 // **** New ****
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy,
 {
@@ -80,20 +80,20 @@ where
     #[inline]
     pub fn new(a: [T; 81]) -> Self {
         let m9x9 = Matrix9x9::new(a);
-        Matrix9::from(m9x9)
+        Matrix3x3xM3x3::from(m9x9)
     }
 }
 
 // **** Other constructors ****
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy,
 {
     /// Create a matrix with all its elements set to a single value.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
     /// assert_eq!(2.0, m[2][3]);
     /// ```
     pub fn from_element(value: T) -> Self {
@@ -131,14 +131,14 @@ where
     }
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + ConstZero,
 {
     /// Create a matrix with the diagonal set to a single value.
     /// ```
-    /// # use vqm::{Matrix9f32, Matrix3x3f32};
-    /// let m = Matrix9f32::from_diagonal_element(2.0);
+    /// # use vqm::{Matrix3x3xM3x3f32, Matrix3x3f32};
+    /// let m = Matrix3x3xM3x3f32::from_diagonal_element(2.0);
     /// assert_eq!(m[Matrix3x3f32::M22], Matrix3x3f32::new([ 2.0, 0.0, 0.0,
     ///                                                      0.0, 2.0, 0.0,
     ///                                                      0.0, 0.0, 2.0]));
@@ -152,16 +152,16 @@ where
 
 // **** Zero ****
 
-impl<T> Zero for Matrix9<T>
+impl<T> Zero for Matrix3x3xM3x3<T>
 where
     T: Copy + Zero + PartialEq + Matrix9x9Math,
     Matrix3x3<T>: Zero,
 {
     /// Zero matrix.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::Zero;
-    /// let z = Matrix9f32::zero();
+    /// let z = Matrix3x3xM3x3f32::zero();
     /// assert!(z.is_zero());
     /// ```
     #[inline]
@@ -175,30 +175,30 @@ where
     }
 }
 
-impl<T> ConstZero for Matrix9<T>
+impl<T> ConstZero for Matrix3x3xM3x3<T>
 where
     T: Copy + ConstZero + PartialEq + Matrix9x9Math,
     Matrix3x3<T>: Zero + ConstZero,
 {
     /// Const zero matrix.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::{zero,Zero,ConstZero};
-    /// let m = Matrix9f32::ZERO;
+    /// let m = Matrix3x3xM3x3f32::ZERO;
     /// assert!(m.is_zero());
     /// ```
     const ZERO: Self = Self { a: [Matrix3x3::<T>::ZERO; 9] };
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + FloatCore,
 {
     /// Return true if matrix is near zero.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::Zero;
-    /// let z = Matrix9f32::zero();
+    /// let z = Matrix3x3xM3x3f32::zero();
     /// assert!(z.is_near_zero(1e-5));
     /// ```
     pub fn is_near_zero(self, epsilon: T) -> bool {
@@ -213,16 +213,16 @@ where
 
 // **** One ****
 
-impl<T> One for Matrix9<T>
+impl<T> One for Matrix3x3xM3x3<T>
 where
     T: Copy + ConstZero + ConstOne + PartialEq + Matrix9x9Math,
     Matrix3x3<T>: ConstOne + ConstZero,
 {
     /// Identity matrix.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::One;
-    /// let i = Matrix9f32::one();
+    /// let i = Matrix3x3xM3x3f32::one();
     ///
     /// assert!(i.is_one());
     /// ```
@@ -237,16 +237,16 @@ where
     }
 }
 
-impl<T> ConstOne for Matrix9<T>
+impl<T> ConstOne for Matrix3x3xM3x3<T>
 where
     T: Copy + ConstZero + ConstOne + PartialEq + Matrix9x9Math,
     Matrix3x3<T>: ConstOne + ConstZero,
 {
     /// Const identity matrix.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::{ConstOne, One};
-    /// let i = Matrix9f32::ONE;
+    /// let i = Matrix3x3xM3x3f32::ONE;
     ///
     /// assert!(i.is_one());
     /// ```
@@ -260,7 +260,7 @@ where
     };
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + Zero + One,
     Matrix3x3<T>: ConstOne + ConstZero,
@@ -268,8 +268,8 @@ where
     /// Identity matrix.
     /// Alias for `one()` that does not require `num_traits::One`.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let i = Matrix9f32::identity();
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let i = Matrix3x3xM3x3f32::identity();
     /// ```
     #[rustfmt::skip]
     #[inline]
@@ -285,26 +285,26 @@ where
     }
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + FloatCore,
-    Matrix9<T>: One + Sub<Output = Matrix9<T>>,
+    Matrix3x3xM3x3<T>: One + Sub<Output = Matrix3x3xM3x3<T>>,
 {
     /// Return true if matrix is near identity.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::One;
-    /// let i = Matrix9f32::one();
+    /// let i = Matrix3x3xM3x3f32::one();
     /// assert!(i.is_near_identity(1e-5));
     /// ```
     pub fn is_near_identity(self, epsilon: T) -> bool {
-        (self - Matrix9::<T>::one()).is_near_zero(epsilon)
+        (self - Matrix3x3xM3x3::<T>::one()).is_near_zero(epsilon)
     }
 }
 
 // **** Neg ****
 
-impl<T> Neg for Matrix9<T>
+impl<T> Neg for Matrix3x3xM3x3<T>
 where
     T: Copy,
     Matrix3x3<T>: Neg<Output = Matrix3x3<T>>,
@@ -313,8 +313,8 @@ where
 
     /// Negate matrix.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
     /// m = - m;
     /// ```
     #[inline]
@@ -329,7 +329,7 @@ where
 
 // **** Add ****
 
-impl<T> Add for Matrix9<T>
+impl<T> Add for Matrix3x3xM3x3<T>
 where
     T: Copy,
     Matrix3x3<T>: Copy + Add<Output = Matrix3x3<T>>,
@@ -338,15 +338,15 @@ where
 
     /// Add two matrices.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(2.0);
-    /// let n = Matrix9f32::from_element(3.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
+    /// let n = Matrix3x3xM3x3f32::from_element(3.0);
     /// let r = m + n;
     ///
     ///
     /// # use num_traits::Zero;
     ///
-    /// let z = Matrix9f32::zero();
+    /// let z = Matrix3x3xM3x3f32::zero();
     /// let r2 = m + z;
     ///
     /// assert_eq!(r2, m);
@@ -363,19 +363,19 @@ where
 
 // **** AddAssign ****
 
-impl<T> AddAssign for Matrix9<T>
+impl<T> AddAssign for Matrix3x3xM3x3<T>
 where
     T: Copy + Matrix9x9Math,
     Matrix3x3<T>: Add<Output = Matrix3x3<T>> + Copy,
 {
     /// Add one matrix to another.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(2.0);
-    /// let n = Matrix9f32::from_element(3.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
+    /// let n = Matrix3x3xM3x3f32::from_element(3.0);
     /// m += n;
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(5.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(5.0));
     /// ```
     #[inline]
     fn add_assign(&mut self, other: Self) {
@@ -387,7 +387,7 @@ where
 
 // **** MulAdd ****
 
-impl<T> MulAdd<T> for Matrix9<T>
+impl<T> MulAdd<T> for Matrix3x3xM3x3<T>
 where
     T: Copy + Matrix3x3Math,
     Matrix3x3<T>: Neg,
@@ -396,14 +396,14 @@ where
 
     /// Multiply matrix by constant and add another matrix.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::MulAdd;
-    /// let m = Matrix9f32::from_element(2.0);
-    /// let n = Matrix9f32::from_element(3.0);
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
+    /// let n = Matrix3x3xM3x3f32::from_element(3.0);
     /// let k = 5.0;
     /// let r = m.mul_add(k, n);
     ///
-    /// assert_eq!(r, Matrix9f32::from_element(13.0));
+    /// assert_eq!(r, Matrix3x3xM3x3f32::from_element(13.0));
     /// ```
     #[inline]
     fn mul_add(self, k: T, other: Self) -> Self {
@@ -417,21 +417,21 @@ where
 
 // **** MulAddAssign ****
 
-impl<T> MulAddAssign<T> for Matrix9<T>
+impl<T> MulAddAssign<T> for Matrix3x3xM3x3<T>
 where
     T: Copy + Matrix9x9Math,
     Matrix3x3<T>: Mul<T, Output = Matrix3x3<T>> + Add<Matrix3x3<T>, Output = Matrix3x3<T>>,
 {
     /// Multiply matrix by constant and add another matrix in place.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     /// # use num_traits::MulAddAssign;
-    /// let mut m = Matrix9f32::from_element(2.0);
-    /// let n = Matrix9f32::from_element(3.0);
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
+    /// let n = Matrix3x3xM3x3f32::from_element(3.0);
     /// let k = 5.0;
     /// m.mul_add_assign(k, n);
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(13.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(13.0));
     /// ```
     #[inline]
     fn mul_add_assign(&mut self, k: T, other: Self) {
@@ -443,22 +443,22 @@ where
 
 // **** Sub ****
 
-impl<T> Sub for Matrix9<T>
+impl<T> Sub for Matrix3x3xM3x3<T>
 where
     T: Copy,
     Matrix3x3<T>: Neg<Output = Matrix3x3<T>>,
-    Matrix9<T>: Add<Output = Matrix9<T>>,
+    Matrix3x3xM3x3<T>: Add<Output = Matrix3x3xM3x3<T>>,
 {
     type Output = Self;
 
     /// Subtract two matrices.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(2.0);
-    /// let n = Matrix9f32::from_element(3.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
+    /// let n = Matrix3x3xM3x3f32::from_element(3.0);
     /// let r = m - n;
     ///
-    /// assert_eq!(r, Matrix9f32::from_element(-1.0));
+    /// assert_eq!(r, Matrix3x3xM3x3f32::from_element(-1.0));
     /// ```
     #[inline]
     fn sub(self, other: Self) -> Self {
@@ -468,19 +468,19 @@ where
 
 // **** SubAssign ****
 
-impl<T> SubAssign for Matrix9<T>
+impl<T> SubAssign for Matrix3x3xM3x3<T>
 where
     T: Copy,
-    Matrix9<T>: Sub<Output = Matrix9<T>>,
+    Matrix3x3xM3x3<T>: Sub<Output = Matrix3x3xM3x3<T>>,
 {
     /// Subtract one matrix from another.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(2.0);
-    /// let n = Matrix9f32::from_element(3.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
+    /// let n = Matrix3x3xM3x3f32::from_element(3.0);
     /// m -= n;
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(-1.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(-1.0));
     /// ```
     #[inline]
     fn sub_assign(&mut self, other: Self) {
@@ -490,19 +490,19 @@ where
 
 // **** Pre-multiply ****
 
-impl Mul<Matrix9<f32>> for f32 {
-    type Output = Matrix9<f32>;
+impl Mul<Matrix3x3xM3x3<f32>> for f32 {
+    type Output = Matrix3x3xM3x3<f32>;
 
     /// Pre-multiply a matrix by a scalar.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let r = 2.0 * m;
     ///
-    /// assert_eq!(r, Matrix9f32::from_element(4.0));
+    /// assert_eq!(r, Matrix3x3xM3x3f32::from_element(4.0));
     /// ```
     #[inline]
-    fn mul(self, other: Matrix9<f32>) -> Matrix9<f32> {
+    fn mul(self, other: Matrix3x3xM3x3<f32>) -> Matrix3x3xM3x3<f32> {
         let mut ret = other;
         for ii in 0..9 {
             ret.a[ii] *= self;
@@ -511,19 +511,19 @@ impl Mul<Matrix9<f32>> for f32 {
     }
 }
 
-impl Mul<Matrix9<f64>> for f64 {
-    type Output = Matrix9<f64>;
+impl Mul<Matrix3x3xM3x3<f64>> for f64 {
+    type Output = Matrix3x3xM3x3<f64>;
 
     /// Pre-multiply a matrix by a scalar.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let r = 2.0 * m;
     ///
-    /// assert_eq!(r, Matrix9f32::from_element(4.0));
+    /// assert_eq!(r, Matrix3x3xM3x3f32::from_element(4.0));
     /// ```
     #[inline]
-    fn mul(self, other: Matrix9<f64>) -> Matrix9<f64> {
+    fn mul(self, other: Matrix3x3xM3x3<f64>) -> Matrix3x3xM3x3<f64> {
         let mut ret = other;
         for ii in 0..9 {
             ret.a[ii] *= self;
@@ -534,7 +534,7 @@ impl Mul<Matrix9<f64>> for f64 {
 
 // **** Mul Scalar ****
 
-impl<T> Mul<T> for Matrix9<T>
+impl<T> Mul<T> for Matrix3x3xM3x3<T>
 where
     T: Copy + Matrix9x9Math,
     Matrix3x3<T>: Mul<T, Output = Matrix3x3<T>>,
@@ -543,11 +543,11 @@ where
 
     /// Multiply a matrix by a scalar.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let r = m * 2.0;
     ///
-    /// assert_eq!(r, Matrix9f32::from_element(4.0));
+    /// assert_eq!(r, Matrix3x3xM3x3f32::from_element(4.0));
     /// ```
     #[inline]
     fn mul(self, other: T) -> Self {
@@ -561,18 +561,18 @@ where
 
 // **** MulAssign ****
 
-impl<T> MulAssign<T> for Matrix9<T>
+impl<T> MulAssign<T> for Matrix3x3xM3x3<T>
 where
     T: Copy + Matrix9x9Math,
     Matrix3x3<T>: Mul<T, Output = Matrix3x3<T>>,
 {
     /// In-place multiply a matrix by a scalar.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
     /// m *= 2.0;
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(4.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(4.0));
     /// ```
     #[inline]
     fn mul_assign(&mut self, other: T) {
@@ -582,11 +582,11 @@ where
 
 // **** Mul ****
 
-impl<T> Mul<Matrix9<T>> for Matrix9<T>
+impl<T> Mul<Matrix3x3xM3x3<T>> for Matrix3x3xM3x3<T>
 where
     T: Copy + Matrix9x9Math,
     Matrix3x3<T>: Add<Output = Matrix3x3<T>> + Mul<Output = Matrix3x3<T>>,
-    Matrix9<T>: Zero,
+    Matrix3x3xM3x3<T>: Zero,
 {
     type Output = Self;
 
@@ -609,20 +609,20 @@ where
 
 // **** Div ****
 
-impl<T> Div<T> for Matrix9<T>
+impl<T> Div<T> for Matrix3x3xM3x3<T>
 where
     T: Copy + One + Div<Output = T>,
-    Matrix9<T>: Mul<T, Output = Matrix9<T>>,
+    Matrix3x3xM3x3<T>: Mul<T, Output = Matrix3x3xM3x3<T>>,
 {
     type Output = Self;
 
     /// Divide a matrix by a scalar.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let r = m / 2.0;
     ///
-    /// assert_eq!(r, Matrix9f32::from_element(1.0));
+    /// assert_eq!(r, Matrix3x3xM3x3f32::from_element(1.0));
     /// ```
     #[inline]
     fn div(self, other: T) -> Self {
@@ -633,18 +633,18 @@ where
 
 // **** DivAssign ****
 
-impl<T> DivAssign<T> for Matrix9<T>
+impl<T> DivAssign<T> for Matrix3x3xM3x3<T>
 where
     T: Copy + One + Div,
-    Matrix9<T>: Div<T, Output = Matrix9<T>>,
+    Matrix3x3xM3x3<T>: Div<T, Output = Matrix3x3xM3x3<T>>,
 {
     /// In-place divide a matrix by a scalar.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
     /// m /= 2.0;
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(1.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(1.0));
     /// ```
     #[inline]
     fn div_assign(&mut self, other: T) {
@@ -654,13 +654,13 @@ where
 
 // **** AsRef ****
 
-impl<T> AsRef<[Matrix3x3<T>; 9]> for Matrix9<T> {
+impl<T> AsRef<[Matrix3x3<T>; 9]> for Matrix3x3xM3x3<T> {
     /// Immutable reference to the raw array.
     /// ```
-    /// # use vqm::{Matrix9f32, Matrix3x3f32};
-    /// let mut m = Matrix9f32::from_element(2.0);
+    /// # use vqm::{Matrix3x3xM3x3f32, Matrix3x3f32};
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let a: &[Matrix3x3f32; 9] = m.as_ref();
-    /// assert_eq!(2.0, a[Matrix9f32::M21][Matrix9f32::M11]);
+    /// assert_eq!(2.0, a[Matrix3x3xM3x3f32::M21][Matrix3x3xM3x3f32::M11]);
     /// ```
     #[inline]
     fn as_ref(&self) -> &[Matrix3x3<T>; 9] {
@@ -668,11 +668,11 @@ impl<T> AsRef<[Matrix3x3<T>; 9]> for Matrix9<T> {
     }
 }
 
-impl<T> AsMut<[Matrix3x3<T>; 9]> for Matrix9<T> {
+impl<T> AsMut<[Matrix3x3<T>; 9]> for Matrix3x3xM3x3<T> {
     /// Mutable reference to the raw array.
     /// ```
-    /// # use vqm::{Matrix9f32, Matrix3x3f32};
-    /// let mut m = Matrix9f32::from_element(2.0);
+    /// # use vqm::{Matrix3x3xM3x3f32, Matrix3x3f32};
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let a: &mut [Matrix3x3f32; 9] = m.as_mut();
     /// a[4][3] = 7.0;
     /// assert_eq!(7.0, m[4][3]);
@@ -685,7 +685,7 @@ impl<T> AsMut<[Matrix3x3<T>; 9]> for Matrix9<T> {
 
 // **** Deref ****
 
-impl<T> Deref for Matrix9<T> {
+impl<T> Deref for Matrix3x3xM3x3<T> {
     type Target = [Matrix3x3<T>];
 
     #[inline]
@@ -694,7 +694,7 @@ impl<T> Deref for Matrix9<T> {
     }
 }
 
-impl<T> DerefMut for Matrix9<T> {
+impl<T> DerefMut for Matrix3x3xM3x3<T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut [Matrix3x3<T>] {
         &mut self.a
@@ -703,7 +703,7 @@ impl<T> DerefMut for Matrix9<T> {
 
 // **** Index ****
 
-impl<T> Index<usize> for Matrix9<T> {
+impl<T> Index<usize> for Matrix3x3xM3x3<T> {
     type Output = Matrix3x3<T>;
 
     /// Access matrix element by index.
@@ -713,7 +713,7 @@ impl<T> Index<usize> for Matrix9<T> {
     }
 }
 
-impl<T> Index<Range<usize>> for Matrix9<T> {
+impl<T> Index<Range<usize>> for Matrix3x3xM3x3<T> {
     type Output = [Matrix3x3<T>];
 
     #[inline]
@@ -722,7 +722,7 @@ impl<T> Index<Range<usize>> for Matrix9<T> {
     }
 }
 
-impl<T> Index<RangeFull> for Matrix9<T> {
+impl<T> Index<RangeFull> for Matrix3x3xM3x3<T> {
     type Output = [Matrix3x3<T>];
 
     #[inline]
@@ -731,7 +731,7 @@ impl<T> Index<RangeFull> for Matrix9<T> {
     }
 }
 
-impl<T> Index<RangeInclusive<usize>> for Matrix9<T> {
+impl<T> Index<RangeInclusive<usize>> for Matrix3x3xM3x3<T> {
     type Output = [Matrix3x3<T>];
 
     #[inline]
@@ -740,7 +740,7 @@ impl<T> Index<RangeInclusive<usize>> for Matrix9<T> {
     }
 }
 
-impl<T> Index<(usize, usize)> for Matrix9<T> {
+impl<T> Index<(usize, usize)> for Matrix3x3xM3x3<T> {
     type Output = Matrix3x3<T>;
 
     /// Access matrix element by ordered pair (row, column).
@@ -753,7 +753,7 @@ impl<T> Index<(usize, usize)> for Matrix9<T> {
 
 // **** IndexMut ****
 
-impl<T> IndexMut<usize> for Matrix9<T> {
+impl<T> IndexMut<usize> for Matrix3x3xM3x3<T> {
     /// Set matrix element by index.
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Matrix3x3<T> {
@@ -761,28 +761,28 @@ impl<T> IndexMut<usize> for Matrix9<T> {
     }
 }
 
-impl<T> IndexMut<Range<usize>> for Matrix9<T> {
+impl<T> IndexMut<Range<usize>> for Matrix3x3xM3x3<T> {
     #[inline]
     fn index_mut(&mut self, index: Range<usize>) -> &mut [Matrix3x3<T>] {
         &mut self.a[index]
     }
 }
 
-impl<T> IndexMut<RangeFull> for Matrix9<T> {
+impl<T> IndexMut<RangeFull> for Matrix3x3xM3x3<T> {
     #[inline]
     fn index_mut(&mut self, _index: RangeFull) -> &mut [Matrix3x3<T>] {
         &mut self.a
     }
 }
 
-impl<T> IndexMut<RangeInclusive<usize>> for Matrix9<T> {
+impl<T> IndexMut<RangeInclusive<usize>> for Matrix3x3xM3x3<T> {
     #[inline]
     fn index_mut(&mut self, index: RangeInclusive<usize>) -> &mut [Matrix3x3<T>] {
         &mut self.a[index]
     }
 }
 
-impl<T> IndexMut<(usize, usize)> for Matrix9<T> {
+impl<T> IndexMut<(usize, usize)> for Matrix3x3xM3x3<T> {
     /// Set matrix element by ordered pair (row, column).
     #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut Matrix3x3<T> {
@@ -791,18 +791,18 @@ impl<T> IndexMut<(usize, usize)> for Matrix9<T> {
     }
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy,
 {
     /// Return matrix diagonal as an array.
     /// ```
-    /// # use vqm::Matrix9f32;
+    /// # use vqm::Matrix3x3xM3x3f32;
     ///
-    /// let m = Matrix9f32::from_element(2.0);
+    /// let m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let a = m.diagonal_as_array();
     ///
-    /// assert_eq!(2.0, a[Matrix9f32::M11][Matrix9f32::M22]);
+    /// assert_eq!(2.0, a[Matrix3x3xM3x3f32::M11][Matrix3x3xM3x3f32::M22]);
     /// ```
     pub fn diagonal_as_array(self) -> [Matrix3x3<T>; 3] {
         [
@@ -815,19 +815,19 @@ where
 
 // **** abs ****
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + Matrix3x3Math,
     Matrix3x3<T>: Copy + Neg,
-    Matrix9<T>: Copy + Neg,
+    Matrix3x3xM3x3<T>: Copy + Neg,
 {
     /// Return a copy of the matrix with all elements set to their absolute values.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(-2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(-2.0);
     /// let n = m.abs();
     ///
-    /// assert_eq!(n, Matrix9f32::from_element(2.0));
+    /// assert_eq!(n, Matrix3x3xM3x3f32::from_element(2.0));
     /// ```
     #[inline]
     #[must_use]
@@ -841,11 +841,11 @@ where
 
     /// Set all elements of the matrix to their absolute values.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(-2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(-2.0);
     /// m.abs_in_place();
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(2.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(2.0));
     /// ```
     #[inline]
     pub fn abs_in_place(&mut self) -> &mut Self {
@@ -856,18 +856,18 @@ where
 
 // **** clamp ****
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + FloatCore,
 {
     /// Return a copy of the matrix with all elements clamped to the specified range.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let m = Matrix9f32::from_element(-2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let m = Matrix3x3xM3x3f32::from_element(-2.0);
     ///
     /// let n = m.clamp(7.0, 17.0);
     ///
-    /// assert_eq!(n, Matrix9f32::from_element(7.0));
+    /// assert_eq!(n, Matrix3x3xM3x3f32::from_element(7.0));
     /// ```
     #[inline]
     #[must_use]
@@ -881,11 +881,11 @@ where
 
     /// Clamp all elements of the matrix to the specified range.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(-2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(-2.0);
     /// m.clamp_in_place(7.0, 17.0);
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(7.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(7.0));
     /// ```
     #[inline]
     pub fn clamp_in_place(&mut self, min: T, max: T) -> &mut Self {
@@ -894,17 +894,17 @@ where
     }
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy,
 {
     /// Return the transpose of this matrix.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
     /// let n = m.transpose();
     ///
-    /// assert_eq!(n, Matrix9f32::from_element(2.0));
+    /// assert_eq!(n, Matrix3x3xM3x3f32::from_element(2.0));
     /// ```
     #[inline]
     #[must_use]
@@ -914,11 +914,11 @@ where
 
     /// Transpose matrix, in-place.
     /// ```
-    /// # use vqm::Matrix9f32;
-    /// let mut m = Matrix9f32::from_element(2.0);
+    /// # use vqm::Matrix3x3xM3x3f32;
+    /// let mut m = Matrix3x3xM3x3f32::from_element(2.0);
     /// m.transpose_in_place();
     ///
-    /// assert_eq!(m, Matrix9f32::from_element(2.0));
+    /// assert_eq!(m, Matrix3x3xM3x3f32::from_element(2.0));
     /// ```
     #[inline]
     pub fn transpose_in_place(&mut self) -> &mut Self {
@@ -927,7 +927,7 @@ where
     }
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + Add<Output = T> + Matrix3x3Math,
 {
@@ -938,7 +938,7 @@ where
     }
 }
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + Zero + One + Matrix3x3Math + MathConstants + PartialOrd + FloatCore,
 {
@@ -965,7 +965,7 @@ where
 
 // **** Symmetry ****
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy + One + Add<Output = T> + Div<Output = T> + Matrix3x3Math,
     Matrix3x3<T>: Add<Output = Matrix3x3<T>>,
@@ -998,7 +998,7 @@ where
 
 // **** Iterators ****
 
-impl<T> Matrix9<T>
+impl<T> Matrix3x3xM3x3<T>
 where
     T: Copy,
 {
@@ -1028,7 +1028,7 @@ where
 
 // **** Column Iterators ****
 
-impl<T> Matrix9<T> {
+impl<T> Matrix3x3xM3x3<T> {
     #[inline]
     pub fn iter_columns(&self) -> Matrix9Columns<'_, T> {
         Matrix9Columns::new(self)
@@ -1040,13 +1040,13 @@ impl<T> Matrix9<T> {
 /// A custom iterator over the read-only columns of a 9x9 matrix.
 #[derive(Debug)]
 pub struct Matrix9Columns<'a, T> {
-    matrix: &'a Matrix9<T>,
+    matrix: &'a Matrix3x3xM3x3<T>,
     index: usize,
 }
 
 impl<'a, T> Matrix9Columns<'a, T> {
     #[inline]
-    fn new(matrix: &'a Matrix9<T>) -> Self {
+    fn new(matrix: &'a Matrix3x3xM3x3<T>) -> Self {
         Self { matrix, index: 0 }
     }
 }
@@ -1094,11 +1094,11 @@ impl<T: Copy> core::iter::FusedIterator for Matrix9Columns<'_, T> {}
 
 // **** From Matrix ****
 
-impl<T: Copy> From<Matrix9<T>> for Matrix2x2<T> {
+impl<T: Copy> From<Matrix3x3xM3x3<T>> for Matrix2x2<T> {
     /// Matrix2x2 from Matrix9. Takes top left of m9, discarding other values.
     #[rustfmt::skip]
     #[inline]
-    fn from(m: Matrix9<T>) -> Self {
+    fn from(m: Matrix3x3xM3x3<T>) -> Self {
         Self { a: [
             m.a[0].a[0], m.a[0].a[3],
             m.a[0].a[1], m.a[0].a[4],
@@ -1106,11 +1106,11 @@ impl<T: Copy> From<Matrix9<T>> for Matrix2x2<T> {
     }
 }
 
-impl<T: Copy> From<Matrix9<T>> for Matrix3x3<T> {
+impl<T: Copy> From<Matrix3x3xM3x3<T>> for Matrix3x3<T> {
     /// Matrix3x3 from Matrix9. Takes top left of m9, discarding other values.
     #[rustfmt::skip]
     #[inline]
-    fn from(m: Matrix9<T>) -> Self {
+    fn from(m: Matrix3x3xM3x3<T>) -> Self {
         Self { a: [
             m.a[0].a[0], m.a[0].a[3], m.a[0].a[6],
             m.a[0].a[1], m.a[0].a[4], m.a[0].a[7],
@@ -1119,11 +1119,11 @@ impl<T: Copy> From<Matrix9<T>> for Matrix3x3<T> {
     }
 }
 
-impl<T: Copy> From<Matrix9<T>> for Matrix4x4<T> {
+impl<T: Copy> From<Matrix3x3xM3x3<T>> for Matrix4x4<T> {
     /// Matrix4x4 from Matrix9. Takes top left of m9, discarding other values.
     #[rustfmt::skip]
     #[inline]
-    fn from(m: Matrix9<T>) -> Self {
+    fn from(m: Matrix3x3xM3x3<T>) -> Self {
         Self { a: [
             m.a[0].a[0], m.a[0].a[3], m.a[0].a[6],    m.a[3].a[0],
             m.a[0].a[1], m.a[0].a[4], m.a[0].a[7],    m.a[3].a[1],
@@ -1134,8 +1134,8 @@ impl<T: Copy> From<Matrix9<T>> for Matrix4x4<T> {
     }
 }
 
-impl<T: Copy + Zero> From<Matrix9<T>> for Matrix9x9<T> {
-    fn from(src: Matrix9<T>) -> Self {
+impl<T: Copy + Zero> From<Matrix3x3xM3x3<T>> for Matrix9x9<T> {
+    fn from(src: Matrix3x3xM3x3<T>) -> Self {
         let mut ret = Self::default();
         for block_col in 0..3 {
             for block_row in 0..3 {
@@ -1153,7 +1153,7 @@ impl<T: Copy + Zero> From<Matrix9<T>> for Matrix9x9<T> {
     }
 }
 
-impl<T: Copy> From<Matrix9x9<T>> for Matrix9<T> {
+impl<T: Copy> From<Matrix9x9<T>> for Matrix3x3xM3x3<T> {
     fn from(src: Matrix9x9<T>) -> Self {
         Self {
             a: core::array::from_fn(|block| {
@@ -1173,7 +1173,7 @@ impl<T: Copy> From<Matrix9x9<T>> for Matrix9<T> {
     }
 }
 
-impl<T: Copy> From<[Matrix3x3<T>; 9]> for Matrix9<T> {
+impl<T: Copy> From<[Matrix3x3<T>; 9]> for Matrix3x3xM3x3<T> {
     #[inline]
     fn from(m: [Matrix3x3<T>; 9]) -> Self {
         Self { a: [m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]] }

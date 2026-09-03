@@ -126,7 +126,7 @@ mod test_traits {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use vqm::{Matrix3x3f32, Matrix9, Matrix9f32};
+    use vqm::{Matrix3x3f32, Matrix3x3xM3x3, Matrix3x3xM3x3f32};
 
     #[rustfmt::skip]
     #[test]
@@ -145,7 +145,7 @@ mod tests {
             19.0, 29.0, 39.0,   49.0, 59.0, 69.0,   79.0, 89.0, 99.0,
         ]);
 
-        let matrix9 = Matrix9::from(matrix9x9);
+        let matrix9 = Matrix3x3xM3x3::from(matrix9x9);
         let converted_back = Matrix9x9f32::from(matrix9);
 
         for i in 0..81 {
@@ -210,7 +210,7 @@ mod tests {
 
         let pv = Matrix3x3f32::new([4.0, 13.0, 22.0, 5.0, 14.0, 23.0, 6.0, 15.0, 24.0]);
 
-        let mut m9 = Matrix9f32::default();
+        let mut m9 = Matrix3x3xM3x3f32::default();
         m9[PP] = pp;
         m9[VP] = vp;
         m9[BP] = bp;
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn matrix9_columns() {
         #[rustfmt::skip]
-        let m9  = Matrix9f32::new([
+        let m9  = Matrix3x3xM3x3f32::new([
             1.0,  2.0,  3.0,  4.0,  5.0,  6.0, 7.0,  8.0,  9.0,
             10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
             19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0,

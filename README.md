@@ -22,12 +22,14 @@ Each type has versions for `f32` and `f64`. So we have:
 5. 2x2 matrices: `Matrix2x2f32`, `Matrix2x2f64`
 6. 3x3 matrices: `Matrix3x3f32`, `Matrix3x3f64`
 7. 4x4 matrices: `Matrix4x4f32`, `Matrix4x4f64`
-8. 9x9 matrices: `Matrix9x9f32`, `Matrix9x9f64` - partial implementation with special functions for Kalman filters.
-9. 9x9 matrices: `Matrix9f32`, `Matrix9f64` - 9x9 matrix stored as nine 3x3 matrices, another partial implementation with special functions for Kalman filters.
+8. 9x9 matrices: `Matrix9x9f32`, `Matrix9x9f64`
+9. 3x3xM2x2 matrices: `Matrix3x3xM2x2f32`, `Matrix3x3xM2x2f64`
+10. 3x3xM3x3 matrices: `Matrix3x3xM3x3f32`, `Matrix3x3xM3x3f64`
 
 Quaternions are implemented using the Hamilton convention.
 
 Matrix elements are stored in a one-dimensional array, stored in column-major order.
+`Matrix9x9`, `Matrix3x3xM2x2`, and `Matrix3x3xM3x3` are partial implementations to support Kalman filters.
 
 (Under the hood, types are implemented using generics, so `Vector3f32` is actually `Vector3<f32>`,
 but that is transparent to the user.)
@@ -155,9 +157,10 @@ A specialization generally won't be considered for inclusion to support a single
 
 `vqm` has additional functionality specifically to support Kalman filters. This includes:
 
-1. `Matrix9` - a 9x9 matrix implemented as an array of 9 `Matrix3x3`s.
-2. `Matrix3x3::mul_diagonal_vector` - multiplies vector which is treated as a diagonal matrix by a matrix.
-3. `Matrix3x3::add_diagonal_vector` - adds a vector which is treated as a diagonal matrix to a matrix.
+1. `Matrix3x3xM2x2` - a 3x3 matrix matrix of `Matrix2x2`s (so effectively a 6x6 matrix).
+2. `Matrix3x3xM3x3` - a 3x3 matrix matrix of `Matrix3x3`s (so effectively a 9x9 matrix).
+3. `Matrix3x3::mul_diagonal_vector` - multiplies vector which is treated as a diagonal matrix by a matrix.
+4. `Matrix3x3::add_diagonal_vector` - adds a vector which is treated as a diagonal matrix to a matrix.
 
 ## SIMD support
 

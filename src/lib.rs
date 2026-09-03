@@ -40,9 +40,12 @@ mod matrix2x2_math;
 mod matrix3x3;
 mod matrix3x3_math;
 
+mod matrix3x3_m2x2;
+mod matrix3x3_m3x3;
+
 mod matrix4x4;
 mod matrix4x4_math;
-mod matrix9;
+
 mod matrix9x9;
 mod matrix9x9_math;
 
@@ -53,7 +56,7 @@ mod roll_pitch_yaw;
 pub use math_constants::MathConstants;
 pub use math_methods::MathMethods;
 
-// The trigonometric approximation functions need to be pub for benchmarking, but are not documented for general use.
+// The trigonometric approximation functions need to be `pub` for benchmarking, but are not documented for general use.
 #[doc(hidden)]
 pub use math_approximations::{cos_approx_f32, sin_approx_f32, sin_cos_approx_f32}; // needed for benchmarks
 
@@ -74,9 +77,11 @@ pub use matrix2x2_math::Matrix2x2Math;
 pub use matrix3x3::{Matrix3x3, Matrix3x3f32, Matrix3x3f64};
 pub use matrix3x3_math::Matrix3x3Math;
 
+pub use matrix3x3_m2x2::{Matrix3x3xM2x2, Matrix3x3xM2x2f32, Matrix3x3xM2x2f64};
+pub use matrix3x3_m3x3::{Matrix3x3xM3x3, Matrix3x3xM3x3f32, Matrix3x3xM3x3f64};
+
 pub use matrix4x4::{Matrix4x4, Matrix4x4f32, Matrix4x4f64};
 pub use matrix4x4_math::Matrix4x4Math;
 
-pub use matrix9::{Matrix9, Matrix9f32, Matrix9f64};
 pub use matrix9x9::{Matrix9x9, Matrix9x9f32, Matrix9x9f64};
 pub use matrix9x9_math::Matrix9x9Math;
