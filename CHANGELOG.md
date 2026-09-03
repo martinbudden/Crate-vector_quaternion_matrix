@@ -21,6 +21,22 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 At some point [0.1.0] to [0.1.14] will be [YANKED]
 
+## [0.1.16] - 2026-09-xx
+
+### Added
+
+- `add_diagonal`, `add_diagonal_scalar`, `add_diagonal_vector` and `add_diagonal_array` functions to matrices.
+
+### Changed
+
+- fixed `enforce_symmetry` in `Matrix9`.
+- renamed `mul_diag*` functions to `mul_diagonal*`.
+
+### Removed
+
+- `outer_product` from `Matrix9` and `Matrix9x9`.
+- `multiply_9x3_by_3x3` and `extract_9x3_array` from `Matrix9x9`.
+
 ## [0.1.15] - 2026-09-01
 
 ### Added
