@@ -21,7 +21,7 @@ Once the API has stabilized this project will adopt semantic versioning, the fir
 
 At some point [0.1.0] to [0.1.14] will be [YANKED]
 
-## [0.1.16] - 2026-09-xx
+## [0.1.16] - 2026-09-05
 
 ### Added
 
@@ -126,7 +126,7 @@ At some point [0.1.0] to [0.1.14] will be [YANKED]
 - examples to `README.md`.
 - `Display` trait to vectors.
 
-### Changed
+### Fixed
 
 - fixed `atan2` parameter order error..
 
@@ -181,9 +181,12 @@ At some point [0.1.0] to [0.1.14] will be [YANKED]
 
 ### Changed
 
-- fixes to `Cargo.toml`, especially better handling of features.
 - default no longer includes `serde`.
 - release build no longer dependent on `approx` crate.
+
+### Fixed
+
+- fixes to `Cargo.toml`, especially better handling of features.
 - fixed bug in `quaternion` `rotate`.
 
 ## [0.1.6] - 2026-05-16
